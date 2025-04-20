@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Mini Budget</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <header>
+        <h1>Mini Budget</h1>
+        <div id="summary"></div>
+    </header>
+
+    <main>
+        <ul id="expense-list"></ul>
+    </main>
+
+    <form id="expense-form">
+        <select id="category">
+            <option value="Топливо">Топливо</option>
+            <option value="Сервис">Сервис</option>
+            <option value="Ремонт">Ремонт</option>
+            <option value="Страховка">Страховка</option>
+            <option value="Мойка">Мойка</option>
+            <option value="Шины">Шины</option>
+            <option value="Тюнинг">Тюнинг</option>
+            <option value="Другое">Другое</option>
+        </select>
+        <input type="number" id="amount" placeholder="Сумма (€)" required />
+        <input type="number" id="mileage" placeholder="Пробег (км)" />
+        <input type="date" id="date" />
+        <input type="text" id="note" placeholder="Комментарий" />
+        <button type="submit">Добавить</button>
+    </form>
+
+    <script src="script.js"></script>
+</body>
+</html>

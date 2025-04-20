@@ -1,0 +1,41 @@
+
+body {
+    margin: 0;
+    font-family: sans-serif;
+    background: white;
+    color: black;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+header {
+    padding: 1em;
+    background: black;
+    color: white;
+    text-align: center;
+}
+main {
+    flex: 1;
+    padding: 1em;
+}
+form {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 1em;
+    border-top: 2px solid black;
+    background: #f4f4f4;
+}
+form input, form select, form button {
+    margin: 0.5em;
+    padding: 0.5em;
+    flex: 1 1 150px;
+    font-size: 1em;
+}
+ul {
+    list-style: none;
+    padding: 0;
+}
+li {
+    border-bottom: 1px solid #ccc;
+    padding: 0.5em 0;
+}
