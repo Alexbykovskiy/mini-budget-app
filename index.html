@@ -20,15 +20,15 @@
       <select id="filter-category">
         <option value="Все">Все категории</option>
         <option value="Топливо">Топливо</option>
+        <option value="Парковка">Парковка</option>
         <option value="Сервис">Сервис</option>
         <option value="Ремонт">Ремонт</option>
         <option value="Штрафы">Штрафы</option>
-        <option value="Парковка">Парковка</option>
         <option value="Страховка">Страховка</option>
         <option value="Шины">Шины</option>
         <option value="Тюнинг">Тюнинг</option>
         <option value="Мойка">Мойка</option>
-        <option value="Виньетки/Платные">Виньетки/Платные</option>
+        <option value="Виньетка/Платные дороги">Виньетка/Платные дороги</option>
         <option value="Другое">Другое</option>
       </select>
 
@@ -48,6 +48,7 @@
   </main>
 
   <form id="expense-form">
+    <input type="hidden" id="edit-id" />
     <select id="category">
       <option value="Топливо">Топливо</option>
       <option value="Парковка">Парковка</option>
@@ -58,7 +59,7 @@
       <option value="Шины">Шины</option>
       <option value="Тюнинг">Тюнинг</option>
       <option value="Мойка">Мойка</option>
-      <option value="Виньетки/Платные дороги">Виньетки/Платные дороги</option>
+      <option value="Виньетка/Платные дороги">Виньетка/Платные дороги</option>
       <option value="Другое">Другое</option>
     </select>
     <input type="number" id="amount" placeholder="Сумма €" required />
@@ -67,7 +68,7 @@
     <input type="text" id="tag" placeholder="#тег" />
     <input type="date" id="date" required />
     <input type="text" id="note" placeholder="Комментарий" />
-    <button type="submit">Добавить</button>
+    <button type="submit">Добавить / Сохранить</button>
   </form>
 
   <script src="firebase-config.js"></script>

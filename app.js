@@ -16,6 +16,11 @@ function renderExpenses(data) {
     total += Number(exp.amount);
     const li = document.createElement('li');
     li.innerHTML = `#${index + 1} [${exp.category}] €${exp.amount} | ${exp.date || "—"} | ${exp.note || ""} ${exp.mileage ? '| ' + exp.mileage + ' км' : ''} ${exp.tag ? '| #' + exp.tag : ''}`;
+
+    const editBtn = document.createElement('button');
+    editBtn.textContent = "✏️";
+    editBtn.onclick = () => fillFormForEdit(exp);
+
     const delBtn = document.createElement('button');
     delBtn.textContent = "❌";
     delBtn.onclick = () => {
@@ -23,6 +28,8 @@ function renderExpenses(data) {
         db.collection("users").doc(profileCode).collection("expenses").doc(exp.id).delete();
       }
     };
+
+    li.appendChild(editBtn);
     li.appendChild(delBtn);
     list.appendChild(li);
   });
@@ -38,8 +45,20 @@ function loadExpenses() {
     });
 }
 
+function fillFormForEdit(exp) {
+  document.getElementById('edit-id').value = exp.id;
+  document.getElementById('category').value = exp.category;
+  document.getElementById('amount').value = exp.amount;
+  document.getElementById('liters').value = exp.liters || '';
+  document.getElementById('mileage').value = exp.mileage || '';
+  document.getElementById('date').value = exp.date;
+  document.getElementById('note').value = exp.note || '';
+  document.getElementById('tag').value = exp.tag || '';
+}
+
 form.onsubmit = (e) => {
   e.preventDefault();
+  const id = document.getElementById('edit-id').value;
   const category = document.getElementById('category').value;
   const amount = document.getElementById('amount').value;
   const mileage = document.getElementById('mileage').value;
@@ -49,8 +68,15 @@ form.onsubmit = (e) => {
   const tag = document.getElementById('tag').value.replace('#', '');
 
   const data = { category, amount, mileage, liters, date, note, tag };
-  db.collection("users").doc(profileCode).collection("expenses").add(data)
-    .then(() => form.reset());
+  const ref = db.collection("users").doc(profileCode).collection("expenses");
+
+  if (id) {
+    ref.doc(id).update(data);
+  } else {
+    ref.add(data);
+  }
+
+  form.reset();
 };
 
 function applyFilters() {
