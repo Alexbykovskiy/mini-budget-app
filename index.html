@@ -9,16 +9,9 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <div id="theme-toggle">
-    <label class="switch">
-      <input type="checkbox" id="mode-switch" onchange="toggleTheme()" />
-      <span class="slider"></span>
-    </label>
-  </div>
-
   <header>
-    <h1>Mini Budget</h1>
-    <div id="summary"></div>
+    <h1 style="color: white">Mini Budget</h1>
+    <div id="summary" style="color: white"></div>
     <div id="filters">
       <input type="date" id="filter-from" placeholder="От" />
       <input type="date" id="filter-to" placeholder="До" />
@@ -77,10 +70,5 @@
 
   <script src="firebase-config.js"></script>
   <script src="app.js"></script>
-  <script>
-    function toggleTheme() {
-      document.body.classList.toggle('night');
-    }
-  </script>
 </body>
 </html>
