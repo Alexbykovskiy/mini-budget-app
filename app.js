@@ -16,7 +16,20 @@ function renderExpenses(data) {
     total += Number(exp.amount);
     const li = document.createElement('li');
     li.setAttribute('data-category', exp.category);
-    li.innerHTML = `#${index + 1} [${exp.category}] €${exp.amount} | ${exp.date || "—"} | ${exp.note || ""} ${exp.mileage ? '| ' + exp.mileage + ' км' : ''} ${exp.tag ? '| #' + exp.tag : ''}`;
+
+    const infoBlock = document.createElement('div');
+    infoBlock.className = 'expense-info';
+
+    const pill = (text) => `<span class="pill">${text}</span>`;
+
+    infoBlock.innerHTML =
+      pill(`#${index + 1}`) +
+      pill(exp.category) +
+      pill(`€${exp.amount}`) +
+      (exp.date ? pill(exp.date) : '') +
+      (exp.mileage ? pill(`${exp.mileage} км`) : '') +
+      (exp.tag ? pill(`#${exp.tag}`) : '') +
+      (exp.note ? `<div class="note">${exp.note}</div>` : '');
 
     const editBtn = document.createElement('button');
     editBtn.innerHTML = `<svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 0 0 0-1.41l-2.34-2.34a1.003 1.003 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`;
@@ -30,6 +43,7 @@ function renderExpenses(data) {
       }
     };
 
+    li.appendChild(infoBlock);
     li.appendChild(editBtn);
     li.appendChild(delBtn);
     list.appendChild(li);
