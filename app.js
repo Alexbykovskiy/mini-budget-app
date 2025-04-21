@@ -15,7 +15,7 @@ function renderExpenses(data) {
   data.forEach((exp, index) => {
     total += Number(exp.amount);
     const li = document.createElement('li');
-    li.innerHTML = `#${index + 1} [${exp.category}] €${exp.amount} | ${exp.date || "—"} | ${exp.note || ""} ${exp.tag ? '#' + exp.tag : ''}`;
+    li.innerHTML = `#${index + 1} [${exp.category}] €${exp.amount} | ${exp.date || "—"} | ${exp.note || ""} ${exp.mileage ? '| ' + exp.mileage + ' км' : ''} ${exp.tag ? '| #' + exp.tag : ''}`;
     const delBtn = document.createElement('button');
     delBtn.textContent = "❌";
     delBtn.onclick = () => {
@@ -57,11 +57,17 @@ function applyFilters() {
   const from = document.getElementById("filter-from").value;
   const to = document.getElementById("filter-to").value;
   const tag = document.getElementById("filter-tag").value.replace('#', '');
+  const categoryFilter = document.getElementById("filter-category")?.value;
+  const rowStart = parseInt(document.getElementById("filter-row-start")?.value);
+  const rowEnd = parseInt(document.getElementById("filter-row-end")?.value);
 
   let filtered = expenses;
   if (from) filtered = filtered.filter(e => e.date >= from);
   if (to) filtered = filtered.filter(e => e.date <= to);
   if (tag) filtered = filtered.filter(e => e.tag === tag);
+  if (categoryFilter && categoryFilter !== "Все") filtered = filtered.filter(e => e.category === categoryFilter);
+  if (!isNaN(rowStart) && !isNaN(rowEnd)) filtered = filtered.slice(rowStart - 1, rowEnd);
+
   renderExpenses(filtered);
 }
 

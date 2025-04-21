@@ -16,6 +16,25 @@
       <input type="date" id="filter-from" placeholder="От" />
       <input type="date" id="filter-to" placeholder="До" />
       <input type="text" id="filter-tag" placeholder="#тег" />
+
+      <select id="filter-category">
+        <option value="Все">Все категории</option>
+        <option value="Топливо">Топливо</option>
+        <option value="Сервис">Сервис</option>
+        <option value="Ремонт">Ремонт</option>
+        <option value="Штрафы">Штрафы</option>
+        <option value="Парковка">Парковка</option>
+        <option value="Страховка">Страховка</option>
+        <option value="Шины">Шины</option>
+        <option value="Тюнинг">Тюнинг</option>
+        <option value="Мойка">Мойка</option>
+        <option value="Виньетки/Платные">Виньетки/Платные</option>
+        <option value="Другое">Другое</option>
+      </select>
+
+      <input type="number" id="filter-row-start" placeholder="С строки №" min="1" style="width:120px;" />
+      <input type="number" id="filter-row-end" placeholder="По строку №" min="1" style="width:120px;" />
+
       <button onclick="applyFilters()">Применить</button>
     </div>
   </header>
@@ -31,15 +50,15 @@
   <form id="expense-form">
     <select id="category">
       <option value="Топливо">Топливо</option>
+      <option value="Парковка">Парковка</option>
       <option value="Сервис">Сервис</option>
       <option value="Ремонт">Ремонт</option>
       <option value="Штрафы">Штрафы</option>
-      <option value="Парковка">Парковка</option>
       <option value="Страховка">Страховка</option>
       <option value="Шины">Шины</option>
       <option value="Тюнинг">Тюнинг</option>
       <option value="Мойка">Мойка</option>
-      <option value="Виньетки/Платные">Виньетки/Платные</option>
+      <option value="Виньетки/Платные дороги">Виньетки/Платные дороги</option>
       <option value="Другое">Другое</option>
     </select>
     <input type="number" id="amount" placeholder="Сумма €" required />
