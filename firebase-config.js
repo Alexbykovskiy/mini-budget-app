@@ -5,6 +5,7 @@ const profileCode = "mini";
 const form = document.getElementById('expense-form');
 const list = document.getElementById('expense-list');
 const summary = document.getElementById('summary');
+const categoryInput = document.getElementById('category');
 
 let expenses = [];
 
