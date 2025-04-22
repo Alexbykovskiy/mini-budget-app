@@ -1,5 +1,3 @@
-
-// Firebase Firestore
 const db = firebase.firestore();
 const profileCode = "mini";
 
