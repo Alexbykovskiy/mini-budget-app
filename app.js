@@ -4,7 +4,7 @@ const profileCode = "mini";
 const form = document.getElementById('expense-form');
 const list = document.getElementById('expense-list');
 const summary = document.getElementById('summary');
-
+let expenseChart;
 let expenses = [];
 
 function renderExpenses(data) {
@@ -47,6 +47,7 @@ function renderExpenses(data) {
     list.appendChild(li);
   });
   summary.textContent = `Всего: €${total.toFixed(2)}`;
+  updateChart(data);
 }
 
 function loadExpenses() {
@@ -108,6 +109,82 @@ function applyFilters() {
   if (!isNaN(rowStart) && !isNaN(rowEnd)) filtered = filtered.slice(rowStart - 1, rowEnd);
 
   renderExpenses(filtered);
+}
+
+function updateChart(data) {
+  const totals = {};
+  let total = 0;
+
+  data.forEach(e => {
+    if (!totals[e.category]) totals[e.category] = 0;
+    totals[e.category] += Number(e.amount);
+    total += Number(e.amount);
+  });
+
+  const categories = Object.keys(totals);
+  const values = categories.map(cat => totals[cat]);
+  const colors = {
+    "Топливо": "#D2AF94",
+    "Парковка": "#186663",
+    "Сервис": "#A6B5B4",
+    "Ремонт": "#8C7361",
+    "Штрафы": "#002D37",
+    "Страховка": "#5E8C8A",
+    "Шины": "#C4B59F",
+    "Тюнинг": "#7F6A93",
+    "Мойка": "#71A1A5",
+    "Виньетка/Платные дороги": "#A58C7D",
+    "Другое": "#5B5B5B"
+  };
+
+  const background = categories.map(cat => colors[cat] || '#999');
+  const centerLabel = `€${total.toFixed(2)}`;
+
+  if (expenseChart) expenseChart.destroy();
+
+  const ctx = document.getElementById('expenseChart').getContext('2d');
+  expenseChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: categories.map(c => `${c}`),
+      datasets: [{
+        data: values,
+        backgroundColor: background
+      }]
+    },
+    options: {
+      cutout: '65%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const val = context.parsed;
+              const perc = ((val / total) * 100).toFixed(1);
+              return `${perc}% — €${val.toFixed(2)}`;
+            }
+          }
+        },
+        datalabels: { display: false },
+        centerText: {
+          display: true,
+          text: centerLabel
+        }
+      }
+    },
+    plugins: [{
+      id: 'centerText',
+      beforeDraw(chart) {
+        const { width } = chart;
+        const ctx = chart.ctx;
+        ctx.save();
+        ctx.font = 'bold 16px sans-serif';
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.fillText(centerLabel, width / 2, chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2);
+      }
+    }]
+  });
 }
 
 loadExpenses();

@@ -13,6 +13,12 @@
   <h1>Mini Budget</h1>
   <div id="summary"></div>
 
+  <!-- Диаграмма -->
+  <div id="expense-chart-container" style="max-width: 320px; margin: 0 auto 24px;">
+    <canvas id="expenseChart"></canvas>
+  </div>
+
+  <!-- Фильтры -->
   <fieldset style="border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; margin-bottom: 20px;">
     <legend style="padding: 0 8px; color: #ccc; font-size: 0.9rem;">Фильтры</legend>
 
@@ -51,11 +57,6 @@
 
   <ul id="expense-list"></ul>
 
-  <div id="charts">
-    <canvas id="pieChart"></canvas>
-    <canvas id="lineChart"></canvas>
-  </div>
-
   <form id="expense-form">
     <input type="hidden" id="edit-id" />
     <select id="category">
@@ -83,3 +84,4 @@
   <script src="app.js"></script>
 </body>
 </html>
+
