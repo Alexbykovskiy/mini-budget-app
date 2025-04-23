@@ -23,7 +23,8 @@ function renderExpenses(data) {
     infoBlock.innerHTML =
       pill(`#${index + 1}`) +
       pill(exp.category) +
-      pill(`€${exp.amount}`) +
+      pill(`€${Number(exp.amount).toFixed(1)}`) +
+      (exp.liters ? pill(`${Number(exp.liters).toFixed(1)} л`) : '') +
       (exp.date ? pill(exp.date) : '') +
       (exp.mileage ? pill(`${exp.mileage} км`) : '') +
       (exp.tag ? pill(`#${exp.tag}`) : '') +
@@ -74,9 +75,9 @@ form.onsubmit = (e) => {
   e.preventDefault();
   const id = document.getElementById('edit-id').value;
   const category = document.getElementById('category').value;
-  const amount = document.getElementById('amount').value;
+  const amount = parseFloat(document.getElementById('amount').value.replace(',', '.'));
   const mileage = document.getElementById('mileage').value;
-  const liters = document.getElementById('liters').value;
+  const liters = parseFloat(document.getElementById('liters').value.replace(',', '.'));
   const date = document.getElementById('date').value;
   const note = document.getElementById('note').value;
   const tag = document.getElementById('tag').value.replace('#', '');
@@ -138,52 +139,47 @@ function updateChart(data) {
   };
 
   const background = categories.map(cat => colors[cat] || '#999');
-  const centerLabel = `€${total.toFixed(2)}`;
+  const ctx = document.getElementById('expenseChart').getContext('2d');
 
   if (expenseChart) expenseChart.destroy();
 
-  const ctx = document.getElementById('expenseChart').getContext('2d');
   expenseChart = new Chart(ctx, {
     type: 'doughnut',
     data: {
-      labels: categories.map(c => `${c}`),
+      labels: categories,
       datasets: [{
         data: values,
-        backgroundColor: background
+        backgroundColor: background,
+        borderWidth: 1
       }]
     },
     options: {
       cutout: '65%',
       plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              const val = context.parsed;
-              const perc = ((val / total) * 100).toFixed(1);
-              return `${perc}% — €${val.toFixed(2)}`;
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: 'white',
+            generateLabels: chart => {
+              const data = chart.data;
+              const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+              return data.labels.map((label, i) => {
+                const value = data.datasets[0].data[i];
+                const perc = ((value / total) * 100).toFixed(1);
+                return {
+                  text: `${label}: €${value.toFixed(2)} (${perc}%)`,
+                  fillStyle: data.datasets[0].backgroundColor[i],
+                  strokeStyle: data.datasets[0].backgroundColor[i],
+                  lineWidth: 0,
+                  index: i
+                };
+              });
             }
           }
         },
-        datalabels: { display: false },
-        centerText: {
-          display: true,
-          text: centerLabel
-        }
+        tooltip: { enabled: false }
       }
-    },
-    plugins: [{
-      id: 'centerText',
-      beforeDraw(chart) {
-        const { width } = chart;
-        const ctx = chart.ctx;
-        ctx.save();
-        ctx.font = 'bold 16px sans-serif';
-        ctx.fillStyle = 'white';
-        ctx.textAlign = 'center';
-        ctx.fillText(centerLabel, width / 2, chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2);
-      }
-    }]
+    }
   });
 }
 
