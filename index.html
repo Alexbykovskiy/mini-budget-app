@@ -1,55 +1,31 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MINI Budget</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div class="app">
-    <h1 id="summary">Всего: €0.00</h1>
-    <div class="chart-container">
-      <canvas id="expenseChart"></canvas>
+  <h1 id="summary">Всего: €0.00</h1>
+
+  <div style="max-width: 320px; margin: 0 auto 24px;">
+    <canvas id="expenseChart"></canvas>
+  </div>
+
+  <fieldset style="border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; margin-bottom: 20px;">
+    <legend style="padding: 0 8px; color: #ccc; font-size: 0.9rem;">Фильтры</legend>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 8px;">
+      <input type="date" id="filter-from" placeholder="Дата от" />
+      <input type="date" id="filter-to" placeholder="Дата до" />
     </div>
-
-    <div class="filters-box">
-      <h2>Фильтры</h2>
-      <div class="filters">
-        <input type="date" id="filter-from" placeholder="Дата от">
-        <input type="date" id="filter-to" placeholder="Дата до">
-
-        <select id="filter-category">
-          <option>Все</option>
-          <option>Топливо</option>
-          <option>Парковка</option>
-          <option>Штрафы</option>
-          <option>Сервис</option>
-          <option>Ремонт</option>
-          <option>Страховка</option>
-          <option>Шины</option>
-          <option>Тюнинг</option>
-          <option>Мойка</option>
-          <option>Виньетка/Платные дороги</option>
-          <option>Другое</option>
-        </select>
-
-        <input type="text" id="filter-tag" placeholder="Тег (#travel)">
-        <input type="number" id="filter-row-start" placeholder="Строка с">
-        <input type="number" id="filter-row-end" placeholder="по">
-        <button onclick="applyFilters()">Применить</button>
-        <button onclick="location.reload()">Сброс</button>
-      </div>
-    </div>
-
-    <ul id="expense-list"></ul>
-
-    <form id="expense-form">
-      <input type="hidden" id="edit-id">
-      <select id="category">
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 8px;">
+      <input type="text" id="filter-tag" placeholder="#тег" />
+      <select id="filter-category">
+        <option value="Все">Все категории</option>
         <option>Топливо</option>
         <option>Парковка</option>
         <option>Штрафы</option>
@@ -62,18 +38,45 @@
         <option>Виньетка/Платные дороги</option>
         <option>Другое</option>
       </select>
-      <input type="text" id="amount" placeholder="Сумма €" required>
-      <input type="text" id="liters" placeholder="Литры (если топливо)">
-      <input type="text" id="mileage" placeholder="Пробег (км)">
-      <input type="date" id="date" placeholder="Дата" required>
-      <input type="text" id="note" placeholder="Заметка">
-      <input type="text" id="tag" placeholder="Тег (#trip)">
-      <div class="form-buttons">
-        <button type="button" onclick="form.reset()">Отмена</button>
-        <button type="submit">Сохранить</button>
-      </div>
-    </form>
-  </div>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 8px;">
+      <input type="number" id="filter-row-start" placeholder="Строка от" />
+      <input type="number" id="filter-row-end" placeholder="до строки" />
+    </div>
+    <div style="text-align: center;">
+      <button onclick="applyFilters()">Применить</button>
+      <button onclick="location.reload()">Сброс</button>
+    </div>
+  </fieldset>
+
+  <ul id="expense-list"></ul>
+
+  <form id="expense-form">
+    <input type="hidden" id="edit-id" />
+    <select id="category">
+      <option>Топливо</option>
+      <option>Парковка</option>
+      <option>Штрафы</option>
+      <option>Сервис</option>
+      <option>Ремонт</option>
+      <option>Страховка</option>
+      <option>Шины</option>
+      <option>Тюнинг</option>
+      <option>Мойка</option>
+      <option>Виньетка/Платные дороги</option>
+      <option>Другое</option>
+    </select>
+    <input type="text" id="amount" placeholder="Сумма €" required />
+    <input type="text" id="liters" placeholder="Литры (если топливо)" />
+    <input type="text" id="mileage" placeholder="Пробег (км)" />
+    <input type="date" id="date" required />
+    <input type="text" id="note" placeholder="Комментарий" />
+    <input type="text" id="tag" placeholder="#тег" />
+    <div style="display: flex; justify-content: space-between; gap: 10px; margin-top: 10px;">
+      <button type="button" onclick="form.reset(); document.getElementById('edit-id').value = '';">Отмена</button>
+      <button type="submit">Сохранить</button>
+    </div>
+  </form>
 
   <script src="firebase-config.js"></script>
 </body>
