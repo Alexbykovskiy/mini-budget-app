@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -16,7 +17,6 @@
     <canvas id="expenseChart"></canvas>
   </div>
 
-  <!-- Фильтры -->
   <fieldset style="border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; margin-bottom: 20px;">
     <legend style="padding: 0 8px; color: #ccc; font-size: 0.9rem;">Фильтры</legend>
     <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 8px;">
@@ -45,3 +45,49 @@
       <input type="number" id="filter-row-end" placeholder="до строки" />
     </div>
     <div style="text-align: center;">
+      <button onclick="location.reload()">Сброс</button>
+      <button onclick="applyFilters()">Применить</button>
+    </div>
+  </fieldset>
+
+  <fieldset style="border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; margin-bottom: 20px;">
+    <legend style="padding: 0 8px; color: #ccc; font-size: 0.9rem;">Журнал</legend>
+    <ul id="expense-list">
+      <li style="text-align: center; color: #ccc;">Нет данных</li>
+    </ul>
+  </fieldset>
+
+  <fieldset style="border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; margin-bottom: 20px;">
+    <legend style="padding: 0 8px; color: #ccc; font-size: 0.9rem;">Добавить расход</legend>
+    <form id="expense-form">
+      <input type="hidden" id="edit-id" />
+      <select id="category">
+        <option>Топливо</option>
+        <option>Парковка</option>
+        <option>Штрафы</option>
+        <option>Сервис</option>
+        <option>Ремонт</option>
+        <option>Страховка</option>
+        <option>Шины</option>
+        <option>Тюнинг</option>
+        <option>Мойка</option>
+        <option>Виньетка/Платные дороги</option>
+        <option>Другое</option>
+      </select>
+      <input type="text" id="amount" placeholder="Сумма €" required />
+      <input type="text" id="liters" placeholder="Литры (если топливо)" />
+      <input type="text" id="mileage" placeholder="Пробег (км)" />
+      <input type="date" id="date" required />
+      <input type="text" id="note" placeholder="Комментарий" />
+      <input type="text" id="tag" placeholder="#тег" />
+      <div style="display: flex; justify-content: space-between; gap: 10px; margin-top: 10px;">
+        <button type="button" onclick="form.reset(); document.getElementById('edit-id').value = '';">Отмена</button>
+        <button type="submit">Сохранить</button>
+      </div>
+    </form>
+  </fieldset>
+
+  <script src="firebase-config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
