@@ -87,8 +87,12 @@ form.onsubmit = (e) => {
     ref.add(data);
   }
 
+  // Сброс формы после сохранения
   form.reset();
   document.getElementById('edit-id').value = '';
+
+  // Плавная прокрутка наверх после сохранения
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 function applyFilters() {
