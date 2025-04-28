@@ -22,24 +22,29 @@
     <legend>Фильтры</legend>
     <div class="filters">
       <div class="row">
+        <label style="min-width: 60px;">Период:</label>
         <input type="date" id="filter-from" placeholder="Дата от" />
         <input type="date" id="filter-to" placeholder="Дата до" />
       </div>
-      <input type="text" id="filter-tag" placeholder="#тег" />
-      <select id="filter-category">
-        <option value="Все">Все категории</option>
-        <option>Топливо</option>
-        <option>Парковка</option>
-        <option>Штрафы</option>
-        <option>Сервис</option>
-        <option>Ремонт</option>
-        <option>Страховка</option>
-        <option>Шины</option>
-        <option>Тюнинг</option>
-        <option>Мойка</option>
-        <option>Виньетка/Платные дороги</option>
-        <option>Другое</option>
-      </select>
+      <div class="row">
+        <input type="text" id="filter-tag" placeholder="#тег" class="full-width" />
+      </div>
+      <div class="row">
+        <select id="filter-category">
+          <option value="Все">Все категории</option>
+          <option>Топливо</option>
+          <option>Парковка</option>
+          <option>Штрафы</option>
+          <option>Сервис</option>
+          <option>Ремонт</option>
+          <option>Страховка</option>
+          <option>Шины</option>
+          <option>Тюнинг</option>
+          <option>Мойка</option>
+          <option>Виньетка/Платные дороги</option>
+          <option>Другое</option>
+        </select>
+      </div>
       <div class="row">
         <input type="number" id="filter-row-start" placeholder="Строка от" />
         <input type="number" id="filter-row-end" placeholder="до строки" />
@@ -61,7 +66,6 @@
   <fieldset class="block">
     <legend>Добавить расход</legend>
     <form id="expense-form" class="expense-form">
-      <input type="hidden" id="edit-id" />
       <div class="row">
         <select id="category">
           <option>Топливо</option>
@@ -86,11 +90,15 @@
         <input type="text" id="note" placeholder="Комментарий" />
         <input type="text" id="tag" placeholder="#тег" />
       </div>
-      <input type="date" id="date" required />
+      <div class="row">
+        <label style="min-width: 60px;">Дата:</label>
+        <input type="date" id="date" required />
+      </div>
       <div class="form-buttons">
         <button type="button" onclick="form.reset(); document.getElementById('edit-id').value = '';">Отмена</button>
         <button type="submit">Сохранить</button>
       </div>
+      <input type="hidden" id="edit-id" />
     </form>
   </fieldset>
 
