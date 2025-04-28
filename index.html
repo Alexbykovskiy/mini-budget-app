@@ -18,13 +18,11 @@
   </div>
 
   <!-- Фильтры -->
-  <fieldset style="border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; margin-bottom: 20px;">
-    <legend style="padding: 0 8px; color: #ccc; font-size: 0.9rem;">Фильтры</legend>
-    <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 8px;">
+  <fieldset class="block">
+    <legend>Фильтры</legend>
+    <div class="filters">
       <input type="date" id="filter-from" placeholder="Дата от" />
       <input type="date" id="filter-to" placeholder="Дата до" />
-    </div>
-    <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 8px;">
       <input type="text" id="filter-tag" placeholder="#тег" />
       <select id="filter-category">
         <option value="Все">Все категории</option>
@@ -40,48 +38,54 @@
         <option>Виньетка/Платные дороги</option>
         <option>Другое</option>
       </select>
-    </div>
-    <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 8px;">
       <input type="number" id="filter-row-start" placeholder="Строка от" />
       <input type="number" id="filter-row-end" placeholder="до строки" />
-    </div>
-    <div style="text-align: center;">
-      <button onclick="location.reload()">Сброс</button>
-      <button onclick="applyFilters()">Применить</button>
+      <div class="form-buttons">
+        <button onclick="location.reload()">Сброс</button>
+        <button onclick="applyFilters()">Применить</button>
+      </div>
     </div>
   </fieldset>
 
   <!-- Журнал -->
-  <fieldset style="border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; margin-bottom: 20px;">
-    <legend style="padding: 0 8px; color: #ccc; font-size: 0.9rem;">Журнал</legend>
+  <fieldset class="block">
+    <legend>Журнал</legend>
     <ul id="expense-list"></ul>
   </fieldset>
 
   <!-- Добавить расход -->
-  <fieldset style="border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; margin-bottom: 20px;">
-    <legend style="padding: 0 8px; color: #ccc; font-size: 0.9rem;">Добавить расход</legend>
-    <form id="expense-form">
+  <fieldset class="block">
+    <legend>Добавить расход</legend>
+    <form id="expense-form" class="expense-form">
       <input type="hidden" id="edit-id" />
-      <select id="category">
-        <option>Топливо</option>
-        <option>Парковка</option>
-        <option>Штрафы</option>
-        <option>Сервис</option>
-        <option>Ремонт</option>
-        <option>Страховка</option>
-        <option>Шины</option>
-        <option>Тюнинг</option>
-        <option>Мойка</option>
-        <option>Виньетка/Платные дороги</option>
-        <option>Другое</option>
-      </select>
-      <input type="text" id="amount" placeholder="Сумма €" required />
-      <input type="text" id="liters" placeholder="Литры (если топливо)" />
-      <input type="text" id="mileage" placeholder="Пробег (км)" />
-      <input type="date" id="date" required />
-      <input type="text" id="note" placeholder="Комментарий" />
-      <input type="text" id="tag" placeholder="#тег" />
-      <div style="display: flex; justify-content: space-between; gap: 10px; margin-top: 10px;">
+      <div class="row">
+        <select id="category">
+          <option>Топливо</option>
+          <option>Парковка</option>
+          <option>Штрафы</option>
+          <option>Сервис</option>
+          <option>Ремонт</option>
+          <option>Страховка</option>
+          <option>Шины</option>
+          <option>Тюнинг</option>
+          <option>Мойка</option>
+          <option>Виньетка/Платные дороги</option>
+          <option>Другое</option>
+        </select>
+        <input type="text" id="amount" placeholder="Сумма €" required />
+      </div>
+      <div class="row">
+        <input type="text" id="liters" placeholder="Литры" />
+        <input type="text" id="mileage" placeholder="Пробег (км)" />
+      </div>
+      <div class="row">
+        <input type="text" id="note" placeholder="Комментарий" />
+        <input type="text" id="tag" placeholder="#тег" />
+      </div>
+      <div class="row">
+        <input type="date" id="date" required />
+      </div>
+      <div class="form-buttons">
         <button type="button" onclick="form.reset(); document.getElementById('edit-id').value = '';">Отмена</button>
         <button type="submit">Сохранить</button>
       </div>

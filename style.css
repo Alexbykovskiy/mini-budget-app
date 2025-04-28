@@ -1,3 +1,4 @@
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen;
   margin: 0;
@@ -10,35 +11,45 @@ body {
   min-height: 100vh;
 }
 
-h1, h2 {
+h1 {
   margin: 16px 0;
 }
 
-.app {
-  width: 100%;
-  max-width: 500px;
-  padding: 1rem;
+canvas {
+  max-width: 100%;
 }
 
-.chart-container {
-  position: relative;
-  width: 100%;
-  max-width: 400px;
-  margin: auto;
-}
-
-.filters-box {
-  background: rgba(255, 255, 255, 0.1);
+fieldset.block {
+  width: 320px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255,255,255,0.2);
   border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  padding: 16px;
+  margin-bottom: 24px;
   backdrop-filter: blur(10px);
+}
+
+legend {
+  padding: 0 8px;
+  color: #ccc;
+  font-size: 0.9rem;
 }
 
 .filters {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 8px;
+}
+
+.expense-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
 }
 
 #expense-list {
@@ -60,19 +71,22 @@ h1, h2 {
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
-#expense-list li span {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 16px;
-  background-color: #fff2;
-  color: white;
-  font-size: 0.85rem;
+#expense-list li .top-line {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
 }
 
-#expense-form input,
-#expense-form select,
-.filters input,
-.filters select {
+#expense-list li .bottom-line {
+  font-size: 0.85rem;
+  color: #ccc;
+  font-style: italic;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+input, select, button {
   padding: 10px;
   font-size: 1rem;
   border-radius: 12px;
@@ -81,10 +95,7 @@ h1, h2 {
 }
 
 button {
-  padding: 10px;
-  border-radius: 12px;
   font-weight: bold;
-  border: none;
   cursor: pointer;
   transition: 0.2s;
 }
@@ -97,22 +108,4 @@ button:hover {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  margin-top: 0.5rem;
 }
-
-canvas {
-  max-width: 100%;
-}
-
-/* Цвета по категориям */
-.category-"Топливо" { background: #D2AF94; }
-.category-"Парковка" { background: #186663; }
-.category-"Штрафы" { background: #8C7361; }
-.category-"Сервис" { background: #A6B5B4; }
-.category-"Ремонт" { background: #002D37; }
-.category-"Страховка" { background: #00695c; }
-.category-"Шины" { background: #4e342e; }
-.category-"Тюнинг" { background: #3e2723; }
-.category-"Мойка" { background: #789262; }
-.category-"Виньетка/Платные дороги" { background: #546e7a; }
-.category-"Другое" { background: #9e9e9e; }
