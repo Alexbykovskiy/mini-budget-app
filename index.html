@@ -17,6 +17,7 @@
     <canvas id="expenseChart"></canvas>
   </div>
 
+  <!-- Фильтры -->
   <fieldset style="border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; margin-bottom: 20px;">
     <legend style="padding: 0 8px; color: #ccc; font-size: 0.9rem;">Фильтры</legend>
     <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 8px;">
@@ -50,13 +51,13 @@
     </div>
   </fieldset>
 
+  <!-- Журнал -->
   <fieldset style="border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; margin-bottom: 20px;">
     <legend style="padding: 0 8px; color: #ccc; font-size: 0.9rem;">Журнал</legend>
-    <ul id="expense-list">
-      <li style="text-align: center; color: #ccc;">Нет данных</li>
-    </ul>
+    <ul id="expense-list"></ul>
   </fieldset>
 
+  <!-- Добавить расход -->
   <fieldset style="border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; margin-bottom: 20px;">
     <legend style="padding: 0 8px; color: #ccc; font-size: 0.9rem;">Добавить расход</legend>
     <form id="expense-form">
