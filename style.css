@@ -67,23 +67,41 @@ legend {
   margin-bottom: 0.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 4px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 #expense-list li .top-line {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-weight: bold;
 }
 
 #expense-list li .bottom-line {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #ccc;
   font-style: italic;
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.action-icons {
+  display: flex;
+  gap: 8px;
+}
+
+.action-icons button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.action-icons svg {
+  width: 20px;
+  height: 20px;
+  fill: white;
 }
 
 input, select, button {

@@ -21,8 +21,10 @@
   <fieldset class="block">
     <legend>Фильтры</legend>
     <div class="filters">
-      <input type="date" id="filter-from" placeholder="Дата от" />
-      <input type="date" id="filter-to" placeholder="Дата до" />
+      <div class="row">
+        <input type="date" id="filter-from" placeholder="Дата от" />
+        <input type="date" id="filter-to" placeholder="Дата до" />
+      </div>
       <input type="text" id="filter-tag" placeholder="#тег" />
       <select id="filter-category">
         <option value="Все">Все категории</option>
@@ -38,8 +40,10 @@
         <option>Виньетка/Платные дороги</option>
         <option>Другое</option>
       </select>
-      <input type="number" id="filter-row-start" placeholder="Строка от" />
-      <input type="number" id="filter-row-end" placeholder="до строки" />
+      <div class="row">
+        <input type="number" id="filter-row-start" placeholder="Строка от" />
+        <input type="number" id="filter-row-end" placeholder="до строки" />
+      </div>
       <div class="form-buttons">
         <button onclick="location.reload()">Сброс</button>
         <button onclick="applyFilters()">Применить</button>
@@ -57,7 +61,6 @@
   <fieldset class="block">
     <legend>Добавить расход</legend>
     <form id="expense-form" class="expense-form">
-      <input type="hidden" id="edit-id" />
       <div class="row">
         <select id="category">
           <option>Топливо</option>
@@ -89,6 +92,7 @@
         <button type="button" onclick="form.reset(); document.getElementById('edit-id').value = '';">Отмена</button>
         <button type="submit">Сохранить</button>
       </div>
+      <input type="hidden" id="edit-id" />
     </form>
   </fieldset>
 
