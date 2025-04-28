@@ -61,6 +61,7 @@
   <fieldset class="block">
     <legend>Добавить расход</legend>
     <form id="expense-form" class="expense-form">
+      <input type="hidden" id="edit-id" />
       <div class="row">
         <select id="category">
           <option>Топливо</option>
@@ -85,14 +86,11 @@
         <input type="text" id="note" placeholder="Комментарий" />
         <input type="text" id="tag" placeholder="#тег" />
       </div>
-      <div class="row">
-        <input type="date" id="date" required />
-      </div>
+      <input type="date" id="date" required />
       <div class="form-buttons">
         <button type="button" onclick="form.reset(); document.getElementById('edit-id').value = '';">Отмена</button>
         <button type="submit">Сохранить</button>
       </div>
-      <input type="hidden" id="edit-id" />
     </form>
   </fieldset>
 
