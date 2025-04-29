@@ -1,4 +1,3 @@
-
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen;
   margin: 0;
@@ -89,4 +88,48 @@ button:hover {
   margin-bottom: 2rem;
   max-height: 500px;
   overflow-y: auto;
+}
+
+#expense-list li {
+  background: #D2AF94;
+  border-radius: 16px;
+  padding: 0.8rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+#expense-list li .top-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+}
+
+#expense-list li .bottom-line {
+  font-size: 0.8rem;
+  color: #ccc;
+  font-style: italic;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.action-icons {
+  display: flex;
+  gap: 8px;
+}
+
+.action-icons button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.action-icons svg {
+  width: 20px;
+  height: 20px;
+  fill: white;
 }

@@ -1,4 +1,3 @@
-
 const db = firebase.firestore();
 const profileCode = "mini";
 
@@ -20,7 +19,7 @@ function renderExpenses(data) {
       <div class="top-line">
         <span>#${index + 1}</span>
         <span>${exp.category}</span>
-        <span>€${Number(exp.amount).toFixed(1)}</span>
+        <span>€${Number(exp.amount).toFixed(2)}</span>
       </div>
       <div class="bottom-line">
         <div>
@@ -146,13 +145,43 @@ function updateChart(data, total) {
           display: true,
           position: 'bottom',
           labels: {
-            color: 'white'
+            color: 'white',
+            generateLabels: chart => {
+              const d = chart.data;
+              return d.labels.map((l, i) => {
+                const val = d.datasets[0].data[i];
+                const perc = ((val / total) * 100).toFixed(1);
+                return {
+                  text: `${l}: €${val.toFixed(2)} (${perc}%)`,
+                  fillStyle: d.datasets[0].backgroundColor[i],
+                  strokeStyle: d.datasets[0].backgroundColor[i],
+                  lineWidth: 0,
+                  index: i
+                };
+              });
+            }
           }
         },
         tooltip: { enabled: false },
         datalabels: { display: false },
+        centerText: {
+          display: true,
+          text: `€${total.toFixed(2)}`
+        }
       }
-    }
+    },
+    plugins: [{
+      id: 'centerText',
+      beforeDraw(chart) {
+        const { width } = chart;
+        const ctx = chart.ctx;
+        ctx.save();
+        ctx.font = 'bold 16px sans-serif';
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.fillText(`€${total.toFixed(2)}`, width / 2, chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2);
+      }
+    }]
   });
 }
 
