@@ -8,19 +8,21 @@ body {
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
+  font-size: 18px; /* 🔥 Увеличил общий базовый шрифт */
 }
 
 h1 {
   margin: 16px 0;
+  font-size: 24px;
 }
 
 .chart-container {
-  max-width: 320px;
+  max-width: 360px; /* 🔥 Сделал шире */
   margin: 0 auto 24px;
 }
 
 fieldset.block {
-  width: 320px;
+  width: 360px; /* 🔥 Теперь фильтры, журнал и добавить расход одинаковые */
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 12px;
@@ -32,7 +34,7 @@ fieldset.block {
 legend {
   padding: 0 8px;
   color: #ccc;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .filters, .expense-form {
@@ -50,17 +52,18 @@ legend {
 .row input, .row select {
   flex: 1;
   min-width: 0;
+  font-size: 16px; /* 🔥 Чуть увеличил шрифт в инпутах */
 }
 
 .small-label {
   width: 60px;
-  font-size: 0.9rem;
+  font-size: 1rem;
   flex-shrink: 0;
 }
 
 input, select, button {
   padding: 10px;
-  font-size: 1rem;
+  font-size: 16px;
   border-radius: 12px;
   border: none;
   outline: none;
@@ -94,10 +97,10 @@ button:hover {
   background: #D2AF94;
   border-radius: 16px;
   padding: 0.8rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.8rem;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.6rem;
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
@@ -106,10 +109,11 @@ button:hover {
   justify-content: space-between;
   align-items: center;
   font-weight: bold;
+  font-size: 18px; /* 🔥 Крупнее шрифт первой строки */
 }
 
 #expense-list li .bottom-line {
-  font-size: 0.8rem;
+  font-size: 16px; /* 🔥 Крупнее шрифт второй строки */
   color: #ccc;
   font-style: italic;
   display: flex;
@@ -129,7 +133,7 @@ button:hover {
 }
 
 .action-icons svg {
-  width: 20px;
-  height: 20px;
+  width: 24px; /* 🔥 Иконки немного увеличил */
+  height: 24px;
   fill: white;
 }
