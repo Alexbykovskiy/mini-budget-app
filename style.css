@@ -15,8 +15,9 @@ h1 {
   margin: 16px 0;
 }
 
-canvas {
-  max-width: 100%;
+.chart-container {
+  max-width: 320px;
+  margin: 0 auto 24px;
 }
 
 fieldset.block {
@@ -35,13 +36,7 @@ legend {
   font-size: 0.9rem;
 }
 
-.filters {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.expense-form {
+.filters, .expense-form {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -50,58 +45,18 @@ legend {
 .row {
   display: flex;
   gap: 8px;
-}
-
-#expense-list {
-  list-style: none;
-  padding: 0;
-  margin-bottom: 2rem;
-  max-height: 500px;
-  overflow-y: auto;
-}
-
-#expense-list li {
-  background: #D2AF94;
-  border-radius: 16px;
-  padding: 0.8rem;
-  margin-bottom: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-
-#expense-list li .top-line {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: bold;
-}
-
-#expense-list li .bottom-line {
-  font-size: 0.8rem;
-  color: #ccc;
-  font-style: italic;
-  display: flex;
-  justify-content: space-between;
   align-items: center;
 }
 
-.action-icons {
-  display: flex;
-  gap: 8px;
+.row input, .row select {
+  flex: 1;
+  min-width: 0;
 }
 
-.action-icons button {
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.action-icons svg {
-  width: 20px;
-  height: 20px;
-  fill: white;
+.small-label {
+  width: 60px;
+  font-size: 0.9rem;
+  flex-shrink: 0;
 }
 
 input, select, button {
@@ -126,4 +81,12 @@ button:hover {
   display: flex;
   justify-content: space-between;
   gap: 10px;
+}
+
+#expense-list {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 2rem;
+  max-height: 500px;
+  overflow-y: auto;
 }
