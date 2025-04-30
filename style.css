@@ -1,3 +1,4 @@
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen;
   margin: 0;
@@ -8,21 +9,19 @@ body {
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-  font-size: 18px; /* 🔥 Увеличил общий базовый шрифт */
 }
 
 h1 {
   margin: 16px 0;
-  font-size: 24px;
 }
 
 .chart-container {
-  max-width: 360px; /* 🔥 Сделал шире */
+  max-width: 340px;
   margin: 0 auto 24px;
 }
 
 fieldset.block {
-  width: 360px; /* 🔥 Теперь фильтры, журнал и добавить расход одинаковые */
+  width: 340px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 12px;
@@ -34,7 +33,7 @@ fieldset.block {
 legend {
   padding: 0 8px;
   color: #ccc;
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
 .filters, .expense-form {
@@ -52,18 +51,17 @@ legend {
 .row input, .row select {
   flex: 1;
   min-width: 0;
-  font-size: 16px; /* 🔥 Чуть увеличил шрифт в инпутах */
 }
 
 .small-label {
   width: 60px;
-  font-size: 1rem;
+  font-size: 0.9rem;
   flex-shrink: 0;
 }
 
 input, select, button {
   padding: 10px;
-  font-size: 16px;
+  font-size: 1rem;
   border-radius: 12px;
   border: none;
   outline: none;
@@ -91,49 +89,4 @@ button:hover {
   margin-bottom: 2rem;
   max-height: 500px;
   overflow-y: auto;
-}
-
-#expense-list li {
-  background: #D2AF94;
-  border-radius: 16px;
-  padding: 0.8rem;
-  margin-bottom: 0.8rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-
-#expense-list li .top-line {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: bold;
-  font-size: 18px; /* 🔥 Крупнее шрифт первой строки */
-}
-
-#expense-list li .bottom-line {
-  font-size: 16px; /* 🔥 Крупнее шрифт второй строки */
-  color: #ccc;
-  font-style: italic;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.action-icons {
-  display: flex;
-  gap: 8px;
-}
-
-.action-icons button {
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.action-icons svg {
-  width: 24px; /* 🔥 Иконки немного увеличил */
-  height: 24px;
-  fill: white;
 }

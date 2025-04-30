@@ -1,10 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MINI Budget</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -16,7 +17,6 @@
     <canvas id="expenseChart"></canvas>
   </div>
 
-  <!-- Фильтры -->
   <fieldset class="block">
     <legend>Фильтры</legend>
     <div class="filters">
@@ -53,13 +53,11 @@
     </div>
   </fieldset>
 
-  <!-- Журнал -->
-  <fieldset class="block">
+  <fieldset class="block journal">
     <legend>Журнал</legend>
     <ul id="expense-list"></ul>
   </fieldset>
 
-  <!-- Добавить расход -->
   <fieldset class="block">
     <legend>Добавить расход</legend>
     <form id="expense-form" class="expense-form">
