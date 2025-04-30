@@ -1,6 +1,20 @@
 const db = firebase.firestore();
 const profileCode = "mini";
 
+const categoryColors = {
+  "Топливо": "#D3C83E",
+  "Парковка": "#5C8DCB",
+  "Штрафы": "#C88B3E",
+  "Сервис": "#C85E55",
+  "Ремонт": "#A5332C",
+  "Страховка": "#B681C6",
+  "Шины": "#7ABFAC",
+  "Тюнинг": "#7A4AC2",
+  "Мойка": "#4A9FB4",
+  "Виньетка/Платные дороги": "#7DAA47",
+  "Другое": "#9B9B9B"
+};
+
 const form = document.getElementById('expense-form');
 const list = document.getElementById('expense-list');
 const summary = document.getElementById('summary');
@@ -14,6 +28,7 @@ function renderExpenses(data) {
   data.forEach((exp, index) => {
     total += Number(exp.amount);
     const li = document.createElement('li');
+    li.style.backgroundColor = categoryColors[(exp.category || "").trim()] || "#D2AF94";
 
     li.innerHTML = `
       <div class="top-line">
@@ -100,7 +115,7 @@ form.onsubmit = (e) => {
 function applyFilters() {
   const from = document.getElementById("filter-from").value;
   const to = document.getElementById("filter-to").value;
-  const tag = document.getElementById("filter-tag").value.replace('#', '');
+  const tag = document.getElementById("filter-tag").value.trim().replace('#', '').toLowerCase();
   const categoryFilter = document.getElementById("filter-category")?.value;
   const rowStart = parseInt(document.getElementById("filter-row-start")?.value);
   const rowEnd = parseInt(document.getElementById("filter-row-end")?.value);
@@ -108,7 +123,7 @@ function applyFilters() {
   let filtered = expenses;
   if (from) filtered = filtered.filter(e => e.date >= from);
   if (to) filtered = filtered.filter(e => e.date <= to);
-  if (tag) filtered = filtered.filter(e => e.tag === tag);
+  if (tag) filtered = filtered.filter(e => (e.tag || '').toLowerCase() === tag);
   if (categoryFilter && categoryFilter !== "Все") filtered = filtered.filter(e => e.category === categoryFilter);
   if (!isNaN(rowStart) && !isNaN(rowEnd)) filtered = filtered.slice(rowStart - 1, rowEnd);
 
@@ -127,7 +142,7 @@ function updateChart(data, total) {
 
   const labels = Object.keys(totals);
   const values = labels.map(k => totals[k]);
-  const colors = ["#D2AF94", "#186663", "#A6B5B4", "#8C7361", "#002D37", "#5E8C8A", "#C4B59F", "#7F6A93", "#71A1A5", "#A58C7D", "#5B5B5B"];
+  const colors = labels.map(label => categoryColors[(label || "").trim()] || "#cccccc");
 
   expenseChart = new Chart(ctx, {
     type: 'doughnut',
@@ -135,7 +150,7 @@ function updateChart(data, total) {
       labels: labels,
       datasets: [{
         data: values,
-        backgroundColor: colors.slice(0, labels.length)
+        backgroundColor: colors
       }]
     },
     options: {
@@ -173,7 +188,7 @@ function updateChart(data, total) {
     plugins: [{
       id: 'centerText',
       beforeDraw(chart) {
-        const { width } = chart;
+        const {{ width }} = chart;
         const ctx = chart.ctx;
         ctx.save();
         ctx.font = 'bold 16px sans-serif';
