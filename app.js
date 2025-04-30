@@ -1,5 +1,18 @@
 const db = firebase.firestore();
 const profileCode = "mini";
+const categoryColors = {
+  "Топливо": "#D3C83E",
+  "Парковка": "#5C8DCB",
+  "Штрафы": "#C88B3E",
+  "Сервис": "#C85E55",
+  "Ремонт": "#A5332C",
+  "Страховка": "#B681C6",
+  "Шины": "#7ABFAC",
+  "Тюнинг": "#7A4AC2",
+  "Мойка": "#4A9FB4",
+  "Виньетка/Платные дороги": "#7DAA47",
+  "Другое": "#9B9B9B",
+};
 
 const form = document.getElementById('expense-form');
 const list = document.getElementById('expense-list');
@@ -14,6 +27,7 @@ function renderExpenses(data) {
   data.forEach((exp, index) => {
     total += Number(exp.amount);
     const li = document.createElement('li');
+    li.style.backgroundColor = categoryColors[exp.category] || "#D2AF94";
 
     li.innerHTML = `
       <div class="top-line">
@@ -127,7 +141,7 @@ function updateChart(data, total) {
 
   const labels = Object.keys(totals);
   const values = labels.map(k => totals[k]);
-  const colors = ["#D2AF94", "#186663", "#A6B5B4", "#8C7361", "#002D37", "#5E8C8A", "#C4B59F", "#7F6A93", "#71A1A5", "#A58C7D", "#5B5B5B"];
+  const colors = labels.map(label => categoryColors[label] || "#cccccc");
 
   expenseChart = new Chart(ctx, {
     type: 'doughnut',
