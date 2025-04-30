@@ -1,18 +1,5 @@
 const db = firebase.firestore();
 const profileCode = "mini";
-const categoryColors = {
-  "Топливо": "#D3C83E",
-  "Парковка": "#5C8DCB",
-  "Штрафы": "#C88B3E",
-  "Сервис": "#C85E55",
-  "Ремонт": "#A5332C",
-  "Страховка": "#B681C6",
-  "Шины": "#7ABFAC",
-  "Тюнинг": "#7A4AC2",
-  "Мойка": "#4A9FB4",
-  "Виньетка/Платные дороги": "#7DAA47",
-  "Другое": "#9B9B9B",
-};
 
 const form = document.getElementById('expense-form');
 const list = document.getElementById('expense-list');
@@ -27,7 +14,6 @@ function renderExpenses(data) {
   data.forEach((exp, index) => {
     total += Number(exp.amount);
     const li = document.createElement('li');
-    li.style.backgroundColor = categoryColors[exp.category] || "#D2AF94";
 
     li.innerHTML = `
       <div class="top-line">
@@ -68,7 +54,7 @@ function deleteExpense(id) {
 
 function loadExpenses() {
   db.collection("users").doc(profileCode).collection("expenses")
-    .orderBy("date", "desc")
+    .orderBy("timestamp", "desc")
     .onSnapshot(snapshot => {
       expenses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       fullTotal = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
@@ -98,7 +84,7 @@ form.onsubmit = (e) => {
   const note = document.getElementById('note').value;
   const tag = document.getElementById('tag').value.replace('#', '');
 
-  const data = { category, amount, mileage, liters, date, note, tag };
+  const data = { category, amount, mileage, liters, date, note, tag, timestamp: firebase.firestore.FieldValue.serverTimestamp() };
   const ref = db.collection("users").doc(profileCode).collection("expenses");
 
   if (id) {
@@ -114,7 +100,7 @@ form.onsubmit = (e) => {
 function applyFilters() {
   const from = document.getElementById("filter-from").value;
   const to = document.getElementById("filter-to").value;
-  const tag = document.getElementById("filter-tag").value.trim().replace("#", "").toLowerCase();
+  const tag = document.getElementById("filter-tag").value.replace('#', '');
   const categoryFilter = document.getElementById("filter-category")?.value;
   const rowStart = parseInt(document.getElementById("filter-row-start")?.value);
   const rowEnd = parseInt(document.getElementById("filter-row-end")?.value);
@@ -122,7 +108,7 @@ function applyFilters() {
   let filtered = expenses;
   if (from) filtered = filtered.filter(e => e.date >= from);
   if (to) filtered = filtered.filter(e => e.date <= to);
-  if (tag) filtered = filtered.filter(e => (e.tag || "").toLowerCase() === tag);
+  if (tag) filtered = filtered.filter(e => e.tag === tag);
   if (categoryFilter && categoryFilter !== "Все") filtered = filtered.filter(e => e.category === categoryFilter);
   if (!isNaN(rowStart) && !isNaN(rowEnd)) filtered = filtered.slice(rowStart - 1, rowEnd);
 
@@ -141,7 +127,7 @@ function updateChart(data, total) {
 
   const labels = Object.keys(totals);
   const values = labels.map(k => totals[k]);
-  const colors = labels.map(label => categoryColors[label] || "#cccccc");
+  const colors = ["#D2AF94", "#186663", "#A6B5B4", "#8C7361", "#002D37", "#5E8C8A", "#C4B59F", "#7F6A93", "#71A1A5", "#A58C7D", "#5B5B5B"];
 
   expenseChart = new Chart(ctx, {
     type: 'doughnut',
