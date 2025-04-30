@@ -54,7 +54,7 @@ function deleteExpense(id) {
 
 function loadExpenses() {
   db.collection("users").doc(profileCode).collection("expenses")
-    .orderBy("date", "desc").orderBy("timestamp", "desc")
+    .orderBy("date", "desc")
     .onSnapshot(snapshot => {
       expenses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       fullTotal = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
@@ -84,7 +84,7 @@ form.onsubmit = (e) => {
   const note = document.getElementById('note').value;
   const tag = document.getElementById('tag').value.replace('#', '');
 
-  const data = { category, amount, mileage, liters, date, note, tag, timestamp: firebase.firestore.FieldValue.serverTimestamp() };
+  const data = { category, amount, mileage, liters, date, note, tag };
   const ref = db.collection("users").doc(profileCode).collection("expenses");
 
   if (id) {
