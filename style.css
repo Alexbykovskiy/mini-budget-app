@@ -186,3 +186,13 @@ input[type="date"] {
 .row input[type="date"] {
   flex: 1;
 }
+
+
+/* Финальный фикс для iOS Safari: ширина input[type="date"] */
+input[type="date"] {
+  display: block;
+  width: 100%;
+  min-width: 140px;
+  padding: 10px 14px;
+  text-align: center;
+}
