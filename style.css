@@ -1,86 +1,89 @@
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen;
+  font-family: 'Segoe UI', sans-serif;
+  background: #e0e0e0;
+  color: #333;
   margin: 0;
-  padding: 0;
-  background: linear-gradient(to bottom, #002D37, #A6B5B4);
-  color: white;
+  padding: 20px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 100vh;
-  font-size: 18px;
 }
 
 h1 {
-  margin: 16px 0;
   font-size: 24px;
+  margin-bottom: 24px;
+  color: #333;
 }
 
 .chart-container {
-  max-width: 360px;
-  margin: 0 auto 24px;
+  width: 360px;
+  margin-bottom: 24px;
+  background: #e0e0e0;
+  border-radius: 20px;
+  box-shadow: 9px 9px 16px #bebebe, -9px -9px 16px #ffffff;
+  padding: 16px;
 }
 
 fieldset.block {
   width: 360px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 12px;
-  padding: 16px;
+  background: #e0e0e0;
+  border-radius: 20px;
+  padding: 20px;
   margin-bottom: 24px;
-  backdrop-filter: blur(10px);
+  box-shadow: 9px 9px 16px #bebebe, -9px -9px 16px #ffffff;
+  border: none;
 }
 
 legend {
-  padding: 0 8px;
-  color: #ccc;
+  padding: 0 10px;
   font-size: 1rem;
+  color: #666;
 }
 
 .filters,
 .expense-form {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .row {
   display: flex;
-  gap: 8px;
-  align-items: center;
+  gap: 12px;
 }
 
 .row input,
-.row select {
-  flex: 1;
-  min-width: 0;
-  font-size: 16px;
-}
-
-.small-label {
-  width: 60px;
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-
+.row select,
 input,
 select,
 button {
-  padding: 10px;
+  flex: 1;
+  padding: 10px 14px;
   font-size: 16px;
-  border-radius: 12px;
+  border-radius: 14px;
   border: none;
   outline: none;
+  background: #e0e0e0;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
+  transition: all 0.2s ease-in-out;
+}
+
+.row input:focus,
+.row select:focus {
+  box-shadow: inset 2px 2px 5px #bebebe, inset -2px -2px 5px #ffffff;
 }
 
 button {
+  background: #FFA35C;
+  color: white;
   font-weight: bold;
   cursor: pointer;
-  transition: 0.2s;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
 }
 
 button:hover {
-  opacity: 0.9;
+  opacity: 0.95;
 }
 
 .form-buttons {
@@ -92,37 +95,37 @@ button:hover {
 #expense-list {
   list-style: none;
   padding: 0;
-  margin-bottom: 2rem;
+  margin: 0;
   max-height: 500px;
   overflow-y: auto;
 }
 
 #expense-list li {
-  background: #D2AF94;
-  border-radius: 16px;
-  padding: 0.8rem;
-  margin-bottom: 0.8rem;
+  background: #e0e0e0;
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 9px 9px 16px #bebebe, -9px -9px 16px #ffffff;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  gap: 10px;
 }
 
 #expense-list li .top-line {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   font-weight: bold;
-  font-size: 18px;
+  font-size: 16px;
+  color: #333;
 }
 
 #expense-list li .bottom-line {
-  font-size: 16px;
-  color: #ccc;
-  font-style: italic;
+  font-size: 14px;
+  color: #777;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-style: italic;
 }
 
 .action-icons {
@@ -134,10 +137,11 @@ button:hover {
   background: none;
   border: none;
   cursor: pointer;
+  box-shadow: none;
 }
 
 .action-icons svg {
   width: 24px;
   height: 24px;
-  fill: white;
+  fill: #FFA35C;
 }
