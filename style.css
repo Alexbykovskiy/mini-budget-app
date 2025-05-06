@@ -188,32 +188,16 @@ input[type="date"] {
 }
 
 
-/* Финальный фикс для iOS Safari: ширина input[type="date"] */
-input[type="date"] {
-  display: block;
-  width: 100%;
-  min-width: 140px;
-  padding: 10px 14px;
-  text-align: center;
+/* Fix legend layout to avoid overlapping the border */
+legend {
+  padding: 0 10px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #666;
+  margin-bottom: 0;
 }
 
-
-/* Обёртка для input[type="date"] */
-.date-wrapper {
-  min-width: 140px;
-  flex: 1;
-  display: flex;
-}
-
-.date-wrapper input[type="date"] {
-  width: 100%;
-  min-width: unset;
-  padding: 10px 14px;
-  text-align: center;
-  background-color: #e0e0e0;
-  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
-  color: #333;
-  border-radius: 14px;
-  border: none;
-  outline: none;
+/* Добавим верхний отступ у fieldset, чтобы legend не выглядела как обрезанная */
+fieldset.block {
+  padding-top: 28px;
 }
