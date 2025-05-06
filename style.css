@@ -225,15 +225,11 @@ select {
   border-radius: 20px;
   padding: 20px;
   margin-bottom: 16px;
-  box-shadow: 6px 6px 12px #bebebe, -6px -6px 12px #ffffff;
+  box-shadow: inset 6px 6px 12px #bebebe, inset -6px -6px 12px #ffffff;
   display: flex;
   flex-direction: column;
   gap: 12px;
   transition: transform 0.2s ease;
-}
-
-#expense-list li:hover {
-  transform: translateY(-2px);
 }
 
 #expense-list li .top-line {
