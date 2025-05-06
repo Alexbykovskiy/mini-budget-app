@@ -189,10 +189,17 @@ loadExpenses();
 
 
 
-document.addEventListener("DOMContentLoaded", () => {
-  const dateInput = document.getElementById("date");
-  if (dateInput && !dateInput.value) {
-    const today = new Date().toISOString().split("T")[0];
-    dateInput.value = today;
-  }
-});
+// Тема
+const toggle = document.getElementById("theme-toggle");
+const root = document.body;
+const saved = localStorage.getItem("theme");
+
+if (saved === "dark") root.classList.add("dark");
+
+toggle.onclick = () => {
+  root.classList.toggle("dark");
+  localStorage.setItem("theme", root.classList.contains("dark") ? "dark" : "light");
+  toggle.textContent = root.classList.contains("dark") ? "☀️" : "🌙";
+};
+
+toggle.textContent = root.classList.contains("dark") ? "☀️" : "🌙";

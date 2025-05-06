@@ -1,22 +1,30 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MINI Budget</title>
-  <link rel="stylesheet" href="style.css">
+
+  <!-- Стили -->
+  <link rel="stylesheet" href="style-neumorph-final14.css" />
+  <link rel="stylesheet" href="theme-toggle.css" />
+
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <h1 id="summary">Всего: €0.00</h1>
+  <div id="theme-toggle">🌙</div>
 
+  <h1 id="summary">Всего: €0.00</h1>
   <div class="chart-container">
     <canvas id="expenseChart"></canvas>
   </div>
 
-  <!-- Фильтры -->
   <fieldset class="block">
     <legend>Фильтры</legend>
     <div class="filters">
@@ -53,13 +61,11 @@
     </div>
   </fieldset>
 
-  <!-- Журнал -->
   <fieldset class="block">
     <legend>Журнал</legend>
     <ul id="expense-list"></ul>
   </fieldset>
 
-  <!-- Добавить расход -->
   <fieldset class="block">
     <legend>Добавить расход</legend>
     <form id="expense-form" class="expense-form">
@@ -100,6 +106,6 @@
   </fieldset>
 
   <script src="firebase-config.js"></script>
-  <script src="app.js"></script>
+  <script src="app-theme.js"></script>
 </body>
 </html>
