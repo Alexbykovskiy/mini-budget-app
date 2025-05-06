@@ -336,3 +336,33 @@ fieldset.block {
   padding-top: 48px;
   margin-top: 24px;
 }
+
+
+.chart-container ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+  color: #444;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 300px;
+}
+
+.chart-container ul li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  line-height: 1.4;
+}
+
+.chart-container ul li span {
+  display: inline-block;
+  min-width: 36px;
+  height: 12px;
+  border-radius: 12px; /* форма пилюли */
+  flex-shrink: 0;
+}
