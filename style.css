@@ -194,10 +194,10 @@ legend {
   color: #666;
   padding: 0 12px;
   position: relative;
-  top: 12px; /* смещение вниз от верхней рамки */
+  top: 20px; /* смещаем сильнее вниз от верхней границы */
 }
 
 fieldset.block {
-  padding-top: 40px; /* добавим места под legend */
+  padding-top: 48px; /* увеличиваем padding сверху, чтобы было место под legend */
   margin-top: 24px;
 }
