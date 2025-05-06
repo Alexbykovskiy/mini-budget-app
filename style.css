@@ -188,16 +188,95 @@ input[type="date"] {
 }
 
 
-legend {
-  font-size: 1rem;
-  font-weight: 500;
-  color: #666;
-  padding: 0 12px;
-  position: relative;
-  top: 20px; /* смещаем сильнее вниз от верхней границы */
+/* --- Впуклые поля (для ввода) --- */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+textarea {
+  background: #e0e0e0;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
+  color: #333;
 }
 
-fieldset.block {
-  padding-top: 48px; /* увеличиваем padding сверху, чтобы было место под legend */
-  margin-top: 24px;
+/* --- Выпуклые поля (выбор даты и категории) --- */
+input[type="date"],
+select {
+  background: #e0e0e0;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+  color: #333;
+  padding-right: 30px;
+}
+
+/* Добавим стрелочку к select */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%23333' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+}
+
+
+#expense-list li {
+  background: #e0e0e0;
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 6px 6px 12px #bebebe, -6px -6px 12px #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.2s ease;
+}
+
+#expense-list li:hover {
+  transform: translateY(-2px);
+}
+
+#expense-list li .top-line {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 18px;
+  color: #333;
+}
+
+#expense-list li .bottom-line {
+  font-size: 14px;
+  color: #555;
+  font-style: normal;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.action-icons {
+  display: flex;
+  gap: 8px;
+}
+
+.action-icons button {
+  background: #e0e0e0;
+  border-radius: 50%;
+  padding: 8px;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.action-icons button:hover {
+  transform: scale(1.05);
+}
+
+.action-icons svg {
+  width: 20px;
+  height: 20px;
+  fill: #FF6F3C;
 }
