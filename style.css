@@ -1,46 +1,58 @@
+
 body {
   font-family: 'Segoe UI', sans-serif;
-  background: #2b2b2b;
-  color: #f0f0f0;
+  background: #e0e0e0;
+  color: #333;
   margin: 0;
   padding: 20px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
+
 h1 {
   font-size: 24px;
   margin-bottom: 24px;
-  color: #f0f0f0;
+  color: #333;
 }
-.chart-container,
-fieldset.block,
-#expense-list li {
-  background: #3a3a3a;
+
+.chart-container {
+  width: 360px;
+  margin-bottom: 24px;
+  background: #e0e0e0;
   border-radius: 20px;
-  box-shadow: 6px 6px 12px #1e1e1e, -6px -6px 12px #444;
+  box-shadow: 9px 9px 16px #bebebe, -9px -9px 16px #ffffff;
+  padding: 16px;
 }
+
 fieldset.block {
   width: 360px;
+  background: #e0e0e0;
+  border-radius: 20px;
   padding: 20px;
   margin-bottom: 24px;
+  box-shadow: 9px 9px 16px #bebebe, -9px -9px 16px #ffffff;
   border: none;
 }
+
 legend {
   padding: 0 10px;
   font-size: 1rem;
-  color: #ccc;
+  color: #666;
 }
+
 .filters,
 .expense-form {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
+
 .row {
   display: flex;
   gap: 12px;
 }
+
 .row input,
 .row select,
 input,
@@ -52,30 +64,34 @@ button {
   border-radius: 14px;
   border: none;
   outline: none;
-  background: #2f2f2f;
-  color: #f0f0f0;
-  box-shadow: inset 2px 2px 5px #1e1e1e, inset -2px -2px 5px #444;
+  background: #e0e0e0;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
   transition: all 0.2s ease-in-out;
 }
+
 .row input:focus,
 .row select:focus {
-  box-shadow: inset 1px 1px 3px #1e1e1e, inset -1px -1px 3px #444;
+  box-shadow: inset 2px 2px 5px #bebebe, inset -2px -2px 5px #ffffff;
 }
+
 button {
   background: #FFA35C;
   color: white;
   font-weight: bold;
   cursor: pointer;
-  box-shadow: 4px 4px 8px #1e1e1e, -4px -4px 8px #444;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
 }
+
 button:hover {
   opacity: 0.95;
 }
+
 .form-buttons {
   display: flex;
   justify-content: space-between;
   gap: 10px;
 }
+
 #expense-list {
   list-style: none;
   padding: 0;
@@ -83,65 +99,270 @@ button:hover {
   max-height: 500px;
   overflow-y: auto;
 }
+
 #expense-list li {
+  background: #e0e0e0;
+  border-radius: 20px;
   padding: 16px;
   margin-bottom: 12px;
+  box-shadow: 9px 9px 16px #bebebe, -9px -9px 16px #ffffff;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  color: #eaeaea;
 }
+
 #expense-list li .top-line {
   display: flex;
   justify-content: space-between;
   font-weight: bold;
   font-size: 16px;
-  color: #ffffff;
+  color: #333;
 }
+
 #expense-list li .bottom-line {
   font-size: 14px;
-  color: #aaa;
+  color: #777;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-style: italic;
 }
+
 .action-icons {
   display: flex;
   gap: 8px;
 }
+
 .action-icons button {
   background: none;
   border: none;
   cursor: pointer;
   box-shadow: none;
 }
+
 .action-icons svg {
   width: 24px;
   height: 24px;
   fill: #FFA35C;
 }
-input[type="date"],
-select {
-  background-color: #2f2f2f;
-  color: #f0f0f0;
-  box-shadow: inset 2px 2px 5px #1e1e1e, inset -2px -2px 5px #444;
+
+
+/* iOS fixes */
+input[type="date"] {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: #e0e0e0;
+  color: #333;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
 }
+
 select {
-  background-image: url("data:image/svg+xml;utf8,<svg fill='%23f0f0f0' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: #e0e0e0;
+  color: #333;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%23333' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 16px;
   padding-right: 30px;
 }
+
+
+/* Улучшение видимости даты */
+input[type="date"] {
+  min-width: 120px;
+  text-align: center;
+}
+
+/* Ярлык для даты */
 .small-label {
   width: 70px;
   flex-shrink: 0;
-  color: #ddd;
 }
+
+/* Гарантия расширяемости поля даты */
 .row input[type="date"] {
   flex: 1;
 }
+
+
+/* --- Впуклые поля (для ввода) --- */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+textarea {
+  background: #e0e0e0;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
+  color: #333;
+}
+
+/* --- Выпуклые поля (выбор даты и категории) --- */
+input[type="date"],
+select {
+  background: #e0e0e0;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+  color: #333;
+  padding-right: 30px;
+}
+
+/* Добавим стрелочку к select */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%23333' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+}
+
+
+#expense-list li {
+  background: #e0e0e0;
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: inset 6px 6px 12px #bebebe, inset -6px -6px 12px #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.2s ease;
+}
+
+#expense-list li .top-line {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 18px;
+  color: #333;
+}
+
+#expense-list li .bottom-line {
+  font-size: 14px;
+  color: #555;
+  font-style: normal;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.action-icons {
+  display: flex;
+  gap: 8px;
+}
+
+.action-icons button {
+  background: #e0e0e0;
+  border-radius: 50%;
+  padding: 8px;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.action-icons button:hover {
+  transform: scale(1.05);
+}
+
+.action-icons svg {
+  width: 20px;
+  height: 20px;
+  fill: #FF6F3C;
+}
+
+
+.chart-container {
+  background: #e0e0e0;
+  border-radius: 20px;
+  box-shadow: inset 6px 6px 12px #bebebe, inset -6px -6px 12px #ffffff;
+  padding: 24px;
+  margin-bottom: 24px;
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chart-container canvas {
+  margin-bottom: 16px;
+}
+
+.chart-container ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+  color: #444;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 300px;
+}
+
+.chart-container ul li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  line-height: 1.4;
+}
+
 .chart-container ul li span {
-  background: #FFA35C;
+  display: inline-block;
+  width: 20px;
+  height: 10px;
+  border-radius: 10px; /* форма пилюли */
+}
+
+
+legend {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #666;
+  padding: 0 12px;
+  position: relative;
+  top: 20px;
+}
+
+fieldset.block {
+  padding-top: 48px;
+  margin-top: 24px;
+}
+
+
+.chart-container ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+  color: #444;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 300px;
+}
+
+.chart-container ul li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  line-height: 1.4;
+}
+
+.chart-container ul li span {
+  display: inline-block;
+  min-width: 36px;
+  height: 12px;
+  border-radius: 12px; /* форма пилюли */
+  flex-shrink: 0;
 }
