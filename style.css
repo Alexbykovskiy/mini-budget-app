@@ -193,12 +193,13 @@ legend {
   font-size: 1rem;
   font-weight: 500;
   color: #666;
-  margin-top: 12px; /* добавляем отступ сверху */
-  margin-left: 4px;
+  margin: 0;
+  position: relative;
+  top: 0;
 }
 
 fieldset.block {
   position: relative;
-  padding: 20px;
-  margin-top: 32px;
+  padding-top: 20px; /* заголовок будет внутри блока, без нависания */
+  margin-top: 20px;
 }
