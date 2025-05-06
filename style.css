@@ -188,33 +188,16 @@ input[type="date"] {
 }
 
 
-/* --- Впуклые поля (для ввода) --- */
-input[type="text"],
-input[type="number"],
-input[type="email"],
-input[type="password"],
-input[type="search"],
-textarea {
-  background: #e0e0e0;
-  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
-  color: #333;
+legend {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #666;
+  padding: 0 12px;
+  position: relative;
+  top: 20px; /* смещаем сильнее вниз от верхней границы */
 }
 
-/* --- Выпуклые поля (выбор даты и категории) --- */
-input[type="date"],
-select {
-  background: #e0e0e0;
-  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
-  color: #333;
-  padding-right: 30px;
-}
-
-/* Добавим стрелочку к select */
-select {
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg fill='%23333' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 16px;
+fieldset.block {
+  padding-top: 48px; /* увеличиваем padding сверху, чтобы было место под legend */
+  margin-top: 24px;
 }
