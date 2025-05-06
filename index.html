@@ -2,54 +2,104 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Mini Budget</title>
-  <link id="theme-stylesheet" rel="stylesheet" href="style_light_orange.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MINI Budget</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div class="container">
-    <div class="card">
-      <h2>Добавить расход</h2>
-      <form id="expense-form">
-        <input type="hidden" id="edit-id">
-        <input id="category" type="text" placeholder="Категория">
-        <input id="amount" type="text" placeholder="Сумма (€)">
-        <input id="liters" type="text" placeholder="Литры">
-        <input id="mileage" type="text" placeholder="Пробег">
-        <input id="date" type="date">
-        <input id="note" type="text" placeholder="Комментарий">
-        <input id="tag" type="text" placeholder="Тег">
-        <button type="submit">Сохранить</button>
-      </form>
-    </div>
+  <h1 id="summary">Всего: €0.00</h1>
 
-    <div class="filter-section">
-      <h2>Фильтры</h2>
-      <input id="filter-from" type="date">
-      <input id="filter-to" type="date">
-      <input id="filter-tag" type="text" placeholder="Тег">
-      <select id="filter-category">
-        <option>Все</option>
-        <option>Топливо</option>
-        <option>Ремонт</option>
-        <!-- и т.д. -->
-      </select>
-      <input id="filter-row-start" type="number" placeholder="С какой строки">
-      <input id="filter-row-end" type="number" placeholder="По какую строку">
-      <button onclick="applyFilters()">Применить</button>
-    </div>
-
-    <div class="journal-section">
-      <h2>Журнал</h2>
-      <ul id="expense-list"></ul>
-      <div id="summary"></div>
-    </div>
-
-    <canvas id="expenseChart" width="400" height="400"></canvas>
+  <div class="chart-container">
+    <canvas id="expenseChart"></canvas>
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Фильтры -->
+  <fieldset class="block">
+    <legend>Фильтры</legend>
+    <div class="filters">
+      <div class="row">
+        <label class="small-label">Период:</label>
+        <input type="date" id="filter-from" />
+        <input type="date" id="filter-to" />
+      </div>
+      <div class="row">
+        <input type="text" id="filter-tag" placeholder="#тег" />
+        <select id="filter-category">
+          <option value="Все">Все категории</option>
+          <option>Топливо</option>
+          <option>Парковка</option>
+          <option>Штрафы</option>
+          <option>Сервис</option>
+          <option>Ремонт</option>
+          <option>Страховка</option>
+          <option>Шины</option>
+          <option>Тюнинг</option>
+          <option>Мойка</option>
+          <option>Виньетка/Платные дороги</option>
+          <option>Другое</option>
+        </select>
+      </div>
+      <div class="row">
+        <input type="number" id="filter-row-start" placeholder="Строка от" />
+        <input type="number" id="filter-row-end" placeholder="до строки" />
+      </div>
+      <div class="form-buttons">
+        <button onclick="location.reload()">Сброс</button>
+        <button onclick="applyFilters()">Применить</button>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- Журнал -->
+  <fieldset class="block">
+    <legend>Журнал</legend>
+    <ul id="expense-list"></ul>
+  </fieldset>
+
+  <!-- Добавить расход -->
+  <fieldset class="block">
+    <legend>Добавить расход</legend>
+    <form id="expense-form" class="expense-form">
+      <div class="row">
+        <select id="category">
+          <option>Топливо</option>
+          <option>Парковка</option>
+          <option>Штрафы</option>
+          <option>Сервис</option>
+          <option>Ремонт</option>
+          <option>Страховка</option>
+          <option>Шины</option>
+          <option>Тюнинг</option>
+          <option>Мойка</option>
+          <option>Виньетка/Платные дороги</option>
+          <option>Другое</option>
+        </select>
+        <input type="text" id="amount" placeholder="Сумма €" required />
+      </div>
+      <div class="row">
+        <input type="text" id="liters" placeholder="Литры" />
+        <input type="text" id="mileage" placeholder="Пробег (км)" />
+      </div>
+      <div class="row">
+        <input type="text" id="note" placeholder="Комментарий" />
+        <input type="text" id="tag" placeholder="#тег" />
+      </div>
+      <div class="row">
+        <label class="small-label">Дата:</label>
+        <input type="date" id="date" required />
+      </div>
+      <div class="form-buttons">
+        <button type="button" onclick="form.reset(); document.getElementById('edit-id').value = '';">Отмена</button>
+        <button type="submit">Сохранить</button>
+      </div>
+      <input type="hidden" id="edit-id" />
+    </form>
+  </fieldset>
+
+  <script src="firebase-config.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
