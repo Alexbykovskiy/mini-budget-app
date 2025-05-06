@@ -168,3 +168,21 @@ select {
   background-size: 16px;
   padding-right: 30px;
 }
+
+
+/* Улучшение видимости даты */
+input[type="date"] {
+  min-width: 120px;
+  text-align: center;
+}
+
+/* Ярлык для даты */
+.small-label {
+  width: 70px;
+  flex-shrink: 0;
+}
+
+/* Гарантия расширяемости поля даты */
+.row input[type="date"] {
+  flex: 1;
+}
