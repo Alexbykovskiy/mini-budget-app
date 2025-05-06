@@ -193,14 +193,12 @@ legend {
   font-size: 1rem;
   font-weight: 500;
   color: #666;
-  margin: 0;
-  line-height: 1.2;
+  margin-top: 12px; /* добавляем отступ сверху */
+  margin-left: 4px;
 }
 
 fieldset.block {
   position: relative;
-  padding: 36px 20px 20px 20px; /* увеличили верхний padding под legend */
-  margin-top: 24px;
+  padding: 20px;
+  margin-top: 32px;
 }
-
-/* Дополнительно можно добавить фоновую заливку за legend, если захочется выделить */
