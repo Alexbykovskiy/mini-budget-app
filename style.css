@@ -145,3 +145,26 @@ button:hover {
   height: 24px;
   fill: #FFA35C;
 }
+
+
+/* iOS fixes */
+input[type="date"] {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: #e0e0e0;
+  color: #333;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: #e0e0e0;
+  color: #333;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%23333' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+  padding-right: 30px;
+}
