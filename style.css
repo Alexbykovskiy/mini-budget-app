@@ -196,3 +196,24 @@ input[type="date"] {
   padding: 10px 14px;
   text-align: center;
 }
+
+
+/* Обёртка для input[type="date"] */
+.date-wrapper {
+  min-width: 140px;
+  flex: 1;
+  display: flex;
+}
+
+.date-wrapper input[type="date"] {
+  width: 100%;
+  min-width: unset;
+  padding: 10px 14px;
+  text-align: center;
+  background-color: #e0e0e0;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
+  color: #333;
+  border-radius: 14px;
+  border: none;
+  outline: none;
+}
