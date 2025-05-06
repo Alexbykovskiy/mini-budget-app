@@ -22,8 +22,8 @@
     <div class="filters">
       <div class="row">
         <label class="small-label">Период:</label>
-        <div class="date-wrapper"><input type="date" id="filter-from" /></div>
-        <div class="date-wrapper"><input type="date" id="filter-to" /></div>
+        <input type="date" id="filter-from" />
+        <input type="date" id="filter-to" />
       </div>
       <div class="row">
         <input type="text" id="filter-tag" placeholder="#тег" />
@@ -89,7 +89,7 @@
       </div>
       <div class="row">
         <label class="small-label">Дата:</label>
-        <div class="date-wrapper"><input type="date" id="date" required /></div>
+        <input type="date" id="date" required />
       </div>
       <div class="form-buttons">
         <button type="button" onclick="form.reset(); document.getElementById('edit-id').value = '';">Отмена</button>
