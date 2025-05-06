@@ -189,17 +189,15 @@ input[type="date"] {
 
 
 legend {
-  padding: 0 12px;
   font-size: 1rem;
   font-weight: 500;
   color: #666;
-  margin: 0;
+  padding: 0 12px;
   position: relative;
-  top: 0;
+  top: 12px; /* смещение вниз от верхней рамки */
 }
 
 fieldset.block {
-  position: relative;
-  padding-top: 20px; /* заголовок будет внутри блока, без нависания */
-  margin-top: 20px;
+  padding-top: 40px; /* добавим места под legend */
+  margin-top: 24px;
 }
