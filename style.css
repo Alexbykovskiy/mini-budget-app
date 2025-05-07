@@ -106,10 +106,9 @@ input[type="date"] {
   border-radius: 16px;
   padding: 16px 20px;
   box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
-  height: 180px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  gap: 6px;
 }
 
 /* Визуальное деление */
@@ -122,13 +121,13 @@ input[type="date"] {
 }
 
 .bottom-line {
+  font-size: 14px;
+  color: #666;
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  font-size: 14px;
+  flex-wrap: wrap;
+  gap: 8px;
   font-style: italic;
-  color: #666;
-  height: 60px;
 }
 
 /* Иконки редактирования и удаления */
@@ -190,7 +189,6 @@ input[type="date"] {
 .expense-form .row {
   display: flex;
   flex-wrap: nowrap;
-  gap: 12px;
   margin-bottom: 10px;
 }
 
@@ -228,7 +226,7 @@ select#filter-category {
 
 /* Блок с журналом — как диаграмма по высоте */
 #expense-list-wrapper {
-  max-height: 620px;
+  height: 280px;
   overflow-y: auto;
   padding-right: 6px;
   scrollbar-width: thin;
