@@ -4,9 +4,7 @@ body {
   background: #e0e0e0;
   color: #333;
   margin: 0;
-  padding: 20px 16px;
-  overflow-x: hidden;
-  box-sizing: border-box;
+  padding: 20px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
