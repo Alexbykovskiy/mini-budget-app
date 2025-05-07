@@ -7,46 +7,111 @@
   <link rel="stylesheet" href="style.css">
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#FFA35C">
   <link rel="icon" href="icon-256.png">
 </head>
 <body>
-  <section class="page" id="main-page">
-    <h1 id="summary">Всего: €0.00</h1>
-    <div class="chart-container"><canvas id="expenseChart"></canvas></div>
-    <fieldset class="block"><h2>Фильтры</h2>
-      <div class="filters">
-        <div class="row"><input type="date" id="filter-from" /><input type="date" id="filter-to" /></div>
-        <div class="row"><input type="text" id="filter-tag" placeholder="#тег" />
-          <select id="filter-category"><option value="Все">Все категории</option></select>
-        </div>
-        <div class="row"><input type="number" id="filter-row-start" placeholder="Строка от" />
-          <input type="number" id="filter-row-end" placeholder="до строки" /></div>
-        <div class="form-buttons"><button onclick="location.reload()">Сброс</button>
-          <button onclick="applyFilters()">Применить</button></div>
-      </div>
-    </fieldset>
-    <fieldset class="block"><h2>Журнал</h2><ul id="expense-list"></ul></fieldset>
-    <fieldset class="block"><h2>Добавить расход</h2>
-      <form id="expense-form" class="expense-form">
-        <div class="row"><select id="category"><option>Топливо</option></select>
-          <input type="text" id="amount" placeholder="Сумма €" required /></div>
-        <div class="row"><input type="text" id="liters" placeholder="Литры" />
-          <input type="text" id="mileage" placeholder="Пробег (км)" /></div>
-        <div class="row"><input type="text" id="note" placeholder="Комментарий" />
-          <input type="text" id="tag" placeholder="#тег" /></div>
-        <div class="row"><input type="date" id="date" required /></div>
-        <div class="form-buttons"><button type="button" onclick="form.reset();document.getElementById('edit-id').value=''">Отмена</button>
-          <button type="submit">Сохранить</button></div>
-        <input type="hidden" id="edit-id" />
-      </form>
-    </fieldset>
-  </section>
+  <h1 id="summary">Всего: €0.00</h1>
 
-<!-- Вторая вкладка: галерея -->
+  <div class="chart-container">
+    <canvas id="expenseChart"></canvas>
+  </div>
+
+  <!-- Фильтры -->
+  <fieldset class="block">
+    <legend>Фильтры</legend>
+    <div class="filters">
+      <div class="row">
+        <label class="small-label">Период:</label>
+        <input type="date" id="filter-from" />
+        <input type="date" id="filter-to" />
+      </div>
+      <div class="row">
+        <input type="text" id="filter-tag" placeholder="#тег" />
+        <select id="filter-category">
+          <option value="Все">Все категории</option>
+          <option>Топливо</option>
+          <option>Парковка</option>
+          <option>Штрафы</option>
+          <option>Сервис</option>
+          <option>Ремонт</option>
+          <option>Страховка</option>
+          <option>Шины</option>
+          <option>Тюнинг</option>
+          <option>Мойка</option>
+          <option>Виньетка/Платные дороги</option>
+          <option>Другое</option>
+        </select>
+      </div>
+      <div class="row">
+        <input type="number" id="filter-row-start" placeholder="Строка от" />
+        <input type="number" id="filter-row-end" placeholder="до строки" />
+      </div>
+      <div class="form-buttons">
+        <button onclick="location.reload()">Сброс</button>
+        <button onclick="applyFilters()">Применить</button>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- Журнал -->
+  <fieldset class="block">
+    <legend>Журнал</legend>
+    <ul id="expense-list"></ul>
+  </fieldset>
+
+  <!-- Добавить расход -->
+  <fieldset class="block">
+    <legend>Добавить расход</legend>
+    <form id="expense-form" class="expense-form">
+      <div class="row">
+        <select id="category">
+          <option>Топливо</option>
+          <option>Парковка</option>
+          <option>Штрафы</option>
+          <option>Сервис</option>
+          <option>Ремонт</option>
+          <option>Страховка</option>
+          <option>Шины</option>
+          <option>Тюнинг</option>
+          <option>Мойка</option>
+          <option>Виньетка/Платные дороги</option>
+          <option>Другое</option>
+        </select>
+        <input type="text" id="amount" placeholder="Сумма €" required />
+      </div>
+      <div class="row">
+        <input type="text" id="liters" placeholder="Литры" />
+        <input type="text" id="mileage" placeholder="Пробег (км)" />
+      </div>
+      <div class="row">
+        <input type="text" id="note" placeholder="Комментарий" />
+        <input type="text" id="tag" placeholder="#тег" />
+      </div>
+      <div class="row">
+        <label class="small-label">Дата:</label>
+        <input type="date" id="date" required />
+      </div>
+      <div class="form-buttons">
+        <button type="button" onclick="form.reset(); document.getElementById('edit-id').value = '';">Отмена</button>
+        <button type="submit">Сохранить</button>
+      </div>
+      <input type="hidden" id="edit-id" />
+    </form>
+  </fieldset>
+
+  <script src="firebase-config.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log('Service Worker registered'))
+        .catch(err => console.error('SW registration failed:', err));
+    }
+  </script>
+
 <section class="page" id="gallery-page" style="display: none">
   <h2>Галерея документов</h2>
   <input type="file" id="photoInput" accept="image/*" capture="environment" multiple>
@@ -71,13 +136,14 @@
 </style>
 
 <script>
+  // свайп между страницами
   let startX = 0;
   document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
   document.addEventListener('touchend', e => {
     const endX = e.changedTouches[0].clientX;
     const delta = endX - startX;
     if (Math.abs(delta) > 80) {
-      const main = document.getElementById('main-page');
+      const main = document.getElementById('summary').closest('section') || document.body;
       const gallery = document.getElementById('gallery-page');
       if (delta < 0) {
         main.style.display = 'none';
@@ -94,7 +160,7 @@
   const storage = firebase.storage();
   const db = firebase.firestore();
 
-  photoInput.addEventListener('change', async (e) => {
+  photoInput?.addEventListener('change', async (e) => {
     const files = e.target.files;
     for (const file of files) {
       const ref = storage.ref().child(`documents/${Date.now()}_${file.name}`);
@@ -110,6 +176,7 @@
   });
 
   async function loadGallery() {
+    if (!photoGallery) return;
     photoGallery.innerHTML = '';
     const snap = await db.collection('users').doc('mini').collection('documents')
       .orderBy('timestamp', 'desc').get();
