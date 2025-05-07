@@ -1,66 +1,21 @@
+body {
+  transition: all 0.3s ease;
+}
 
+.scale-80 {
+  font-size: 0.8em;
+}
 
-/* ✅ Адаптивность для iOS в портретной ориентации */
-@media screen and (max-width: 480px) and (orientation: portrait) {
-  body {
-    font-size: 14px;
-    padding: 8px;
-  }
+.scale-90 {
+  font-size: 0.9em;
+}
 
-  h1#summary {
-    font-size: 1.2em;
-    text-align: center;
-    margin-bottom: 0.5em;
-  }
+.scale-100 {
+  font-size: 1em;
+}
 
-  .chart-container {
-    width: 100%;
-    max-width: 100%;
-    margin: 0 auto 1em;
-  }
-
-  canvas#expenseChart {
-    width: 100% !important;
-    height: auto !important;
-  }
-
-  .filters .row,
-  .expense-form .row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 6px;
-  }
-
-  input, select, button {
-    font-size: 1em;
-  }
-
-  .form-buttons {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    gap: 8px;
-    margin-top: 10px;
-  }
-
-  fieldset.block {
-    margin-bottom: 1em;
-    padding: 0.8em;
-  }
-
-  .top-line, .bottom-line {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .action-icons {
-    display: flex;
-    gap: 8px;
-    margin-top: 6px;
-  }
-
-  ul#expense-list li {
-    padding: 10px;
-    font-size: 0.95em;
-  }
+/* Стили для выпадающего меню масштабов */
+.scale-selector {
+  text-align: center;
+  margin-bottom: 1em;
 }
