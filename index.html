@@ -5,6 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MINI Budget</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+body {
+  background: #e0e0e0;
+  font-family: sans-serif;
+  transition: all 0.3s ease;
+}
+
+.scale-selector {
+  margin: 1em auto;
+  text-align: center;
+}
+
+.scale-selector select {
+  background: #e0e0e0;
+  border: none;
+  border-radius: 12px;
+  box-shadow: inset 2px 2px 5px #bebebe,
+              inset -5px -5px 10px #ffffff;
+  padding: 0.5em 1em;
+  font-size: 1em;
+  appearance: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.scale-selector label {
+  margin-right: 0.5em;
+  font-weight: bold;
+}
+  </style>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -12,7 +42,7 @@
   <meta name="theme-color" content="#FFA35C">
   <link rel="icon" href="icon-256.png">
 </head>
-<body>
+<body class="scale-100">
   <h1 id="summary">Всего: €0.00</h1>
   <div class="scale-selector">
     <label for="scale-select">Масштаб:</label>

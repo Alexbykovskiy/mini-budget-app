@@ -14,6 +14,7 @@ function renderExpenses(data) {
   data.forEach((exp, index) => {
     total += Number(exp.amount);
     const li = document.createElement('li');
+
     li.innerHTML = `
       <div class="top-line">
         <span>#${index + 1}</span>
@@ -38,6 +39,7 @@ function renderExpenses(data) {
         </div>
       </div>
     `;
+
     list.appendChild(li);
   });
   summary.textContent = `Всего: €${fullTotal.toFixed(2)}`;
@@ -131,7 +133,10 @@ function updateChart(data, total) {
     type: 'doughnut',
     data: {
       labels: labels,
-      datasets: [{ data: values, backgroundColor: colors.slice(0, labels.length) }]
+      datasets: [{
+        data: values,
+        backgroundColor: colors.slice(0, labels.length)
+      }]
     },
     options: {
       cutout: '65%',
@@ -158,7 +163,11 @@ function updateChart(data, total) {
           }
         },
         tooltip: { enabled: false },
-        datalabels: { display: false }
+        datalabels: { display: false },
+        centerText: {
+          display: true,
+          text: `€${total.toFixed(2)}`
+        }
       }
     },
     plugins: [{
@@ -176,11 +185,9 @@ function updateChart(data, total) {
   });
 }
 
-function changeScale(scale) {
-  document.body.classList.remove("scale-80", "scale-90", "scale-100");
-  document.body.classList.add(`scale-${scale}`);
-  localStorage.setItem("scale", scale);
-}
+loadExpenses();
+
+
 
 document.addEventListener("DOMContentLoaded", () => {
   const dateInput = document.getElementById("date");
@@ -188,10 +195,4 @@ document.addEventListener("DOMContentLoaded", () => {
     const today = new Date().toISOString().split("T")[0];
     dateInput.value = today;
   }
-  const savedScale = localStorage.getItem("scale") || "100";
-  changeScale(savedScale);
-  const select = document.getElementById("scale-select");
-  if (select) select.value = savedScale;
 });
-
-loadExpenses();
