@@ -165,3 +165,45 @@ input[type="date"] {
   flex-wrap: wrap;
   width: 100%;
 }
+
+/* Фильтры — структура по строкам */
+.filters .row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.filters .row input,
+.filters .row select {
+  flex: 1;
+}
+
+/* Журнал — скролл и ограниченная высота */
+#expense-list-wrapper {
+  height: 300px;
+  overflow-y: auto;
+}
+
+/* Форма "Добавить расход" — структура по строкам */
+.expense-form .row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.expense-form .row input,
+.expense-form .row select {
+  flex: 1;
+}
+
+/* Центрирование поля с датой */
+.expense-form .row.date-row {
+  justify-content: center;
+}
+
+input[type="date"] {
+  text-align: center;
+  font-weight: bold;
+}
