@@ -1,14 +1,11 @@
 
 body {
-  transform: scale(0.85);
-  transform-origin: top center;
-  width: 117.6%;
-  overflow-x: hidden;
   font-family: 'Segoe UI', sans-serif;
   background: #e0e0e0;
   color: #333;
   margin: 0;
-  padding: 20px 0;
+  padding: 20px 16px;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
