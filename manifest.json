@@ -1,0 +1,25 @@
+{
+  "name": "MINI Budget",
+  "short_name": "MINI Budget",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#e0e0e0",
+  "theme_color": "#e0e0e0",
+  "icons": [
+    {
+      "src": "mini-icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "mini-icon-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "mini-icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
