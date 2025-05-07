@@ -4,7 +4,7 @@ body {
   background: #e0e0e0;
   color: #333;
   margin: 0;
-  padding: 20px 0;
+  padding: 20px 0 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -17,7 +17,10 @@ h1 {
 }
 
 .chart-container {
-  width: 360px;
+  width: 100%;
+  max-width: 420px;
+  padding: 16px;
+  box-sizing: border-box;
   margin-bottom: 24px;
   background: #e0e0e0;
   border-radius: 20px;
@@ -26,7 +29,10 @@ h1 {
 }
 
 fieldset.block {
-  width: 360px;
+  width: 100%;
+  max-width: 420px;
+  padding: 16px;
+  box-sizing: border-box;
   background: #e0e0e0;
   border-radius: 20px;
   padding: 20px;
@@ -284,7 +290,10 @@ select {
   box-shadow: inset 6px 6px 12px #bebebe, inset -6px -6px 12px #ffffff;
   padding: 24px;
   margin-bottom: 24px;
-  width: 360px;
+  width: 100%;
+  max-width: 420px;
+  padding: 16px;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
