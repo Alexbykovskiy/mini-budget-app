@@ -207,3 +207,42 @@ input[type="date"] {
   text-align: center;
   font-weight: bold;
 }
+
+/* Выпуклая категория — и в фильтрах, и в форме */
+select#category,
+select#filter-category {
+  background: #e0e0e0;
+  border: none;
+  border-radius: 14px;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+  padding: 10px 14px;
+  font-size: 16px;
+  color: #333;
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%23333' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+}
+
+/* Блок с журналом — как диаграмма по высоте */
+#expense-list-wrapper {
+  height: 280px;
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-width: thin;
+}
+
+/* Стилизация скроллбара для WebKit */
+#expense-list-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+
+#expense-list-wrapper::-webkit-scrollbar-thumb {
+  background-color: #c4c4c4;
+  border-radius: 6px;
+}
+
+#expense-list-wrapper::-webkit-scrollbar-track {
+  background-color: #e0e0e0;
+}
