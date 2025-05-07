@@ -1,124 +1,118 @@
 <!DOCTYPE html>
+
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MINI Budget</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#FFA35C">
-  <link rel="icon" href="icon-256.png">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MINI Budget</title>
+<link href="style.css" rel="stylesheet"/>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="manifest.json" rel="manifest"/>
+<meta content="#FFA35C" name="theme-color"/>
+<link href="icon-256.png" rel="icon"/>
 </head>
 <body>
 <section id="main-page">
 <h1 id="summary">Всего: €0.00</h1>
-
-  <div class="chart-container">
-    <canvas id="expenseChart"></canvas>
-  </div>
-
-  <!-- Фильтры -->
-  <fieldset class="block">
-    <legend>Фильтры</legend>
-    <div class="filters">
-      <div class="row">
-        <label class="small-label">Период:</label>
-        <input type="date" id="filter-from" />
-        <input type="date" id="filter-to" />
-      </div>
-      <div class="row">
-        <input type="text" id="filter-tag" placeholder="#тег" />
-        <select id="filter-category">
-          <option value="Все">Все категории</option>
-          <option>Топливо</option>
-          <option>Парковка</option>
-          <option>Штрафы</option>
-          <option>Сервис</option>
-          <option>Ремонт</option>
-          <option>Страховка</option>
-          <option>Шины</option>
-          <option>Тюнинг</option>
-          <option>Мойка</option>
-          <option>Виньетка/Платные дороги</option>
-          <option>Другое</option>
-        </select>
-      </div>
-      <div class="row">
-        <input type="number" id="filter-row-start" placeholder="Строка от" />
-        <input type="number" id="filter-row-end" placeholder="до строки" />
-      </div>
-      <div class="form-buttons">
-        <button onclick="location.reload()">Сброс</button>
-        <button onclick="applyFilters()">Применить</button>
-      </div>
-    </div>
-  </fieldset>
-
-  <!-- Журнал -->
-  <fieldset class="block">
-    <legend>Журнал</legend>
-    <ul id="expense-list"></ul>
-  </fieldset>
-
-  <!-- Добавить расход -->
-  <fieldset class="block">
-    <legend>Добавить расход</legend>
-    <form id="expense-form" class="expense-form">
-      <div class="row">
-        <select id="category">
-          <option>Топливо</option>
-          <option>Парковка</option>
-          <option>Штрафы</option>
-          <option>Сервис</option>
-          <option>Ремонт</option>
-          <option>Страховка</option>
-          <option>Шины</option>
-          <option>Тюнинг</option>
-          <option>Мойка</option>
-          <option>Виньетка/Платные дороги</option>
-          <option>Другое</option>
-        </select>
-        <input type="text" id="amount" placeholder="Сумма €" required />
-      </div>
-      <div class="row">
-        <input type="text" id="liters" placeholder="Литры" />
-        <input type="text" id="mileage" placeholder="Пробег (км)" />
-      </div>
-      <div class="row">
-        <input type="text" id="note" placeholder="Комментарий" />
-        <input type="text" id="tag" placeholder="#тег" />
-      </div>
-      <div class="row">
-        <label class="small-label">Дата:</label>
-        <input type="date" id="date" required />
-      </div>
-      <div class="form-buttons">
-        <button type="button" onclick="form.reset(); document.getElementById('edit-id').value = '';">Отмена</button>
-        <button type="submit">Сохранить</button>
-      </div>
-      <input type="hidden" id="edit-id" />
-    </form>
-  </fieldset>
-
-  <script src="firebase-config.js"></script>
-  <script src="app.js"></script>
-  <script>
+<div class="chart-container">
+<canvas id="expenseChart"></canvas>
+</div>
+<!-- Фильтры -->
+<fieldset class="block">
+<legend>Фильтры</legend>
+<div class="filters">
+<div class="row">
+<label class="small-label">Период:</label>
+<input id="filter-from" type="date"/>
+<input id="filter-to" type="date"/>
+</div>
+<div class="row">
+<input id="filter-tag" placeholder="#тег" type="text"/>
+<select id="filter-category">
+<option value="Все">Все категории</option>
+<option>Топливо</option>
+<option>Парковка</option>
+<option>Штрафы</option>
+<option>Сервис</option>
+<option>Ремонт</option>
+<option>Страховка</option>
+<option>Шины</option>
+<option>Тюнинг</option>
+<option>Мойка</option>
+<option>Виньетка/Платные дороги</option>
+<option>Другое</option>
+</select>
+</div>
+<div class="row">
+<input id="filter-row-start" placeholder="Строка от" type="number"/>
+<input id="filter-row-end" placeholder="до строки" type="number"/>
+</div>
+<div class="form-buttons">
+<button onclick="location.reload()">Сброс</button>
+<button onclick="applyFilters()">Применить</button>
+</div>
+</div>
+</fieldset>
+<!-- Журнал -->
+<fieldset class="block">
+<legend>Журнал</legend>
+<ul id="expense-list"></ul>
+</fieldset>
+<!-- Добавить расход -->
+<fieldset class="block">
+<legend>Добавить расход</legend>
+<form class="expense-form" id="expense-form">
+<div class="row">
+<select id="category">
+<option>Топливо</option>
+<option>Парковка</option>
+<option>Штрафы</option>
+<option>Сервис</option>
+<option>Ремонт</option>
+<option>Страховка</option>
+<option>Шины</option>
+<option>Тюнинг</option>
+<option>Мойка</option>
+<option>Виньетка/Платные дороги</option>
+<option>Другое</option>
+</select>
+<input id="amount" placeholder="Сумма €" required="" type="text"/>
+</div>
+<div class="row">
+<input id="liters" placeholder="Литры" type="text"/>
+<input id="mileage" placeholder="Пробег (км)" type="text"/>
+</div>
+<div class="row">
+<input id="note" placeholder="Комментарий" type="text"/>
+<input id="tag" placeholder="#тег" type="text"/>
+</div>
+<div class="row">
+<label class="small-label">Дата:</label>
+<input id="date" required="" type="date"/>
+</div>
+<div class="form-buttons">
+<button onclick="form.reset(); document.getElementById('edit-id').value = '';" type="button">Отмена</button>
+<button type="submit">Сохранить</button>
+</div>
+<input id="edit-id" type="hidden"/>
+</form>
+</fieldset>
+<script src="firebase-config.js"></script>
+<script src="app.js"></script>
+<script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js')
         .then(() => console.log('Service Worker registered'))
         .catch(err => console.error('SW registration failed:', err));
     }
   </script>
-
 <section class="page" id="gallery-page" style="display: none">
-  <h2>Галерея документов</h2>
-  <input type="file" id="photoInput" accept="image/*" capture="environment" multiple>
-  <div id="photoGallery" class="gallery-grid"></div>
+<h2>Галерея документов</h2>
+<input accept="image/*" capture="environment" id="photoInput" multiple="" type="file"/>
+<div class="gallery-grid" id="photoGallery"></div>
 </section>
-
 <style>
   .gallery-grid {
     margin-top: 16px;
@@ -135,7 +129,6 @@
     height: 100px;
   }
 </style>
-
 <script>
   // свайп между страницами
   let startX = 0;
@@ -193,11 +186,10 @@
 </script>
 </section>
 <section class="page" id="gallery-page" style="display: none">
-  <h2>Галерея документов</h2>
-  <input type="file" id="photoInput" accept="image/*" capture="environment" multiple>
-  <div id="photoGallery" class="gallery-grid"></div>
+<h2>Галерея документов</h2>
+<input accept="image/*" capture="environment" id="photoInput" multiple="" type="file"/>
+<div class="gallery-grid" id="photoGallery"></div>
 </section>
-
 <style>
   .gallery-grid {
     margin-top: 16px;
@@ -214,7 +206,6 @@
     height: 100px;
   }
 </style>
-
 <script>
   let startX = 0;
   document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
@@ -269,7 +260,63 @@
 
   document.addEventListener("DOMContentLoaded", loadGallery);
 </script>
-</body>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const dots = document.querySelectorAll(".dot");
+  const mainPage = document.getElementById("main-page");
+  const galleryPage = document.getElementById("gallery-page");
+
+  function switchPage(target) {
+    if (target === "gallery-page") {
+      mainPage.style.display = "none";
+      galleryPage.style.display = "block";
+    } else {
+      mainPage.style.display = "block";
+      galleryPage.style.display = "none";
+    }
+    dots.forEach(dot => dot.classList.remove("active"));
+    document.querySelector(`.dot[data-target="${target}"]`).classList.add("active");
+  }
+
+  dots.forEach(dot => {
+    dot.addEventListener("click", () => switchPage(dot.dataset.target));
+  });
+
+  loadGallery();
+});
+
+const photoInput = document.getElementById('photoInput');
+const photoGallery = document.getElementById('photoGallery');
+const storage = firebase.storage();
+const db = firebase.firestore();
+
+photoInput?.addEventListener('change', async (e) => {
+  const files = e.target.files;
+  for (const file of files) {
+    const ref = storage.ref().child(`documents/${Date.now()}_${file.name}`);
+    await ref.put(file);
+    const url = await ref.getDownloadURL();
+    await db.collection('users').doc('mini').collection('documents').add({
+      url,
+      name: file.name,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
+  loadGallery();
+});
+
+async function loadGallery() {
+  if (!photoGallery) return;
+  photoGallery.innerHTML = '';
+  const snap = await db.collection('users').doc('mini').collection('documents')
+    .orderBy('timestamp', 'desc').get();
+  snap.forEach(doc => {
+    const data = doc.data();
+    const img = document.createElement('img');
+    img.src = data.url;
+    photoGallery.appendChild(img);
+  });
+}
+</script></body>
 </html>
 
-</html>
