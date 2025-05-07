@@ -1,3 +1,4 @@
+
 self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open('mini-budget-cache-v1').then(function(cache) {
@@ -7,9 +8,26 @@ self.addEventListener('install', function(event) {
         './style.css',
         './app.js',
         './firebase-config.js',
-        './mini-icon.png',
-        './manifest.json'
+        './mini-coin-icon-transparent-192.png',
+        './mini-coin-icon-transparent-256.png',
+        './mini-coin-icon-transparent-512.png',
+        './manifest-v2.json'
       ]);
+    })
+  );
+});
+
+self.addEventListener('activate', function(event) {
+  const cacheWhitelist = ['mini-budget-cache-v1'];  // Updated cache name
+  event.waitUntil(
+    caches.keys().then(function(cacheNames) {
+      return Promise.all(
+        cacheNames.map(function(cacheName) {
+          if (!cacheWhitelist.includes(cacheName)) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
     })
   );
 });
