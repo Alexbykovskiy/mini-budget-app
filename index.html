@@ -13,7 +13,8 @@
   <link rel="icon" href="icon-256.png">
 </head>
 <body>
-  <h1 id="summary">Всего: €0.00</h1>
+<section id="main-page">
+<h1 id="summary">Всего: €0.00</h1>
 
   <div class="chart-container">
     <canvas id="expenseChart"></canvas>
@@ -190,6 +191,85 @@
 
   document.addEventListener("DOMContentLoaded", loadGallery);
 </script>
+</section>
+<section class="page" id="gallery-page" style="display: none">
+  <h2>Галерея документов</h2>
+  <input type="file" id="photoInput" accept="image/*" capture="environment" multiple>
+  <div id="photoGallery" class="gallery-grid"></div>
+</section>
 
+<style>
+  .gallery-grid {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 12px;
+  }
+
+  .gallery-grid img {
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+    object-fit: cover;
+    height: 100px;
+  }
+</style>
+
+<script>
+  let startX = 0;
+  document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+  document.addEventListener('touchend', e => {
+    const endX = e.changedTouches[0].clientX;
+    const delta = endX - startX;
+    if (Math.abs(delta) > 50) {
+      const mainPage = document.getElementById('main-page');
+      const galleryPage = document.getElementById('gallery-page');
+      if (delta < 0) {
+        mainPage.style.display = 'none';
+        galleryPage.style.display = 'block';
+      } else {
+        mainPage.style.display = 'block';
+        galleryPage.style.display = 'none';
+      }
+    }
+  });
+
+  const photoInput = document.getElementById('photoInput');
+  const photoGallery = document.getElementById('photoGallery');
+  const storage = firebase.storage();
+  const db = firebase.firestore();
+
+  photoInput?.addEventListener('change', async (e) => {
+    const files = e.target.files;
+    for (const file of files) {
+      const ref = storage.ref().child(`documents/${Date.now()}_${file.name}`);
+      await ref.put(file);
+      const url = await ref.getDownloadURL();
+      await db.collection('users').doc('mini').collection('documents').add({
+        url,
+        name: file.name,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+    loadGallery();
+  });
+
+  async function loadGallery() {
+    if (!photoGallery) return;
+    photoGallery.innerHTML = '';
+    const snap = await db.collection('users').doc('mini').collection('documents')
+      .orderBy('timestamp', 'desc').get();
+    snap.forEach(doc => {
+      const data = doc.data();
+      const img = document.createElement('img');
+      img.src = data.url;
+      photoGallery.appendChild(img);
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", loadGallery);
+</script>
 </body>
+</html>
+
 </html>
