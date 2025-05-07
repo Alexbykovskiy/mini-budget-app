@@ -20,9 +20,8 @@
   </div>
 
   <!-- Фильтры -->
-  <fieldset class="block">
-
-    <legend>Фильтры</legend>
+  <div class="block">
+    <h2 class="section-title">Фильтры</h2>
     <div class="filters">
       <div class="row">
         <label class="small-label">Период:</label>
@@ -55,18 +54,19 @@
         <button onclick="applyFilters()">Применить</button>
       </div>
     </div>
-  </fieldset>
+  </div>
 
   <!-- Журнал -->
-     <legend>Журнал</legend>
+  <fieldset class="block">
+    <legend>Журнал</legend>
     <div id="expense-list-wrapper">
   <ul id="expense-list"></ul>
 </div>
- 
-  <!-- Добавить расход -->
-  <fieldset class="block">
+  </div>
 
-    <legend>Добавить расход</legend>
+  <!-- Добавить расход -->
+  <div class="block">
+    <h2 class="section-title">Добавить расход</h2>
     <form id="expense-form" class="expense-form">
       <div class="row">
         <select id="category">
