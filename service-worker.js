@@ -18,16 +18,19 @@ self.addEventListener('install', function(event) {
 });
 
 self.addEventListener('activate', function(event) {
-  const cacheWhitelist = ['mini-budget-cache-v1'];  // Updated cache name
+  const cacheWhitelist = ['mini-budget-cache-v1'];  // New cache name
   event.waitUntil(
     caches.keys().then(function(cacheNames) {
       return Promise.all(
         cacheNames.map(function(cacheName) {
+          // Delete old caches
           if (!cacheWhitelist.includes(cacheName)) {
             return caches.delete(cacheName);
           }
         })
       );
+    }).then(() => {
+      return self.clients.claim();  // Make sure the service worker is immediately active
     })
   );
 });
@@ -39,3 +42,12 @@ self.addEventListener('fetch', function(event) {
     })
   );
 });
+
+// Force service worker to update whenever the page is loaded
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+    registration.update();
+  }).catch(function(error) {
+    console.log('Service Worker registration failed:', error);
+  });
+}
