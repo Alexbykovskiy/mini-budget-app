@@ -3,21 +3,19 @@ body {
   background: #e0e0e0;
   color: #333;
   margin: 0;
-  padding: 20px 0;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-h1 {
-  font-size: 24px;
-  margin-bottom: 24px;
-  color: #333;
+.page {
+  width: 100%;
+  max-width: 420px;
 }
 
-/* Унифицированный контейнер */
-.block {
-  width: 360px;
+fieldset.block {
+  width: 100%;
   background: #e0e0e0;
   border-radius: 20px;
   padding: 24px;
@@ -26,8 +24,7 @@ h1 {
   border: none;
 }
 
-/* Заголовки внутри блоков */
-.block > h2 {
+h2 {
   margin-top: 0;
   margin-bottom: 16px;
   font-size: 18px;
@@ -35,214 +32,6 @@ h1 {
   color: #444;
 }
 
-/* Кнопки */
-button {
-  background: #FFA35C;
-  color: white;
-  font-weight: bold;
-  border: none;
-  padding: 12px 18px;
-  border-radius: 14px;
-  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
-  cursor: pointer;
-}
-
-button:hover {
-  opacity: 0.95;
-}
-
-.form-buttons {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-/* Поля ввода */
-input, select, textarea {
-  width: 100%;
-  padding: 10px 14px;
-  font-size: 16px;
-  border-radius: 14px;
-  border: none;
-  outline: none;
-  background: #e0e0e0;
-  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
-}
-
-/* Выпуклая дата */
-input[type="date"] {
-  appearance: none;
-  -webkit-appearance: none;
-  text-align: center;
-  padding: 12px;
-  background: #e0e0e0;
-  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
-  font-size: 16px;
-}
-
-/* Контейнер для списка расходов */
-#expense-list-wrapper {
-  width: 360px;
-  background: #e0e0e0;
-  border-radius: 20px;
-  padding: 24px;
-  margin-bottom: 24px;
-  box-shadow: 9px 9px 16px #bebebe, -9px -9px 16px #ffffff;
-}
-
-/* Список расходов */
-#expense-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-#expense-list li {
-  background: #e0e0e0;
-  border-radius: 16px;
-  padding: 16px 20px;
-  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-/* Визуальное деление */
-.top-line {
-  display: flex;
-  justify-content: space-between;
-  font-weight: bold;
-  font-size: 16px;
-  color: #222;
-}
-
-.bottom-line {
-  font-size: 14px;
-  color: #666;
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
-  font-style: italic;
-}
-
-/* Иконки редактирования и удаления */
-.action-icons {
-  display: flex;
-  gap: 10px;
-  margin-top: 6px;
-}
-
-.action-icons button {
-  background: #e0e0e0;
-  border-radius: 50%;
-  padding: 8px;
-  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease;
-}
-
-.action-icons button:hover {
-  transform: scale(1.05);
-}
-
-.action-icons svg {
-  width: 20px;
-  height: 20px;
-  fill: #FF6F3C;
-}
-
-/* Ряды в фильтрах и форме */
-.row {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  width: 100%;
-}
-
-/* Фильтры — структура по строкам */
-.filters .row {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-
-.filters .row input,
-.filters .row select {
-  flex: 1;
-}
-
-/* Журнал — скролл и ограниченная высота */
-#expense-list-wrapper {
-  height: 300px;
-  overflow-y: auto;
-}
-
-/* Форма "Добавить расход" — структура по строкам */
-.expense-form .row {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-
-.expense-form .row input,
-.expense-form .row select {
-  flex: 1;
-}
-
-/* Центрирование поля с датой */
-.expense-form .row.date-row {
-  justify-content: center;
-}
-
-input[type="date"] {
-  text-align: center;
-  font-weight: bold;
-}
-
-/* Выпуклая категория — и в фильтрах, и в форме */
-select#category,
-select#filter-category {
-  background: #e0e0e0;
-  border: none;
-  border-radius: 14px;
-  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
-  padding: 10px 14px;
-  font-size: 16px;
-  color: #333;
-  appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg fill='%23333' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 16px;
-}
-
-/* Блок с журналом — как диаграмма по высоте */
-#expense-list-wrapper {
-  height: 280px;
-  overflow-y: auto;
-  padding-right: 6px;
-  scrollbar-width: thin;
-}
-
-/* Стилизация скроллбара для WebKit */
-#expense-list-wrapper::-webkit-scrollbar {
-  width: 6px;
-}
-
-#expense-list-wrapper::-webkit-scrollbar-thumb {
-  background-color: #c4c4c4;
-  border-radius: 6px;
-}
-
-#expense-list-wrapper::-webkit-scrollbar-track {
-  background-color: #e0e0e0;
+input[type="file"] {
+  margin-bottom: 16px;
 }
