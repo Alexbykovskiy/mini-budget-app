@@ -15,63 +15,36 @@ h1 {
   color: #333;
 }
 
-.chart-container,
-fieldset.block {
+/* Унифицированный контейнер */
+.block {
   width: 360px;
-  margin-bottom: 24px;
   background: #e0e0e0;
   border-radius: 20px;
   padding: 24px;
+  margin-bottom: 24px;
   box-shadow: 9px 9px 16px #bebebe, -9px -9px 16px #ffffff;
   border: none;
 }
 
-legend {
-  padding: 0 10px;
-  font-size: 1rem;
-  color: #666;
+/* Заголовки внутри блоков */
+.block > h2 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #444;
 }
 
-.filters,
-.expense-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.row {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.row input,
-.row select,
-input,
-select,
-button {
-  flex: 1;
-  padding: 10px 14px;
-  font-size: 16px;
-  border-radius: 14px;
-  border: none;
-  outline: none;
-  background: #e0e0e0;
-  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
-  transition: all 0.2s ease-in-out;
-}
-
-.row input:focus,
-.row select:focus {
-  box-shadow: inset 2px 2px 5px #bebebe, inset -2px -2px 5px #ffffff;
-}
-
+/* Кнопки */
 button {
   background: #FFA35C;
   color: white;
   font-weight: bold;
-  cursor: pointer;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 14px;
   box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+  cursor: pointer;
 }
 
 button:hover {
@@ -82,49 +55,86 @@ button:hover {
   display: flex;
   justify-content: space-between;
   gap: 10px;
+  margin-top: 12px;
 }
 
+/* Поля ввода */
+input, select, textarea {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 16px;
+  border-radius: 14px;
+  border: none;
+  outline: none;
+  background: #e0e0e0;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
+}
+
+/* Выпуклая дата */
+input[type="date"] {
+  appearance: none;
+  -webkit-appearance: none;
+  text-align: center;
+  padding: 12px;
+  background: #e0e0e0;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+  font-size: 16px;
+}
+
+/* Контейнер для списка расходов */
+#expense-list-wrapper {
+  width: 360px;
+  background: #e0e0e0;
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 9px 9px 16px #bebebe, -9px -9px 16px #ffffff;
+}
+
+/* Список расходов */
 #expense-list {
   list-style: none;
   padding: 0;
   margin: 0;
-  max-height: 500px;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 #expense-list li {
   background: #e0e0e0;
-  border-radius: 20px;
-  padding: 20px;
-  margin-bottom: 16px;
-  box-shadow: 9px 9px 16px #bebebe, -9px -9px 16px #ffffff;
+  border-radius: 16px;
+  padding: 16px 20px;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  transition: transform 0.2s ease;
-}
-
-#expense-list li .top-line {
-  display: flex;
-  justify-content: space-between;
-  font-weight: bold;
-  font-size: 18px;
-  color: #333;
-}
-
-#expense-list li .bottom-line {
-  font-size: 14px;
-  color: #555;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
   gap: 6px;
 }
 
+/* Визуальное деление */
+.top-line {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 16px;
+  color: #222;
+}
+
+.bottom-line {
+  font-size: 14px;
+  color: #666;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-style: italic;
+}
+
+/* Иконки редактирования и удаления */
 .action-icons {
   display: flex;
-  gap: 8px;
+  gap: 10px;
+  margin-top: 6px;
 }
 
 .action-icons button {
@@ -148,49 +158,10 @@ button:hover {
   fill: #FF6F3C;
 }
 
-input[type="date"] {
-  appearance: none;
-  -webkit-appearance: none;
-  background-color: #e0e0e0;
-  color: #333;
-  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
-}
-
-select {
-  appearance: none;
-  -webkit-appearance: none;
-  background-color: #e0e0e0;
-  color: #333;
-  background-image: url("data:image/svg+xml;utf8,<svg fill='%23333' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 16px;
-  padding-right: 30px;
-}
-
-.small-label {
-  width: 70px;
-  flex-shrink: 0;
-}
-
-.row input[type="date"] {
-  flex: 1;
-}
-
-.scale-selector {
-  text-align: center;
-  margin-bottom: 1em;
-}
-
-.scale-selector select {
-  background: #e0e0e0;
-  border: none;
-  border-radius: 12px;
-  box-shadow: inset 2px 2px 5px #bebebe,
-              inset -5px -5px 10px #ffffff;
-  padding: 0.5em 1em;
-  font-size: 1em;
-  appearance: none;
-  outline: none;
-  cursor: pointer;
+/* Ряды в фильтрах и форме */
+.row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  width: 100%;
 }
