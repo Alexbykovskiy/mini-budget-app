@@ -23,7 +23,7 @@ function renderExpenses(data) {
         <span>${exp.category}</span>
       </div>
       <div class="bottom-line">
-        ${exp.date || ""}
+        ${exp.date ? formatDate(exp.date) : ""}
 ${exp.liters ? ` • ${Number(exp.liters).toFixed(1)} л` : ""}
 ${exp.mileage ? ` • ${exp.mileage} км` : ""}
 ${exp.note ? ` • ${exp.note}` : ""}
@@ -188,6 +188,11 @@ function updateChart(data, total) {
       }
     }]
   });
+}
+
+function formatDate(isoString) {
+  const [year, month, day] = isoString.split("-");
+  return `${day}.${month}.${year}`;
 }
 
 loadExpenses();
