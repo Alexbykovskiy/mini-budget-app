@@ -24,10 +24,10 @@ function renderExpenses(data) {
       </div>
       <div class="bottom-line">
         ${exp.date || ""}
-        ${exp.liters ? ` | ${Number(exp.liters).toFixed(1)} л` : ""}
-        ${exp.mileage ? ` | ${exp.mileage} км` : ""}
-        ${exp.note ? ` | ${exp.note}` : ""}
-        ${exp.tag ? ` | #${exp.tag}` : ""}
+${exp.liters ? ` • ${Number(exp.liters).toFixed(1)} л` : ""}
+${exp.mileage ? ` • ${exp.mileage} км` : ""}
+${exp.note ? ` • ${exp.note}` : ""}
+${exp.tag ? ` • #${exp.tag}` : ""}
       </div>
     </div>
     <div class="expense-right">

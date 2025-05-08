@@ -122,10 +122,15 @@ input[type="date"] {
 .top-line {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-weight: bold;
-  font-size: 15px;
+  font-size: 1.5em;
   color: #222;
-  margin-bottom: 4px;
+}
+
+.top-line span:nth-child(2) {
+  flex: 1;
+  text-align: center;
 }
 
 .bottom-line {
@@ -160,8 +165,8 @@ input[type="date"] {
 }
 
 .action-icons svg {
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   fill: #FF6F3C;
 }
 
@@ -275,9 +280,15 @@ select#filter-category {
 .top-line {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-weight: bold;
-  font-size: 15px;
+  font-size: 1.5em;
   color: #222;
+}
+
+.top-line span:nth-child(2) {
+  flex: 1;
+  text-align: center;
 }
 
 .bottom-line {
