@@ -259,3 +259,46 @@ select#filter-category {
   color: white;
 }
 
+.expense-entry {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.expense-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.top-line {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 15px;
+  color: #222;
+}
+
+.bottom-line {
+  font-size: 14px;
+  color: #666;
+  font-style: italic;
+  white-space: pre-wrap;
+  line-height: 1.4;
+}
+
+.expense-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  min-width: 80px;
+}
+
+.expense-amount {
+  font-weight: bold;
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 8px;
+}
