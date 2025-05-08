@@ -84,9 +84,14 @@ input[type="date"] {
 #expense-list-wrapper {
   width: 360px;
   height: 280px;
-  overflow-y: auto;
+  overflow-y: scroll;
   padding-right: 6px;
-  scrollbar-width: thin;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+#expense-list-wrapper::-webkit-scrollbar {
+  display: none;
 }
 
 /* Список расходов */
@@ -213,20 +218,6 @@ select#filter-category {
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 16px;
-}
-
-#expense-list-wrapper::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-}
-
-#expense-list-wrapper::-webkit-scrollbar-thumb {
-  background-color: #c4c4c4;
-  border-radius: 6px;
-}
-
-#expense-list-wrapper::-webkit-scrollbar-track {
-  background-color: #e0e0e0;
 }
 
 .section-title {
