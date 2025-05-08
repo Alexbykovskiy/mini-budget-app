@@ -83,14 +83,11 @@ input[type="date"] {
 
 /* Контейнер для списка расходов */
 #expense-list-wrapper {
-  width: 360px;
-  background: #e0e0e0;
-  border-radius: 20px;
-  padding: 24px;
-  margin-bottom: 24px;
-  box-shadow: 9px 9px 16px #bebebe, -9px -9px 16px #ffffff;
+  height: 280px;
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-width: thin;
 }
-
 /* Список расходов */
 #expense-list {
   list-style: none;
