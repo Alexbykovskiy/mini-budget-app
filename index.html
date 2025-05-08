@@ -20,8 +20,8 @@
   </div>
 
   <!-- Фильтры -->
-  <div class="block">
-    <h2 class="section-title">Фильтры</h2>
+  <fieldset class="block">
+    <legend>Фильтры</legend>
     <div class="filters">
       <div class="row">
         <label class="small-label">Период:</label>
@@ -54,22 +54,17 @@
         <button onclick="applyFilters()">Применить</button>
       </div>
     </div>
-  </div>
+  </fieldset>
 
-<!-- Журнал -->
-<div class="block">
-  <h2 class="section-title">Журнал</h2>
-  <div id="expense-list-wrapper">
+  <!-- Журнал -->
+  <fieldset class="block">
+    <legend>Журнал</legend>
     <ul id="expense-list"></ul>
-  </div>
-</div>
-  
-
-
+  </fieldset>
 
   <!-- Добавить расход -->
-  <div class="block">
-    <h2 class="section-title">Добавить расход</h2>
+  <fieldset class="block">
+    <legend>Добавить расход</legend>
     <form id="expense-form" class="expense-form">
       <div class="row">
         <select id="category">
@@ -105,7 +100,8 @@
       </div>
       <input type="hidden" id="edit-id" />
     </form>
-  
+  </fieldset>
+
   <script src="firebase-config.js"></script>
   <script src="app.js"></script>
   <script>
