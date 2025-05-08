@@ -228,3 +228,34 @@ select#filter-category {
   text-align: left;
   width: 100%;
 }
+
+
+.round-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-size: 22px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+  border: none;
+  transition: transform 0.2s ease;
+}
+
+.round-btn:hover {
+  transform: scale(1.05);
+}
+
+.round-btn.orange {
+  background: #FFA35C;
+  color: white;
+}
+
+.round-btn.green {
+  background: #4CAF50;
+  color: white;
+}
+

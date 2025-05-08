@@ -50,9 +50,13 @@
         <input type="number" id="filter-row-end" placeholder="до строки" />
       </div>
       <div class="form-buttons">
-        <button onclick="location.reload()">Сброс</button>
-        <button onclick="applyFilters()">Применить</button>
-      </div>
+  <button class="round-btn orange" onclick="location.reload()" title="Сброс">
+    &#10006;
+  </button>
+  <button class="round-btn green" onclick="applyFilters()" title="Применить">
+    &#10004;
+  </button>
+</div>
     </div>
   </fieldset>
 
@@ -97,9 +101,13 @@
         <input type="date" id="date" required />
       </div>
       <div class="form-buttons">
-        <button type="button" onclick="form.reset(); document.getElementById('edit-id').value = '';">Отмена</button>
-        <button type="submit">Сохранить</button>
-      </div>
+  <button type="button" class="round-btn orange" onclick="form.reset(); document.getElementById('edit-id').value = '';" title="Отмена">
+    &#10006;
+  </button>
+  <button type="submit" class="round-btn green" title="Сохранить">
+    &#10004;
+  </button>
+</div>
       <input type="hidden" id="edit-id" />
     </form>
   </fieldset>
