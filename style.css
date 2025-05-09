@@ -292,12 +292,15 @@ select#filter-category {
 }
 
 .bottom-line {
-  font-size: 1.5em;
+  font-size: 1em;
   color: #666;
-  font-weight: bold;
-  font-style: normal;
+  font-weight: normal;
+  font-style: italic;
   white-space: pre-wrap;
   line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .expense-right {
@@ -313,4 +316,11 @@ select#filter-category {
   font-size: 16px;
   color: #333;
   margin-bottom: 8px;
+}
+
+.date-line {
+  font-size: 1.1em;
+  font-weight: bold;
+  font-style: normal;
+  color: #444;
 }

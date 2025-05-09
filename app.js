@@ -23,7 +23,7 @@ function renderExpenses(data) {
         <span>${exp.category}</span>
       </div>
       <div class="bottom-line">
-        ${exp.date ? formatDate(exp.date) : ""}
+        ${exp.date ? `<span class="date-line">${formatDate(exp.date)}</span>` : ""}
 ${exp.liters ? ` • ${Number(exp.liters).toFixed(1)} л` : ""}
 ${exp.mileage ? ` • ${exp.mileage} км` : ""}
 ${exp.note ? ` • ${exp.note}` : ""}
