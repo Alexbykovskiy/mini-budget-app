@@ -23,11 +23,28 @@ function renderExpenses(data) {
         <span>${exp.category}</span>
       </div>
       <div class="bottom-line">
-       ${exp.date ? `<span class="date-line">${formatDate(exp.date)}</span>` : ""}
-${exp.liters ? `<span class="info-line"><svg class="icon" viewBox="0 0 24 24"><path d="M12 2C9.243 2 7 4.243 7 7c0 2.387 1.913 4.801 5.444 8.474a1 1 0 001.112 0C15.087 11.801 17 9.387 17 7c0-2.757-2.243-5-5-5zm0 6.5A1.5 1.5 0 1112 5a1.5 1.5 0 010 3.5z"/></svg>${Number(exp.liters).toFixed(1)} л</span>` : ""}
-${exp.mileage ? `<span class="info-line"><svg class="icon" viewBox="0 0 24 24"><path d="M4 17h16v2H4v-2zm0-5h16v2H4v-2zm0-5h16v2H4V7z"/></svg>${exp.mileage} км</span>` : ""}
-${exp.note ? `<span class="info-line"><svg class="icon" viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4z"/></svg>${exp.note}</span>` : ""}
-${exp.tag ? `<span class="info-line"><svg class="icon" viewBox="0 0 24 24"><path d="M20 10V4H4v16h16v-6l4 4v-8l-4 4z"/></svg>#${exp.tag}</span>` : ""}
+      ${exp.date ? `<span class="date-line">${formatDate(exp.date)}</span>` : ""}
+
+${exp.liters ? `<span class="info-line">
+  <svg class="icon" viewBox="0 0 256 256">
+    <path d="M240 80v96a8 8 0 01-16 0v-40a8 8 0 00-16 0v80a8 8 0 01-16 0v-96a24 24 0 0148 0zM136 40v24H88v-24a8 8 0 00-16 0v176H40V72a8 8 0 00-16 0v144a16 16 0 0016 16h128a16 16 0 0016-16V40a8 8 0 00-16 0z"/>
+  </svg>${Number(exp.liters).toFixed(1)} л</span>` : ""}
+
+${exp.mileage ? `<span class="info-line">
+  <svg class="icon" viewBox="0 0 256 256">
+    <path d="M10.5 22h3l1.5-10h-6l1.5 10zM3 2l7 20h1.5l-1.5-10h6l-1.5 10H14l7-20H3z"/>
+  </svg>${exp.mileage} км</span>` : ""}
+
+${exp.note ? `<span class="info-line">
+  <svg class="icon" viewBox="0 0 256 256">
+    <path d="M128 24a104 104 0 00-88 160l-12 36a8 8 0 0010 10l36-12a104 104 0 10154-94 103.68 103.68 0 00-100-100z"/>
+  </svg>${exp.note}</span>` : ""}
+
+${exp.tag ? `<span class="info-line">
+  <svg class="icon" viewBox="0 0 256 256">
+    <path d="M248 136L120 8a16 16 0 00-22.6 0L24 81.4a16 16 0 000 22.6L152 232a16 16 0 0022.6 0l73.4-73.4a16 16 0 000-22.6z"/>
+  </svg>#${exp.tag}</span>` : ""}
+
       </div>
     </div>
     <div class="expense-right">
