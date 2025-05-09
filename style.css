@@ -324,3 +324,19 @@ select#filter-category {
   font-style: normal;
   color: #444;
 }
+
+.info-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95em;
+  font-style: italic;
+  color: #333;
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  fill: #333;
+  flex-shrink: 0;
+}

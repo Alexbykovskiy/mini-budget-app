@@ -23,11 +23,11 @@ function renderExpenses(data) {
         <span>${exp.category}</span>
       </div>
       <div class="bottom-line">
-        ${exp.date ? `<span class="date-line">${formatDate(exp.date)}</span>` : ""}
-${exp.liters ? ` • ${Number(exp.liters).toFixed(1)} л` : ""}
-${exp.mileage ? ` • ${exp.mileage} км` : ""}
-${exp.note ? ` • ${exp.note}` : ""}
-${exp.tag ? ` • #${exp.tag}` : ""}
+       ${exp.date ? `<span class="date-line">${formatDate(exp.date)}</span>` : ""}
+${exp.liters ? `<span class="info-line"><svg class="icon" viewBox="0 0 24 24"><path d="M12 2C9.243 2 7 4.243 7 7c0 2.387 1.913 4.801 5.444 8.474a1 1 0 001.112 0C15.087 11.801 17 9.387 17 7c0-2.757-2.243-5-5-5zm0 6.5A1.5 1.5 0 1112 5a1.5 1.5 0 010 3.5z"/></svg>${Number(exp.liters).toFixed(1)} л</span>` : ""}
+${exp.mileage ? `<span class="info-line"><svg class="icon" viewBox="0 0 24 24"><path d="M4 17h16v2H4v-2zm0-5h16v2H4v-2zm0-5h16v2H4V7z"/></svg>${exp.mileage} км</span>` : ""}
+${exp.note ? `<span class="info-line"><svg class="icon" viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4z"/></svg>${exp.note}</span>` : ""}
+${exp.tag ? `<span class="info-line"><svg class="icon" viewBox="0 0 24 24"><path d="M20 10V4H4v16h16v-6l4 4v-8l-4 4z"/></svg>#${exp.tag}</span>` : ""}
       </div>
     </div>
     <div class="expense-right">
