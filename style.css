@@ -349,3 +349,8 @@ select#filter-category {
   color: #333;
 }
 
+.date-line {
+  font-weight: bold;
+  font-style: normal;
+  color: #444;
+}
