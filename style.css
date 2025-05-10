@@ -388,10 +388,22 @@ select#filter-category {
 
 #expense-list-wrapper {
   max-height: 280px;
-  overflow-y: scroll;
+  overflow: hidden;
   transition: max-height 0.4s ease;
 }
 
 #expense-list-wrapper.expanded {
   max-height: 2000px; /* запас для разворота */
   overflow-y: visible;
+}
+
+fieldset.block {
+  border: none;
+  border-radius: 24px;
+  padding: 24px;
+  background: #e0e0e0;
+  box-shadow: inset 6px 6px 12px #bebebe,
+              inset -6px -6px 12px #ffffff;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
