@@ -241,3 +241,17 @@ document.addEventListener("DOMContentLoaded", () => {
     dateInput.value = today;
   }
 });
+
+  const toggleBtn = document.getElementById("toggle-journal");
+  const wrapper = document.getElementById("expense-list-wrapper");
+
+  if (wrapper && toggleBtn) {
+    let expanded = false;
+
+    toggleBtn.addEventListener("click", () => {
+      expanded = !expanded;
+      wrapper.style.maxHeight = expanded ? "none" : "280px";
+      wrapper.style.overflowY = expanded ? "auto" : "scroll";
+      toggleBtn.title = expanded ? "Свернуть" : "Развернуть";
+    });
+  }
