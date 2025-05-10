@@ -340,3 +340,12 @@ select#filter-category {
   fill: #333;
   flex-shrink: 0;
 }
+
+.info-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  color: #333;
+}
+
