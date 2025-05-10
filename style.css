@@ -386,12 +386,12 @@ select#filter-category {
   stroke: #333;
 }
 
-#expense-list-wrapper.collapsed {
+#expense-list-wrapper {
   max-height: 280px;
   overflow-y: scroll;
+  transition: max-height 0.4s ease;
 }
 
 #expense-list-wrapper.expanded {
-  max-height: none;
+  max-height: 2000px; /* запас для разворота */
   overflow-y: visible;
-}

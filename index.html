@@ -60,24 +60,6 @@
     </div>
   </fieldset>
 
-  <!-- Журнал -->
- <fieldset class="block">
-  <div class="section-title-row">
-    <button id="toggle-journal" class="round-btn light" title="Развернуть">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M8 18L12 22L16 18" />
-        <path d="M8 6L12 2L16 6" />
-      </svg>
-    </button>
-    <h2 class="section-title">Журнал</h2>
-  </div>
-
-  <div id="expense-list-wrapper" class="collapsed">
-    <ul id="expense-list"></ul>
-  </div>
-</fieldset>
-
-
   <!-- Добавить расход -->
   <fieldset class="block">
      <h2 class="section-title">Добавить расход</h2>
@@ -121,6 +103,26 @@
       <input type="hidden" id="edit-id" />
     </form>
   </fieldset>
+
+  <!-- Журнал -->
+ <fieldset class="block">
+  <div class="section-title-row">
+   <button id="toggle-journal" class="round-btn light" title="Развернуть">
+  <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 18L12 22L16 18" />
+    <path d="M8 6L12 2L16 6" />
+  </svg>
+</button>
+    <h2 class="section-title">Журнал</h2>
+  </div>
+
+  <div id="expense-list-wrapper" class="collapsed">
+    <ul id="expense-list"></ul>
+  </div>
+</fieldset>
+
+
+
 
   <script src="firebase-config.js"></script>
   <script src="app.js"></script>
