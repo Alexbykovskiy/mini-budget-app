@@ -386,3 +386,12 @@ select#filter-category {
   stroke: #333;
 }
 
+#expense-list-wrapper.collapsed {
+  max-height: 280px;
+  overflow-y: scroll;
+}
+
+#expense-list-wrapper.expanded {
+  max-height: none;
+  overflow-y: visible;
+}
