@@ -22,30 +22,44 @@ function renderExpenses(data) {
         <span>#${index + 1}</span>
         <span>${exp.category}</span>
       </div>
-      <div class="bottom-line">
-      ${exp.date ? `<span class="date-line">${formatDate(exp.date)}</span>` : ""}
+     <div class="expense-line">
+  ${exp.liters ? `
+    <div class="info-line">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2C12 2 6 7 6 12a6 6 0 0 0 12 0c0-5-6-10-6-10z" />
+      </svg>
+      <span>${Number(exp.liters).toFixed(1)} л</span>
+    </div>` : ''}
 
-${exp.liters ? `<span class="info-line">
-  <svg class="icon" viewBox="0 0 256 256">
-    <path d="M240 80v96a8 8 0 01-16 0v-40a8 8 0 00-16 0v80a8 8 0 01-16 0v-96a24 24 0 0148 0zM136 40v24H88v-24a8 8 0 00-16 0v176H40V72a8 8 0 00-16 0v144a16 16 0 0016 16h128a16 16 0 0016-16V40a8 8 0 00-16 0z"/>
-  </svg>${Number(exp.liters).toFixed(1)} л</span>` : ""}
+  ${exp.mileage ? `
+    <div class="info-line">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12h18" />
+        <path d="m15 18 6-6-6-6" />
+      </svg>
+      <span>${exp.mileage} км</span>
+    </div>` : ''}
 
-${exp.mileage ? `<span class="info-line">
-  <svg class="icon" viewBox="0 0 256 256">
-    <path d="M10.5 22h3l1.5-10h-6l1.5 10zM3 2l7 20h1.5l-1.5-10h6l-1.5 10H14l7-20H3z"/>
-  </svg>${exp.mileage} км</span>` : ""}
+  ${exp.note ? `
+    <div class="info-line">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      </svg>
+      <span>${exp.note}</span>
+    </div>` : ''}
 
-${exp.note ? `<span class="info-line">
-  <svg class="icon" viewBox="0 0 256 256">
-    <path d="M128 24a104 104 0 00-88 160l-12 36a8 8 0 0010 10l36-12a104 104 0 10154-94 103.68 103.68 0 00-100-100z"/>
-  </svg>${exp.note}</span>` : ""}
+  ${exp.tag ? `
+    <div class="info-line">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="4" x2="20" y1="9" y2="9" />
+        <line x1="4" x2="20" y1="15" y2="15" />
+        <line x1="10" x2="8" y1="3" y2="21" />
+        <line x1="16" x2="14" y1="3" y2="21" />
+      </svg>
+      <span>#${exp.tag}</span>
+    </div>` : ''}
+</div>
 
-${exp.tag ? `<span class="info-line">
-  <svg class="icon" viewBox="0 0 256 256">
-    <path d="M248 136L120 8a16 16 0 00-22.6 0L24 81.4a16 16 0 000 22.6L152 232a16 16 0 0022.6 0l73.4-73.4a16 16 0 000-22.6z"/>
-  </svg>#${exp.tag}</span>` : ""}
-
-      </div>
     </div>
     <div class="expense-right">
       <div class="expense-amount">€${Number(exp.amount).toFixed(2)}</div>
