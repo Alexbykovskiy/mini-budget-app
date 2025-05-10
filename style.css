@@ -403,10 +403,15 @@ select#filter-category {
 }
 
 #expense-list-wrapper.expanded {
-  max-height: 2000px;
+  max-height: none; /* высота будет подстраиваться автоматически */
   overflow-y: visible;
 }
 
 #expense-list-wrapper::-webkit-scrollbar {
   display: none;
+}
+
+.block.auto-height {
+  height: auto;
+  transition: height 0.4s ease;
 }

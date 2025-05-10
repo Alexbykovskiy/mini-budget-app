@@ -234,21 +234,18 @@ loadExpenses();
 
 
  document.addEventListener("DOMContentLoaded", () => {
-  const dateInput = document.getElementById("date");
-  if (dateInput && !dateInput.value) {
-    const today = new Date().toISOString().split("T")[0];
-    dateInput.value = today;
-  }
-
   const toggleBtn = document.getElementById("toggle-journal");
   const wrapper = document.getElementById("expense-list-wrapper");
+  const journalBlock = wrapper.closest('.block');
 
-  if (wrapper && toggleBtn) {
+  if (wrapper && toggleBtn && journalBlock) {
     toggleBtn.addEventListener("click", () => {
       const isCollapsed = wrapper.classList.contains("collapsed");
       wrapper.classList.toggle("collapsed", !isCollapsed);
       wrapper.classList.toggle("expanded", isCollapsed);
+      journalBlock.classList.toggle("auto-height", isCollapsed); // автоматическая высота блока
       toggleBtn.title = isCollapsed ? "Свернуть" : "Развернуть";
     });
   }
 });
+
