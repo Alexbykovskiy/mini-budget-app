@@ -23,6 +23,10 @@ function renderExpenses(data) {
         <span>${exp.category}</span>
       </div>
      <div class="expense-line">
+  ${exp.date ? `
+    <div class="info-line">
+      <span class="date-line">${formatDate(exp.date)}</span>
+    </div>` : ""}
   ${exp.liters ? `
     <div class="info-line">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
