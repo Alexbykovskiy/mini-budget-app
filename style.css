@@ -384,9 +384,9 @@ select#filter-category {
 
 .round-btn.light svg {
   stroke: #333;
-  width: 24px;      /* увеличиваем размер иконки стрелки */
-  height: 24px;     /* увеличиваем размер иконки стрелки */
-  stroke-width: 3px; /* сохраняем толщину линии */
+  width: 30px;      /* увеличиваем размер иконки стрелки */
+  height: 30px;     /* увеличиваем размер иконки стрелки */
+  stroke-width: 6px; /* сохраняем толщину линии */
 }
 
 #expense-list-wrapper {
