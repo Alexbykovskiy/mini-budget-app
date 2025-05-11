@@ -93,9 +93,22 @@ if (exp._justAdded) {
 }
 
 function deleteExpense(id) {
-  if (confirm("Удалить запись?")) {
+  if (!confirm("Удалить запись?")) return;
+
+  // находим элемент <li> с этим id
+  const li = [...document.querySelectorAll("#expense-list li")].find(el =>
+    el.innerHTML.includes(`deleteExpense("${id}")`)
+  );
+
+  if (li) {
+    li.classList.add("animate-out");
+    setTimeout(() => {
+      db.collection("users").doc(profileCode).collection("expenses").doc(id).delete();
+    }, 300); // подождать, пока проиграется анимация
+  } else {
     db.collection("users").doc(profileCode).collection("expenses").doc(id).delete();
   }
+}
 }
 
 function loadExpenses() {
