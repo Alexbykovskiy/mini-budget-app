@@ -84,33 +84,6 @@ function renderExpenses(data) {
   });
   summary.textContent = `Всего: €${fullTotal.toFixed(2)}`;
   updateChart(data, total);
-calculateCostPerKm(data);
-
-
-}
-
-function calculateCostPerKm(data) {
-  // отфильтровываем только записи с числовым mileage
-  const entriesWithMileage = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));
-
-  if (entriesWithMileage.length < 2) {
-    document.getElementById('cost-per-km').textContent = "€/км: недостаточно данных";
-    return;
-  }
-
-  const sorted = [...entriesWithMileage].sort((a, b) => a.date.localeCompare(b.date));
-  const startMileage = Number(sorted[0].mileage);
-  const endMileage = Number(sorted[sorted.length - 1].mileage);
-  const distance = endMileage - startMileage;
-
-  const totalAmount = data.reduce((sum, e) => sum + Number(e.amount), 0);
-
-  const costPerKm = distance > 0 ? (totalAmount / distance) : 0;
-  const display = distance > 0
-    ? `€/км: €${costPerKm.toFixed(3)} (за ${distance} км)`
-    : "€/км: недостаточно пробега";
-
-  document.getElementById('cost-per-km').textContent = display;
 }
 
 function deleteExpense(id) {
@@ -210,30 +183,25 @@ function updateChart(data, total) {
       plugins: {
         legend: {
           display: true,
-          position: 'left',
-align: 'start',
-         labels: {
-  color: 'white',
-  boxWidth: 14,
-  boxHeight: 14,
-  usePointStyle: true,
-  pointStyle: 'circle',
-  padding: 12,
-  generateLabels: chart => {
-    const d = chart.data;
-    return d.labels.map((l, i) => {
-      const val = d.datasets[0].data[i];
-      const perc = ((val / total) * 100).toFixed(1);
-      return {
-        text: `${l}: €${val.toFixed(2)} (${perc}%)`,
-        fillStyle: d.datasets[0].backgroundColor[i],
-        strokeStyle: d.datasets[0].backgroundColor[i],
-        pointStyle: 'circle',
-        index: i
-      };
-    });
-  }
-},
+          position: 'bottom',
+          labels: {
+            color: 'white',
+            generateLabels: chart => {
+              const d = chart.data;
+              return d.labels.map((l, i) => {
+                const val = d.datasets[0].data[i];
+                const perc = ((val / total) * 100).toFixed(1);
+                return {
+                  text: `${l}: €${val.toFixed(2)} (${perc}%)`,
+                  fillStyle: d.datasets[0].backgroundColor[i],
+                  strokeStyle: d.datasets[0].backgroundColor[i],
+                  lineWidth: 0,
+                  index: i
+                };
+              });
+            }
+          }
+        },
         tooltip: { enabled: false },
         datalabels: { display: false },
         centerText: {
@@ -265,7 +233,7 @@ function formatDate(isoString) {
 loadExpenses();
 
 
-document.addEventListener("DOMContentLoaded", () => {
+ document.addEventListener("DOMContentLoaded", () => {
   const toggleBtn = document.getElementById("toggle-journal");
   const wrapper = document.getElementById("expense-list-wrapper");
   const journalBlock = wrapper.closest('.block');
@@ -280,12 +248,5 @@ document.addEventListener("DOMContentLoaded", () => {
       toggleBtn.title = isCollapsed ? "Свернуть" : "Развернуть";
     });
   }
-
-  // Устанавливаем сегодняшнюю дату по умолчанию — только если форма НЕ в режиме редактирования
-  const dateInput = document.getElementById('date');
-  const editIdInput = document.getElementById('edit-id');
-  if (dateInput && editIdInput && !editIdInput.value) {
-    const today = new Date().toISOString().split('T')[0];
-    dateInput.value = today;
-  }
 });
+
