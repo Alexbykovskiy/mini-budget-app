@@ -8,6 +8,90 @@ let expenseChart;
 let expenses = [];
 let fullTotal = 0;
 
+function renderExpenses(data) {
+  list.innerHTML = "";
+  let total = 0;
+  data.forEach((exp, index) => {
+    total += Number(exp.amount);
+    const li = document.createElement('li');
+
+    li.innerHTML = `
+  <div class="expense-entry">
+    <div class="expense-left">
+      <div class="top-line">
+        <span>#${index + 1}</span>
+        <span>${exp.category}</span>
+      </div>
+     <div class="expense-line">
+  ${exp.date ? `
+    <div class="info-line">
+      <span class="date-line">${formatDate(exp.date)}</span>
+    </div>` : ""}
+  ${exp.liters ? `
+    <div class="info-line">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2C12 2 6 7 6 12a6 6 0 0 0 12 0c0-5-6-10-6-10z" />
+      </svg>
+      <span>${Number(exp.liters).toFixed(1)} л</span>
+    </div>` : ''}
+
+  ${exp.mileage ? `
+    <div class="info-line">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12h18" />
+        <path d="m15 18 6-6-6-6" />
+      </svg>
+      <span>${exp.mileage} км</span>
+    </div>` : ''}
+
+  ${exp.note ? `
+    <div class="info-line">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      </svg>
+      <span>${exp.note}</span>
+    </div>` : ''}
+
+  ${exp.tag ? `
+    <div class="info-line">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="4" x2="20" y1="9" y2="9" />
+        <line x1="4" x2="20" y1="15" y2="15" />
+        <line x1="10" x2="8" y1="3" y2="21" />
+        <line x1="16" x2="14" y1="3" y2="21" />
+      </svg>
+      <span>#${exp.tag}</span>
+    </div>` : ''}
+</div>
+
+    </div>
+    <div class="expense-right">
+      <div class="expense-amount">€${Number(exp.amount).toFixed(2)}</div>
+      <div class="action-icons">
+        <button onclick='fillFormForEdit(${JSON.stringify(exp)})'>
+          <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75l11-11.03-3.75-3.75L3 17.25zM21.41 6.34c.38-.38.38-1.02 0-1.41l-2.34-2.34a1.003 1.003 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+        </button>
+        <button onclick='deleteExpense("${exp.id}")'>
+          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+`;
+
+
+    list.appendChild(li);
+  });
+  summary.textContent = `Всего: €${fullTotal.toFixed(2)}`;
+  updateChart(data, total);
+}
+
+function deleteExpense(id) {
+  if (confirm("Удалить запись?")) {
+    db.collection("users").doc(profileCode).collection("expenses").doc(id).delete();
+  }
+}
+
 function loadExpenses() {
   db.collection("users").doc(profileCode).collection("expenses")
     .orderBy("date", "desc")
@@ -18,49 +102,15 @@ function loadExpenses() {
     });
 }
 
-function renderExpenses(data) {
-  list.innerHTML = "";
-  let total = 0;
-  data.forEach((exp, index) => {
-    total += Number(exp.amount);
-    const li = document.createElement('li');
-
-    li.innerHTML = `
-      <div class="expense-entry">
-        <div class="expense-left">
-          <div class="top-line">
-            <span>#${index + 1}</span>
-            <span>${exp.category}</span>
-          </div>
-          <div class="expense-line">
-            ${exp.date ? `<div class="info-line"><span class="date-line">${formatDate(exp.date)}</span></div>` : ''}
-            ${exp.liters ? `<div class="info-line"><span>${Number(exp.liters).toFixed(1)} л</span></div>` : ''}
-            ${exp.mileage ? `<div class="info-line"><span>${exp.mileage} км</span></div>` : ''}
-            ${exp.note ? `<div class="info-line"><span>${exp.note}</span></div>` : ''}
-            ${exp.tag ? `<div class="info-line"><span>#${exp.tag}</span></div>` : ''}
-          </div>
-        </div>
-        <div class="expense-right">
-          <div class="expense-amount">€${Number(exp.amount).toFixed(2)}</div>
-          <div class="action-icons">
-            <button onclick='fillFormForEdit(${JSON.stringify(exp)})'>✎</button>
-            <button onclick='deleteExpense("${exp.id}")'>🗑</button>
-          </div>
-        </div>
-      </div>
-    `;
-
-    list.appendChild(li);
-  });
-
-  summary.textContent = `Всего: €${fullTotal.toFixed(2)}`;
-  updateChart(data, total);
-}
-
-function deleteExpense(id) {
-  if (confirm("Удалить запись?")) {
-    db.collection("users").doc(profileCode).collection("expenses").doc(id).delete();
-  }
+function fillFormForEdit(exp) {
+  document.getElementById('edit-id').value = exp.id;
+  document.getElementById('category').value = exp.category;
+  document.getElementById('amount').value = exp.amount;
+  document.getElementById('liters').value = exp.liters || '';
+  document.getElementById('mileage').value = exp.mileage || '';
+  document.getElementById('date').value = exp.date;
+  document.getElementById('note').value = exp.note || '';
+  document.getElementById('tag').value = exp.tag || '';
 }
 
 form.onsubmit = (e) => {
@@ -86,17 +136,6 @@ form.onsubmit = (e) => {
   form.reset();
   document.getElementById('edit-id').value = '';
 };
-
-function fillFormForEdit(exp) {
-  document.getElementById('edit-id').value = exp.id;
-  document.getElementById('category').value = exp.category;
-  document.getElementById('amount').value = exp.amount;
-  document.getElementById('liters').value = exp.liters || '';
-  document.getElementById('mileage').value = exp.mileage || '';
-  document.getElementById('date').value = exp.date;
-  document.getElementById('note').value = exp.note || '';
-  document.getElementById('tag').value = exp.tag || '';
-}
 
 function applyFilters() {
   const from = document.getElementById("filter-from").value;
@@ -133,7 +172,7 @@ function updateChart(data, total) {
   expenseChart = new Chart(ctx, {
     type: 'doughnut',
     data: {
-      labels,
+      labels: labels,
       datasets: [{
         data: values,
         backgroundColor: colors.slice(0, labels.length)
@@ -165,14 +204,49 @@ function updateChart(data, total) {
         },
         tooltip: { enabled: false },
         datalabels: { display: false },
+        centerText: {
+          display: true,
+          text: `€${total.toFixed(2)}`
+        }
       }
-    }
+    },
+    plugins: [{
+      id: 'centerText',
+      beforeDraw(chart) {
+        const { width } = chart;
+        const ctx = chart.ctx;
+        ctx.save();
+        ctx.font = 'bold 16px sans-serif';
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.fillText(`€${total.toFixed(2)}`, width / 2, chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2);
+      }
+    }]
   });
 }
 
-function formatDate(iso) {
-  const [y, m, d] = iso.split("-");
-  return `${d}.${m}.${y}`;
+function formatDate(isoString) {
+  const [year, month, day] = isoString.split("-");
+  return `${day}.${month}.${year}`;
 }
 
 loadExpenses();
+
+
+ document.addEventListener("DOMContentLoaded", () => {
+  const toggleBtn = document.getElementById("toggle-journal");
+  const wrapper = document.getElementById("expense-list-wrapper");
+  const journalBlock = wrapper.closest('.block');
+
+  if (wrapper && toggleBtn && journalBlock) {
+    toggleBtn.addEventListener("click", () => {
+      const isCollapsed = wrapper.classList.contains("collapsed");
+      wrapper.classList.toggle("collapsed", !isCollapsed);
+      wrapper.classList.toggle("expanded", isCollapsed);
+      journalBlock.classList.toggle("auto-height", isCollapsed);
+      toggleBtn.classList.toggle("expanded", isCollapsed);
+      toggleBtn.title = isCollapsed ? "Свернуть" : "Развернуть";
+    });
+  }
+});
+
