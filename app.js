@@ -210,25 +210,30 @@ function updateChart(data, total) {
       plugins: {
         legend: {
           display: true,
-          position: 'bottom',
-          labels: {
-            color: 'white',
-            generateLabels: chart => {
-              const d = chart.data;
-              return d.labels.map((l, i) => {
-                const val = d.datasets[0].data[i];
-                const perc = ((val / total) * 100).toFixed(1);
-                return {
-                  text: `${l}: €${val.toFixed(2)} (${perc}%)`,
-                  fillStyle: d.datasets[0].backgroundColor[i],
-                  strokeStyle: d.datasets[0].backgroundColor[i],
-                  lineWidth: 0,
-                  index: i
-                };
-              });
-            }
-          }
-        },
+          position: 'left',
+align: 'start',
+         labels: {
+  color: 'white',
+  boxWidth: 14,
+  boxHeight: 14,
+  usePointStyle: true,
+  pointStyle: 'circle',
+  padding: 12,
+  generateLabels: chart => {
+    const d = chart.data;
+    return d.labels.map((l, i) => {
+      const val = d.datasets[0].data[i];
+      const perc = ((val / total) * 100).toFixed(1);
+      return {
+        text: `${l}: €${val.toFixed(2)} (${perc}%)`,
+        fillStyle: d.datasets[0].backgroundColor[i],
+        strokeStyle: d.datasets[0].backgroundColor[i],
+        pointStyle: 'circle',
+        index: i
+      };
+    });
+  }
+},
         tooltip: { enabled: false },
         datalabels: { display: false },
         centerText: {
