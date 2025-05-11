@@ -80,7 +80,11 @@ function renderExpenses(data) {
 `;
 
 
-    list.appendChild(li);
+li.classList.add("animate-in");
+list.appendChild(li);
+
+// удалить класс после анимации (чтобы повторно можно было применить)
+setTimeout(() => li.classList.remove("animate-in"), 500);
   });
   summary.textContent = `Всего: €${fullTotal.toFixed(2)}`;
   updateChart(data, total);
