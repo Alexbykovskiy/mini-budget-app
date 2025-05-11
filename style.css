@@ -421,3 +421,32 @@ select#filter-category {
   padding: 24px;
   background: transparent; /* или #e0e0e0, если хочешь сохранить цвет */
 }
+
+.toggle-icon-button {
+  background: #e0e0e0;
+  border-radius: 50%;
+  padding: 8px;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.2s ease;
+}
+
+.toggle-icon-button:hover {
+  transform: scale(1.05);
+}
+
+.toggle-icon-button svg {
+  width: 30px;
+  height: 30px;
+  fill: #FF6F3C;
+  transition: transform 0.3s ease;
+}
+
+/* стрелка вверх при развороте */
+.toggle-icon-button.expanded svg {
+  transform: rotate(180deg);
+}

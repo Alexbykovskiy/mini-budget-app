@@ -243,7 +243,8 @@ loadExpenses();
       const isCollapsed = wrapper.classList.contains("collapsed");
       wrapper.classList.toggle("collapsed", !isCollapsed);
       wrapper.classList.toggle("expanded", isCollapsed);
-      journalBlock.classList.toggle("auto-height", isCollapsed); // автоматическая высота блока
+      journalBlock.classList.toggle("auto-height", isCollapsed);
+      toggleBtn.classList.toggle("expanded", isCollapsed);
       toggleBtn.title = isCollapsed ? "Свернуть" : "Развернуть";
     });
   }
