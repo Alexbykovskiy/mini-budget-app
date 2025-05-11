@@ -233,7 +233,7 @@ function formatDate(isoString) {
 loadExpenses();
 
 
- document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
   const toggleBtn = document.getElementById("toggle-journal");
   const wrapper = document.getElementById("expense-list-wrapper");
   const journalBlock = wrapper.closest('.block');
@@ -248,5 +248,12 @@ loadExpenses();
       toggleBtn.title = isCollapsed ? "Свернуть" : "Развернуть";
     });
   }
-});
 
+  // Устанавливаем сегодняшнюю дату по умолчанию — только если форма НЕ в режиме редактирования
+  const dateInput = document.getElementById('date');
+  const editIdInput = document.getElementById('edit-id');
+  if (dateInput && editIdInput && !editIdInput.value) {
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
+  }
+});
