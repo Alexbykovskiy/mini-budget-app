@@ -415,3 +415,9 @@ select#filter-category {
   height: auto;
   transition: height 0.4s ease;
 }
+
+.block.no-shadow {
+  box-shadow: none;
+  padding: 24px;
+  background: transparent; /* или #e0e0e0, если хочешь сохранить цвет */
+}
