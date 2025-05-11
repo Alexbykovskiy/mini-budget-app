@@ -83,9 +83,11 @@ function renderExpenses(data) {
 list.appendChild(li);
 
 // анимировать только новые записи
-if (exp._justAdded) {
+const justAddedId = localStorage.getItem('justAdded');
+if (exp._tempId === justAddedId) {
   li.classList.add("animate-in");
   setTimeout(() => li.classList.remove("animate-in"), 500);
+  localStorage.removeItem('justAdded'); // удалить после показа
 }
   });
   summary.textContent = `Всего: €${fullTotal.toFixed(2)}`;
@@ -101,10 +103,14 @@ function deleteExpense(id) {
   );
 
   if (li) {
-    li.classList.add("animate-out");
-    setTimeout(() => {
-      db.collection("users").doc(profileCode).collection("expenses").doc(id).delete();
-    }, 300); // подождать, пока проиграется анимация
+   li.classList.add("animate-out");
+li.style.pointerEvents = "none"; // чтобы не было двойных кликов
+
+// задержим удаление из Firebase и вызов renderExpenses()
+setTimeout(() => {
+  db.collection("users").doc(profileCode).collection("expenses").doc(id).delete();
+}, 350);
+
   } else {
     db.collection("users").doc(profileCode).collection("expenses").doc(id).delete();
   }
@@ -150,12 +156,14 @@ form.onsubmit = (e) => {
   const data = { category, amount, mileage, liters, date, note, tag };
   const ref = db.collection("users").doc(profileCode).collection("expenses");
 
- if (id) {
-    ref.doc(id).update(data);
-  } else {
-    data._justAdded = true;
-    ref.add(data);
-  }
+if (id) {
+  ref.doc(id).update(data);
+} else {
+  const tempId = 'temp-' + Date.now();
+  localStorage.setItem('justAdded', tempId);
+  data._tempId = tempId;
+  ref.add(data);
+}
 
   form.reset();
   document.getElementById('edit-id').value = '';
