@@ -80,11 +80,13 @@ function renderExpenses(data) {
 `;
 
 
-li.classList.add("animate-in");
 list.appendChild(li);
 
-// удалить класс после анимации (чтобы повторно можно было применить)
-setTimeout(() => li.classList.remove("animate-in"), 500);
+// анимировать только новые записи
+if (exp._justAdded) {
+  li.classList.add("animate-in");
+  setTimeout(() => li.classList.remove("animate-in"), 500);
+}
   });
   summary.textContent = `Всего: €${fullTotal.toFixed(2)}`;
   updateChart(data, total);
@@ -100,7 +102,11 @@ function loadExpenses() {
   db.collection("users").doc(profileCode).collection("expenses")
     .orderBy("date", "desc")
     .onSnapshot(snapshot => {
-      expenses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      expenses = snapshot.docs.map(doc => {
+  const data = doc.data();
+  delete data._justAdded; // удалить флаг после отображения
+  return { id: doc.id, ...data };
+});
       fullTotal = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
       renderExpenses(expenses);
     });
@@ -131,9 +137,10 @@ form.onsubmit = (e) => {
   const data = { category, amount, mileage, liters, date, note, tag };
   const ref = db.collection("users").doc(profileCode).collection("expenses");
 
-  if (id) {
+ if (id) {
     ref.doc(id).update(data);
   } else {
+    data._justAdded = true;
     ref.add(data);
   }
 
