@@ -11,6 +11,9 @@ const firebaseConfig = {
 // Инициализация Firebase
 firebase.initializeApp(firebaseConfig);
 
+// 👉 Добавь это!
+firebase.firestore();
+
 // Подключение Chart.js
 const script = document.createElement("script");
 script.src = "https://cdn.jsdelivr.net/npm/chart.js";
