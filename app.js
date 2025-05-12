@@ -296,9 +296,20 @@ document.addEventListener("DOMContentLoaded", () => {
       journalBlock.classList.toggle("auto-height", isCollapsed);
       toggleBtn.classList.toggle("expanded", isCollapsed);
       toggleBtn.title = isCollapsed ? "Свернуть" : "Развернуть";
-populateTagList();
     });
   }
+
+  // ✅ Добавь сюда вызов
+  populateTagList();
+
+  // Автоустановка сегодняшней даты
+  const dateInput = document.getElementById('date');
+  const editIdInput = document.getElementById('edit-id');
+  if (dateInput && editIdInput && !editIdInput.value) {
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
+  }
+});
 
   // Устанавливаем сегодняшнюю дату по умолчанию — только если форма НЕ в режиме редактирования
   const dateInput = document.getElementById('date');
