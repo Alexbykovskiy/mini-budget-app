@@ -1,4 +1,10 @@
-const db = firebase.firestore();
+let db;
+
+window.addEventListener("load", () => {
+  db = firebase.firestore(); // ← создаём подключение к Firestore
+  loadExpenses();            // ← перемещён сюда!
+  populateTagList();         // ← и это тоже
+});
 const profileCode = "mini";
 
 const form = document.getElementById('expense-form');
@@ -280,7 +286,7 @@ function formatDate(isoString) {
   return `${day}.${month}.${year}`;
 }
 
-loadExpenses();
+
 
 
 document.addEventListener("DOMContentLoaded", () => {
