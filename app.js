@@ -151,7 +151,9 @@ form.onsubmit = (e) => {
   const liters = parseFloat(document.getElementById('liters').value.replace(',', '.'));
   const date = document.getElementById('date').value;
   const note = document.getElementById('note').value;
-  const tag = document.getElementById('tag').value.replace('#', '');
+
+  // 👉 Нормализуем тег: только строчные буквы, слитно, без пробелов
+  let tag = document.getElementById('tag').value.trim().toLowerCase().replace(/\s+/g, '');
 
   const data = { category, amount, mileage, liters, date, note, tag };
   const ref = db.collection("users").doc(profileCode).collection("expenses");
@@ -159,12 +161,31 @@ form.onsubmit = (e) => {
   if (id) {
     ref.doc(id).update(data);
   } else {
-    ref.add(data);
+    ref.add(data).then(() => {
+      // 👉 Сохраняем новый тег, если он не пустой
+      if (tag) {
+        db.collection("users").doc(profileCode).collection("tags").doc(tag).set({ used: true });
+      }
+    });
   }
 
   form.reset();
   document.getElementById('edit-id').value = '';
 };
+
+function fetchTags() {
+  return db.collection("users").doc(profileCode).collection("tags").get()
+    .then(snapshot => snapshot.docs.map(doc => doc.id));
+}
+
+function populateTagList() {
+  fetchTags().then(tags => {
+    const datalist = document.getElementById('tag-list');
+    if (!datalist) return;
+    datalist.innerHTML = tags.map(tag => `<option value="${tag}">`).join('');
+  });
+}
+
 
 function applyFilters() {
   const from = document.getElementById("filter-from").value;
@@ -275,6 +296,7 @@ document.addEventListener("DOMContentLoaded", () => {
       journalBlock.classList.toggle("auto-height", isCollapsed);
       toggleBtn.classList.toggle("expanded", isCollapsed);
       toggleBtn.title = isCollapsed ? "Свернуть" : "Развернуть";
+populateTagList();
     });
   }
 
