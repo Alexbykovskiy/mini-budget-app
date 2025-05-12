@@ -347,11 +347,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Автоустановка сегодняшней даты
   const dateInput = document.getElementById('date');
-  const editIdInput = document.getElementById('edit-id');
-  if (dateInput && editIdInput && !editIdInput.value) {
+const editIdInput = document.getElementById('edit-id');
+if (dateInput && editIdInput && !editIdInput.value.trim()) {
+  const today = new Date().toISOString().split('T')[0];
+  dateInput.value = today;
+}
+
+
+function resetForm() {
+  form.reset();
+  document.getElementById('edit-id').value = '';
+  const dateInput = document.getElementById('date');
+  if (dateInput) {
     const today = new Date().toISOString().split('T')[0];
     dateInput.value = today;
   }
+}
+
+
 });
 
   
