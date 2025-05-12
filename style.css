@@ -497,3 +497,41 @@ select#filter-category {
   color: #444;
   gap: 4px;
 }
+
+
+.stats-block {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 24px;
+  background: #e0e0e0;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 9px 9px 16px #bebebe, -9px -9px 16px #ffffff;
+  width: 360px;
+  margin-bottom: 24px;
+}
+
+.stats-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #444;
+}
+
+.stats-right p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stats-right svg {
+  width: 20px;
+  height: 20px;
+  stroke: #444;
+  flex-shrink: 0;
+}
