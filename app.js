@@ -92,7 +92,6 @@ calculateFuelStats(data);
 }
 
 function calculateCostPerKm(data) {
-  // отфильтровываем только записи с числовым mileage
   const entriesWithMileage = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));
 
   if (entriesWithMileage.length < 2) {
@@ -100,70 +99,14 @@ function calculateCostPerKm(data) {
     return;
   }
 
-function calculatePureRunningCost(data) {
-  // Все записи с категорией "Топливо" или тегом "#масло"
-  const relevantCosts = data.filter(e =>
-    e.category === 'Топливо' || (e.tag && e.tag.toLowerCase() === 'масло')
-  );
-
-  // Из них — только те, где есть mileage, чтобы посчитать пробег
-  const mileageEntries = relevantCosts.filter(e =>
-    e.mileage && !isNaN(Number(e.mileage))
-  );
-
-  if (mileageEntries.length < 2) {
-    document.getElementById('pure-km-cost').textContent = "Чистая €/км: недостаточно данных";
-    return;
-  }
-
-  const sorted = [...mileageEntries].sort((a, b) => a.date.localeCompare(b.date));
-  const startMileage = Number(sorted[0].mileage);
-  const endMileage = Number(sorted[sorted.length - 1].mileage);
-  const distance = endMileage - startMileage;
-
-  const totalAmount = relevantCosts.reduce((sum, e) => sum + Number(e.amount), 0);
-
-  const costPerKm = distance > 0 ? (totalAmount / distance) : 0;
-  const display = distance > 0
-    ? `Чистая €/км: €${costPerKm.toFixed(3)} (топливо + масло)`
-    : "Чистая €/км: недостаточно пробега";
-
-  document.getElementById('pure-km-cost').textContent = display;
-}
-
-function calculateFuelStats(data) {
-  const fuelEntries = data.filter(e =>
-    e.category === "Топливо" &&
-    e.liters && !isNaN(Number(e.liters))
-  );
-
-  const withMileage = fuelEntries.filter(e => e.mileage && !isNaN(Number(e.mileage)));
-  if (fuelEntries.length === 0 || withMileage.length < 2) {
-    document.getElementById('fuel-consumption').textContent = "л/100км: —";
-    document.getElementById('fuel-price').textContent = "€/л: —";
-    return;
-  }
-
-  const sorted = [...withMileage].sort((a, b) => a.date.localeCompare(b.date));
-  const distance = Number(sorted[sorted.length - 1].mileage) - Number(sorted[0].mileage);
-  const totalLiters = fuelEntries.reduce((sum, e) => sum + Number(e.liters), 0);
-  const totalAmount = fuelEntries.reduce((sum, e) => sum + Number(e.amount || 0), 0);
-
-  const consumption = distance > 0 ? (totalLiters / distance * 100) : 0;
-  const pricePerLiter = totalLiters > 0 ? (totalAmount / totalLiters) : 0;
-
-  document.getElementById('fuel-consumption').textContent = `л/100км: ${consumption.toFixed(1)}`;
-  document.getElementById('fuel-price').textContent = `€/л: ${pricePerLiter.toFixed(2)}`;
-}
-
   const sorted = [...entriesWithMileage].sort((a, b) => a.date.localeCompare(b.date));
   const startMileage = Number(sorted[0].mileage);
   const endMileage = Number(sorted[sorted.length - 1].mileage);
   const distance = endMileage - startMileage;
 
   const totalAmount = data.reduce((sum, e) => sum + Number(e.amount), 0);
-
   const costPerKm = distance > 0 ? (totalAmount / distance) : 0;
+
   const display = distance > 0
     ? `€/км: €${costPerKm.toFixed(3)} (за ${distance} км)`
     : "€/км: недостаточно пробега";
