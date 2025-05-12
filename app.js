@@ -1,11 +1,11 @@
 let db;
 
 window.addEventListener("load", () => {
-  db = firebase.firestore(); // ← создаём подключение к Firestore
-  loadExpenses();            // ← перемещён сюда!
-  populateTagList();         // ← и это тоже
-});
-const profileCode = "mini";
+  db = firebase.firestore();
+  loadExpenses();
+  populateTagList();
+  resetForm(); // 👉 добавляем автоустановку даты
+});const profileCode = "mini";
 
 const form = document.getElementById('expense-form');
 const list = document.getElementById('expense-list');
