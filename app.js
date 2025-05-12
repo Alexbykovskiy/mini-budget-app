@@ -318,6 +318,17 @@ function updateChart(data, total) {
   });
 }
 
+function resetForm() {
+  form.reset();
+  document.getElementById('edit-id').value = '';
+  const dateInput = document.getElementById('date');
+  if (dateInput) {
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
+  }
+}
+
+
 function formatDate(isoString) {
   const [year, month, day] = isoString.split("-");
   return `${day}.${month}.${year}`;
@@ -354,15 +365,6 @@ if (dateInput && editIdInput && !editIdInput.value.trim()) {
 }
 
 
-function resetForm() {
-  form.reset();
-  document.getElementById('edit-id').value = '';
-  const dateInput = document.getElementById('date');
-  if (dateInput) {
-    const today = new Date().toISOString().split('T')[0];
-    dateInput.value = today;
-  }
-}
 
 
 });
