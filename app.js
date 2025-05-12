@@ -109,9 +109,9 @@ function calculateCostPerKm(data) {
   const distance = endMileage - startMileage;
   const totalAmount = data.reduce((sum, e) => sum + Number(e.amount), 0);
   const costPerKm = distance > 0 ? (totalAmount / distance) : 0;
-  document.getElementById('cost-per-km').textContent = distance > 0
-    ? `€/км: €${costPerKm.toFixed(3)} (за ${distance} км)`
-    : "€/км: недостаточно пробега";
+ document.getElementById('cost-per-km').textContent = distance > 0
+  ? `Full €/km: €${costPerKm.toFixed(3)} (for ${distance} km)`
+  : "Full €/km: -";
 }
 
 function calculatePureRunningCost(data) {
@@ -128,8 +128,8 @@ function calculatePureRunningCost(data) {
   const totalAmount = relevantCosts.reduce((sum, e) => sum + Number(e.amount), 0);
   const cost = distance > 0 ? (totalAmount / distance) : 0;
   document.getElementById('pure-km-cost').textContent = distance > 0
-    ? `Чистая: €${cost.toFixed(3)} /км`
-    : "Чистая: —";
+  ? `Base €/km: €${cost.toFixed(3)}`
+  : "Base €/km: —";
 }
 
 function calculateFuelStats(data) {
@@ -140,9 +140,8 @@ function calculateFuelStats(data) {
   );
   const allMileageEntries = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));
   if (fuelEntries.length === 0 || allMileageEntries.length < 2) {
-    document.getElementById('fuel-consumption').textContent = "л/100км: —";
-    document.getElementById('fuel-price').textContent = "€/л: —";
-    return;
+    document.getElementById('fuel-consumption').textContent = "L/100km: —";
+document.getElementById('fuel-price').textContent = "€/L: —";
   }
   const sorted = [...allMileageEntries].sort((a, b) => a.date.localeCompare(b.date));
   const distance = Number(sorted[sorted.length - 1].mileage) - Number(sorted[0].mileage);
@@ -150,10 +149,11 @@ function calculateFuelStats(data) {
   const totalAmount = fuelEntries.reduce((sum, e) => sum + Number(e.amount), 0);
   const consumption = distance > 0 ? (totalLiters / distance * 100) : null;
   const pricePerLiter = totalLiters > 0 ? (totalAmount / totalLiters) : null;
-  document.getElementById('fuel-consumption').textContent =
-    consumption !== null ? `л/100км: ${consumption.toFixed(1)}` : "л/100км: —";
-  document.getElementById('fuel-price').textContent =
-    pricePerLiter !== null ? `€/л: ${pricePerLiter.toFixed(2)}` : "€/л: —";
+ document.getElementById('fuel-consumption').textContent =
+  consumption !== null ? `L/100km: ${consumption.toFixed(1)}` : "L/100km: —";
+
+document.getElementById('fuel-price').textContent =
+  pricePerLiter !== null ? `€/L: ${pricePerLiter.toFixed(2)}` : "€/L: —";
 }
 
 
