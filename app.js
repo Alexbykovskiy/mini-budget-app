@@ -87,6 +87,7 @@ function renderExpenses(data) {
   updateChart(data, total);
 calculateCostPerKm(data);
 calculatePureRunningCost(data);
+calculateFuelStats(data);
 
 }
 
@@ -130,6 +131,30 @@ function calculatePureRunningCost(data) {
   document.getElementById('pure-km-cost').textContent = display;
 }
 
+function calculateFuelStats(data) {
+  const fuelEntries = data.filter(e =>
+    e.category === "Топливо" &&
+    e.liters && !isNaN(Number(e.liters))
+  );
+
+  const withMileage = fuelEntries.filter(e => e.mileage && !isNaN(Number(e.mileage)));
+  if (fuelEntries.length === 0 || withMileage.length < 2) {
+    document.getElementById('fuel-consumption').textContent = "л/100км: —";
+    document.getElementById('fuel-price').textContent = "€/л: —";
+    return;
+  }
+
+  const sorted = [...withMileage].sort((a, b) => a.date.localeCompare(b.date));
+  const distance = Number(sorted[sorted.length - 1].mileage) - Number(sorted[0].mileage);
+  const totalLiters = fuelEntries.reduce((sum, e) => sum + Number(e.liters), 0);
+  const totalAmount = fuelEntries.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+
+  const consumption = distance > 0 ? (totalLiters / distance * 100) : 0;
+  const pricePerLiter = totalLiters > 0 ? (totalAmount / totalLiters) : 0;
+
+  document.getElementById('fuel-consumption').textContent = `л/100км: ${consumption.toFixed(1)}`;
+  document.getElementById('fuel-price').textContent = `€/л: ${pricePerLiter.toFixed(2)}`;
+}
 
   const sorted = [...entriesWithMileage].sort((a, b) => a.date.localeCompare(b.date));
   const startMileage = Number(sorted[0].mileage);
