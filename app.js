@@ -14,6 +14,8 @@ function renderExpenses(data) {
   data.forEach((exp, index) => {
     total += Number(exp.amount);
     const li = document.createElement('li');
+calculateCostPerKm(data);
+calculatePureRunningCost(data);
 
     li.innerHTML = `
   <div class="expense-entry">
@@ -96,6 +98,34 @@ function calculateCostPerKm(data) {
     document.getElementById('cost-per-km').textContent = "€/км: недостаточно данных";
     return;
   }
+
+function calculatePureRunningCost(data) {
+  const relevant = data.filter(e =>
+    (e.category === 'Топливо' || (e.tag && e.tag.toLowerCase() === 'масло')) &&
+    e.mileage && !isNaN(Number(e.mileage))
+  );
+
+  if (relevant.length < 2) {
+    document.getElementById('pure-km-cost').textContent = "Чистая €/км: недостаточно данных";
+    return;
+  }
+
+  const sorted = [...relevant].sort((a, b) => a.date.localeCompare(b.date));
+  const startMileage = Number(sorted[0].mileage);
+  const endMileage = Number(sorted[sorted.length - 1].mileage);
+  const distance = endMileage - startMileage;
+
+  const totalFuelOil = relevant.reduce((sum, e) => sum + Number(e.amount), 0);
+
+  const costPerKm = distance > 0 ? (totalFuelOil / distance) : 0;
+  const display = distance > 0
+    ? `Чистая €/км: €${costPerKm.toFixed(3)} (только топливо и масло)`
+    : "Чистая €/км: недостаточно пробега";
+
+  document.getElementById('pure-km-cost').textContent = display;
+}
+
+
 
   const sorted = [...entriesWithMileage].sort((a, b) => a.date.localeCompare(b.date));
   const startMileage = Number(sorted[0].mileage);
