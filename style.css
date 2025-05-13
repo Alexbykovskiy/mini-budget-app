@@ -615,7 +615,7 @@ select#filter-category {
   max-height: 40px;
   display: flex;
   align-items: center;
-  width: 390px;
+  width: 380px;
   overflow: hidden;
 }
 
