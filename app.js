@@ -378,7 +378,7 @@ const filtersWrapper = document.getElementById("filters-wrapper");
 const filtersBlock = filtersWrapper.closest('.block');
 
 if (filtersWrapper && filterToggleBtn && filtersBlock) {
-  filterToggleBtn.addEventListener("click", () => {
+ filterToggleBtn.addEventListener("change", () => {
     const isCollapsed = filtersWrapper.classList.contains("collapsed");
     filtersWrapper.classList.toggle("collapsed", !isCollapsed);
     filtersWrapper.classList.toggle("expanded", isCollapsed);
@@ -389,7 +389,7 @@ if (filtersWrapper && filterToggleBtn && filtersBlock) {
 }
 
   if (wrapper && toggleBtn && journalBlock) {
-    toggleBtn.addEventListener("click", () => {
+    toggleBtn.addEventListener("change", () => {
       const isCollapsed = wrapper.classList.contains("collapsed");
       wrapper.classList.toggle("collapsed", !isCollapsed);
       wrapper.classList.toggle("expanded", isCollapsed);
