@@ -392,11 +392,20 @@ select#filter-category {
 
 #expense-list-wrapper {
   width: 360px;
-  max-height: none;
-  overflow: visible;
-  transition: all 0.4s ease;
   margin-left: auto;
   margin-right: auto;
+  transition: max-height 0.4s ease;
+  overflow: hidden;
+}
+
+#expense-list-wrapper.collapsed {
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+#expense-list-wrapper.expanded {
+  max-height: 2000px; /* достаточно много, чтобы поместилось всё */
+  overflow-y: visible;
 }
 
 #expense-list-wrapper::-webkit-scrollbar {
