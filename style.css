@@ -631,3 +631,33 @@ transition: max-height 1.5s ease-in-out, padding 1.5s ease-in-out;
   justify-content: space-between;
   margin: 0;
 }
+.tag-admin-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.tag-item {
+  background: #e0e0e0;
+  box-shadow: inset 2px 2px 4px #bebebe, inset -2px -2px 4px #ffffff;
+  border-radius: 12px;
+  padding: 6px 12px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.delete-tag-btn {
+  background: #ff4d4f;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+  box-shadow: 2px 2px 4px #bebebe;
+}

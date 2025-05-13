@@ -255,11 +255,22 @@ function fetchTags() {
 function populateTagList() {
   fetchTags().then(tags => {
     const datalist = document.getElementById('tag-list');
-    if (!datalist) return;
-    datalist.innerHTML = tags.map(tag => `<option value="${tag}">`).join('');
+    const adminList = document.getElementById('tag-list-admin');
+
+    if (datalist) {
+      datalist.innerHTML = tags.map(tag => `<option value="${tag}">`).join('');
+    }
+
+    if (adminList) {
+      adminList.innerHTML = tags.map(tag => `
+        <div class="tag-item">
+          <span>#${tag}</span>
+          <button class="delete-tag-btn" onclick="confirmDeleteTag('${tag}')">×</button>
+        </div>
+      `).join('');
+    }
   });
 }
-
 
 function applyFilters() {
   const from = document.getElementById("filter-from").value;
@@ -399,6 +410,12 @@ if (filterToggleBtn && filtersWrapper && filtersBlock) {
  
   // ✅ Добавь сюда вызов
   populateTagList();
+function confirmDeleteTag(tag) {
+  if (confirm(`Удалить тег "${tag}"?`)) {
+    db.collection("users").doc(profileCode).collection("tags").doc(tag).delete()
+      .then(() => populateTagList());
+  }
+}
 
   // Автоустановка сегодняшней даты
   const dateInput = document.getElementById('date');
