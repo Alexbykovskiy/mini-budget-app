@@ -605,17 +605,20 @@ select#filter-category {
   width: 380px;
   margin-left: auto;
   margin-right: auto;
-  overflow: visible;
-  max-height: none;
+  overflow: hidden;
+  max-height: 2000px; /* максимум, чтобы вместить все фильтры */
   padding: 0 16px 24px 16px;
+  transition: max-height 0.4s ease, padding 0.4s ease;
 }
+
 #filters-wrapper.collapsed {
-  padding: 0 16px;
   max-height: 40px;
+  padding: 0 16px;
   display: flex;
   align-items: center;
   width: 380px;
   overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.4s ease;
 }
 
 #filters-wrapper.collapsed .section-title-row {
