@@ -370,8 +370,23 @@ function formatDate(isoString) {
 
 document.addEventListener("DOMContentLoaded", () => {
   const toggleBtn = document.getElementById("toggle-journal");
+
   const wrapper = document.getElementById("expense-list-wrapper");
   const journalBlock = wrapper.closest('.block');
+const filterToggleBtn = document.getElementById("toggle-filters");
+const filtersWrapper = document.getElementById("filters-wrapper");
+const filtersBlock = filtersWrapper.closest('.block');
+
+if (filtersWrapper && filterToggleBtn && filtersBlock) {
+  filterToggleBtn.addEventListener("click", () => {
+    const isCollapsed = filtersWrapper.classList.contains("collapsed");
+    filtersWrapper.classList.toggle("collapsed", !isCollapsed);
+    filtersWrapper.classList.toggle("expanded", isCollapsed);
+    filtersBlock.classList.toggle("auto-height", isCollapsed);
+    filterToggleBtn.classList.toggle("expanded", isCollapsed);
+    filterToggleBtn.title = isCollapsed ? "Свернуть" : "Развернуть";
+  });
+}
 
   if (wrapper && toggleBtn && journalBlock) {
     toggleBtn.addEventListener("click", () => {
@@ -394,7 +409,6 @@ if (dateInput && editIdInput && !editIdInput.value.trim()) {
   const today = new Date().toISOString().split('T')[0];
   dateInput.value = today;
 }
-
 
 
 
