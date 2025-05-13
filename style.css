@@ -546,3 +546,10 @@ select#filter-category {
   position: relative;
   top: 1px; /* 🔧 приподнимаем чуть выше */
 }
+#filters-wrapper.collapsed .filters-toggle-container {
+  display: none;
+}
+
+#filters-wrapper.expanded .filters-toggle-container {
+  display: block;
+}
