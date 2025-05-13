@@ -541,6 +541,8 @@ select#filter-category {
   width: 18px;
   height: 18px;
   vertical-align: middle;
-  margin-right: 4px;
+  margin-right: 6px;
   stroke: #444;
+  position: relative;
+  top: 1px; /* 🔧 приподнимаем чуть выше */
 }
