@@ -538,11 +538,11 @@ select#filter-category {
 
 
 .chart-info .lucide {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   vertical-align: middle;
   margin-right: 6px;
   stroke: #444;
   position: relative;
-  top: -2px; /* 🔧 приподнимаем чуть выше */
+  top: 1px; /* 🔧 приподнимаем чуть выше */
 }
