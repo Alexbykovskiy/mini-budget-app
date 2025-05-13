@@ -255,22 +255,11 @@ function fetchTags() {
 function populateTagList() {
   fetchTags().then(tags => {
     const datalist = document.getElementById('tag-list');
-    const adminList = document.getElementById('tag-list-admin');
-
-    if (datalist) {
-      datalist.innerHTML = tags.map(tag => `<option value="${tag}">`).join('');
-    }
-
-    if (adminList) {
-      adminList.innerHTML = tags.map(tag => `
-        <div class="tag-item">
-          <span>#${tag}</span>
-          <button class="delete-tag-btn" onclick="confirmDeleteTag('${tag}')">×</button>
-        </div>
-      `).join('');
-    }
+    if (!datalist) return;
+    datalist.innerHTML = tags.map(tag => `<option value="${tag}">`).join('');
   });
 }
+
 
 function applyFilters() {
   const from = document.getElementById("filter-from").value;
@@ -381,20 +370,7 @@ function formatDate(isoString) {
 
 document.addEventListener("DOMContentLoaded", () => {
   const toggleBtn = document.getElementById("toggle-journal");
-const tagInput = document.getElementById('tag');
-  const customList = document.getElementById('custom-tag-list');
 
-  if (tagInput && customList) {
-    tagInput.addEventListener('focus', () => {
-      customList.classList.add('visible');
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.tag-input-wrapper')) {
-        customList.classList.remove('visible');
-      }
-    });
-  }
   const wrapper = document.getElementById("expense-list-wrapper");
   const journalBlock = wrapper.closest('.block');
 const filterToggleBtn = document.getElementById("toggle-filters");
@@ -422,24 +398,7 @@ if (filterToggleBtn && filtersWrapper && filtersBlock) {
 
  
   // ✅ Добавь сюда вызов
-function populateTagList() {
-  fetchTags().then(tags => {
-    const list = document.getElementById('custom-tag-list');
-    if (!list) return;
-
-    list.innerHTML = tags.map(tag => `
-      <div class="tag-option" onclick="selectTag('${tag}')">
-        <span>#${tag}</span>
-        <button class="delete-btn" onclick="event.stopPropagation(); confirmDeleteTag('${tag}')">×</button>
-      </div>
-    `).join('');
-  });
-}
-
-function selectTag(tag) {
-  document.getElementById('tag').value = tag;
-  document.getElementById('custom-tag-list').classList.remove('visible');
-}
+  populateTagList();
 
   // Автоустановка сегодняшней даты
   const dateInput = document.getElementById('date');
