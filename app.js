@@ -377,28 +377,26 @@ const filterToggleBtn = document.getElementById("toggle-filters");
 const filtersWrapper = document.getElementById("filters-wrapper");
 const filtersBlock = filtersWrapper.closest('.block');
 
-if (filtersWrapper && filterToggleBtn && filtersBlock) {
- filterToggleBtn.addEventListener("change", () => {
-    const isCollapsed = filtersWrapper.classList.contains("collapsed");
-    filtersWrapper.classList.toggle("collapsed", !isCollapsed);
-    filtersWrapper.classList.toggle("expanded", isCollapsed);
-    filtersBlock.classList.toggle("auto-height", isCollapsed);
-    filterToggleBtn.classList.toggle("expanded", isCollapsed);
-    filterToggleBtn.title = isCollapsed ? "Свернуть" : "Развернуть";
+if (toggleBtn && wrapper && journalBlock) {
+  toggleBtn.addEventListener("change", () => {
+    const isOn = toggleBtn.checked;
+    wrapper.classList.toggle("collapsed", !isOn);
+    wrapper.classList.toggle("expanded", isOn);
+    journalBlock.classList.toggle("auto-height", isOn);
   });
 }
 
-  if (wrapper && toggleBtn && journalBlock) {
-    toggleBtn.addEventListener("change", () => {
-      const isCollapsed = wrapper.classList.contains("collapsed");
-      wrapper.classList.toggle("collapsed", !isCollapsed);
-      wrapper.classList.toggle("expanded", isCollapsed);
-      journalBlock.classList.toggle("auto-height", isCollapsed);
-      toggleBtn.classList.toggle("expanded", isCollapsed);
-      toggleBtn.title = isCollapsed ? "Свернуть" : "Развернуть";
-    });
-  }
+if (filterToggleBtn && filtersWrapper && filtersBlock) {
+  filterToggleBtn.addEventListener("change", () => {
+    const isOn = filterToggleBtn.checked;
+    filtersWrapper.classList.toggle("collapsed", !isOn);
+    filtersWrapper.classList.toggle("expanded", isOn);
+    filtersBlock.classList.toggle("auto-height", isOn);
+  });
+}
 
+
+ 
   // ✅ Добавь сюда вызов
   populateTagList();
 
