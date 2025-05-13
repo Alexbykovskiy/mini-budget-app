@@ -544,5 +544,5 @@ select#filter-category {
   margin-right: 6px;
   stroke: #444;
   position: relative;
-  top: 3px; /* 🔧 приподнимаем чуть выше */
+  top: -2px; /* 🔧 приподнимаем чуть выше */
 }
