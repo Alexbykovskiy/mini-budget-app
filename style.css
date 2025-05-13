@@ -20,7 +20,7 @@ h1 {
   width: 360px;
   background: #e0e0e0;
   border-radius: 20px;
-  padding: 24px;
+  padding: 16px 24px 24px 24px; /* ⬅️ padding-top: 16px */
   margin-bottom: 24px;
   box-shadow: 9px 9px 16px #bebebe, -9px -9px 16px #ffffff;
   border: none;
@@ -360,8 +360,7 @@ select#filter-category {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-top: 16px;     /* 🔧 ДОБАВЛЕННЫЙ отступ сверху */
-  margin-bottom: 12px;
+   margin-bottom: 12px;
 }
 
 /* Светлая круглая кнопка в стиле lucide */
