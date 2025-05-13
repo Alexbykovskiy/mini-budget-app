@@ -397,31 +397,19 @@ select#filter-category {
   -ms-overflow-style: none;
 }
 
-#expense-list-wrapper {
-  transition: max-height 0.4s ease, padding 0.4s ease;
-  overflow: hidden;
-  max-height: 400px;
-  padding: 24px;
-}
-
 #expense-list-wrapper.collapsed {
-  max-height: 60px;
-  padding: 6px 12px;
-  overflow: hidden;
+  max-height: 280px;
+  overflow-y: scroll;
 }
 
 #expense-list-wrapper.expanded {
-  max-height: 1000px; /* подстраивается по содержимому */
-}
-#expense-list-wrapper.expanded {
-  max-height: none; /* высота будет подстраиваться автоматически */
+  max-height: none; /* полностью раскрыт */
   overflow-y: visible;
 }
 
 #expense-list-wrapper::-webkit-scrollbar {
   display: none;
 }
-
 .block.auto-height {
   height: auto;
   transition: height 0.4s ease;
