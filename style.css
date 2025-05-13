@@ -612,7 +612,7 @@ select#filter-category {
 
 #filters-wrapper.collapsed {
   padding: 12px 20px;
-  max-height: 56px;
+  max-height: 30px;
   width: 360px;
   overflow: hidden;
 }
