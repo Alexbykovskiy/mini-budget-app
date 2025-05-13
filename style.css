@@ -397,11 +397,22 @@ select#filter-category {
   -ms-overflow-style: none;
 }
 
-#expense-list-wrapper.collapsed {
-  max-height: 280px;
-  overflow-y: scroll;
+#expense-list-wrapper {
+  transition: max-height 0.4s ease, padding 0.4s ease;
+  overflow: hidden;
+  max-height: 400px;
+  padding: 24px;
 }
 
+#expense-list-wrapper.collapsed {
+  max-height: 60px;
+  padding: 6px 12px;
+  overflow: hidden;
+}
+
+#expense-list-wrapper.expanded {
+  max-height: 1000px; /* подстраивается по содержимому */
+}
 #expense-list-wrapper.expanded {
   max-height: none; /* высота будет подстраиваться автоматически */
   overflow-y: visible;
@@ -600,3 +611,15 @@ select#filter-category {
 .ios-switch input:checked + .slider:before {
   transform: translateX(14px);
 }
+
+#filters-wrapper {
+  transition: max-height 0.4s ease, padding 0.4s ease, background-color 0.3s ease;
+  overflow: hidden;
+  max-height: 400px;
+}
+
+#filters-wrapper.collapsed {
+  padding: 6px 12px;
+  max-height: 56px;
+}
+
