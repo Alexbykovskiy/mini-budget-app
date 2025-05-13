@@ -557,7 +557,7 @@ select#filter-category {
 .ios-switch {
   position: relative;
   display: inline-block;
-  width: 44px;
+  width: 42px;
   height: 24px;
 }
 
@@ -570,8 +570,10 @@ select#filter-category {
 .ios-switch .slider {
   position: absolute;
   cursor: pointer;
-  top: 0; left: 0;
-  right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: #ccc;
   transition: 0.3s;
   border-radius: 999px;
@@ -582,8 +584,8 @@ select#filter-category {
   content: "";
   height: 18px;
   width: 18px;
-  left: 3px;
   top: 3px;
+  left: 3px;
   background-color: white;
   transition: 0.3s;
   border-radius: 50%;
@@ -594,5 +596,5 @@ select#filter-category {
 }
 
 .ios-switch input:checked + .slider:before {
-  transform: translateX(20px);
+  transform: translateX(16px); /* ← 🔧 Это важно */
 }
