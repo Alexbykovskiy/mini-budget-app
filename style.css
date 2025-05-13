@@ -661,3 +661,92 @@ transition: max-height 1.5s ease-in-out, padding 1.5s ease-in-out;
   line-height: 1;
   box-shadow: 2px 2px 4px #bebebe;
 }
+.tag-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.custom-tag-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.custom-tag-list .tag-option {
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.custom-tag-list .tag-option:hover {
+  background: #d6d6d6;
+}
+
+.custom-tag-list .delete-btn {
+  background: #ff4d4f;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.tag-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.custom-tag-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+}
+
+.custom-tag-list.visible {
+  display: block;
+}
+
+.custom-tag-list .tag-option {
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.custom-tag-list .tag-option:hover {
+  background: #dcdcdc;
+}
+
+.custom-tag-list .delete-btn {
+  background: #ff4d4f;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}

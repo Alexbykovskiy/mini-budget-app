@@ -44,8 +44,11 @@
         <input type="date" id="filter-to" />
       </div>
       <div class="row">
-       <input list="tag-list" id="filter-tag" placeholder="#тег" />
-<datalist id="tag-list"></datalist>
+      <div class="tag-input-wrapper">
+  <input type="text" id="tag" placeholder="#тег" autocomplete="off" />
+  <div id="custom-tag-list" class="custom-tag-list hidden"></div>
+</div>
+
         <select id="filter-category">
           <option value="Все">Все категории</option>
           <option>Топливо</option>
@@ -103,9 +106,11 @@
       </div>
       <div class="row">
         <input type="text" id="note" placeholder="Комментарий" />
-        <input list="tag-list" id="tag" placeholder="#тег" />
-<datalist id="tag-list"></datalist>
-<div id="tag-list-admin" class="tag-admin-list"></div>
+       <div class="tag-input-wrapper">
+  <input type="text" id="tag" placeholder="#тег" autocomplete="off" />
+  <div id="custom-tag-list" class="custom-tag-list"></div>
+</div>
+
 
       </div>
       <div class="row">
