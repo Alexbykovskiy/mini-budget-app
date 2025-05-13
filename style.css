@@ -608,7 +608,7 @@ select#filter-category {
   overflow: hidden;
   max-height: 2000px; /* максимум, чтобы вместить все фильтры */
   padding: 0 16px 24px 16px;
-  transition: max-height 0.9s ease, padding 0.9s ease;
+  transition: max-height 1.5s ease, padding 1.5s ease;
 }
 
 #filters-wrapper.collapsed {
@@ -618,7 +618,7 @@ select#filter-category {
   align-items: center;
   width: 380px;
   overflow: hidden;
-  transition: max-height 0.9s ease, padding 0.9s ease;
+  transition: max-height 1.5s ease, padding 1.5s ease;
 }
 
 #filters-wrapper.collapsed .section-title-row {
