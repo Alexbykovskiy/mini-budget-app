@@ -602,7 +602,10 @@ select#filter-category {
 }
 
 #filters-wrapper {
-  transition: max-height 0.4s ease, padding 0.4s ease, background-color 0.3s ease;
+  width: 360px;
+  margin-left: auto;
+  margin-right: auto;
+  transition: max-height 0.4s ease, padding 0.4s ease;
   overflow: hidden;
   max-height: 400px;
 }
