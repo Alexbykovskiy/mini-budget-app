@@ -109,10 +109,33 @@ function calculateCostPerKm(data) {
   const distance = endMileage - startMileage;
   const totalAmount = data.reduce((sum, e) => sum + Number(e.amount), 0);
   const costPerKm = distance > 0 ? (totalAmount / distance) : 0;
- document.getElementById('cost-per-km').innerHTML = distance > 0
-  ? `<i class="lucide" data-icon="cog"></i> €/km: €${costPerKm.toFixed(3)} (for ${distance} km)`
-  : `<i class="lucide" data-icon="cog"></i> €/km: недостаточно данных`;
-lucide.createIcons();
+document.getElementById('cost-per-km').innerHTML = distance > 0
+  ? `<svg xmlns="http://www.w3.org/2000/svg" class="lucide" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+     <circle cx="12" cy="12" r="3"></circle>
+     <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65
+     1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65
+     0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65
+     1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65
+     0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65
+     1.65 0 0 0 1.82.33h.06A1.65 1.65 0 0 0 11 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65
+     0 0 0 1 1.51h.06a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65
+     1.65 0 0 0-.33 1.82v.06a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65
+     1.65 0 0 0-1.51 1z"></path>
+     </svg> €/km: €${costPerKm.toFixed(3)} (for ${distance} km)`
+  : `<svg xmlns="http://www.w3.org/2000/svg" class="lucide" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+     <circle cx="12" cy="12" r="3"></circle>
+     <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65
+     1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65
+     0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65
+     1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65
+     0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65
+     1.65 0 0 0 1.82.33h.06A1.65 1.65 0 0 0 11 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65
+     0 0 0 1 1.51h.06a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65
+     1.65 0 0 0-.33 1.82v.06a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65
+     1.65 0 0 0-1.51 1z"></path>
+     </svg> €/km: -`;
 }
 
 function calculatePureRunningCost(data) {
@@ -129,9 +152,15 @@ function calculatePureRunningCost(data) {
   const totalAmount = relevantCosts.reduce((sum, e) => sum + Number(e.amount), 0);
   const cost = distance > 0 ? (totalAmount / distance) : 0;
   document.getElementById('pure-km-cost').innerHTML = distance > 0
-  ? `<i class="lucide" data-icon="droplet"></i> €/km: €${cost.toFixed(3)}`
-  : `<i class="lucide" data-icon="droplet"></i> €/km: —`;
-lucide.createIcons();
+  ? `<svg xmlns="http://www.w3.org/2000/svg" class="lucide" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+     <path d="M12 2.1S4 10.5 4 16a8 8 0 0 0 16 0c0-5.5-8-13.9-8-13.9z"></path>
+     </svg> €/km: €${cost.toFixed(3)}`
+  : `<svg xmlns="http://www.w3.org/2000/svg" class="lucide" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+     <path d="M12 2.1S4 10.5 4 16a8 8 0 0 0 16 0c0-5.5-8-13.9-8-13.9z"></path>
+     </svg> €/km: —`;
+
 }
 
 function calculateFuelStats(data) {
