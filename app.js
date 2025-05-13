@@ -382,20 +382,19 @@ function formatDate(isoString) {
 document.addEventListener("DOMContentLoaded", () => {
   const toggleBtn = document.getElementById("toggle-journal");
 const tagInput = document.getElementById('tag');
-const customList = document.getElementById('custom-tag-list');
+  const customList = document.getElementById('custom-tag-list');
 
-if (tagInput && customList) {
-  tagInput.addEventListener('focus', () => {
-    customList.classList.add('visible');
-  });
+  if (tagInput && customList) {
+    tagInput.addEventListener('focus', () => {
+      customList.classList.add('visible');
+    });
 
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.tag-input-wrapper')) {
-      customList.classList.remove('visible');
-    }
-  });
-}
-
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.tag-input-wrapper')) {
+        customList.classList.remove('visible');
+      }
+    });
+  }
   const wrapper = document.getElementById("expense-list-wrapper");
   const journalBlock = wrapper.closest('.block');
 const filterToggleBtn = document.getElementById("toggle-filters");
@@ -436,10 +435,12 @@ function populateTagList() {
     `).join('');
   });
 }
+
 function selectTag(tag) {
   document.getElementById('tag').value = tag;
   document.getElementById('custom-tag-list').classList.remove('visible');
 }
+
   // Автоустановка сегодняшней даты
   const dateInput = document.getElementById('date');
 const editIdInput = document.getElementById('edit-id');
