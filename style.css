@@ -20,7 +20,7 @@ h1 {
   width: 360px;
   background: #e0e0e0;
   border-radius: 20px;
-  padding: 16px 24px 24px 24px; /* ⬅️ padding-top: 16px */
+ padding: 8px 24px 24px 24px;  /* 👈 минимальный верхний отступ */
   margin-bottom: 24px;
   box-shadow: 9px 9px 16px #bebebe, -9px -9px 16px #ffffff;
   border: none;
