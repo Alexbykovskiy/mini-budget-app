@@ -606,9 +606,10 @@ select#filter-category {
   margin-left: auto;
   margin-right: auto;
   overflow: hidden;
-  max-height: 2000px; /* максимум, чтобы вместить все фильтры */
+  max-height: 2000px;
   padding: 0 16px 24px 16px;
-  transition: max-height 1.5s ease, padding 1.5s ease;
+  transition: max-height 1.5s transition: max-height 1.5s cubic-bezier(0.65, 0, 0.35, 1), padding 1.5s cubic-bezier(0.65, 0, 0.35, 1);
+
 }
 
 #filters-wrapper.collapsed {
@@ -618,7 +619,8 @@ select#filter-category {
   align-items: center;
   width: 380px;
   overflow: hidden;
-  transition: max-height 1.5s ease, padding 1.5s ease;
+  transition: max-height 1.5s transition: max-height 1.5s cubic-bezier(0.65, 0, 0.35, 1), padding 1.5s cubic-bezier(0.65, 0, 0.35, 1);
+
 }
 
 #filters-wrapper.collapsed .section-title-row {
