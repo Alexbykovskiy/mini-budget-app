@@ -607,9 +607,8 @@ select#filter-category {
   margin-right: auto;
   overflow: visible;
   max-height: none;
-  padding: 24px;
+  padding: 0 16px 24px 16px;
 }
-
 #filters-wrapper.collapsed {
   padding: 0 16px;
   max-height: 40px;
