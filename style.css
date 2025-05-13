@@ -611,8 +611,8 @@ select#filter-category {
 }
 
 #filters-wrapper.collapsed {
-  padding: 24px;
-  max-height: none;
+  padding: 12px 20px;
+  max-height: 56px;
   width: 360px;
+  overflow: hidden;
 }
-
