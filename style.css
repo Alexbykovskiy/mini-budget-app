@@ -392,19 +392,19 @@ select#filter-category {
 
 #expense-list-wrapper {
   width: 360px;
-  margin-left: auto;
-  margin-right: auto;
   transition: max-height 0.4s ease;
-  overflow: hidden;
+  padding-right: 6px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 #expense-list-wrapper.collapsed {
   max-height: 280px;
-  overflow-y: auto;
+  overflow-y: scroll;
 }
 
 #expense-list-wrapper.expanded {
-  max-height: 2000px; /* достаточно много, чтобы поместилось всё */
+  max-height: none; /* полностью раскрыт */
   overflow-y: visible;
 }
 
