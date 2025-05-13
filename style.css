@@ -83,12 +83,12 @@ input[type="date"] {
 /* Контейнер для списка расходов */
 #expense-list-wrapper {
   width: 360px;
-  height: 280px;
-  overflow-y: scroll;
   padding-right: 6px;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  transition: max-height 1.5s ease-in-out;
 }
+
 
 #expense-list-wrapper::-webkit-scrollbar {
   display: none;
@@ -608,7 +608,7 @@ select#filter-category {
   overflow: hidden;
   max-height: 2000px;
   padding: 0 16px 24px 16px;
-  transition: max-height 2s ease-in-out, padding 2s ease-in-out;
+  transition: max-height 1.5s ease-in-out, padding 1.5s ease-in-out;
 
 }
 
@@ -619,7 +619,7 @@ select#filter-category {
   align-items: center;
   width: 380px;
   overflow: hidden;
-transition: max-height 2s ease-in-out, padding 2s ease-in-out;
+transition: max-height 1.5s ease-in-out, padding 1.5s ease-in-out;
 
 
 }
