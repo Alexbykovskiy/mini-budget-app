@@ -109,9 +109,10 @@ function calculateCostPerKm(data) {
   const distance = endMileage - startMileage;
   const totalAmount = data.reduce((sum, e) => sum + Number(e.amount), 0);
   const costPerKm = distance > 0 ? (totalAmount / distance) : 0;
- document.getElementById('cost-per-km').textContent = distance > 0
+ document.getElementById('cost-per-km').innerHTML = distance > 0
   ? `<i class="lucide" data-icon="cog"></i> €/km: €${costPerKm.toFixed(3)} (for ${distance} km)`
   : `<i class="lucide" data-icon="cog"></i> €/km: недостаточно данных`;
+lucide.createIcons();
 }
 
 function calculatePureRunningCost(data) {
@@ -127,9 +128,10 @@ function calculatePureRunningCost(data) {
   const distance = Number(sorted[sorted.length - 1].mileage) - Number(sorted[0].mileage);
   const totalAmount = relevantCosts.reduce((sum, e) => sum + Number(e.amount), 0);
   const cost = distance > 0 ? (totalAmount / distance) : 0;
-  document.getElementById('pure-km-cost').textContent = distance > 0
+  document.getElementById('pure-km-cost').innerHTML = distance > 0
   ? `<i class="lucide" data-icon="droplet"></i> €/km: €${cost.toFixed(3)}`
   : `<i class="lucide" data-icon="droplet"></i> €/km: —`;
+lucide.createIcons();
 }
 
 function calculateFuelStats(data) {
