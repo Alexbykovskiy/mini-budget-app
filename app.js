@@ -109,10 +109,13 @@ function calculateCostPerKm(data) {
   const distance = endMileage - startMileage;
   const totalAmount = data.reduce((sum, e) => sum + Number(e.amount), 0);
   const costPerKm = distance > 0 ? (totalAmount / distance) : 0;
-document.getElementById('cost-per-km').textContent =
+document.getElementById('cost-per-km').innerHTML =
   distance > 0
-    ? `Цена за км: €${costPerKm.toFixed(3)} (по ${distance} км)`
-    : `Цена за км: —`;
+    ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
+         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+         <circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg> 
+         €/${"км"}: €${costPerKm.toFixed(3)} (по ${distance} км)`
+    : `€/км: —`;
 }
 function calculatePureRunningCost(data) {
   const relevantCosts = data.filter(e =>
@@ -129,10 +132,15 @@ function calculatePureRunningCost(data) {
   const cost = distance > 0 ? (totalAmount / distance) : 0;
  document.getElementById('pure-km-cost').innerHTML =
   distance > 0
-    ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg> Чистая цена за км: €${cost.toFixed(3)}`
-    : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg> Чистая цена за км: —`;
+    ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
+         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+         <path d="M12 2C12 2 6 7 6 12a6 6 0 0 0 12 0c0-5-6-10-6-10z"/></svg>
+         Чистая €/км: €${cost.toFixed(3)}`
+    : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
+         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+         <path d="M12 2C12 2 6 7 6 12a6 6 0 0 0 12 0c0-5-6-10-6-10z"/></svg>
+         Чистая €/км: —`;
 }
-
 function calculateFuelStats(data) {
   const fuelEntries = data.filter(e =>
     e.category === 'Топливо' &&
@@ -152,15 +160,15 @@ function calculateFuelStats(data) {
       ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
          <path d="M4 4h8v12H4z"/><path d="M14 4v12"/><path d="M4 8h8"/></svg>
-         Расход: ${consumption.toFixed(1)} л/100 км`
+Расход: ${consumption.toFixed(1)} л/100
       : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
          <path d="M4 4h8v12H4z"/><path d="M14 4v12"/><path d="M4 8h8"/></svg> Расход: —`;
 
-  document.getElementById('fuel-price').textContent =
-    pricePerLiter !== null
-      ? `Цена за литр: €${pricePerLiter.toFixed(2)}`
-      : `Цена за литр: —`;
+document.getElementById('fuel-price').textContent =
+  pricePerLiter !== null
+    ? `€/л: €${pricePerLiter.toFixed(2)}`
+    : `€/л: —`;
 }
  
 
