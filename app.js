@@ -155,15 +155,16 @@ function calculateFuelStats(data) {
   const consumption = distance > 0 ? (totalLiters / distance * 100) : null;
   const pricePerLiter = totalLiters > 0 ? (totalAmount / totalLiters) : null;
 
-  document.getElementById('fuel-consumption').innerHTML =
-    consumption !== null
-      ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
+ document.getElementById('fuel-consumption').innerHTML =
+  consumption !== null
+    ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
          <path d="M4 4h8v12H4z"/><path d="M14 4v12"/><path d="M4 8h8"/></svg>
-Расход: ${consumption.toFixed(1)} л/100
-      : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
+         Расход: ${consumption.toFixed(1)} л/100`
+    : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
          <path d="M4 4h8v12H4z"/><path d="M14 4v12"/><path d="M4 8h8"/></svg> Расход: —`;
+
 
 document.getElementById('fuel-price').textContent =
   pricePerLiter !== null
