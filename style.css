@@ -653,8 +653,8 @@ transition: max-height 1.5s ease-in-out, padding 1.5s ease-in-out;
 }
 .mileage-note {
   text-align: center;
-  margin-top: -8px;
-  font-size: 13px;
-  color: #777;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
 }
-
