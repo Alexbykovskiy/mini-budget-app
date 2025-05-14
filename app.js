@@ -113,10 +113,13 @@ document.getElementById('cost-per-km').innerHTML =
   distance > 0
     ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-         <circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg> 
-         €/${"км"}: €${costPerKm.toFixed(3)} (по ${distance} км)`
+         <circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg> €/км: €${costPerKm.toFixed(3)}`
     : `€/км: —`;
-}
+
+document.getElementById('mileage-info').textContent =
+  distance > 0
+    ? ` ${distance} км`
+    : '';}
 function calculatePureRunningCost(data) {
   const relevantCosts = data.filter(e =>
     e.category === 'Топливо' || (e.tag && e.tag.toLowerCase() === 'масло')

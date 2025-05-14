@@ -651,4 +651,10 @@ transition: max-height 1.5s ease-in-out, padding 1.5s ease-in-out;
   background: #e0e0e0;
   box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
 }
+.mileage-note {
+  text-align: center;
+  margin-top: -8px;
+  font-size: 13px;
+  color: #777;
+}
 
