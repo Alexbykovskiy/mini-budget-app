@@ -140,19 +140,28 @@ function calculateFuelStats(data) {
     e.amount && !isNaN(Number(e.amount))
   );
   const allMileageEntries = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));
-  if (fuelEntries.length === 0 || allMileageEntries.length < 2) {
-    document.getElementById('fuel-consumption').innerHTML =
-  consumption !== null
-    ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h8v12H4z"/><path d="M14 4v12"/><path d="M4 8h8"/></svg> Расход: ${consumption.toFixed(1)} л/100 км`
-    : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h8v12H4z"/><path d="M14 4v12"/><path d="M4 8h8"/></svg> Расход: —`;
-
-document.getElementById('fuel-price').textContent =
-  pricePerLiter !== null
-    ? `Цена за литр: €${pricePerLiter.toFixed(2)}`
-    : `Цена за литр: —`;
- 
   const sorted = [...allMileageEntries].sort((a, b) => a.date.localeCompare(b.date));
-  const distance = Number(sorted[sorted.length - 1].mileage) - Number(sorted[0].mileage);
+  const distance = sorted.length >= 2 ? Number(sorted[sorted.length - 1].mileage) - Number(sorted[0].mileage) : 0;
+  const totalLiters = fuelEntries.reduce((sum, e) => sum + Number(e.liters), 0);
+  const totalAmount = fuelEntries.reduce((sum, e) => sum + Number(e.amount), 0);
+  const consumption = distance > 0 ? (totalLiters / distance * 100) : null;
+  const pricePerLiter = totalLiters > 0 ? (totalAmount / totalLiters) : null;
+
+  document.getElementById('fuel-consumption').innerHTML =
+    consumption !== null
+      ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
+         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+         <path d="M4 4h8v12H4z"/><path d="M14 4v12"/><path d="M4 8h8"/></svg>
+         Расход: ${consumption.toFixed(1)} л/100 км`
+      : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
+         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+         <path d="M4 4h8v12H4z"/><path d="M14 4v12"/><path d="M4 8h8"/></svg> Расход: —`;
+
+  document.getElementById('fuel-price').textContent =
+    pricePerLiter !== null
+      ? `Цена за литр: €${pricePerLiter.toFixed(2)}`
+      : `Цена за литр: —`;
+}
   const totalLiters = fuelEntries.reduce((sum, e) => sum + Number(e.liters), 0);
   const totalAmount = fuelEntries.reduce((sum, e) => sum + Number(e.amount), 0);
   const consumption = distance > 0 ? (totalLiters / distance * 100) : null;
