@@ -162,17 +162,7 @@ function calculateFuelStats(data) {
       ? `Цена за литр: €${pricePerLiter.toFixed(2)}`
       : `Цена за литр: —`;
 }
-  const totalLiters = fuelEntries.reduce((sum, e) => sum + Number(e.liters), 0);
-  const totalAmount = fuelEntries.reduce((sum, e) => sum + Number(e.amount), 0);
-  const consumption = distance > 0 ? (totalLiters / distance * 100) : null;
-  const pricePerLiter = totalLiters > 0 ? (totalAmount / totalLiters) : null;
- document.getElementById('fuel-consumption').textContent =
-  consumption !== null ? `L/100km: ${consumption.toFixed(1)}` : "L/100km: —";
-
-document.getElementById('fuel-price').textContent =
-  pricePerLiter !== null ? `€/L: ${pricePerLiter.toFixed(2)}` : "€/L: —";
-}
-
+ 
 
 
 function deleteExpense(id) {
