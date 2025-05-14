@@ -113,6 +113,7 @@ document.getElementById('cost-per-km').textContent =
   distance > 0
     ? `Цена за км: €${costPerKm.toFixed(3)} (по ${distance} км)`
     : `Цена за км: —`;
+}
 function calculatePureRunningCost(data) {
   const relevantCosts = data.filter(e =>
     e.category === 'Топливо' || (e.tag && e.tag.toLowerCase() === 'масло')
@@ -149,7 +150,7 @@ document.getElementById('fuel-price').textContent =
   pricePerLiter !== null
     ? `Цена за литр: €${pricePerLiter.toFixed(2)}`
     : `Цена за литр: —`;
-
+ 
   const sorted = [...allMileageEntries].sort((a, b) => a.date.localeCompare(b.date));
   const distance = Number(sorted[sorted.length - 1].mileage) - Number(sorted[0].mileage);
   const totalLiters = fuelEntries.reduce((sum, e) => sum + Number(e.liters), 0);
