@@ -490,14 +490,16 @@ select#filter-category {
 
 .chart-info {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  font-size: 14px;
+  flex-direction: row; /* ✅ одна строка */
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
   font-weight: bold;
   color: #444;
-  gap: 4px;
+  gap: 10px;
+  flex-wrap: nowrap;
+  width: 100%;
 }
-
 
 .stats-block {
   display: flex;
