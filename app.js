@@ -113,7 +113,7 @@ document.getElementById('cost-per-km').innerHTML =
   distance > 0
     ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-         <circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg> €/км: €${costPerKm.toFixed(3)}`
+         <circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg> €/км: €${costPerKm.toFixed(2)}`
     : `€/км: —`;
 
 document.getElementById('mileage-info').textContent =
@@ -138,7 +138,7 @@ function calculatePureRunningCost(data) {
     ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
          <path d="M12 2C12 2 6 7 6 12a6 6 0 0 0 12 0c0-5-6-10-6-10z"/></svg>
-         €/км: €${cost.toFixed(3)}`
+         €/км: €${cost.toFixed(2)}`
     : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
          <path d="M12 2C12 2 6 7 6 12a6 6 0 0 0 12 0c0-5-6-10-6-10z"/></svg>

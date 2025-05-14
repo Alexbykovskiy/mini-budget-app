@@ -638,15 +638,21 @@ transition: max-height 1.5s ease-in-out, padding 1.5s ease-in-out;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap; /* ❗ запретить перенос */
   padding: 10px 16px;
   margin-bottom: 12px;
   border-radius: 16px;
-  font-size: 13px; /* 👈 Уменьшенный размер шрифта */
+  font-size: 12px; /* 🔧 ещё меньше */
   font-weight: 500;
   color: #444;
   gap: 10px;
 }
+
+.stats-bar p {
+  margin: 0;
+  white-space: nowrap;
+}
+
 
 .shadow-inset {
   background: #e0e0e0;
