@@ -631,3 +631,24 @@ transition: max-height 1.5s ease-in-out, padding 1.5s ease-in-out;
   justify-content: space-between;
   margin: 0;
 }
+
+
+.stats-bar {
+  width: 360px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #444;
+  gap: 6px;
+}
+
+.shadow-inset {
+  background: #e0e0e0;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
+}
+
