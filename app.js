@@ -123,7 +123,7 @@ function calculatePureRunningCost(data) {
   );
   const mileageEntries = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));
   if (mileageEntries.length < 2) {
-    document.getElementById('pure-km-cost').textContent = "Чистая €/км: недостаточно данных";
+    document.getElementById('pure-km-cost').textContent = "€/км: недостаточно данных";
     return;
   }
   const sorted = [...mileageEntries].sort((a, b) => a.date.localeCompare(b.date));
@@ -135,11 +135,11 @@ function calculatePureRunningCost(data) {
     ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
          <path d="M12 2C12 2 6 7 6 12a6 6 0 0 0 12 0c0-5-6-10-6-10z"/></svg>
-         Чистая €/км: €${cost.toFixed(3)}`
+         €/км: €${cost.toFixed(3)}`
     : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
          <path d="M12 2C12 2 6 7 6 12a6 6 0 0 0 12 0c0-5-6-10-6-10z"/></svg>
-         Чистая €/км: —`;
+         €/км: —`;
 }
 function calculateFuelStats(data) {
   const fuelEntries = data.filter(e =>
@@ -160,10 +160,10 @@ function calculateFuelStats(data) {
     ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
          <path d="M4 4h8v12H4z"/><path d="M14 4v12"/><path d="M4 8h8"/></svg>
-         Расход: ${consumption.toFixed(1)} л/100`
+         : ${consumption.toFixed(1)} л/100`
     : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-         <path d="M4 4h8v12H4z"/><path d="M14 4v12"/><path d="M4 8h8"/></svg> Расход: —`;
+         <path d="M4 4h8v12H4z"/><path d="M14 4v12"/><path d="M4 8h8"/></svg> : —`;
 
 
 document.getElementById('fuel-price').textContent =
