@@ -131,7 +131,7 @@ function calculatePureRunningCost(data) {
   distance > 0
     ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg> Чистая цена за км: €${cost.toFixed(3)}`
     : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg> Чистая цена за км: —`;
-
+}
 
 function calculateFuelStats(data) {
   const fuelEntries = data.filter(e =>
