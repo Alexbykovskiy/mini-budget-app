@@ -3,9 +3,13 @@ let db;
 window.addEventListener("load", () => {
   db = firebase.firestore();
   loadExpenses();
+loadReminders();
+
   populateTagList();
   resetForm(); // 👉 добавляем автоустановку даты
-});const profileCode = "mini";
+})
+
+;const profileCode = "mini";
 
 const form = document.getElementById('expense-form');
 const list = document.getElementById('expense-list');
@@ -13,6 +17,40 @@ const summary = document.getElementById('summary');
 let expenseChart;
 let expenses = [];
 let fullTotal = 0;
+
+// ========== ДОБАВИТЬ НАПОМИНАНИЕ ==========
+const infoAddForm = document.getElementById('info-add-form');
+if (infoAddForm) {
+  infoAddForm.onsubmit = async (e) => {
+    e.preventDefault();
+    const type = document.getElementById('info-type').value;
+    const tag = document.getElementById('info-tag').value.trim().toLowerCase();
+    const mileage = document.getElementById('info-mileage').value ? Number(document.getElementById('info-mileage').value) : null;
+    const interval = document.getElementById('info-interval').value ? Number(document.getElementById('info-interval').value) : null;
+    const dateStart = document.getElementById('info-date-start').value;
+    const dateEnd = document.getElementById('info-date-end').value;
+    let imageUrl = "";
+    const photoInput = document.getElementById('info-add-photo');
+    if (photoInput && photoInput.files[0]) {
+      // Загружаем фото в Storage
+      const file = photoInput.files[0];
+      const storageRef = firebase.storage().ref();
+      const snapshot = await storageRef.child(`reminders/${Date.now()}_${file.name}`).put(file);
+      imageUrl = await snapshot.ref.getDownloadURL();
+    }
+    const data = { type, tag, mileage, interval, dateStart, dateEnd, imageUrl, created: Date.now() };
+    await db.collection("users").doc(profileCode).collection("reminders").add(data);
+    infoAddForm.reset();
+    document.getElementById("info-add-photo-btn").classList.remove("selected");
+    // Автозаполнение сегодняшней даты после сброса
+    const dateStartInput = document.getElementById('info-date-start');
+    if (dateStartInput) {
+      dateStartInput.value = new Date().toISOString().split('T')[0];
+    }
+  };
+}
+
+
 
 function renderExpenses(data) {
   list.innerHTML = "";
@@ -447,42 +485,63 @@ function renderInfoBoard(notifications) {
   lucide.createIcons();
 }
 
-// ========== Заглушка для теста ==========
 
-renderInfoBoard([
-  {
-    id: "1",
-    status: "black",
-    icon: "alert-triangle",
-    text: "Масло — просрочено: -430 км / -8 дней",
-    imageUrl: ""
-  },
-  {
-    id: "2",
-    status: "red",
-    icon: "alert-triangle",
-    text: "Тормозная жидкость — осталось: 420 км / 16 дней",
-    imageUrl: ""
-  },
-  {
-    id: "3",
-    status: "yellow",
-    icon: "alert-triangle",
-    text: "Виньетка Австрия — осталось: 1410 км / 33 дня",
-    imageUrl: ""
-  },
-  {
-    id: "4",
-    status: "gray",
-    icon: "circle",
-    text: "Масло — осталось: 7300 км / 164 дня",
-    imageUrl: ""
+function loadReminders() {
+  db.collection("users").doc(profileCode).collection("reminders")
+    .onSnapshot(snapshot => {
+      const reminders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderInfoBoard(processReminders(reminders));
+    });
+}
+
+function processReminders(reminders) {
+  // Найти последний пробег из расходов
+  const lastMileage = expenses.reduce((max, e) => e.mileage && Number(e.mileage) > max ? Number(e.mileage) : max, 0);
+  const today = new Date();
+  return reminders.map(r => {
+    let kmLeft = null, daysLeft = null, text = "", icon = "circle", status = "gray";
+    if (r.type === "service" && r.mileage && r.interval) {
+      kmLeft = (Number(r.mileage) + Number(r.interval)) - lastMileage;
+    }
+    if (r.dateEnd) {
+      const d1 = new Date(r.dateEnd);
+      daysLeft = Math.ceil((d1 - today) / (1000*60*60*24));
+    }
+    // Формируем текст напоминания
+    let details = [];
+    if (kmLeft !== null) details.push(`${kmLeft >= 0 ? "осталось" : "просрочено"}: ${kmLeft} км`);
+    if (daysLeft !== null) details.push(`${daysLeft >= 0 ? "осталось" : "просрочено"}: ${daysLeft} дней`);
+    text = `${r.tag} — ${details.join(" / ")}`;
+    // Статус и иконка
+    if ((kmLeft !== null && kmLeft < 0) || (daysLeft !== null && daysLeft < 0)) { status = "black"; icon = "alert-triangle"; }
+    else if ((kmLeft !== null && kmLeft <= 1000) || (daysLeft !== null && daysLeft <= 30)) { status = "red"; icon = "alert-triangle"; }
+    else if ((kmLeft !== null && kmLeft <= 2000) || (daysLeft !== null && daysLeft <= 60)) { status = "yellow"; icon = "alert-triangle"; }
+    return {
+      id: r.id,
+      status,
+      icon,
+      text,
+      imageUrl: r.imageUrl || ""
+    };
+  }).sort((a, b) => {
+    // Сортировка: черные, красные, жёлтые, серые, внутри — по ближайшему сроку
+    const statusOrder = { black: 0, red: 1, yellow: 2, gray: 3 };
+    if (statusOrder[a.status] !== statusOrder[b.status]) return statusOrder[a.status] - statusOrder[b.status];
+    // по наименьшему остатку км или дней
+    const aNum = a.text.match(/-?\d+/) ? Math.abs(Number(a.text.match(/-?\d+/)[0])) : 99999;
+    const bNum = b.text.match(/-?\d+/) ? Math.abs(Number(b.text.match(/-?\d+/)[0])) : 99999;
+    return aNum - bNum;
+  });
+}
+
+function deleteInfoEntry(id) {
+  if (confirm("Удалить напоминание?")) {
+    db.collection("users").doc(profileCode).collection("reminders").doc(id).delete();
   }
-]);
+}
 
 function editInfoEntry(id) { /* ...добавить позже... */ }
 function showInfoImage(url) { /* ...добавить позже... */ }
-function deleteInfoEntry(id) { /* ...добавить позже... */ }
 // Сворачивание блока добавления напоминания
 
   
