@@ -512,21 +512,14 @@ function renderInlineInfoBoard(notifications) {
     board.innerHTML += `
       <div class="info-row ${n.status}" style="padding: 2px 6px;">
         <button class="menu-toggle icon-button" onclick="toggleMenu(this)">
-  <span class="info-icon" data-lucide="${n.icon}"></span>
-</button>
-
+          <span class="info-icon" data-lucide="${n.icon}"></span>
+        </button>
         <span>${n.text}</span>
-        <span class="info-menu">
-  <button class="menu-toggle" onclick="toggleMenu(this)">
-    <span data-lucide="more-vertical"></span>
-  </button>
- <div class="menu-actions hidden">
-  <button onclick="editInfoEntry('${n.id}')"><span data-lucide="pencil"></span></button>
-  <button onclick="showInfoImage('${n.imageUrl || ''}')"><span data-lucide="image"></span></button>
-  <button onclick="deleteInfoEntry('${n.id}')"><span data-lucide="trash-2"></span></button>
-</div>
-</span>
-
+        <div class="menu-actions hidden">
+          <button onclick="editInfoEntry('${n.id}')"><span data-lucide="pencil"></span></button>
+          <button onclick="showInfoImage('${n.imageUrl || ''}')"><span data-lucide="image"></span></button>
+          <button onclick="deleteInfoEntry('${n.id}')"><span data-lucide="trash-2"></span></button>
+        </div>
       </div>
     `;
   });
