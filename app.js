@@ -571,12 +571,12 @@ function editInfoEntry(id) {
     editingReminderId = id;
 
     // Разворачиваем блок "Добавить напоминание"
-    document.getElementById("toggle-info-add").checked = true;
-    const wrapper = document.getElementById("info-add-wrapper");
-    if (wrapper) {
-      wrapper.classList.remove("collapsed");
-      wrapper.classList.add("expanded");
-    }
+    const toggle = document.getElementById("toggle-info-add");
+if (toggle) {
+  toggle.checked = true;
+  toggle.dispatchEvent(new Event('change'));
+}
+
 
     // Заполняем все поля формы напоминания
     setTimeout(() => { // задержка чтобы точно DOM был готов
