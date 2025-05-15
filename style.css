@@ -947,5 +947,18 @@ select {
   width: 16px;
   height: 16px;
 }
+@keyframes pulse-danger {
+  0% { background-color: #8B0000; }
+  50% { background-color: #FF0000; }
+  100% { background-color: #8B0000; }
+}
+
+.info-row.expired,
+.info-inline.expired {
+  color: white !important;
+  background-color: #8B0000;
+  animation: pulse-danger 1.2s infinite;
+  font-weight: bold;
+}
 
 

@@ -569,9 +569,20 @@ function processReminders(reminders) {
     if (daysLeft !== null) details.push(`${daysLeft >= 0 ? "осталось" : "просрочено"}: ${daysLeft} дней`);
     text = `${r.tag} — ${details.join(" / ")}`;
     // Статус и иконка
-    if ((kmLeft !== null && kmLeft < 0) || (daysLeft !== null && daysLeft < 0)) { status = "black"; icon = "alert-triangle"; }
-    else if ((kmLeft !== null && kmLeft <= 1000) || (daysLeft !== null && daysLeft <= 30)) { status = "red"; icon = "alert-triangle"; }
-    else if ((kmLeft !== null && kmLeft <= 2000) || (daysLeft !== null && daysLeft <= 60)) { status = "yellow"; icon = "alert-triangle"; }
+    if ((kmLeft !== null && kmLeft < 0) || (daysLeft !== null && daysLeft < 0)) {
+  status = "expired";
+  icon = "alert-triangle";
+} else if ((kmLeft !== null && kmLeft <= 500) || (daysLeft !== null && daysLeft <= 7)) {
+  status = "red";
+  icon = "alert-triangle";
+} else if ((kmLeft !== null && kmLeft <= 1000) || (daysLeft !== null && daysLeft <= 21)) {
+  status = "orange";
+  icon = "alert-triangle";
+} else if ((kmLeft !== null && kmLeft <= 2000) || (daysLeft !== null && daysLeft <= 60)) {
+  status = "yellow";
+  icon = "alert-triangle";
+}
+
     return {
       id: r.id,
       status,
