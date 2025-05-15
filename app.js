@@ -115,7 +115,8 @@ function resetInfoAddForm() {
   }
 } 
 
-// ← ВОТ ЭТА СКОБКА!function loadExpenses() {
+// ← ВОТ ЭТА СКОБКА!
+function loadExpenses() {
   if (!db) {
     console.error("Firestore не инициализирован (loadExpenses)");
     return;
