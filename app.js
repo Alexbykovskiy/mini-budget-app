@@ -130,6 +130,8 @@ function resetInfoAddForm() {
 function renderExpenses(data) {
   list.innerHTML = "";
   let total = 0;
+  const entriesWithMileage = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));
+
   data.forEach((exp, index) => {
     total += Number(exp.amount);
     const li = document.createElement('li');
@@ -230,23 +232,24 @@ calculateFuelStats(data);
 }
 
 function calculateCostPerKm(data) {
-  const entriesWithMileage = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));
-  if (entriesWithMileage.length < 2) {
+  const mileageEntries = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));
+  if (mileageEntries.length < 2) {
     document.getElementById('cost-per-km').textContent = "€/км: недостаточно данных";
     return;
   }
-  const sorted = [...entriesWithMileage].sort((a, b) => a.date.localeCompare(b.date));
+  const sorted = [...mileageEntries].sort((a, b) => a.date.localeCompare(b.date));
   const startMileage = Number(sorted[0].mileage);
   const endMileage = Number(sorted[sorted.length - 1].mileage);
   const distance = endMileage - startMileage;
   const totalAmount = data.reduce((sum, e) => sum + Number(e.amount), 0);
   const costPerKm = distance > 0 ? (totalAmount / distance) : 0;
-document.getElementById('cost-per-km').innerHTML =
-  distance > 0
-    ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
-         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-         <circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg> €/км: €${costPerKm.toFixed(2)}`
-    : `€/км: —`;
+
+  document.getElementById('cost-per-km').innerHTML =
+    distance > 0
+      ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+           <circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg> €/км: €${costPerKm.toFixed(2)}`
+      : `€/км: —`;
 }
 function calculatePureRunningCost(data) {
   const relevantCosts = data.filter(e =>
@@ -261,16 +264,17 @@ function calculatePureRunningCost(data) {
   const distance = Number(sorted[sorted.length - 1].mileage) - Number(sorted[0].mileage);
   const totalAmount = relevantCosts.reduce((sum, e) => sum + Number(e.amount), 0);
   const cost = distance > 0 ? (totalAmount / distance) : 0;
- document.getElementById('pure-km-cost').innerHTML =
-  distance > 0
-    ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
-         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-         <path d="M12 2C12 2 6 7 6 12a6 6 0 0 0 12 0c0-5-6-10-6-10z"/></svg>
-         €/км: €${cost.toFixed(2)}`
-    : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
-         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-         <path d="M12 2C12 2 6 7 6 12a6 6 0 0 0 12 0c0-5-6-10-6-10z"/></svg>
-         €/км: —`;
+
+  document.getElementById('pure-km-cost').innerHTML =
+    distance > 0
+      ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+           <path d="M12 2C12 2 6 7 6 12a6 6 0 0 0 12 0c0-5-6-10-6-10z"/></svg>
+           €/км: €${cost.toFixed(2)}`
+      : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+           <path d="M12 2C12 2 6 7 6 12a6 6 0 0 0 12 0c0-5-6-10-6-10z"/></svg>
+           €/км: —`;
 }
 function calculateFuelStats(data) {
   const fuelEntries = data.filter(e =>
@@ -278,29 +282,28 @@ function calculateFuelStats(data) {
     e.liters && !isNaN(Number(e.liters)) &&
     e.amount && !isNaN(Number(e.amount))
   );
-  const allMileageEntries = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));
-  const sorted = [...allMileageEntries].sort((a, b) => a.date.localeCompare(b.date));
+  const mileageEntries = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));
+  const sorted = [...mileageEntries].sort((a, b) => a.date.localeCompare(b.date));
   const distance = sorted.length >= 2 ? Number(sorted[sorted.length - 1].mileage) - Number(sorted[0].mileage) : 0;
   const totalLiters = fuelEntries.reduce((sum, e) => sum + Number(e.liters), 0);
   const totalAmount = fuelEntries.reduce((sum, e) => sum + Number(e.amount), 0);
   const consumption = distance > 0 ? (totalLiters / distance * 100) : null;
   const pricePerLiter = totalLiters > 0 ? (totalAmount / totalLiters) : null;
 
- document.getElementById('fuel-consumption').innerHTML =
-  consumption !== null
-    ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
-         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-         <path d="M4 4h8v12H4z"/><path d="M14 4v12"/><path d="M4 8h8"/></svg>
-         : ${consumption.toFixed(1)} л/100`
-    : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
-         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-         <path d="M4 4h8v12H4z"/><path d="M14 4v12"/><path d="M4 8h8"/></svg> : —`;
+  document.getElementById('fuel-consumption').innerHTML =
+    consumption !== null
+      ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+           <path d="M4 4h8v12H4z"/><path d="M14 4v12"/><path d="M4 8h8"/></svg>
+           : ${consumption.toFixed(1)} л/100`
+      : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+           <path d="M4 4h8v12H4z"/><path d="M14 4v12"/><path d="M4 8h8"/></svg> : —`;
 
-
-document.getElementById('fuel-price').textContent =
-  pricePerLiter !== null
-    ? `€/л: €${pricePerLiter.toFixed(2)}`
-    : `€/л: —`;
+  document.getElementById('fuel-price').textContent =
+    pricePerLiter !== null
+      ? `€/л: €${pricePerLiter.toFixed(2)}`
+      : `€/л: —`;
 }
  
 
