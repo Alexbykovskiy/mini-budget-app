@@ -961,4 +961,24 @@ select {
   font-weight: bold;
 }
 
+/* Цветовые классы для info-inline */
+.info-inline.gray   { color: #888; }
+.info-inline.yellow { color: #E1A700; }
+.info-inline.orange { color: #E67E22; }
+.info-inline.red    { color: #C93D1F; }
+.info-inline.expired {
+  color: white !important;
+  background-color: #8B0000 !important;
+  animation: pulse-danger 1.2s infinite;
+  font-weight: bold;
+}
+
+/* Цветовые классы для info-row — если не были заданы */
+.info-row.orange { color: #E67E22; }
+.info-row.expired {
+  color: white !important;
+  background-color: #8B0000 !important;
+  animation: pulse-danger 1.2s infinite;
+  font-weight: bold;
+}
 
