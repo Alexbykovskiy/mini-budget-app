@@ -122,7 +122,7 @@ document.getElementById('cost-per-km').innerHTML =
          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
          <circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg> €/км: €${costPerKm.toFixed(2)}`
     : `€/км: —`;
-
+}
 function calculatePureRunningCost(data) {
   const relevantCosts = data.filter(e =>
     e.category === 'Топливо' || (e.tag && e.tag.toLowerCase() === 'масло')
