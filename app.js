@@ -512,9 +512,10 @@ function renderInlineInfoBoard(notifications) {
     board.innerHTML += `
       <div class="info-row ${n.status}" style="padding: 2px 6px;">
         <div class="info-menu">
-          <button class="menu-toggle icon-button" onclick="toggleMenu(this)">
-            <span class="info-icon" data-lucide="${n.icon}"></span>
-          </button>
+          <button class="alert-button ${n.status}" onclick="toggleMenu(this)">
+  <span data-lucide="${n.icon}"></span>
+</button>
+
           <div class="menu-actions hidden">
             <button onclick="editInfoEntry('${n.id}')"><span data-lucide="pencil"></span></button>
             <button onclick="showInfoImage('${n.imageUrl || ''}')"><span data-lucide="image"></span></button>
