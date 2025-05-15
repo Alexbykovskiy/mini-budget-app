@@ -56,6 +56,7 @@ if (infoAddForm) {
     dateStartInput.value = new Date().toISOString().split('T')[0];
   }
 };
+}
 
 function resetInfoAddForm() {
   document.getElementById("info-add-form").reset();
