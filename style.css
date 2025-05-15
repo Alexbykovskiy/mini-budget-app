@@ -1206,3 +1206,21 @@ select {
   padding-top: 6px; /* дополнительный отступ сверху */
   padding-bottom: 6px; /* чтобы высота не была очень маленькой */
 }
+
+#toggle-info-add {
+  position: absolute;
+  right: 0;
+  transition: top 0.3s ease;
+}
+
+/* В свернутом виде — центрируем вертикально */
+#info-add-wrapper.collapsed #toggle-info-add {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* В развернутом виде — фиксируем вверху */
+#info-add-wrapper.expanded #toggle-info-add {
+  top: 5px;
+  transform: translateY(0);
+}
