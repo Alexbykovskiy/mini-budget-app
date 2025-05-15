@@ -5,26 +5,29 @@ window.addEventListener("load", () => {
   loadExpenses();
   populateTagList();
   resetForm();
+  // 📸 Выбор способа загрузки изображения — камера или галерея
+  // 📸 Упрощённая загрузка фото: системное меню (камера, галерея, файлы)
+const photoBtn = document.getElementById("info-add-photo-btn");
+const photoInput = document.getElementById("info-add-photo");
 
-  // 📸 Упрощённая загрузка фото
-  const photoBtn = document.getElementById("info-add-photo-btn");
-  const photoInput = document.getElementById("info-add-photo");
+if (photoBtn && photoInput) {
+  photoBtn.addEventListener("click", () => {
+    photoInput.click();
+  });
 
-  if (photoBtn && photoInput) {
-    photoBtn.addEventListener("click", () => {
-      photoInput.click();
-    });
+  photoInput.addEventListener("change", () => {
+    if (photoInput.files.length > 0) {
+      photoBtn.classList.add("selected");
+    } else {
+      photoBtn.classList.remove("selected");
+    }
+  });
+}
 
-    photoInput.addEventListener("change", () => {
-      if (photoInput.files.length > 0) {
-        photoBtn.classList.add("selected");
-      } else {
-        photoBtn.classList.remove("selected");
-      }
-    });
-  }
 
-  // Переключатели разворота блоков
+  
+
+  // Переключатель журнала
   const toggleJournal = document.getElementById("toggle-journal");
   const journalWrapper = document.getElementById("expense-list-wrapper");
   const journalBlock = journalWrapper?.closest('.block');
@@ -37,6 +40,7 @@ window.addEventListener("load", () => {
     });
   }
 
+  // Переключатель фильтров
   const filterToggleBtn = document.getElementById("toggle-filters");
   const filtersWrapper = document.getElementById("filters-wrapper");
   const filtersBlock = filtersWrapper?.closest('.block');
@@ -49,6 +53,7 @@ window.addEventListener("load", () => {
     });
   }
 
+  // Переключатель "добавить напоминание"
   const toggleInfoAdd = document.getElementById("toggle-info-add");
   const infoAddWrapper = document.getElementById("info-add-wrapper");
   const infoAddBlock = infoAddWrapper?.closest('.block');
@@ -61,75 +66,56 @@ window.addEventListener("load", () => {
     });
   }
 });
+;const profileCode = "mini";
 
-const profileCode = "mini";
+const form = document.getElementById('expense-form');
+const list = document.getElementById('expense-list');
+const summary = document.getElementById('summary');
+let expenseChart;
+let expenses = [];
+let fullTotal = 0;
+let editingReminderId = null;
+
+// ========== ДОБАВИТЬ НАПОМИНАНИЕ ==========
 const infoAddForm = document.getElementById('info-add-form');
 if (infoAddForm) {
-  infoAddForm.onsubmit = async (e) => {
-    e.preventDefault();
-    const type = document.getElementById('info-type').value;
-    const tag = document.getElementById('info-tag').value.trim().toLowerCase();
+infoAddForm.onsubmit = async (e) => {
+  e.preventDefault();
+  const type = document.getElementById('info-type').value;
+  const tag = document.getElementById('info-tag').value.trim().toLowerCase();
+  const mileage = document.getElementById('info-mileage').value ? Number(document.getElementById('info-mileage').value) : null;
+  const interval = document.getElementById('info-interval').value ? Number(document.getElementById('info-interval').value) : null;
+  const dateStart = document.getElementById('info-date-start').value;
+  const dateEnd = document.getElementById('info-date-end').value;
+  let imageUrl = "";
+  const photoInput = document.getElementById('info-add-photo');
+  if (photoInput && photoInput.files[0]) {
+    const file = photoInput.files[0];
+    const storageRef = firebase.storage().ref();
+    const snapshot = await storageRef.child(`reminders/${Date.now()}_${file.name}`).put(file);
+    imageUrl = await snapshot.ref.getDownloadURL();
+  }
+  const data = { type, tag, mileage, interval, dateStart, dateEnd };
+  if (imageUrl) data.imageUrl = imageUrl;
 
-    const mileageRaw = document.getElementById('info-mileage').value;
-    const intervalRaw = document.getElementById('info-interval').value;
-    const dateStart = document.getElementById('info-date-start').value;
-    const dateEnd = document.getElementById('info-date-end').value;
-
-    // 🔐 Валидация по типу
-    if (type === "service") {
-      if (!mileageRaw || !intervalRaw || !dateStart || !dateEnd) {
-        alert("Для сервиса нужно указать пробег, замену через и даты!");
-        return;
-      }
-    } else if (type === "document") {
-      if (!dateStart || !dateEnd) {
-        alert("Для документа нужно указать начальную и конечную дату!");
-        return;
-      }
-    }
-
-    const mileage = mileageRaw ? Number(mileageRaw) : null;
-    const interval = intervalRaw ? Number(intervalRaw) : null;
-
-    let imageUrl = "";
-    const photoInput = document.getElementById('info-add-photo');
-    if (photoInput && photoInput.files[0]) {
-      const file = photoInput.files[0];
-      const storageRef = firebase.storage().ref();
-      const snapshot = await storageRef.child(`reminders/${Date.now()}_${file.name}`).put(file);
-      imageUrl = await snapshot.ref.getDownloadURL();
-    }
-
-    const data = { type, tag, mileage, interval, dateStart, dateEnd };
-    if (imageUrl) data.imageUrl = imageUrl;
-
-    if (editingReminderId) {
-      await db.collection("users").doc(profileCode).collection("reminders").doc(editingReminderId).update(data);
-      editingReminderId = null;
-    } else {
-      if (!imageUrl) data.imageUrl = "";
-      data.created = Date.now();
-      await db.collection("users").doc(profileCode).collection("reminders").add(data);
-    }
-    infoAddForm.reset();
-    document.getElementById("info-add-photo-btn").classList.remove("selected");
-    const dateStartInput = document.getElementById('info-date-start');
-    if (dateStartInput) {
-      dateStartInput.value = new Date().toISOString().split('T')[0];
-    }
-  };
-}
-
-function resetInfoAddForm() {
-  document.getElementById("info-add-form").reset();
+  if (editingReminderId) {
+    // обновляем запись
+    await db.collection("users").doc(profileCode).collection("reminders").doc(editingReminderId).update(data);
+    editingReminderId = null;
+  } else {
+    // новая запись
+    if (!imageUrl) data.imageUrl = "";
+    data.created = Date.now();
+    await db.collection("users").doc(profileCode).collection("reminders").add(data);
+  }
+  infoAddForm.reset();
   document.getElementById("info-add-photo-btn").classList.remove("selected");
-  editingReminderId = null;
+  // Автозаполнение сегодняшней даты после сброса
   const dateStartInput = document.getElementById('info-date-start');
   if (dateStartInput) {
     dateStartInput.value = new Date().toISOString().split('T')[0];
   }
-}
-
+};
 
 
 function resetInfoAddForm() {
