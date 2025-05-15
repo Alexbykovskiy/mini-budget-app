@@ -69,7 +69,6 @@ const infoAddForm = document.getElementById('info-add-form');
 if (infoAddForm) {
 infoAddForm.onsubmit = async (e) => {
   e.preventDefault();
-  const type = document.getElementById('info-type').value;
   const tag = document.getElementById('info-tag').value.trim().toLowerCase();
   const mileage = document.getElementById('info-mileage').value ? Number(document.getElementById('info-mileage').value) : null;
   const interval = document.getElementById('info-interval').value ? Number(document.getElementById('info-interval').value) : null;
@@ -83,27 +82,23 @@ infoAddForm.onsubmit = async (e) => {
     const snapshot = await storageRef.child(`reminders/${Date.now()}_${file.name}`).put(file);
     imageUrl = await snapshot.ref.getDownloadURL();
   }
-  const data = { type, tag, mileage, interval, dateStart, dateEnd };
+  const data = { tag, mileage, interval, dateStart, dateEnd };
   if (imageUrl) data.imageUrl = imageUrl;
 
   if (editingReminderId) {
-    // обновляем запись
     await db.collection("users").doc(profileCode).collection("reminders").doc(editingReminderId).update(data);
     editingReminderId = null;
   } else {
-    // новая запись
     if (!imageUrl) data.imageUrl = "";
     data.created = Date.now();
     await db.collection("users").doc(profileCode).collection("reminders").add(data);
   }
   infoAddForm.reset();
-    // Автозаполнение сегодняшней даты после сброса
   const dateStartInput = document.getElementById('info-date-start');
   if (dateStartInput) {
     dateStartInput.value = new Date().toISOString().split('T')[0];
   }
 };
-}
 
 
 function resetInfoAddForm() {
@@ -568,38 +563,35 @@ renderInlineInfoBoardHeader(processed);
 }
 
 function processReminders(reminders) {
-  // Найти последний пробег из расходов
   const lastMileage = expenses.reduce((max, e) => e.mileage && Number(e.mileage) > max ? Number(e.mileage) : max, 0);
   const today = new Date();
   return reminders.map(r => {
     let kmLeft = null, daysLeft = null, text = "", icon = "circle", status = "gray";
-    if (r.type === "service" && r.mileage && r.interval) {
+    if (r.mileage && r.interval) {
       kmLeft = (Number(r.mileage) + Number(r.interval)) - lastMileage;
     }
     if (r.dateEnd) {
       const d1 = new Date(r.dateEnd);
       daysLeft = Math.ceil((d1 - today) / (1000*60*60*24));
     }
-    // Формируем текст напоминания
     let details = [];
     if (kmLeft !== null) details.push(`${kmLeft >= 0 ? "" : "-"}${kmLeft} км`);
-if (daysLeft !== null) details.push(`${daysLeft >= 0 ? "" : "-"}${daysLeft} дней`);
-
+    if (daysLeft !== null) details.push(`${daysLeft >= 0 ? "" : "-"}${daysLeft} дней`);
     text = `${r.tag} — ${details.join(" / ")}`;
-    // Статус и иконка
+
     if ((kmLeft !== null && kmLeft < 0) || (daysLeft !== null && daysLeft < 0)) {
-  status = "expired";
-  icon = "alert-triangle";
-} else if ((kmLeft !== null && kmLeft <= 500) || (daysLeft !== null && daysLeft <= 7)) {
-  status = "red";
-  icon = "alert-triangle";
-} else if ((kmLeft !== null && kmLeft <= 1000) || (daysLeft !== null && daysLeft <= 21)) {
-  status = "orange";
-  icon = "alert-triangle";
-} else if ((kmLeft !== null && kmLeft <= 2000) || (daysLeft !== null && daysLeft <= 60)) {
-  status = "yellow";
-  icon = "alert-triangle";
-}
+      status = "expired";
+      icon = "alert-triangle";
+    } else if ((kmLeft !== null && kmLeft <= 500) || (daysLeft !== null && daysLeft <= 7)) {
+      status = "red";
+      icon = "alert-triangle";
+    } else if ((kmLeft !== null && kmLeft <= 1000) || (daysLeft !== null && daysLeft <= 21)) {
+      status = "orange";
+      icon = "alert-triangle";
+    } else if ((kmLeft !== null && kmLeft <= 2000) || (daysLeft !== null && daysLeft <= 60)) {
+      status = "yellow";
+      icon = "alert-triangle";
+    }
 
     return {
       id: r.id,
@@ -609,16 +601,13 @@ if (daysLeft !== null) details.push(`${daysLeft >= 0 ? "" : "-"}${daysLeft} дн
       imageUrl: r.imageUrl || ""
     };
   }).sort((a, b) => {
-    // Сортировка: черные, красные, жёлтые, серые, внутри — по ближайшему сроку
     const statusOrder = { expired: 0, red: 1, orange: 2, yellow: 3, gray: 4 };
     if (statusOrder[a.status] !== statusOrder[b.status]) return statusOrder[a.status] - statusOrder[b.status];
-    // по наименьшему остатку км или дней
-    const aNum = a.text.match(/-?\d+/) ? Math.abs(Number(a.text.match(/-?\d+/)[0])) : 99999;
-    const bNum = b.text.match(/-?\d+/) ? Math.abs(Number(b.text.match(/-?\d+/)[0])) : 99999;
+    const aNum = a.text.match(/-?\\d+/) ? Math.abs(Number(a.text.match(/-?\\d+/)[0])) : 99999;
+    const bNum = b.text.match(/-?\\d+/) ? Math.abs(Number(b.text.match(/-?\\d+/)[0])) : 99999;
     return aNum - bNum;
   });
 }
-
 function deleteInfoEntry(id) {
   if (confirm("Удалить напоминание?")) {
     db.collection("users").doc(profileCode).collection("reminders").doc(id).delete();
