@@ -208,21 +208,20 @@ const startMileage = Number(sorted[0]?.mileage || 0);
 const endMileage = Number(sorted[sorted.length - 1]?.mileage || 0);
 const distance = endMileage - startMileage;
 
+const entriesWithMileage = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));
+const sorted = [...entriesWithMileage].sort((a, b) => a.date.localeCompare(b.date));
+const startMileage = Number(sorted[0]?.mileage || 0);
+const endMileage = Number(sorted[sorted.length - 1]?.mileage || 0);
+const distance = endMileage - startMileage;
+const latestMileage = entriesWithMileage.length ? Math.max(...entriesWithMileage.map(e => Number(e.mileage))) : 0;
+
 summary.innerHTML = `Всего: €${fullTotal.toFixed(2)} 
   <span class="inline-km">за ${distance} км</span>
-  <span class="inline-km">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
-         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-         class="lucide lucide-speedometer" style="vertical-align: middle; margin-right: 4px;">
-      <circle cx="12" cy="12" r="10"/>
-      <path d="M12 12l4-4"/>
-      <path d="M12 2v2"/>
-      <path d="M12 20v2"/>
-      <path d="M2 12h2"/>
-      <path d="M20 12h2"/>
-    </svg>
-    ${endMileage} км
-  </span>`;
+  <span class="inline-km">${endMileage} км</span>
+  <span class="inline-km">общий: ${latestMileage} км</span>`;
+
+updateChart(data, total);
+
   updateChart(data, total);
 calculateCostPerKm(data);
 calculatePureRunningCost(data);
