@@ -532,6 +532,11 @@ function renderInlineInfoBoard(notifications) {
       <div class="info-row ${n.status}" style="padding: 2px 6px;">
         <span class="info-icon" data-lucide="${n.icon}"></span>
         <span>${n.text}</span>
+        <span class="info-action">
+          <button title="Редактировать" onclick="editInfoEntry('${n.id}')"><span data-lucide="pencil"></span></button>
+          <button title="Фото" onclick="showInfoImage('${n.imageUrl || ''}')"><span data-lucide="image"></span></button>
+          <button title="Удалить" onclick="deleteInfoEntry('${n.id}')"><span data-lucide="trash-2"></span></button>
+        </span>
       </div>
     `;
   });
