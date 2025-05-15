@@ -99,7 +99,7 @@ infoAddForm.onsubmit = async (e) => {
     dateStartInput.value = new Date().toISOString().split('T')[0];
   }
 };
-
+}
 
 function resetInfoAddForm() {
   document.getElementById("info-add-form").reset();
@@ -608,6 +608,8 @@ function processReminders(reminders) {
     return aNum - bNum;
   });
 }
+}
+
 function deleteInfoEntry(id) {
   if (confirm("Удалить напоминание?")) {
     db.collection("users").doc(profileCode).collection("reminders").doc(id).delete();
