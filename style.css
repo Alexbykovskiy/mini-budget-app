@@ -1093,7 +1093,7 @@ select {
   pointer-events: none;
   vertical-align: middle;
   position: relative;
-  top: 10px; /* можно менять на -1px или +1px для точной центровки */
+  top: -1px; /* можно менять на -1px или +1px для точной центровки */
 }
 
 /* Цветовые стили по статусу */
