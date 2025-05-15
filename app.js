@@ -24,13 +24,28 @@ window.addEventListener("load", () => {
   document.body.appendChild(inputGallery);
 
   photoBtn?.addEventListener("click", () => {
-    const choice = confirm("Нажми OK — чтобы открыть камеру\nНажми Отмена — чтобы выбрать из галереи");
-    if (choice) {
-      inputCamera.click();
-    } else {
-      inputGallery.click();
+  const choice = confirm("Нажми OK — чтобы открыть камеру\nНажми Отмена — чтобы выбрать из галереи");
+
+  const handleChange = (e) => {
+    if (e.target.files.length > 0) {
+      const file = e.target.files[0];
+      const input = document.getElementById("info-add-photo");
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+
+      photoBtn.classList.add("selected");
     }
-  });
+  };
+
+  if (choice) {
+    inputCamera.onchange = handleChange;
+    inputCamera.click();
+  } else {
+    inputGallery.onchange = handleChange;
+    inputGallery.click();
+  }
+});
 
   // Обработка выбранного файла из камеры или галереи
   function handlePhotoSelect(file) {
