@@ -636,19 +636,21 @@ transition: max-height 1.5s ease-in-out, padding 1.5s ease-in-out;
 
 
 .stats-bar {
-  width: 360px;
+  width: 380px; /* было 360px */
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: nowrap;
-  padding: 10px 24px; /* 👈 теперь как у .block */
+  padding: 0 16px; /* как у фильтров */
   margin-bottom: 12px;
-  border-radius: 16px;
+  border-radius: 20px; /* как у .block и #filters-wrapper */
   font-size: 12px;
   font-weight: 500;
   color: #444;
   gap: 10px;
+  background: #e0e0e0;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff; /* как у фильтров */
 }
 .stats-bar p {
   margin: 0;
