@@ -9,6 +9,20 @@ window.addEventListener("load", () => {
   // 📸 Упрощённая загрузка фото: системное меню (камера, галерея, файлы)
 const photoBtn = document.getElementById("info-add-photo-btn");
 const photoInput = document.getElementById("info-add-photo");
+const typeSelect = document.getElementById("info-type");
+if (typeSelect && photoInput) {
+  typeSelect.addEventListener("click", () => {
+    photoInput.click();
+  });
+
+  photoInput.addEventListener("change", () => {
+    if (photoInput.files.length > 0) {
+      typeSelect.classList.add("selected");
+    } else {
+      typeSelect.classList.remove("selected");
+    }
+  });
+}
 
 if (photoBtn && photoInput) {
   photoBtn.addEventListener("click", () => {

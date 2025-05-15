@@ -1113,3 +1113,10 @@ select {
   background: #CCC;
 }
 
+#info-type.selected {
+  background: #FFA35C;
+  box-shadow: inset 2px 2px 6px #bebebe, inset -2px -2px 6px #ffffff;
+  color: white;
+}
+
+
