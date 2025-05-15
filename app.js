@@ -280,7 +280,7 @@ function deleteExpense(id) {
   }
 
   if (confirm("Удалить запись?")) {
-    db.collection("users").doc(profileCode).collection("expenses").doc(id).delete();
+    db.collection("users").doc(profileCode).collection("expenses").doc(id).delete()
 .then(() => showToast("Запись удалена"));
   }
 }
@@ -615,7 +615,7 @@ function processReminders(reminders) {
 
 function deleteInfoEntry(id) {
   if (confirm("Удалить напоминание?")) {
-    db.collection("users").doc(profileCode).collection("reminders").doc(id).delete();
+    db.collection("users").doc(profileCode).collection("reminders").doc(id).delete()
 .then(() => showToast("Напоминание удалено"));
   }
 }
