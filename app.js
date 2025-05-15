@@ -89,7 +89,14 @@ function renderExpenses(data) {
 
     list.appendChild(li);
   });
-  summary.textContent = `Всего: €${fullTotal.toFixed(2)}`;
+  const entriesWithMileage = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));
+const sorted = [...entriesWithMileage].sort((a, b) => a.date.localeCompare(b.date));
+const startMileage = Number(sorted[0]?.mileage || 0);
+const endMileage = Number(sorted[sorted.length - 1]?.mileage || 0);
+const distance = endMileage - startMileage;
+
+summary.innerHTML = `Всего: €${fullTotal.toFixed(2)} <span class="inline-km">по ${distance} км</span>`;
+
   updateChart(data, total);
 calculateCostPerKm(data);
 calculatePureRunningCost(data);

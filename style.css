@@ -667,3 +667,10 @@ transition: max-height 1.5s ease-in-out, padding 1.5s ease-in-out;
   color: #333;
   margin: 0;
 }
+
+.inline-km {
+  font-size: 0.8em;
+  font-weight: normal;
+  color: #555;
+  margin-left: 6px;
+}
