@@ -1066,4 +1066,6 @@ select {
   align-items: center;
   justify-content: center;
 }
-
+.icon-button .info-icon svg {
+  pointer-events: none;
+}
