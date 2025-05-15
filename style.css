@@ -1190,9 +1190,10 @@ select {
 }
 #info-add-wrapper .section-title-row {
   position: relative;
-  min-height: 40px; /* фиксируем минимальную высоту, чтобы контейнер не менял размер */
+  align-items: flex-start !important; /* выравниваем элементы по верхнему краю */
+  min-height: 40px; /* фиксируем минимальную высоту */
+  gap: 12px;
 }
-
 #toggle-info-add {
   position: absolute;
   top: 0;
