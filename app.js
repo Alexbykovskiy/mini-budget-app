@@ -360,22 +360,43 @@ function formatDate(isoString) {
 
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Журнал
   const toggleBtn = document.getElementById("toggle-journal");
-
   const wrapper = document.getElementById("expense-list-wrapper");
   const journalBlock = wrapper.closest('.block');
-const filterToggleBtn = document.getElementById("toggle-filters");
-const filtersWrapper = document.getElementById("filters-wrapper");
-const filtersBlock = filtersWrapper.closest('.block');
+  if (toggleBtn && wrapper && journalBlock) {
+    toggleBtn.addEventListener("change", () => {
+      const isOn = toggleBtn.checked;
+      wrapper.classList.toggle("collapsed", !isOn);
+      wrapper.classList.toggle("expanded", isOn);
+      journalBlock.classList.toggle("auto-height", isOn);
+    });
+  }
 
-if (toggleBtn && wrapper && journalBlock) {
-  toggleBtn.addEventListener("change", () => {
-    const isOn = toggleBtn.checked;
-    wrapper.classList.toggle("collapsed", !isOn);
-    wrapper.classList.toggle("expanded", isOn);
-    journalBlock.classList.toggle("auto-height", isOn);
-  });
-}
+  // Фильтры
+  const filterToggleBtn = document.getElementById("toggle-filters");
+  const filtersWrapper = document.getElementById("filters-wrapper");
+  const filtersBlock = filtersWrapper.closest('.block');
+  if (filterToggleBtn && filtersWrapper && filtersBlock) {
+    filterToggleBtn.addEventListener("change", () => {
+      const isOn = filterToggleBtn.checked;
+      filtersWrapper.classList.toggle("collapsed", !isOn);
+      filtersWrapper.classList.toggle("expanded", isOn);
+      filtersBlock.classList.toggle("auto-height", isOn);
+    });
+  }
+
+  // Добавить напоминание
+  const infoAddToggleBtn = document.getElementById("toggle-info-add");
+  const infoAddWrapper = document.getElementById("info-add-wrapper");
+  if (infoAddToggleBtn && infoAddWrapper) {
+    infoAddToggleBtn.addEventListener("change", () => {
+      infoAddWrapper.classList.toggle("collapsed", !infoAddToggleBtn.checked);
+      infoAddWrapper.classList.toggle("expanded", infoAddToggleBtn.checked);
+    });
+  }
+});
+
 
 if (filterToggleBtn && filtersWrapper && filtersBlock) {
   filterToggleBtn.addEventListener("change", () => {
@@ -458,45 +479,5 @@ function editInfoEntry(id) { /* ...добавить позже... */ }
 function showInfoImage(url) { /* ...добавить позже... */ }
 function deleteInfoEntry(id) { /* ...добавить позже... */ }
 // Сворачивание блока добавления напоминания
-document.addEventListener("DOMContentLoaded", () => {
-  const infoAddToggleBtn = document.getElementById("toggle-info-add");
-  const infoAddWrapper = document.getElementById("info-add-wrapper");
-  if (infoAddToggleBtn && infoAddWrapper) {
-    infoAddToggleBtn.addEventListener("change", () => {
-      infoAddWrapper.classList.toggle("collapsed", !infoAddToggleBtn.checked);
-      infoAddWrapper.classList.toggle("expanded", infoAddToggleBtn.checked);
-    });
-  }
-
-  // Кнопка "Добавить фото"
-  const photoBtn = document.getElementById("info-add-photo-btn");
-  const photoInput = document.getElementById("info-add-photo");
-  if (photoBtn && photoInput) {
-    photoBtn.onclick = () => photoInput.click();
-    photoInput.onchange = (e) => {
-      if (e.target.files && e.target.files[0]) {
-        photoBtn.classList.add("selected");
-      } else {
-        photoBtn.classList.remove("selected");
-      }
-    };
-  }
-
-  // Заполнение сегодняшней датой
-  const dateStartInput = document.getElementById('info-date-start');
-  if (dateStartInput && !dateStartInput.value) {
-    const today = new Date().toISOString().split('T')[0];
-    dateStartInput.value = today;
-  }
-});
-
-function resetInfoAddForm() {
-  document.getElementById("info-add-form").reset();
-  const photoBtn = document.getElementById("info-add-photo-btn");
-  if (photoBtn) photoBtn.classList.remove("selected");
-}
-
-
-});
 
   
