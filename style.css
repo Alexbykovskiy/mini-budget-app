@@ -1119,4 +1119,34 @@ select {
   color: white;
 }
 
+#info-type.photo-trigger {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: #e0e0e0;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.2s ease;
+}
+
+#info-type.photo-trigger svg {
+  width: 20px;
+  height: 20px;
+  stroke: #186663;
+  stroke-width: 2.5;
+}
+
+#info-type.photo-trigger.selected {
+  background: #FFA35C;
+}
+
+#info-type.photo-trigger.selected svg {
+  stroke: white;
+}
+
 
