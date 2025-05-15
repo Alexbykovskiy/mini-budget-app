@@ -503,30 +503,6 @@ if (dateInput && editIdInput && !editIdInput.value.trim()) {
 // ========== Инфотабло (уведомления сервис/документы) ==========
 
 
-function renderInfoBoard(notifications) {
-  const board = document.getElementById('info-board');
-  if (!board) return;
-  board.innerHTML = '';
-  notifications.forEach(n => {
-    board.innerHTML += `
-      <div class="info-row ${n.status}">
-        <span class="info-icon" data-lucide="${n.icon}"></span>
-        <span>${n.text}</span>
-        <span class="info-menu">
-  <button class="menu-toggle" onclick="toggleMenu(this)">
-    <span data-lucide="more-vertical"></span>
-  </button>
-  <div class="menu-actions hidden">
-    <button onclick="editInfoEntry('${n.id}')"><span data-lucide="pencil"></span></button>
-    <button onclick="showInfoImage('${n.imageUrl || ''}')"><span data-lucide="image"></span></button>
-    <button onclick="deleteInfoEntry('${n.id}')"><span data-lucide="trash-2"></span></button>
-  </div>
-</span>
-      </div>
-    `;
-  });
-  lucide.createIcons();
-}
 
 function renderInlineInfoBoard(notifications) {
   const board = document.getElementById('inline-info-board');
@@ -569,7 +545,6 @@ function loadReminders() {
     .onSnapshot(snapshot => {
       const reminders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       const processed = processReminders(reminders);
-renderInfoBoard(processed);
 renderInlineInfoBoard(processed);
 
     });
