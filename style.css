@@ -872,4 +872,12 @@ select {
   background-size: 16px;
 }
 
+#info-add-wrapper.collapsed .section-title-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0;
+}
+
 
