@@ -609,7 +609,7 @@ function processReminders(reminders) {
     return aNum - bNum;
   });
 }
-}
+
 
 function deleteInfoEntry(id) {
   if (confirm("Удалить напоминание?")) {
