@@ -919,3 +919,33 @@ select {
   display: none; /* Chrome/Safari */
 }
 
+.inline-info-board {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #444;
+  width: 100%;
+}
+
+.info-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #e0e0e0;
+  padding: 4px 10px;
+  border-radius: 14px;
+  box-shadow: inset 2px 2px 5px #bebebe, inset -2px -2px 5px #ffffff;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.info-inline .info-icon {
+  width: 16px;
+  height: 16px;
+}
+
+

@@ -523,12 +523,30 @@ function renderInfoBoard(notifications) {
   lucide.createIcons();
 }
 
+function renderInlineInfoBoard(notifications) {
+  const board = document.getElementById('inline-info-board');
+  if (!board) return;
+  board.innerHTML = '';
+  notifications.forEach(n => {
+    board.innerHTML += `
+      <span class="info-inline ${n.status}">
+        <span class="info-icon" data-lucide="${n.icon}"></span>
+        ${n.text}
+      </span>
+    `;
+  });
+  lucide.createIcons();
+}
+
 
 function loadReminders() {
   db.collection("users").doc(profileCode).collection("reminders")
     .onSnapshot(snapshot => {
       const reminders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      renderInfoBoard(processReminders(reminders));
+      const processed = processReminders(reminders);
+renderInfoBoard(processed);
+renderInlineInfoBoard(processed);
+
     });
 }
 
