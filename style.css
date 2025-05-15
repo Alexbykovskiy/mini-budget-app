@@ -1198,3 +1198,13 @@ select {
   top: 5px !important;
   right: 0;
 }
+
+#info-add-wrapper.collapsed {
+  max-height: 60px; /* чуть больше */
+  overflow: visible; /* чтобы не обрезать переключатель */
+}
+
+#info-add-wrapper .section-title-row {
+  padding-top: 6px; /* дополнительный отступ сверху */
+  padding-bottom: 6px; /* чтобы высота не была очень маленькой */
+}
