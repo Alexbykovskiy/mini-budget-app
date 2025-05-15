@@ -3,12 +3,9 @@ let db;
 window.addEventListener("load", () => {
   db = firebase.firestore();
   loadExpenses();
-loadReminders();
-
   populateTagList();
-  resetForm(); // 👉 добавляем автоустановку даты
+  resetForm();
 })
-
 ;const profileCode = "mini";
 
 const form = document.getElementById('expense-form');
@@ -70,6 +67,17 @@ function resetInfoAddForm() {
     dateStartInput.value = new Date().toISOString().split('T')[0];
   }
 }
+function loadExpenses() {
+  db.collection("users").doc(profileCode).collection("expenses")
+    .orderBy("date", "desc")
+    .onSnapshot(snapshot => {
+      expenses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      fullTotal = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+      renderExpenses(expenses);
+      loadReminders(); // ← вставь эту строку вот здесь!
+    });
+}
+
 
 
 function renderExpenses(data) {
@@ -251,9 +259,9 @@ function loadExpenses() {
       expenses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       fullTotal = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
       renderExpenses(expenses);
+      loadReminders();  // ← вот это!
     });
 }
-
 function fillFormForEdit(exp) {
   document.getElementById('edit-id').value = exp.id;
   document.getElementById('category').value = exp.category;
