@@ -635,7 +635,7 @@ transition: max-height 1.5s ease-in-out, padding 1.5s ease-in-out;
 }
 
 .stats-bar {
-  width: 360px;
+  width: 380px;
   min-height: 34px;
   box-sizing: border-box;
   display: flex;
