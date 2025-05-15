@@ -389,6 +389,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // Добавить напоминание
   const infoAddToggleBtn = document.getElementById("toggle-info-add");
   const infoAddWrapper = document.getElementById("info-add-wrapper");
+ const dateStartInput = document.getElementById('info-date-start');
+  if (dateStartInput && !dateStartInput.value) {
+    const today = new Date().toISOString().split('T')[0];
+    dateStartInput.value = today;
+  }
   if (infoAddToggleBtn && infoAddWrapper) {
     infoAddToggleBtn.addEventListener("change", () => {
       infoAddWrapper.classList.toggle("collapsed", !infoAddToggleBtn.checked);
