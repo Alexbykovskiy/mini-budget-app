@@ -429,58 +429,45 @@ function formatDate(isoString) {
 
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Журнал
+  // Переключатель журнала
   const toggleJournal = document.getElementById("toggle-journal");
   const journalWrapper = document.getElementById("expense-list-wrapper");
-  const journalBlock = journalWrapper ? journalWrapper.closest('.block') : null;
+  const journalBlock = journalWrapper.closest('.block');
   if (toggleJournal && journalWrapper && journalBlock) {
-    console.log("Обработчик журнала навешан!");
     toggleJournal.addEventListener("change", () => {
-      const isOn = toggleJournal.checked;
-      journalWrapper.classList.remove("collapsed", "expanded");
-      journalWrapper.classList.add(isOn ? "expanded" : "collapsed");
-      journalBlock.classList.toggle("auto-height", isOn);
-      console.log('Журнал классы:', journalWrapper.className);
-    });
-  } else {
-    console.log("Ошибка при поиске элементов журнала!");
-  }
-
-  // Фильтры
-  const filterToggleBtn = document.getElementById("toggle-filters");
-  const filtersWrapper = document.getElementById("filters-wrapper");
-  const filtersBlock = filtersWrapper ? filtersWrapper.closest('.block') : null;
-  if (filterToggleBtn && filtersWrapper && filtersBlock) {
-    console.log("Обработчик фильтров навешан!");
-    filterToggleBtn.addEventListener("change", () => {
-      const isOn = filterToggleBtn.checked;
-      filtersWrapper.classList.remove("collapsed", "expanded");
-      filtersWrapper.classList.add(isOn ? "expanded" : "collapsed");
-      filtersBlock.classList.toggle("auto-height", isOn);
-      console.log('Фильтры классы:', filtersWrapper.className);
-    });
-  } else {
-    console.log("Ошибка при поиске элементов фильтров!");
-  }
-
-  // Добавить напоминание
-  const toggleInfoAdd = document.getElementById("toggle-info-add");
-  const infoAddWrapper = document.getElementById("info-add-wrapper");
-  const infoAddBlock = infoAddWrapper ? infoAddWrapper.closest('.block') : null;
-  if (toggleInfoAdd && infoAddWrapper && infoAddBlock) {
-    console.log("Обработчик напоминаний навешан!");
-    toggleInfoAdd.addEventListener("change", () => {
-      const isOn = toggleInfoAdd.checked;
-      infoAddWrapper.classList.remove("collapsed", "expanded");
-      infoAddWrapper.classList.add(isOn ? "expanded" : "collapsed");
-      infoAddBlock.classList.toggle("auto-height", isOn);
-      console.log('Напоминания классы:', infoAddWrapper.className);
-    });
-  } else {
-    console.log("Ошибка при поиске элементов напоминаний!");
-  }
+  const isOn = toggleJournal.checked;
+  journalWrapper.classList.remove("collapsed", "expanded");
+  journalWrapper.classList.add(isOn ? "expanded" : "collapsed");
+  journalBlock.classList.toggle("auto-height", isOn);
 });
 
+  }
+
+  // Переключатель фильтров
+  const filterToggleBtn = document.getElementById("toggle-filters");
+  const filtersWrapper = document.getElementById("filters-wrapper");
+  const filtersBlock = filtersWrapper.closest('.block');
+  if (filterToggleBtn && filtersWrapper && filtersBlock) {
+   filterToggleBtn.addEventListener("change", () => {
+  const isOn = filterToggleBtn.checked;
+  filtersWrapper.classList.remove("collapsed", "expanded");
+  filtersWrapper.classList.add(isOn ? "expanded" : "collapsed");
+  filtersBlock.classList.toggle("auto-height", isOn);
+});
+
+  }
+
+  // Переключатель "добавить напоминание"
+  const toggleInfoAdd = document.getElementById("toggle-info-add");
+  const infoAddWrapper = document.getElementById("info-add-wrapper");
+  const infoAddBlock = infoAddWrapper.closest('.block');
+  if (toggleInfoAdd && infoAddWrapper && infoAddBlock) {
+   toggleInfoAdd.addEventListener("change", () => {
+  const isOn = toggleInfoAdd.checked;
+  infoAddWrapper.classList.remove("collapsed", "expanded");
+  infoAddWrapper.classList.add(isOn ? "expanded" : "collapsed");
+  infoAddBlock.classList.toggle("auto-height", isOn);
+});
 
   }
 });
