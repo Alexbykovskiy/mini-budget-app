@@ -68,8 +68,9 @@ function resetInfoAddForm() {
   if (dateStartInput) {
     dateStartInput.value = new Date().toISOString().split('T')[0];
   }
-}
-function loadExpenses() {
+} 
+
+// ← ВОТ ЭТА СКОБКА!function loadExpenses() {
   db.collection("users").doc(profileCode).collection("expenses")
     .orderBy("date", "desc")
     .onSnapshot(snapshot => {
