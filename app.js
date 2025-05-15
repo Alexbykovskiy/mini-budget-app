@@ -578,23 +578,26 @@ function editInfoEntry(id) {
     if (!doc.exists) return;
     const r = doc.data();
     editingReminderId = id;
-    // Развернуть форму
-    const toggle = document.getElementById("toggle-info-add");
+
+    // Разворачиваем блок "Добавить напоминание"
+    document.getElementById("toggle-info-add").checked = true;
     const wrapper = document.getElementById("info-add-wrapper");
-    if (toggle && wrapper) {
-      toggle.checked = true;
+    if (wrapper) {
       wrapper.classList.remove("collapsed");
       wrapper.classList.add("expanded");
     }
-    // Заполнить поля
-    document.getElementById('info-type').value = r.type;
-    document.getElementById('info-tag').value = r.tag;
-    document.getElementById('info-mileage').value = r.mileage || "";
-    document.getElementById('info-interval').value = r.interval || "";
-    document.getElementById('info-date-start').value = r.dateStart || "";
-    document.getElementById('info-date-end').value = r.dateEnd || "";
-    document.getElementById("info-add-photo-btn").classList.remove("selected");
-    document.getElementById("info-add-photo").value = "";
+
+    // Заполняем все поля формы напоминания
+    setTimeout(() => { // задержка чтобы точно DOM был готов
+      if (document.getElementById('info-type')) document.getElementById('info-type').value = r.type || "";
+      if (document.getElementById('info-tag')) document.getElementById('info-tag').value = r.tag || "";
+      if (document.getElementById('info-mileage')) document.getElementById('info-mileage').value = r.mileage || "";
+      if (document.getElementById('info-interval')) document.getElementById('info-interval').value = r.interval || "";
+      if (document.getElementById('info-date-start')) document.getElementById('info-date-start').value = r.dateStart || "";
+      if (document.getElementById('info-date-end')) document.getElementById('info-date-end').value = r.dateEnd || "";
+      if (document.getElementById("info-add-photo-btn")) document.getElementById("info-add-photo-btn").classList.remove("selected");
+      if (document.getElementById("info-add-photo")) document.getElementById("info-add-photo").value = "";
+    }, 100); // 100ms задержки хватит
   });
 }
 function showInfoImage(url) { /* ...добавить позже... */ }
