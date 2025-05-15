@@ -909,7 +909,7 @@ select {
 }
 
 #info-board {
-  max-height: 80px; /* примерно две записи */
+  max-height: 50px; /* примерно две записи */
   overflow-y: auto;
   scrollbar-width: none;      /* Firefox */
   -ms-overflow-style: none;   /* IE */
