@@ -7,6 +7,23 @@ window.addEventListener("load", () => {
   resetForm();
   // 📸 Выбор способа загрузки изображения — камера или галерея
   // 📸 Упрощённая загрузка фото: системное меню (камера, галерея, файлы)
+const photoBtn = document.getElementById("info-add-photo-btn");
+const photoInput = document.getElementById("info-add-photo");
+const typeSelect = document.getElementById("info-type");
+if (typeSelect && photoInput) {
+  typeSelect.addEventListener("click", () => {
+    photoInput.click();
+  });
+
+  photoInput.addEventListener("change", () => {
+    if (photoInput.files.length > 0) {
+      typeSelect.classList.add("selected");
+    } else {
+      typeSelect.classList.remove("selected");
+    }
+  });
+}
+
 
 
 
@@ -94,8 +111,7 @@ infoAddForm.onsubmit = async (e) => {
     await db.collection("users").doc(profileCode).collection("reminders").add(data);
   }
   infoAddForm.reset();
-  document.getElementById("info-add-photo-btn").classList.remove("selected");
-  // Автозаполнение сегодняшней даты после сброса
+    // Автозаполнение сегодняшней даты после сброса
   const dateStartInput = document.getElementById('info-date-start');
   if (dateStartInput) {
     dateStartInput.value = new Date().toISOString().split('T')[0];
@@ -105,8 +121,7 @@ infoAddForm.onsubmit = async (e) => {
 
 function resetInfoAddForm() {
   document.getElementById("info-add-form").reset();
-  document.getElementById("info-add-photo-btn").classList.remove("selected");
-  editingReminderId = null;
+    editingReminderId = null;
   // Автозаполнение сегодняшней даты после сброса
   const dateStartInput = document.getElementById('info-date-start');
   if (dateStartInput) {
