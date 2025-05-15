@@ -364,9 +364,8 @@ select#filter-category {
 }
 
 #info-add-wrapper .section-title-row {
-  white-space: nowrap;
+  position: relative;
 }
-
 #toggle-info-add {
   position: absolute;
   top: 0;
@@ -1196,7 +1195,7 @@ select {
 }
 #toggle-info-add {
   position: absolute;
-  top: 5px;
+  top: 5px; !important
   right: 0;
 }
 
