@@ -592,7 +592,7 @@ function processReminders(reminders) {
     };
   }).sort((a, b) => {
     // Сортировка: черные, красные, жёлтые, серые, внутри — по ближайшему сроку
-    const statusOrder = { black: 0, red: 1, yellow: 2, gray: 3 };
+    const statusOrder = { expired: 0, red: 1, orange: 2, yellow: 3, gray: 4 };
     if (statusOrder[a.status] !== statusOrder[b.status]) return statusOrder[a.status] - statusOrder[b.status];
     // по наименьшему остатку км или дней
     const aNum = a.text.match(/-?\d+/) ? Math.abs(Number(a.text.match(/-?\d+/)[0])) : 99999;
