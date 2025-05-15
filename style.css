@@ -368,10 +368,10 @@ select#filter-category {
 }
 #toggle-info-add {
   position: absolute;
-  top: 0;
+  top: 50%;
   right: 0;
+  transform: translateY(-50%);
 }
-
 /* Светлая круглая кнопка в стиле lucide */
 .round-btn.light {
   background: #e0e0e0;
