@@ -364,7 +364,7 @@ select#filter-category {
 }
 
 #info-add-wrapper .section-title-row {
-  position: relative;
+  white-space: nowrap;
 }
 
 #toggle-info-add {
@@ -1188,3 +1188,14 @@ select {
 #journal-wrapper .section-title-row {
   position: relative;
 }
+#info-add-wrapper .section-title-row {
+  position: relative;
+  min-height: 40px; /* фиксируем минимальную высоту, чтобы контейнер не менял размер */
+}
+
+#toggle-info-add {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
