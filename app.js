@@ -529,10 +529,10 @@ function renderInlineInfoBoard(notifications) {
   board.innerHTML = '';
   notifications.forEach(n => {
     board.innerHTML += `
-      <span class="info-inline ${n.status}">
+      <div class="info-row ${n.status}" style="padding: 2px 6px;">
         <span class="info-icon" data-lucide="${n.icon}"></span>
-        ${n.text}
-      </span>
+        <span>${n.text}</span>
+      </div>
     `;
   });
   lucide.createIcons();
