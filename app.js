@@ -5,6 +5,59 @@ window.addEventListener("load", () => {
   loadExpenses();
   populateTagList();
   resetForm();
+  // 📸 Выбор способа загрузки изображения — камера или галерея
+  const photoBtn = document.getElementById("info-add-photo-btn");
+
+  // Создаём два скрытых инпута
+  const inputCamera = document.createElement("input");
+  inputCamera.type = "file";
+  inputCamera.accept = "image/*";
+  inputCamera.capture = "environment";
+  inputCamera.style.display = "none";
+
+  const inputGallery = document.createElement("input");
+  inputGallery.type = "file";
+  inputGallery.accept = "image/*";
+  inputGallery.style.display = "none";
+
+  document.body.appendChild(inputCamera);
+  document.body.appendChild(inputGallery);
+
+  photoBtn?.addEventListener("click", () => {
+    const choice = confirm("Нажми OK — чтобы открыть камеру\nНажми Отмена — чтобы выбрать из галереи");
+    if (choice) {
+      inputCamera.click();
+    } else {
+      inputGallery.click();
+    }
+  });
+
+  // Обработка выбранного файла из камеры или галереи
+  function handlePhotoSelect(file) {
+    const btn = document.getElementById("info-add-photo-btn");
+    const input = document.getElementById("info-add-photo");
+    if (file && btn && input) {
+      // Копируем выбранный файл в скрытое поле формы
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+
+      btn.classList.add("selected");
+    }
+  }
+
+  inputCamera.addEventListener("change", () => {
+    if (inputCamera.files.length > 0) {
+      handlePhotoSelect(inputCamera.files[0]);
+    }
+  });
+
+  inputGallery.addEventListener("change", () => {
+    if (inputGallery.files.length > 0) {
+      handlePhotoSelect(inputGallery.files[0]);
+    }
+  });
+
 
   // Переключатель журнала
   const toggleJournal = document.getElementById("toggle-journal");
