@@ -1179,3 +1179,12 @@ select {
 #info-type.selected svg {
   stroke: white;
 }
+
+#toggle-journal {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+#journal-wrapper .section-title-row {
+  position: relative;
+}
