@@ -800,3 +800,29 @@ transition: max-height 1.5s ease-in-out, padding 1.5s ease-in-out;
 .info-add-form .round-btn.light.selected svg {
   stroke: #fff;
 }
+#info-add-wrapper {
+  width: 380px;
+  margin-left: auto;
+  margin-right: auto;
+  overflow: hidden;
+  max-height: 2000px;
+  padding: 0 16px 24px 16px;
+  transition: max-height 1.5s ease-in-out, padding 1.5s ease-in-out;
+  margin-bottom: 24px;
+}
+
+#info-add-wrapper.collapsed {
+  max-height: 40px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  width: 380px;
+  overflow: hidden;
+  transition: max-height 1.5s ease-in-out, padding 1.5s ease-in-out;
+}
+#info-add-wrapper.collapsed .info-add-toggle-container {
+  display: none;
+}
+#info-add-wrapper.expanded .info-add-toggle-container {
+  display: block;
+}
