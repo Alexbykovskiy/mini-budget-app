@@ -908,3 +908,14 @@ select {
   stroke: #fff;
 }
 
+#info-board {
+  max-height: 160px; /* примерно две записи */
+  overflow-y: auto;
+  scrollbar-width: none;      /* Firefox */
+  -ms-overflow-style: none;   /* IE */
+}
+
+#info-board::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
