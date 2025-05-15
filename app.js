@@ -435,11 +435,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const journalBlock = journalWrapper.closest('.block');
   if (toggleJournal && journalWrapper && journalBlock) {
     toggleJournal.addEventListener("change", () => {
-      const isOn = toggleJournal.checked;
-      journalWrapper.classList.toggle("collapsed", !isOn);
-      journalWrapper.classList.toggle("expanded", isOn);
-      journalBlock.classList.toggle("auto-height", isOn);
-    });
+  const isOn = toggleJournal.checked;
+  journalWrapper.classList.remove("collapsed", "expanded");
+  journalWrapper.classList.add(isOn ? "expanded" : "collapsed");
+  journalBlock.classList.toggle("auto-height", isOn);
+});
+
   }
 
   // Переключатель фильтров
@@ -447,12 +448,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const filtersWrapper = document.getElementById("filters-wrapper");
   const filtersBlock = filtersWrapper.closest('.block');
   if (filterToggleBtn && filtersWrapper && filtersBlock) {
-    filterToggleBtn.addEventListener("change", () => {
-      const isOn = filterToggleBtn.checked;
-      filtersWrapper.classList.toggle("collapsed", !isOn);
-      filtersWrapper.classList.toggle("expanded", isOn);
-      filtersBlock.classList.toggle("auto-height", isOn);
-    });
+   filterToggleBtn.addEventListener("change", () => {
+  const isOn = filterToggleBtn.checked;
+  filtersWrapper.classList.remove("collapsed", "expanded");
+  filtersWrapper.classList.add(isOn ? "expanded" : "collapsed");
+  filtersBlock.classList.toggle("auto-height", isOn);
+});
+
   }
 
   // Переключатель "добавить напоминание"
@@ -460,12 +462,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const infoAddWrapper = document.getElementById("info-add-wrapper");
   const infoAddBlock = infoAddWrapper.closest('.block');
   if (toggleInfoAdd && infoAddWrapper && infoAddBlock) {
-    toggleInfoAdd.addEventListener("change", () => {
-      const isOn = toggleInfoAdd.checked;
-      infoAddWrapper.classList.toggle("collapsed", !isOn);
-      infoAddWrapper.classList.toggle("expanded", isOn);
-      infoAddBlock.classList.toggle("auto-height", isOn);
-    });
+   toggleInfoAdd.addEventListener("change", () => {
+  const isOn = toggleInfoAdd.checked;
+  infoAddWrapper.classList.remove("collapsed", "expanded");
+  infoAddWrapper.classList.add(isOn ? "expanded" : "collapsed");
+  infoAddBlock.classList.toggle("auto-height", isOn);
+});
+
   }
 });
 
