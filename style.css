@@ -1195,7 +1195,6 @@ select {
 }
 #toggle-info-add {
   position: absolute;
-  top: 5px; !important
+  top: 5px !important;
   right: 0;
 }
-
