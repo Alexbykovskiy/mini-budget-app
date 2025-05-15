@@ -892,4 +892,19 @@ select {
   stroke: #fff;
 }
 
+#info-add-photo-btn .lucide,
+#info-add-photo-btn .lucide svg {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px;
+  min-height: 40px;
+  stroke-width: 2.2;
+  stroke: #186663;
+  display: block;
+}
+
+#info-add-photo-btn.selected .lucide,
+#info-add-photo-btn.selected .lucide svg {
+  stroke: #fff;
+}
 
