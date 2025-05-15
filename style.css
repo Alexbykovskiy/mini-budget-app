@@ -676,3 +676,76 @@ transition: max-height 1.5s ease-in-out, padding 1.5s ease-in-out;
   color: #555;
   margin-left: 6px;
 }
+
+.info-board {
+  width: 360px; /* Если делаешь все блоки 380px — поставь 380px */
+  min-height: 40px;
+  border-radius: 20px;
+  background: #e0e0e0;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
+  padding: 10px 24px;
+  margin: 0 auto 18px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+}
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+  padding: 2px 0;
+}
+.info-row.gray { color: #888; }
+.info-row.yellow { color: #E1A700; }
+.info-row.red { color: #C93D1F; }
+.info-row.black { color: #222; font-weight: bold; }
+.info-row .info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 4px;
+}
+.info-row .info-icon svg {
+  stroke-width: 2.5;
+}
+.info-row.black .info-icon svg {
+  stroke: #222;
+}
+.info-row.gray .info-icon svg {
+  stroke: #888;
+}
+.info-row.yellow .info-icon svg {
+  stroke: #E1A700;
+}
+.info-row.red .info-icon svg {
+  stroke: #C93D1F;
+}
+.info-row .info-action {
+  margin-left: auto;
+  display: flex;
+  gap: 10px;
+}
+.info-row .info-action button {
+  background: #e0e0e0;
+  border-radius: 50%;
+  padding: 6px;
+  border: none;
+  box-shadow: 2px 2px 5px #bebebe, -2px -2px 5px #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.18s;
+}
+.info-row .info-action button:hover {
+  transform: scale(1.08);
+}
+.info-row .info-action svg {
+  width: 19px;
+  height: 19px;
+  stroke-width: 2.5;
+}

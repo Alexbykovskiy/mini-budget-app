@@ -399,6 +399,64 @@ if (dateInput && editIdInput && !editIdInput.value.trim()) {
   dateInput.value = today;
 }
 
+// ========== Инфотабло (уведомления сервис/документы) ==========
+
+function renderInfoBoard(notifications) {
+  const board = document.getElementById('info-board');
+  if (!board) return;
+  board.innerHTML = '';
+  notifications.forEach(n => {
+    board.innerHTML += `
+      <div class="info-row ${n.status}">
+        <span class="info-icon" data-lucide="${n.icon}"></span>
+        <span>${n.text}</span>
+        <span class="info-action">
+          <button title="Редактировать" onclick="editInfoEntry('${n.id}')"><span data-lucide="pencil"></span></button>
+          <button title="Фото" onclick="showInfoImage('${n.imageUrl||''}')"><span data-lucide="image"></span></button>
+          <button title="Удалить" onclick="deleteInfoEntry('${n.id}')"><span data-lucide="trash-2"></span></button>
+        </span>
+      </div>
+    `;
+  });
+  lucide.createIcons();
+}
+
+// ========== Заглушка для теста ==========
+
+renderInfoBoard([
+  {
+    id: "1",
+    status: "black",
+    icon: "alert-triangle",
+    text: "Масло — просрочено: -430 км / -8 дней",
+    imageUrl: ""
+  },
+  {
+    id: "2",
+    status: "red",
+    icon: "alert-triangle",
+    text: "Тормозная жидкость — осталось: 420 км / 16 дней",
+    imageUrl: ""
+  },
+  {
+    id: "3",
+    status: "yellow",
+    icon: "alert-triangle",
+    text: "Виньетка Австрия — осталось: 1410 км / 33 дня",
+    imageUrl: ""
+  },
+  {
+    id: "4",
+    status: "gray",
+    icon: "circle",
+    text: "Масло — осталось: 7300 км / 164 дня",
+    imageUrl: ""
+  }
+]);
+
+function editInfoEntry(id) { /* ...добавить позже... */ }
+function showInfoImage(url) { /* ...добавить позже... */ }
+function deleteInfoEntry(id) { /* ...добавить позже... */ }
 
 
 });
