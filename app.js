@@ -95,7 +95,7 @@ const startMileage = Number(sorted[0]?.mileage || 0);
 const endMileage = Number(sorted[sorted.length - 1]?.mileage || 0);
 const distance = endMileage - startMileage;
 
-summary.innerHTML = `Всего: €${fullTotal.toFixed(2)} <span class="inline-km">по ${distance} км</span>`;
+summary.innerHTML = `Всего: €${fullTotal.toFixed(2)} <span class="inline-km">за ${distance} км</span>`;
 
   updateChart(data, total);
 calculateCostPerKm(data);
@@ -123,10 +123,6 @@ document.getElementById('cost-per-km').innerHTML =
          <circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg> €/км: €${costPerKm.toFixed(2)}`
     : `€/км: —`;
 
-document.getElementById('mileage-info').textContent =
-  distance > 0
-    ? ` ${distance} км`
-    : '';}
 function calculatePureRunningCost(data) {
   const relevantCosts = data.filter(e =>
     e.category === 'Топливо' || (e.tag && e.tag.toLowerCase() === 'масло')
