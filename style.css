@@ -880,4 +880,16 @@ select {
   margin: 0;
 }
 
+#info-add-photo-btn .lucide {
+  width: 34px;
+  height: 34px;
+  stroke-width: 2.5;
+  stroke: #186663;
+  margin: 0;
+  display: block;
+}
+#info-add-photo-btn.selected .lucide {
+  stroke: #fff;
+}
+
 
