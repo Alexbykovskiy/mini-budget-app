@@ -54,7 +54,7 @@ loadReminders();
     });
   }
 });
-;const profileCode = "mini";
+const profileCode = "mini";
 
 const form = document.getElementById('expense-form');
 const list = document.getElementById('expense-list');
