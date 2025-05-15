@@ -749,3 +749,54 @@ transition: max-height 1.5s ease-in-out, padding 1.5s ease-in-out;
   height: 19px;
   stroke-width: 2.5;
 }
+
+#info-add-wrapper {
+  width: 360px;
+  margin-bottom: 24px;
+  transition: max-height 1.5s ease-in-out, padding 1.5s ease-in-out;
+}
+#info-add-wrapper.collapsed .info-add-toggle-container {
+  display: none;
+}
+#info-add-wrapper.expanded .info-add-toggle-container {
+  display: block;
+}
+.info-add-form .row {
+  display: flex;
+  flex-wrap: nowrap;
+  margin-bottom: 10px;
+  gap: 12px;
+}
+.info-add-form .row input,
+.info-add-form .row select {
+  flex: 1;
+}
+.info-add-form input[type="date"] {
+  background: #e0e0e0;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+  border-radius: 14px;
+}
+.info-add-form .round-btn.light {
+  background: #e0e0e0;
+  color: #186663;
+  border: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.info-add-form .round-btn.light svg {
+  stroke: #186663;
+}
+.info-add-form .round-btn.light.selected {
+  background: #FFA35C;
+  color: #fff;
+}
+.info-add-form .round-btn.light.selected svg {
+  stroke: #fff;
+}

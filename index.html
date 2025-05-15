@@ -129,6 +129,44 @@
     </form>
   </fieldset>
 
+<fieldset class="block collapsed animated-section delay-3" id="info-add-wrapper">
+  <div class="section-title-row">
+    <h2 class="section-title">Добавить напоминание</h2>
+    <label class="ios-switch">
+      <input type="checkbox" id="toggle-info-add">
+      <span class="slider"></span>
+    </label>
+  </div>
+  <div class="info-add-toggle-container">
+    <form id="info-add-form" class="info-add-form">
+      <div class="row">
+        <select id="info-type" required>
+          <option value="service">Сервис</option>
+          <option value="document">Документ</option>
+        </select>
+        <input list="tag-list" id="info-tag" placeholder="Название / #тег" required>
+      </div>
+      <div class="row">
+        <input type="number" id="info-mileage" placeholder="Пробег (км)">
+        <input type="number" id="info-interval" placeholder="Интервал (км/дней)">
+      </div>
+      <div class="row">
+        <input type="date" id="info-date-start" required>
+        <input type="date" id="info-date-end" placeholder="Дата окончания" required>
+      </div>
+      <div class="form-buttons">
+        <button type="button" class="round-btn orange" onclick="resetInfoAddForm()" title="Отмена">&#10006;</button>
+        <button type="button" class="round-btn light" id="info-add-photo-btn" title="Добавить фото">
+          <span data-lucide="image"></span>
+        </button>
+        <button type="submit" class="round-btn green" title="Сохранить">&#10004;</button>
+      </div>
+      <input type="file" id="info-add-photo" accept="image/*" style="display:none">
+    </form>
+  </div>
+</fieldset>
+
+
 <fieldset class="block animated-section delay-4">
   <div class="section-title-row">
     <h2 class="section-title">Журнал</h2>
