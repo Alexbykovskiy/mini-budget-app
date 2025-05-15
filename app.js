@@ -22,34 +22,54 @@ let fullTotal = 0;
 const infoAddForm = document.getElementById('info-add-form');
 if (infoAddForm) {
   infoAddForm.onsubmit = async (e) => {
-    e.preventDefault();
-    const type = document.getElementById('info-type').value;
-    const tag = document.getElementById('info-tag').value.trim().toLowerCase();
-    const mileage = document.getElementById('info-mileage').value ? Number(document.getElementById('info-mileage').value) : null;
-    const interval = document.getElementById('info-interval').value ? Number(document.getElementById('info-interval').value) : null;
-    const dateStart = document.getElementById('info-date-start').value;
-    const dateEnd = document.getElementById('info-date-end').value;
-    let imageUrl = "";
-    const photoInput = document.getElementById('info-add-photo');
-    if (photoInput && photoInput.files[0]) {
-      // Загружаем фото в Storage
-      const file = photoInput.files[0];
-      const storageRef = firebase.storage().ref();
-      const snapshot = await storageRef.child(`reminders/${Date.now()}_${file.name}`).put(file);
-      imageUrl = await snapshot.ref.getDownloadURL();
-    }
-    const data = { type, tag, mileage, interval, dateStart, dateEnd, imageUrl, created: Date.now() };
-    await db.collection("users").doc(profileCode).collection("reminders").add(data);
-    infoAddForm.reset();
-    document.getElementById("info-add-photo-btn").classList.remove("selected");
-    // Автозаполнение сегодняшней даты после сброса
-    const dateStartInput = document.getElementById('info-date-start');
-    if (dateStartInput) {
-      dateStartInput.value = new Date().toISOString().split('T')[0];
-    }
-  };
-}
+  e.preventDefault();
+  const type = document.getElementById('info-type').value;
+  const tag = document.getElementById('info-tag').value.trim().toLowerCase();
+  const mileage = document.getElementById('info-mileage').value ? Number(document.getElementById('info-mileage').value) : null;
+  const interval = document.getElementById('info-interval').value ? Number(document.getElementById('info-interval').value) : null;
+  const dateStart = document.getElementById('info-date-start').value;
+  const dateEnd = document.getElementById('info-date-end').value;
+  let imageUrl = "";
+  const photoInput = document.getElementById('info-add-photo');
+  // Если выбрано фото — загружаем новое
+  if (photoInput && photoInput.files[0]) {
+    const file = photoInput.files[0];
+    const storageRef = firebase.storage().ref();
+    const snapshot = await storageRef.child(`reminders/${Date.now()}_${file.name}`).put(file);
+    imageUrl = await snapshot.ref.getDownloadURL();
+  }
+  const data = { type, tag, mileage, interval, dateStart, dateEnd };
+  if (imageUrl) data.imageUrl = imageUrl;
 
+  if (editingReminderId) {
+    // === ОБНОВЛЯЕМ ===
+    await db.collection("users").doc(profileCode).collection("reminders").doc(editingReminderId).update(data);
+    editingReminderId = null;
+  } else {
+    // === ДОБАВЛЯЕМ ===
+    if (!imageUrl) data.imageUrl = "";
+    data.created = Date.now();
+    await db.collection("users").doc(profileCode).collection("reminders").add(data);
+  }
+  infoAddForm.reset();
+  document.getElementById("info-add-photo-btn").classList.remove("selected");
+  // Автозаполнение сегодняшней даты после сброса
+  const dateStartInput = document.getElementById('info-date-start');
+  if (dateStartInput) {
+    dateStartInput.value = new Date().toISOString().split('T')[0];
+  }
+};
+
+function resetInfoAddForm() {
+  document.getElementById("info-add-form").reset();
+  document.getElementById("info-add-photo-btn").classList.remove("selected");
+  editingReminderId = null;
+  // Автозаполнение сегодняшней даты после сброса
+  const dateStartInput = document.getElementById('info-date-start');
+  if (dateStartInput) {
+    dateStartInput.value = new Date().toISOString().split('T')[0];
+  }
+}
 
 
 function renderExpenses(data) {
@@ -465,6 +485,9 @@ if (dateInput && editIdInput && !editIdInput.value.trim()) {
 
 // ========== Инфотабло (уведомления сервис/документы) ==========
 
+let editingReminderId = null; // id редактируемого напоминания
+
+
 function renderInfoBoard(notifications) {
   const board = document.getElementById('info-board');
   if (!board) return;
@@ -540,7 +563,32 @@ function deleteInfoEntry(id) {
   }
 }
 
-function editInfoEntry(id) { /* ...добавить позже... */ }
+function editInfoEntry(id) {
+  // Найди нужное напоминание в массиве reminders
+  db.collection("users").doc(profileCode).collection("reminders").doc(id).get().then(doc => {
+    if (!doc.exists) return;
+    const r = doc.data();
+    editingReminderId = id;
+    // Разворачиваем форму
+    const toggle = document.getElementById("toggle-info-add");
+    const wrapper = document.getElementById("info-add-wrapper");
+    if (toggle && wrapper) {
+      toggle.checked = true;
+      wrapper.classList.remove("collapsed");
+      wrapper.classList.add("expanded");
+    }
+    // Заполняем поля
+    document.getElementById('info-type').value = r.type;
+    document.getElementById('info-tag').value = r.tag;
+    document.getElementById('info-mileage').value = r.mileage || "";
+    document.getElementById('info-interval').value = r.interval || "";
+    document.getElementById('info-date-start').value = r.dateStart || "";
+    document.getElementById('info-date-end').value = r.dateEnd || "";
+    // Сбросить выбор файла
+    document.getElementById("info-add-photo-btn").classList.remove("selected");
+    document.getElementById("info-add-photo").value = "";
+  });
+}
 function showInfoImage(url) { /* ...добавить позже... */ }
 // Сворачивание блока добавления напоминания
 
