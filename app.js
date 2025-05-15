@@ -496,8 +496,6 @@ if (dateInput && editIdInput && !editIdInput.value.trim()) {
 
 // ========== Инфотабло (уведомления сервис/документы) ==========
 
-let editingReminderId = null; // id редактируемого напоминания
-
 
 function renderInfoBoard(notifications) {
   const board = document.getElementById('info-board');
