@@ -634,23 +634,23 @@ transition: max-height 1.5s ease-in-out, padding 1.5s ease-in-out;
   margin: 0;
 }
 
-
 .stats-bar {
-  width: 380px; /* было 360px */
+  width: 380px;
+  min-height: 44px;
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: nowrap;
-  padding: 0 16px; /* как у фильтров */
-  margin-bottom: 12px;
-  border-radius: 20px; /* как у .block и #filters-wrapper */
-  font-size: 12px;
+  padding: 8px 24px;
+  margin-bottom: 24px;
+  border-radius: 20px;
+  background: #e0e0e0;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
+  font-size: 13px;
   font-weight: 500;
   color: #444;
   gap: 10px;
-  background: #e0e0e0;
-  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff; /* как у фильтров */
 }
 .stats-bar p {
   margin: 0;
