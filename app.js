@@ -429,20 +429,20 @@ function formatDate(isoString) {
 
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Журнал
-  const toggleBtn = document.getElementById("toggle-journal");
-  const wrapper = document.getElementById("expense-list-wrapper");
-  const journalBlock = wrapper.closest('.block');
-  if (toggleBtn && wrapper && journalBlock) {
-    toggleBtn.addEventListener("change", () => {
-      const isOn = toggleBtn.checked;
-      wrapper.classList.toggle("collapsed", !isOn);
-      wrapper.classList.toggle("expanded", isOn);
+  // Переключатель журнала
+  const toggleJournal = document.getElementById("toggle-journal");
+  const journalWrapper = document.getElementById("expense-list-wrapper");
+  const journalBlock = journalWrapper.closest('.block');
+  if (toggleJournal && journalWrapper && journalBlock) {
+    toggleJournal.addEventListener("change", () => {
+      const isOn = toggleJournal.checked;
+      journalWrapper.classList.toggle("collapsed", !isOn);
+      journalWrapper.classList.toggle("expanded", isOn);
       journalBlock.classList.toggle("auto-height", isOn);
     });
   }
 
-  // Фильтры
+  // Переключатель фильтров
   const filterToggleBtn = document.getElementById("toggle-filters");
   const filtersWrapper = document.getElementById("filters-wrapper");
   const filtersBlock = filtersWrapper.closest('.block');
@@ -455,31 +455,20 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Добавить напоминание
-  const infoAddToggleBtn = document.getElementById("toggle-info-add");
+  // Переключатель "добавить напоминание"
+  const toggleInfoAdd = document.getElementById("toggle-info-add");
   const infoAddWrapper = document.getElementById("info-add-wrapper");
- const dateStartInput = document.getElementById('info-date-start');
-  if (dateStartInput && !dateStartInput.value) {
-    const today = new Date().toISOString().split('T')[0];
-    dateStartInput.value = today;
-  }
-  if (infoAddToggleBtn && infoAddWrapper) {
-    infoAddToggleBtn.addEventListener("change", () => {
-      infoAddWrapper.classList.toggle("collapsed", !infoAddToggleBtn.checked);
-      infoAddWrapper.classList.toggle("expanded", infoAddToggleBtn.checked);
+  const infoAddBlock = infoAddWrapper.closest('.block');
+  if (toggleInfoAdd && infoAddWrapper && infoAddBlock) {
+    toggleInfoAdd.addEventListener("change", () => {
+      const isOn = toggleInfoAdd.checked;
+      infoAddWrapper.classList.toggle("collapsed", !isOn);
+      infoAddWrapper.classList.toggle("expanded", isOn);
+      infoAddBlock.classList.toggle("auto-height", isOn);
     });
   }
 });
 
-
-if (filterToggleBtn && filtersWrapper && filtersBlock) {
-  filterToggleBtn.addEventListener("change", () => {
-    const isOn = filterToggleBtn.checked;
-    filtersWrapper.classList.toggle("collapsed", !isOn);
-    filtersWrapper.classList.toggle("expanded", isOn);
-    filtersBlock.classList.toggle("auto-height", isOn);
-  });
-}
 
 
  
