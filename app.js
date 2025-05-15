@@ -24,19 +24,7 @@ if (typeSelect && photoInput) {
   });
 }
 
-if (photoBtn && photoInput) {
-  photoBtn.addEventListener("click", () => {
-    photoInput.click();
-  });
 
-  photoInput.addEventListener("change", () => {
-    if (photoInput.files.length > 0) {
-      photoBtn.classList.add("selected");
-    } else {
-      photoBtn.classList.remove("selected");
-    }
-  });
-}
 
 
   
