@@ -512,11 +512,16 @@ function renderInfoBoard(notifications) {
       <div class="info-row ${n.status}">
         <span class="info-icon" data-lucide="${n.icon}"></span>
         <span>${n.text}</span>
-        <span class="info-action">
-          <button title="Редактировать" onclick="editInfoEntry('${n.id}')"><span data-lucide="pencil"></span></button>
-          <button title="Фото" onclick="showInfoImage('${n.imageUrl||''}')"><span data-lucide="image"></span></button>
-          <button title="Удалить" onclick="deleteInfoEntry('${n.id}')"><span data-lucide="trash-2"></span></button>
-        </span>
+        <span class="info-menu">
+  <button class="menu-toggle" onclick="toggleMenu(this)">
+    <span data-lucide="more-vertical"></span>
+  </button>
+  <div class="menu-actions hidden">
+    <button onclick="editInfoEntry('${n.id}')"><span data-lucide="pencil"></span></button>
+    <button onclick="showInfoImage('${n.imageUrl || ''}')"><span data-lucide="image"></span></button>
+    <button onclick="deleteInfoEntry('${n.id}')"><span data-lucide="trash-2"></span></button>
+  </div>
+</span>
       </div>
     `;
   });
@@ -541,6 +546,15 @@ function renderInlineInfoBoard(notifications) {
     `;
   });
   lucide.createIcons();
+}
+
+function toggleMenu(button) {
+  const menu = button.nextElementSibling;
+  if (!menu) return;
+  document.querySelectorAll(".menu-actions").forEach(el => {
+    if (el !== menu) el.classList.add("hidden");
+  });
+  menu.classList.toggle("hidden");
 }
 
 
