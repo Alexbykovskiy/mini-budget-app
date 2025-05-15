@@ -25,32 +25,7 @@ if (photoBtn && photoInput) {
 }
 
 
-  // Обработка выбранного файла из камеры или галереи
-  function handlePhotoSelect(file) {
-    const btn = document.getElementById("info-add-photo-btn");
-    const input = document.getElementById("info-add-photo");
-    if (file && btn && input) {
-      // Копируем выбранный файл в скрытое поле формы
-      const dt = new DataTransfer();
-      dt.items.add(file);
-      input.files = dt.files;
-
-      btn.classList.add("selected");
-    }
-  }
-
-  inputCamera.addEventListener("change", () => {
-    if (inputCamera.files.length > 0) {
-      handlePhotoSelect(inputCamera.files[0]);
-    }
-  });
-
-  inputGallery.addEventListener("change", () => {
-    if (inputGallery.files.length > 0) {
-      handlePhotoSelect(inputGallery.files[0]);
-    }
-  });
-
+  
 
   // Переключатель журнала
   const toggleJournal = document.getElementById("toggle-journal");
