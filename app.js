@@ -49,6 +49,7 @@ window.addEventListener("load", () => {
       infoAddWrapper.classList.remove("collapsed", "expanded");
       infoAddWrapper.classList.add(isOn ? "expanded" : "collapsed");
       infoAddBlock.classList.toggle("auto-height", isOn);
+loadReminders();
     });
   }
 });
@@ -513,6 +514,37 @@ function renderInlineInfoBoard(notifications) {
   lucide.createIcons();
 }
 
+function renderInlineInfoBoardHeader(notifications) {
+  const board = document.getElementById('inline-info-board');
+  if (!board) return;
+
+  const infoAddWrapper = document.getElementById('info-add-wrapper');
+  const isCollapsed = infoAddWrapper?.classList.contains('collapsed');
+
+  if (isCollapsed && notifications.length > 0) {
+    const n = notifications[0];
+    board.innerHTML = `
+      <div class="info-row ${n.status}" style="padding: 2px 6px;">
+        <div class="info-menu">
+          <button class="alert-button ${n.status}" onclick="toggleMenu(this)">
+            <span data-lucide="${n.icon}"></span>
+          </button>
+          <div class="menu-actions hidden">
+            <button onclick="editInfoEntry('${n.id}')"><span data-lucide="pencil"></span></button>
+            <button onclick="showInfoImage('${n.imageUrl || ''}')"><span data-lucide="image"></span></button>
+            <button onclick="deleteInfoEntry('${n.id}')"><span data-lucide="trash-2"></span></button>
+          </div>
+        </div>
+        <span>${n.text}</span>
+      </div>
+    `;
+  } else {
+    renderInlineInfoBoard(notifications);
+  }
+
+  lucide.createIcons();
+}
+
 function toggleMenu(button) {
   const menu = button.nextElementSibling;
   if (!menu) return;
@@ -528,7 +560,8 @@ function loadReminders() {
     .onSnapshot(snapshot => {
       const reminders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       const processed = processReminders(reminders);
-renderInlineInfoBoard(processed);
+renderInlineInfoBoardHeader(processed);
+
 
     });
 }
