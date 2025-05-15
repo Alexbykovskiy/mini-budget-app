@@ -1,4 +1,5 @@
-let db;
+let db = firebase?.firestore?.() || null;
+
 
 window.addEventListener("load", () => {
   db = firebase.firestore();
@@ -115,6 +116,11 @@ function resetInfoAddForm() {
 } 
 
 // ← ВОТ ЭТА СКОБКА!function loadExpenses() {
+  if (!db) {
+    console.error("Firestore не инициализирован (loadExpenses)");
+    return;
+  }
+
   db.collection("users").doc(profileCode).collection("expenses")
     .orderBy("date", "desc")
     .onSnapshot(snapshot => {
@@ -269,6 +275,11 @@ function calculateFuelStats(data) {
 
 
 function deleteExpense(id) {
+  if (!db) {
+    console.error("Firestore не инициализирован (deleteExpense)");
+    return;
+  }
+
   if (confirm("Удалить запись?")) {
     db.collection("users").doc(profileCode).collection("expenses").doc(id).delete();
   }
@@ -297,12 +308,16 @@ function fillFormForEdit(exp) {
 
 form.onsubmit = (e) => {
   e.preventDefault();
+ if (!db) {
+    console.error("Firestore не инициализирован (form submit)");
+    return;
+  }
   const id = document.getElementById('edit-id').value;
   const category = document.getElementById('category').value;
   const amount = parseFloat(document.getElementById('amount').value.replace(',', '.'));
   const mileage = document.getElementById('mileage').value;
   const liters = parseFloat(document.getElementById('liters').value.replace(',', '.'));
-  const date = document.getElementById('date').value;
+  const date = document.getElementById('date').value || new Date().toISOString().split('T')[0];
   const note = document.getElementById('note').value;
 
   // 👉 Нормализуем тег: только строчные буквы, слитно, без пробелов
@@ -321,7 +336,11 @@ form.onsubmit = (e) => {
       }
     });
   }
-
+const dateInput = document.getElementById('date');
+if (dateInput && !dateInput.value) {
+  dateInput.value = new Date().toISOString().split('T')[0];
+}
+showToast("Расход добавлен!");
   form.reset();
   document.getElementById('edit-id').value = '';
 };
@@ -531,6 +550,11 @@ function toggleMenu(button) {
 
 
 function loadReminders() {
+  if (!db) {
+    console.error("Firestore не инициализирован (loadReminders)");
+    return;
+  }
+
   db.collection("users").doc(profileCode).collection("reminders")
     .onSnapshot(snapshot => {
       const reminders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -625,6 +649,19 @@ if (toggle) {
       if (document.getElementById("info-add-photo")) document.getElementById("info-add-photo").value = "";
     }, 100); // 100ms задержки хватит
   });
+}
+function showToast(message = "Готово!") {
+  const toast = document.getElementById("toast");
+  if (!toast) return;
+
+  toast.textContent = message;
+  toast.classList.remove("hidden");
+  toast.classList.add("show");
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+    toast.classList.add("hidden");
+  }, 2000);
 }
 
 function showInfoImage(url) { /* ...добавить позже... */ }
