@@ -6,46 +6,24 @@ window.addEventListener("load", () => {
   populateTagList();
   resetForm();
   // 📸 Выбор способа загрузки изображения — камера или галерея
-  const photoBtn = document.getElementById("info-add-photo-btn");
+  // 📸 Упрощённая загрузка фото: системное меню (камера, галерея, файлы)
+const photoBtn = document.getElementById("info-add-photo-btn");
+const photoInput = document.getElementById("info-add-photo");
 
-  // Создаём два скрытых инпута
-  const inputCamera = document.createElement("input");
-  inputCamera.type = "file";
-  inputCamera.accept = "image/*";
-  inputCamera.capture = "environment";
-  inputCamera.style.display = "none";
+if (photoBtn && photoInput) {
+  photoBtn.addEventListener("click", () => {
+    photoInput.click();
+  });
 
-  const inputGallery = document.createElement("input");
-  inputGallery.type = "file";
-  inputGallery.accept = "image/*";
-  inputGallery.style.display = "none";
-
-  document.body.appendChild(inputCamera);
-  document.body.appendChild(inputGallery);
-
-  photoBtn?.addEventListener("click", () => {
-  const choice = confirm("Нажми OK — чтобы открыть камеру\nНажми Отмена — чтобы выбрать из галереи");
-
-  const handleChange = (e) => {
-    if (e.target.files.length > 0) {
-      const file = e.target.files[0];
-      const input = document.getElementById("info-add-photo");
-      const dt = new DataTransfer();
-      dt.items.add(file);
-      input.files = dt.files;
-
+  photoInput.addEventListener("change", () => {
+    if (photoInput.files.length > 0) {
       photoBtn.classList.add("selected");
+    } else {
+      photoBtn.classList.remove("selected");
     }
-  };
+  });
+}
 
-  if (choice) {
-    inputCamera.onchange = handleChange;
-    inputCamera.click();
-  } else {
-    inputGallery.onchange = handleChange;
-    inputGallery.click();
-  }
-});
 
   // Обработка выбранного файла из камеры или галереи
   function handlePhotoSelect(file) {
