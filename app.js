@@ -5,6 +5,7 @@ window.addEventListener("load", () => {
   loadExpenses();
   populateTagList();
   resetForm();
+
 })
 ;const profileCode = "mini";
 
@@ -14,11 +15,12 @@ const summary = document.getElementById('summary');
 let expenseChart;
 let expenses = [];
 let fullTotal = 0;
+let editingReminderId = null;
 
 // ========== ДОБАВИТЬ НАПОМИНАНИЕ ==========
 const infoAddForm = document.getElementById('info-add-form');
 if (infoAddForm) {
-  infoAddForm.onsubmit = async (e) => {
+infoAddForm.onsubmit = async (e) => {
   e.preventDefault();
   const type = document.getElementById('info-type').value;
   const tag = document.getElementById('info-tag').value.trim().toLowerCase();
@@ -28,7 +30,6 @@ if (infoAddForm) {
   const dateEnd = document.getElementById('info-date-end').value;
   let imageUrl = "";
   const photoInput = document.getElementById('info-add-photo');
-  // Если выбрано фото — загружаем новое
   if (photoInput && photoInput.files[0]) {
     const file = photoInput.files[0];
     const storageRef = firebase.storage().ref();
@@ -39,11 +40,11 @@ if (infoAddForm) {
   if (imageUrl) data.imageUrl = imageUrl;
 
   if (editingReminderId) {
-    // === ОБНОВЛЯЕМ ===
+    // обновляем запись
     await db.collection("users").doc(profileCode).collection("reminders").doc(editingReminderId).update(data);
     editingReminderId = null;
   } else {
-    // === ДОБАВЛЯЕМ ===
+    // новая запись
     if (!imageUrl) data.imageUrl = "";
     data.created = Date.now();
     await db.collection("users").doc(profileCode).collection("reminders").add(data);
@@ -56,7 +57,7 @@ if (infoAddForm) {
     dateStartInput.value = new Date().toISOString().split('T')[0];
   }
 };
-}
+
 
 function resetInfoAddForm() {
   document.getElementById("info-add-form").reset();
@@ -573,12 +574,11 @@ function deleteInfoEntry(id) {
 }
 
 function editInfoEntry(id) {
-  // Найди нужное напоминание в массиве reminders
   db.collection("users").doc(profileCode).collection("reminders").doc(id).get().then(doc => {
     if (!doc.exists) return;
     const r = doc.data();
     editingReminderId = id;
-    // Разворачиваем форму
+    // Развернуть форму
     const toggle = document.getElementById("toggle-info-add");
     const wrapper = document.getElementById("info-add-wrapper");
     if (toggle && wrapper) {
@@ -586,14 +586,13 @@ function editInfoEntry(id) {
       wrapper.classList.remove("collapsed");
       wrapper.classList.add("expanded");
     }
-    // Заполняем поля
+    // Заполнить поля
     document.getElementById('info-type').value = r.type;
     document.getElementById('info-tag').value = r.tag;
     document.getElementById('info-mileage').value = r.mileage || "";
     document.getElementById('info-interval').value = r.interval || "";
     document.getElementById('info-date-start').value = r.dateStart || "";
     document.getElementById('info-date-end').value = r.dateEnd || "";
-    // Сбросить выбор файла
     document.getElementById("info-add-photo-btn").classList.remove("selected");
     document.getElementById("info-add-photo").value = "";
   });
