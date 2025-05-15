@@ -1016,7 +1016,8 @@ select {
 .menu-actions {
   position: absolute;
   top: 26px;
-  right: 0;
+  left: 0;
+  right: auto;
   background: #e0e0e0;
   box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
   border-radius: 12px;

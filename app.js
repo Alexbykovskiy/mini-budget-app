@@ -511,15 +511,17 @@ function renderInlineInfoBoard(notifications) {
   notifications.forEach(n => {
     board.innerHTML += `
       <div class="info-row ${n.status}" style="padding: 2px 6px;">
-        <button class="menu-toggle icon-button" onclick="toggleMenu(this)">
-          <span class="info-icon" data-lucide="${n.icon}"></span>
-        </button>
-        <span>${n.text}</span>
-        <div class="menu-actions hidden">
-          <button onclick="editInfoEntry('${n.id}')"><span data-lucide="pencil"></span></button>
-          <button onclick="showInfoImage('${n.imageUrl || ''}')"><span data-lucide="image"></span></button>
-          <button onclick="deleteInfoEntry('${n.id}')"><span data-lucide="trash-2"></span></button>
+        <div class="info-menu">
+          <button class="menu-toggle icon-button" onclick="toggleMenu(this)">
+            <span class="info-icon" data-lucide="${n.icon}"></span>
+          </button>
+          <div class="menu-actions hidden">
+            <button onclick="editInfoEntry('${n.id}')"><span data-lucide="pencil"></span></button>
+            <button onclick="showInfoImage('${n.imageUrl || ''}')"><span data-lucide="image"></span></button>
+            <button onclick="deleteInfoEntry('${n.id}')"><span data-lucide="trash-2"></span></button>
+          </div>
         </div>
+        <span>${n.text}</span>
       </div>
     `;
   });
