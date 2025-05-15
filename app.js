@@ -581,8 +581,8 @@ function processReminders(reminders) {
     }
     // Формируем текст напоминания
     let details = [];
-    if (kmLeft !== null) details.push(`${kmLeft >= 0 ? "" : ""}: ${kmLeft} км`);
-    if (daysLeft !== null) details.push(`${daysLeft >= 0 ? "" : ""}: ${daysLeft} дней`);
+    if (kmLeft !== null) details.push(`${kmLeft >= 0 ? "" ""}: ${kmLeft} км`);
+    if (daysLeft !== null) details.push(`${daysLeft >= 0 ? "" ""}: ${daysLeft} дней`);
     text = `${r.tag} — ${details.join(" / ")}`;
     // Статус и иконка
     if ((kmLeft !== null && kmLeft < 0) || (daysLeft !== null && daysLeft < 0)) {
