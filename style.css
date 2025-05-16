@@ -1337,3 +1337,31 @@ select {
   left: 4px;
 }
 
+
+#journal-wrapper {
+  position: relative;
+}
+
+.toggle-journal-fix {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  width: 38px;
+  height: 24px;
+  z-index: 10;
+}
+
+.toggle-journal-fix .slider {
+  width: 38px;
+  height: 24px;
+  background-color: #ccc;
+  border-radius: 999px;
+}
+
+.toggle-journal-fix .slider:before {
+  width: 16px;
+  height: 16px;
+  top: 4px;
+  left: 4px;
+}
+
