@@ -1033,9 +1033,9 @@ select {
   box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
   border-radius: 12px;
   display: flex;
-  flex-direction: column;
-  padding: 4px;
-  gap: 4px;
+  flex-direction: row; /* 🔄 вот главное изменение */
+  padding: 6px;
+  gap: 6px;
   z-index: 100;
   white-space: nowrap;
 }
