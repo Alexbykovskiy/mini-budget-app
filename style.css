@@ -1202,7 +1202,7 @@ select {
 }
 
 #info-add-wrapper.collapsed {
-  max-height: 60px; /* чуть больше */
+  max-height: 40px; /* чуть больше */
   overflow: visible; /* чтобы не обрезать переключатель */
 }
 
@@ -1245,13 +1245,3 @@ select {
   left: 4px;
 }
 
-#info-add-wrapper.collapsed {
-  max-height: 54px;
-  height: 54px;
-  padding: 0 20px;
-  display: flex;
-  align-items: center;
-  width: 380px;
-  overflow: hidden;
-  border-radius: 999px;
-}
