@@ -939,6 +939,18 @@ select {
   width: 100%;
 }
 
+#inline-info-board {
+  max-height: 120px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+#inline-info-board::-webkit-scrollbar {
+  display: none;
+}
+
+
 .info-inline {
   display: flex;
   align-items: center;
