@@ -1244,3 +1244,14 @@ select {
   top: 4px;
   left: 4px;
 }
+
+#info-add-wrapper.collapsed {
+  max-height: 54px;
+  height: 54px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  width: 380px;
+  overflow: hidden;
+  border-radius: 999px;
+}
