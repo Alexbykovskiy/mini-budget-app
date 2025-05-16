@@ -1204,11 +1204,6 @@ select {
   position: relative;
   min-height: 40px; /* или height, если нужно фиксировать */
 }
-#toggle-info-add {
-  position: absolute;
-  top: 10px !important;
-  right: 0;
-}
 
 #info-add-wrapper.collapsed {
   max-height: 60px; /* чуть больше */
@@ -1220,20 +1215,10 @@ select {
   padding-bottom: 6px; /* чтобы высота не была очень маленькой */
 }
 
+
 #toggle-info-add {
   position: absolute;
+  top: 8px;
   right: 0;
-  transition: top 0.3s ease;
-}
-
-/* В свернутом виде — центрируем вертикально */
-#info-add-wrapper.collapsed #toggle-info-add {
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-/* В развернутом виде — фиксируем вверху */
-#info-add-wrapper.expanded #toggle-info-add {
-  top: 5px;
-  transform: translateY(0);
+  transform: none;
 }
