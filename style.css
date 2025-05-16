@@ -1364,4 +1364,34 @@ select {
   top: 4px;
   left: 4px;
 }
+#filters-wrapper {
+  position: relative;
+}
+
+#filters-wrapper .section-title-row {
+  position: relative;
+}
+
+.toggle-filters-fix {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  width: 38px;
+  height: 24px;
+  z-index: 10;
+}
+
+.toggle-filters-fix .slider {
+  width: 38px;
+  height: 24px;
+  background-color: #ccc;
+  border-radius: 999px;
+}
+
+.toggle-filters-fix .slider:before {
+  width: 16px;
+  height: 16px;
+  top: 4px;
+  left: 4px;
+}
 
