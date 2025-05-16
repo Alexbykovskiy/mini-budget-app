@@ -1226,7 +1226,7 @@ select {
 .toggle-info-fix {
   position: absolute;
   top: 7px;
-  right: 7px;
+  right: 20px;
   width: 38px;
   height: 24px;
 }
