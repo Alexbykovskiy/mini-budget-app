@@ -1290,3 +1290,50 @@ select {
 #filters-wrapper.collapsed .filters-toggle-container {
   display: none;
 }
+
+#filters-wrapper {
+  position: relative;
+  width: 380px;
+  margin: 0 auto 24px auto;
+  overflow: hidden;
+  transition: max-height 1.5s ease-in-out, padding 1.5s ease-in-out;
+}
+
+#filters-wrapper.collapsed {
+  max-height: 40px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+}
+
+#filters-wrapper.expanded {
+  padding: 0 16px 24px 16px;
+}
+
+#filters-wrapper .section-title-row {
+  position: relative;
+}
+
+.toggle-filters-fix {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  width: 38px;
+  height: 24px;
+  z-index: 10;
+}
+
+.toggle-filters-fix .slider {
+  width: 38px;
+  height: 24px;
+  background-color: #ccc;
+  border-radius: 999px;
+}
+
+.toggle-filters-fix .slider:before {
+  width: 16px;
+  height: 16px;
+  top: 4px;
+  left: 4px;
+}
+
