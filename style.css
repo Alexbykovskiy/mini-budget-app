@@ -1229,10 +1229,17 @@ select {
 
 .toggle-info-fix {
   position: absolute;
-  top: 6px;         /* можешь подвинуть при желании */
-  right: 12px;      /* можешь подвинуть при желании */
+  top: 6px;
+  right: 12px;
   width: 44px;
   height: 24px;
+}
+
+.toggle-info-fix .slider {
+  width: 44px;
+  height: 24px;
+  background-color: #ccc;
+  border-radius: 999px;
 }
 
 .toggle-info-fix .slider:before {
