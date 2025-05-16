@@ -940,7 +940,7 @@ select {
 }
 
 #inline-info-board {
-  max-height: 120px;
+  max-height: 300px;
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
