@@ -1227,12 +1227,12 @@ select {
   position: absolute;
   top: 6px;
   right: 12px;
-  width: 34px;
+  width: 38px;
   height: 24px;
 }
 
 .toggle-info-fix .slider {
-  width: 34px;
+  width: 38px;
   height: 24px;
   background-color: #ccc;
   border-radius: 999px;
