@@ -1026,9 +1026,9 @@ select {
 
 .menu-actions {
   position: absolute;
-  top: 26px;
-  left: 0;
-  right: auto;
+  top: 0;
+  left: 100%;
+  margin-left: 10px;
   background: #e0e0e0;
   box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
   border-radius: 12px;
@@ -1037,6 +1037,7 @@ select {
   padding: 4px;
   gap: 4px;
   z-index: 100;
+  white-space: nowrap;
 }
 
 .menu-actions button {
