@@ -1084,8 +1084,8 @@ select {
 }
 
 .alert-button {
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: #ccc;
   display: flex;
@@ -1098,9 +1098,9 @@ select {
 }
 
 .alert-button svg {
-  width: 14px;
-  height: 14px;
-  stroke-width: 2.2;
+  width: 16px;
+  height: 16px;
+  stroke-width: 2.3;
   pointer-events: none;
 }
 
@@ -1227,12 +1227,12 @@ select {
   position: absolute;
   top: 6px;
   right: 12px;
-  width: 44px;
+  width: 34px;
   height: 24px;
 }
 
 .toggle-info-fix .slider {
-  width: 44px;
+  width: 34px;
   height: 24px;
   background-color: #ccc;
   border-radius: 999px;
