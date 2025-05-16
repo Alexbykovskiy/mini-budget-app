@@ -29,24 +29,25 @@
 </div>
 
   <!-- Фильтры -->
-<div class="section-title-row">
-  <h2 class="section-title">Фильтры</h2>
-</div>
-<label class="ios-switch toggle-filters-fix">
-  <input type="checkbox" id="toggle-filters">
-  <span class="slider"></span>
-</label>
-</div>
-<div class="filters-toggle-container">
-  <div class="filters">
-          <div class="row">
+<fieldset class="block collapsed animated-section delay-2" id="filters-wrapper">
+  <div class="section-title-row">
+    <h2 class="section-title">Фильтры</h2>
+  </div>
+  <label class="ios-switch toggle-filters-fix">
+    <input type="checkbox" id="toggle-filters">
+    <span class="slider"></span>
+  </label>
+
+  <div class="filters-toggle-container">
+    <div class="filters">
+      <div class="row">
         <label class="small-label">Период:</label>
         <input type="date" id="filter-from" />
         <input type="date" id="filter-to" />
       </div>
       <div class="row">
-       <input list="tag-list" id="filter-tag" placeholder="#тег" />
-<datalist id="tag-list"></datalist>
+        <input list="tag-list" id="filter-tag" placeholder="#тег" />
+        <datalist id="tag-list"></datalist>
         <select id="filter-category">
           <option value="Все">Все категории</option>
           <option>Топливо</option>
@@ -67,17 +68,12 @@
         <input type="number" id="filter-row-end" placeholder="до строки" />
       </div>
       <div class="form-buttons">
-  <button class="round-btn orange" onclick="location.reload()" title="Сброс">
-    &#10006;
-  </button>
-  <button class="round-btn green" onclick="applyFilters()" title="Применить">
-    &#10004;
-  </button>
-</div>
-     </div>
-</div>
-  </fieldset>
-
+        <button class="round-btn orange" onclick="location.reload()" title="Сброс">&#10006;</button>
+        <button class="round-btn green" onclick="applyFilters()" title="Применить">&#10004;</button>
+      </div>
+    </div>
+  </div>
+</fieldset>
   <!-- Добавить расход -->
 <fieldset class="block animated-section delay-3">
   <div class="section-title-row">
