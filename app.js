@@ -443,6 +443,7 @@ function updateChart(data, total) {
     legendContainer.appendChild(item);
   });
 });
+} 
 
 function resetForm() {
   form.reset();
