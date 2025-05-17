@@ -347,9 +347,8 @@ function applyFilters() {
 }
 
 function updateChart(data, total) {
-  const container = document.getElementById("custom-bar-chart");
+  const container = document.getElementById("expenseChart");
   if (!container) return;
-  container.innerHTML = "";
 
   const totals = {};
   data.forEach(e => {
@@ -357,44 +356,80 @@ function updateChart(data, total) {
     totals[e.category] += Number(e.amount);
   });
 
-  const entries = Object.entries(totals).map(([category, value]) => ({
+  const raw = Object.entries(totals).map(([category, value]) => ({
     category,
     value,
     percent: (value / total) * 100
   }));
 
-  const maxValue = Math.max(...entries.map(e => e.value));
+  raw.sort((a, b) => a.percent - b.percent);
 
-  // Сортировка по сумме
-  entries.sort((a, b) => a.value - b.value);
+  const categories = raw.map(r => r.category);
+  const values = raw.map(r => r.percent);
+  const valuesEuro = raw.map(r => r.value);
 
-  const colors = [
-    "#D2AF94", "#186663", "#A6B5B4", "#8C7361", "#002D37",
-    "#5E8C8A", "#C4B59F", "#7F6A93", "#71A1A5", "#A58C7D"
-  ];
+  const colors = ['#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37', '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D'];
 
-  entries.forEach((entry, i) => {
-  const row = document.createElement("div");
-  row.className = "bar-row";
+  if (expenseChart) expenseChart.destroy();
 
-  const label = document.createElement("div");
-  label.className = "bar-label";
-  label.textContent = `${entry.category}: €${entry.value.toFixed(2)} (${entry.percent.toFixed(1)}%)`;
+  expenseChart = new ApexCharts(container, {
+    chart: {
+      type: 'bar',
+      height: 40 * raw.length,
+      animations: { enabled: true }
+    },
+    series: [{
+      data: values
+    }],
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        barHeight: '80%',
+        distributed: true,
+        dataLabels: {
+          position: 'left'
+        }
+      }
+    },
+    colors: colors.slice(0, raw.length),
+    dataLabels: {
+      enabled: true,
+      textAnchor: 'start',
+      style: {
+        colors: ['#000']
+      },
+      formatter: function (val, opt) {
+        const idx = opt.dataPointIndex;
+        return `${categories[idx]}: €${valuesEuro[idx].toFixed(2)} (${val.toFixed(1)}%)`;
+      },
+      offsetX: 10
+    },
+    xaxis: {
+      categories: categories,
+      max: 100,
+      tickAmount: 10,
+      labels: {
+        formatter: val => `${val}%`
+      }
+    },
+    yaxis: {
+      labels: {
+        show: false
+      }
+    },
+    tooltip: {
+      enabled: false
+    },
+    grid: {
+      xaxis: {
+        lines: {
+          show: true
+        }
+      }
+    }
+  });
 
-  const track = document.createElement("div");
-  track.className = "bar-track";
-
-  const fill = document.createElement("div");
-  fill.className = "bar-fill";
-  fill.style.width = `${(entry.value / maxValue) * 300}px`;
-  fill.style.background = '#FF6F3C'; // яркий оранжевый
-
-
-  track.appendChild(fill);
-  row.appendChild(label);
-  row.appendChild(track);
-  container.appendChild(row);
-});
+  expenseChart.render();
 }
 
 function resetForm() {
