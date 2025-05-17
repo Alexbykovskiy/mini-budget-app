@@ -365,21 +365,23 @@ function updateChart(data, total) {
   expenseChart = new ApexCharts(container, {
     chart: {
       type: 'radialBar',
-      height: 300,
-      offsetY: 0
+      height: 300
     },
     plotOptions: {
       radialBar: {
-        startAngle: -135,
-        endAngle: 135,
-        track: {
-          background: '#e0e0e0',
-          strokeWidth: '100%',
-          margin: 5
-        },
+        inverseOrder: false,
+        startAngle: 0,
+        endAngle: 270,
         hollow: {
+          margin: 5,
           size: '40%',
           background: 'transparent'
+        },
+        track: {
+          show: true,
+          background: '#f0f0f0',
+          strokeWidth: '100%',
+          margin: 5 // Расстояние между кольцами
         },
         dataLabels: {
           name: {
@@ -398,30 +400,30 @@ function updateChart(data, total) {
         }
       }
     },
-    series: values,
+    stroke: {
+      lineCap: "round"
+    },
     labels: labels,
+    series: values,
     colors: colors.slice(0, labels.length),
     legend: {
       show: true,
-      floating: false,
-      position: 'right',
-      offsetX: 0,
-      offsetY: 0,
+      position: 'bottom',
       formatter: (seriesName, opts) => {
-        const value = opts.w.globals.series[opts.seriesIndex];
-        const perc = ((value / total) * 100).toFixed(1);
-        return `${seriesName}: €${value.toFixed(2)} (${perc}%)`;
+        const val = opts.w.globals.series[opts.seriesIndex];
+        const perc = ((val / total) * 100).toFixed(1);
+        return `${seriesName}: €${val.toFixed(2)} (${perc}%)`;
       },
       labels: {
-        colors: ['#444']
+        useSeriesColors: false
       },
       markers: {
         width: 12,
         height: 12
       },
       itemMargin: {
-        horizontal: 10,
-        vertical: 4
+        horizontal: 8,
+        vertical: 6
       }
     },
     tooltip: {
@@ -431,7 +433,6 @@ function updateChart(data, total) {
 
   expenseChart.render();
 }
-
 function resetForm() {
   form.reset();
   document.getElementById('edit-id').value = '';
