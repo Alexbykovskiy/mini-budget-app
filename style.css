@@ -1467,3 +1467,34 @@ select {
   display: inline-block;
 }
 
+.custom-bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  max-width: 320px;
+  width: 100%;
+  margin-inline: auto;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bar-label {
+  font-size: 13px;
+  width: 110px;
+  text-align: right;
+  flex-shrink: 0;
+  color: #333;
+}
+
+.bar-fill {
+  height: 20px;
+  border-radius: 4px;
+  background: #ccc;
+  transition: width 0.4s ease;
+}
+
