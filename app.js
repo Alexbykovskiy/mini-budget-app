@@ -355,7 +355,9 @@ function updateChart(data, total) {
     if (!totals[e.category]) totals[e.category] = 0;
     totals[e.category] += Number(e.amount);
   });
-
+legend: {
+  show: false
+}
   const raw = Object.entries(totals).map(([category, value]) => ({
     category,
     value,
@@ -393,17 +395,20 @@ function updateChart(data, total) {
     },
     colors: colors.slice(0, raw.length),
     dataLabels: {
-      enabled: true,
-      textAnchor: 'start',
-      style: {
-        colors: ['#000']
-      },
-      formatter: function (val, opt) {
-        const idx = opt.dataPointIndex;
-        return `${categories[idx]}: €${valuesEuro[idx].toFixed(2)} (${val.toFixed(1)}%)`;
-      },
-      offsetX: 10
-    },
+  enabled: true,
+  textAnchor: 'start',
+  style: {
+    colors: ['#fff'],
+    fontWeight: 400,
+    fontSize: '13px'
+  },
+  formatter: function (val, opt) {
+    const idx = opt.dataPointIndex;
+    return `${categories[idx]}: €${valuesEuro[idx].toFixed(2)} (${val.toFixed(1)}%)`;
+  },
+  offsetX: 20
+},
+   
     xaxis: {
   categories: [],
   labels: {
