@@ -356,8 +356,13 @@ function updateChart(data, total) {
     totals[e.category] += Number(e.amount);
   });
 
-  const labels = Object.keys(totals);
-  const values = labels.map(k => totals[k]);
+  // Сортируем по сумме (убывание)
+  const sorted = Object.entries(totals)
+    .map(([category, value]) => ({ category, value }))
+    .sort((a, b) => b.value - a.value);
+
+  const labels = sorted.map(e => e.category);
+  const values = sorted.map(e => e.value);
 
   const colors = [
     '#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37',
@@ -366,48 +371,60 @@ function updateChart(data, total) {
 
   if (expenseChart) expenseChart.destroy();
 
-  expenseChart = new ApexCharts(container, {
+  expenseChart = new ApexCharts(document.querySelector("#expenseChart"), {
     series: values,
     labels: labels,
     colors: colors.slice(0, values.length),
     chart: {
       type: 'donut',
-      width: 360,
+      width: 380,
     },
     plotOptions: {
       pie: {
         startAngle: -90,
-        endAngle: 270
+        endAngle: 270,
+        donut: {
+          size: '60%',
+          labels: {
+            show: true,
+            total: {
+              show: true,
+              label: 'Итого',
+              formatter: () => `€${total.toFixed(2)}`
+            }
+          }
+        }
       }
     },
     dataLabels: {
       enabled: false
     },
     legend: {
-      position: 'bottom',
-      formatter: function(val, opts) {
-        return val + " - €" + values[opts.seriesIndex].toFixed(2);
-      }
+      show: false
     },
     tooltip: {
       y: {
         formatter: val => `€${val.toFixed(2)}`
       }
-    },
-    responsive: [{
-      breakpoint: 480,
-      options: {
-        chart: {
-          width: 240
-        },
-        legend: {
-          position: 'bottom'
-        }
-      }
-    }]
+    }
   });
 
-  expenseChart.render();
+  expenseChart.render().then(() => {
+    const legendContainer = document.getElementById("custom-legend");
+    if (!legendContainer) return;
+
+    legendContainer.innerHTML = "";
+
+    sorted.forEach((entry, i) => {
+      const row = document.createElement("div");
+      row.className = "legend-row";
+      row.innerHTML = `
+        <span class="legend-color" style="background:${colors[i % colors.length]}"></span>
+        <span class="legend-label">${entry.category}: €${entry.value.toFixed(2)}</span>
+      `;
+      legendContainer.appendChild(row);
+    });
+  });
 }
 
 function resetForm() {
