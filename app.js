@@ -180,18 +180,7 @@ function renderExpenses(data) {
 document.getElementById('stat-total-amount').textContent = fullTotal.toFixed(2);
 document.getElementById('stat-distance').textContent = distance;
 document.getElementById('stat-total-km').textContent = latestMileage;
-  summary.innerHTML = `Всего: €${fullTotal.toFixed(2)} 
-  <span class="inline-km">за ${distance} км</span>
-  <span class="inline-km">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
-         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-         class="lucide lucide-rotate-ccw" style="vertical-align: middle; margin-right: 4px;">
-      <path d="M1 4v6h6"/>
-      <path d="M3.51 9a9 9 0 1 0 2.13-3.36L1 10"/>
-    </svg>
-    общий: ${latestMileage} км
-  </span>`;
-
+  
   updateChart(data, total);
   calculateCostPerKm(data);
   calculatePureRunningCost(data);
@@ -201,7 +190,7 @@ document.getElementById('stat-total-km').textContent = latestMileage;
 function calculateCostPerKm(data) {
   const mileageEntries = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));
   if (mileageEntries.length < 2) {
-    document.getElementById('stat-cost-total').textContent = costPerKm.toFixed(2);
+    document.getElementById('stat-cost-total').textContent = '—';
     return;
   }
   const sorted = [...mileageEntries].sort((a, b) => a.date.localeCompare(b.date));
@@ -211,20 +200,16 @@ function calculateCostPerKm(data) {
   const totalAmount = data.reduce((sum, e) => sum + Number(e.amount), 0);
   const costPerKm = distance > 0 ? (totalAmount / distance) : 0;
 
-  document.getElementById('cost-per-km').innerHTML =
-    distance > 0
-      ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
-           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-           <circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg> €/км: €${costPerKm.toFixed(2)}`
-      : `€/км: —`;
+  document.getElementById('stat-cost-total').textContent = costPerKm.toFixed(2);
 }
+
 function calculatePureRunningCost(data) {
   const relevantCosts = data.filter(e =>
     e.category === 'Топливо' || (e.tag && e.tag.toLowerCase() === 'масло')
   );
   const mileageEntries = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));
   if (mileageEntries.length < 2) {
-document.getElementById('stat-cost-pure').textContent = cost.toFixed(2);
+    document.getElementById('stat-cost-pure').textContent = '—';
     return;
   }
   const sorted = [...mileageEntries].sort((a, b) => a.date.localeCompare(b.date));
@@ -232,18 +217,9 @@ document.getElementById('stat-cost-pure').textContent = cost.toFixed(2);
   const totalAmount = relevantCosts.reduce((sum, e) => sum + Number(e.amount), 0);
   const cost = distance > 0 ? (totalAmount / distance) : 0;
 
-  document.getElementById('pure-km-cost').innerHTML =
-    distance > 0
-      ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
-           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-           <path d="M12 2C12 2 6 7 6 12a6 6 0 0 0 12 0c0-5-6-10-6-10z"/></svg>
-           €/км: €${cost.toFixed(2)}`
-      : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
-           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-           <path d="M12 2C12 2 6 7 6 12a6 6 0 0 0 12 0c0-5-6-10-6-10z"/></svg>
-           €/км: —`;
+  document.getElementById('stat-cost-pure').textContent = cost.toFixed(2);
 }
-function calculateFuelStats(data) {
+ function calculateFuelStats(data) {
   const fuelEntries = data.filter(e =>
     e.category === 'Топливо' &&
     e.liters && !isNaN(Number(e.liters)) &&
@@ -259,19 +235,10 @@ function calculateFuelStats(data) {
 
   document.getElementById('stat-consumption').textContent =
   consumption !== null ? consumption.toFixed(1) : '—';
-      ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
-           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-           <path d="M4 4h8v12H4z"/><path d="M14 4v12"/><path d="M4 8h8"/></svg>
-           : ${consumption.toFixed(1)} л/100`
-      : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
-           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-           <path d="M4 4h8v12H4z"/><path d="M14 4v12"/><path d="M4 8h8"/></svg> : —`;
 
-  document.getElementById('stat-price-fuel').textContent =
+document.getElementById('stat-price-fuel').textContent =
   pricePerLiter !== null ? pricePerLiter.toFixed(2) : '—';
-      ? `€/л: €${pricePerLiter.toFixed(2)}`
-      : `€/л: —`;
-}
+   }
  
 
 
