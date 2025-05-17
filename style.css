@@ -1459,6 +1459,7 @@ select {
   width: 50%;
   max-width: 360px;
   flex-shrink: 0;
+}
 
 .custom-legend {
   display: flex;
@@ -1471,18 +1472,4 @@ select {
   width: 50%;
   max-width: 300px;
   overflow-y: auto;
-}
-
-.legend-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.legend-color {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  display: inline-block;
-  flex-shrink: 0;
 }
