@@ -427,6 +427,24 @@ function updateChart(data, total) {
   expenseChart.render();
 }
 
+const legendContainer = document.getElementById("chart-legend");
+legendContainer.innerHTML = "";
+
+labels.forEach((label, i) => {
+  const val = valuesRaw[i];
+  const perc = (val / total * 100).toFixed(1);
+  const color = colors[i % colors.length];
+
+  const item = document.createElement("div");
+  item.className = "chart-legend-item";
+  item.innerHTML = `
+    <span class="chart-legend-color" style="background:${color}"></span>
+    <span>${label}: €${val.toFixed(2)} (${perc}%)</span>
+  `;
+  legendContainer.appendChild(item);
+});
+
+
 function resetForm() {
   form.reset();
   document.getElementById('edit-id').value = '';
