@@ -347,8 +347,8 @@ function applyFilters() {
 }
 
 function updateChart(data, total) {
-  const ctx = document.getElementById('expenseChart').getContext('2d');
-  if (expenseChart) expenseChart.destroy();
+  const container = document.getElementById("expenseChart");
+  if (!container) return;
 
   const totals = {};
   data.forEach(e => {
@@ -360,60 +360,58 @@ function updateChart(data, total) {
   const values = labels.map(k => totals[k]);
   const colors = ["#D2AF94", "#186663", "#A6B5B4", "#8C7361", "#002D37", "#5E8C8A", "#C4B59F", "#7F6A93", "#71A1A5", "#A58C7D", "#5B5B5B"];
 
-  expenseChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: labels,
-      datasets: [{
-        data: values,
-        backgroundColor: colors.slice(0, labels.length)
-      }]
+  if (expenseChart) expenseChart.destroy();
+
+  expenseChart = new ApexCharts(container, {
+    chart: {
+      type: 'donut',
+      height: 240,
+      animations: {
+        enabled: true,
+        easing: 'easeinout',
+        speed: 800
+      }
     },
-    options: {
-      cutout: '65%',
-      plugins: {
-        legend: {
-          display: true,
-          position: 'bottom',
+    series: values,
+    labels: labels,
+    colors: colors.slice(0, labels.length),
+    legend: {
+      show: true,
+      position: 'bottom',
+      fontSize: '12px',
+      labels: { colors: ['#444'] }
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: (val, opts) => {
+        const amount = opts.w.config.series[opts.seriesIndex];
+        return `€${amount.toFixed(2)} (${val.toFixed(1)}%)`;
+      },
+      style: { fontSize: '12px' }
+    },
+    plotOptions: {
+      pie: {
+        donut: {
+          size: '65%',
           labels: {
-            color: 'white',
-            generateLabels: chart => {
-              const d = chart.data;
-              return d.labels.map((l, i) => {
-                const val = d.datasets[0].data[i];
-                const perc = ((val / total) * 100).toFixed(1);
-                return {
-                  text: `${l}: €${val.toFixed(2)} (${perc}%)`,
-                  fillStyle: d.datasets[0].backgroundColor[i],
-                  strokeStyle: d.datasets[0].backgroundColor[i],
-                  lineWidth: 0,
-                  index: i
-                };
-              });
+            show: true,
+            total: {
+              show: true,
+              label: 'Итого',
+              formatter: () => `€${total.toFixed(2)}`
             }
           }
         },
-        tooltip: { enabled: false },
-        datalabels: { display: false },
-        centerText: {
-          display: true,
-          text: `€${total.toFixed(2)}`
-        }
+        startAngle: -90,
+        endAngle: 270
       }
     },
-    plugins: [{
-      id: 'centerText',
-      beforeDraw(chart) {
-        const { width } = chart;
-        const ctx = chart.ctx;
-        ctx.save();
-        ctx.font = 'bold 16px sans-serif';
-        ctx.fillStyle = 'white';
-        ctx.textAlign = 'center';
-        ctx.fillText(`€${total.toFixed(2)}`, width / 2, chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2);
-      }
-    }]
+    tooltip: {
+      enabled: false
+    }
   });
+
+  expenseChart.render();
 }
 
 function resetForm() {

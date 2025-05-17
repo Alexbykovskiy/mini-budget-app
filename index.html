@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,6 @@
   <link rel="stylesheet" href="style.css">
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#FFA35C">
   <link rel="icon" href="icon-256.png">
@@ -27,7 +27,7 @@
 
 
 <div class="chart-with-info animated-section delay-1">
-  <canvas id="expenseChart"></canvas>
+  <div id="expenseChart"></div>
 </div>
 
   <!-- Фильтры -->
