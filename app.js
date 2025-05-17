@@ -346,68 +346,48 @@ function applyFilters() {
   renderExpenses(filtered);
 }
 
-function updateChart(data, total) {
-  const container = document.getElementById("expenseChart");
-  if (!container) return;
+// Загрузка Google Charts и запуск построения диаграммы
+google.charts.load('current', { packages: ['corechart'] });
+google.charts.setOnLoadCallback(drawMiniChart);
 
-  const totals = {};
-  data.forEach(e => {
-    if (!totals[e.category]) totals[e.category] = 0;
-    totals[e.category] += Number(e.amount);
-  });
+function drawMiniChart() {
+  const data = google.visualization.arrayToDataTable([
+    ['Категория', 'Сумма'],
+    ['Мойка', 670],
+    ['Шины', 614],
+    ['Штрафы', 530],
+    ['Страховка', 501],
+    ['Виньетка', 500],
+    ['Тюнинг', 480],
+    ['Ремонт', 379.7],
+    ['Другое', 370],
+    ['Парковка', 360],
+    ['Сервис', 333],
+    ['Топливо', 293.5]
+  ]);
 
-  // Сортируем по сумме (убывание)
-  const sorted = Object.entries(totals)
-    .map(([category, value]) => ({ category, value }))
-    .sort((a, b) => b.value - a.value);
-
-  const labels = sorted.map(e => e.category);
-  const values = sorted.map(e => e.value);
-
-  const colors = [
-    '#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37',
-    '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D'
-  ];
-
-  if (expenseChart) expenseChart.destroy();
-
-  expenseChart = new ApexCharts(document.querySelector("#expenseChart"), {
-    series: values,
-    labels: labels,
-    colors: colors.slice(0, values.length),
-    chart: {
-      type: 'donut',
-      width: 380,
-    },
-    plotOptions: {
-      pie: {
-        startAngle: -90,
-        endAngle: 270,
-        donut: {
-          size: '60%',
-          labels: {
-            show: true,
-            total: {
-              show: true,
-              label: 'Итого',
-              formatter: () => `€${total.toFixed(2)}`
-            }
-          }
-        }
-      }
-    },
-    dataLabels: {
-      enabled: false
-    },
+  const options = {
+    title: '',
+    pieHole: 0.5,
     legend: {
-      show: false
-    },
-    tooltip: {
-      y: {
-        formatter: val => `€${val.toFixed(2)}`
+      position: 'right',
+      alignment: 'center',
+      textStyle: {
+        fontSize: 13,
+        color: '#333'
       }
-    }
-  });
+    },
+    colors: [
+      '#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37',
+      '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D', '#BFB4A3'
+    ],
+    chartArea: { left: 0, top: 20, width: '60%', height: '100%' },
+    pieSliceText: 'none'
+  };
+
+  const chart = new google.visualization.PieChart(document.getElementById('mini-donut-chart'));
+  chart.draw(data, options);
+}
 
   expenseChart.render().then(() => {
     const legendContainer = document.getElementById("custom-legend");
