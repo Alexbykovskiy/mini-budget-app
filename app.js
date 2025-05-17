@@ -358,18 +358,45 @@ function updateChart(data, total) {
 
   const labels = Object.keys(totals);
   const values = labels.map(k => totals[k]);
-  const colors = ["#D2AF94", "#186663", "#A6B5B4", "#8C7361", "#002D37", "#5E8C8A", "#C4B59F", "#7F6A93", "#71A1A5", "#A58C7D", "#5B5B5B"];
+  const colors = ["#D2AF94", "#186663", "#A6B5B4", "#8C7361", "#002D37", "#5E8C8A", "#C4B59F", "#7F6A93", "#71A1A5", "#A58C7D"];
 
   if (expenseChart) expenseChart.destroy();
 
   expenseChart = new ApexCharts(container, {
     chart: {
-      type: 'donut',
-      height: 240,
-      animations: {
-        enabled: true,
-        easing: 'easeinout',
-        speed: 800
+      type: 'radialBar',
+      height: 300,
+      toolbar: { show: false }
+    },
+    plotOptions: {
+      radialBar: {
+        startAngle: -135,
+        endAngle: 225,
+        offsetY: 0,
+        hollow: {
+          size: '40%',
+          background: 'transparent'
+        },
+        track: {
+          background: '#f0f0f0',
+          strokeWidth: '100%'
+        },
+        dataLabels: {
+          name: {
+            fontSize: '14px',
+            color: '#444'
+          },
+          value: {
+            fontSize: '16px',
+            color: '#111',
+            formatter: (val) => `€${val.toFixed(2)}`
+          },
+          total: {
+            show: true,
+            label: 'Итого',
+            formatter: () => `€${total.toFixed(2)}`
+          }
+        }
       }
     },
     series: values,
@@ -381,33 +408,10 @@ function updateChart(data, total) {
       fontSize: '12px',
       labels: { colors: ['#444'] }
     },
-    dataLabels: {
-      enabled: true,
-      formatter: (val, opts) => {
-        const amount = opts.w.config.series[opts.seriesIndex];
-        return `€${amount.toFixed(2)} (${val.toFixed(1)}%)`;
-      },
-      style: { fontSize: '12px' }
-    },
-    plotOptions: {
-      pie: {
-        donut: {
-          size: '65%',
-          labels: {
-            show: true,
-            total: {
-              show: true,
-              label: 'Итого',
-              formatter: () => `€${total.toFixed(2)}`
-            }
-          }
-        },
-        startAngle: -90,
-        endAngle: 270
-      }
-    },
     tooltip: {
-      enabled: false
+      y: {
+        formatter: val => `€${val.toFixed(2)}`
+      }
     }
   });
 
