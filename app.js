@@ -365,9 +365,7 @@ function updateChart(data, total) {
   raw.sort((a, b) => a.percent - b.percent);
 
   const categories = raw.map(r => r.category);
-  const percents = raw.map(r => r.percent);
-const maxValue = Math.max(...percents);
-const values = percents.map(p => (p / maxValue) * 360);
+  const values = raw.map(r => r.percent);
   const valuesEuro = raw.map(r => r.value);
 
   const colors = [
@@ -413,17 +411,18 @@ const values = percents.map(p => (p / maxValue) * 360);
       }
     },
     xaxis: {
-      categories: [],
-      labels: {
-        show: false
-      },
-      axisBorder: {
-        show: false
-      },
-      axisTicks: {
-        show: false
-      }
-    },
+  categories: [],
+  max: 30, // ← это как бы "новый 100%"
+  labels: {
+    show: false
+  },
+  axisBorder: {
+    show: false
+  },
+  axisTicks: {
+    show: false
+  }
+},
     yaxis: {
       labels: {
         show: false
