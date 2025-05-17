@@ -366,34 +366,33 @@ function updateChart(data, total) {
     chart: {
       type: 'radialBar',
       height: 300,
-      toolbar: { show: false }
+      offsetY: 0
     },
     plotOptions: {
       radialBar: {
         startAngle: -135,
-        endAngle: 225,
-        offsetY: 0,
+        endAngle: 135,
+        track: {
+          background: '#e0e0e0',
+          strokeWidth: '100%',
+          margin: 5
+        },
         hollow: {
           size: '40%',
           background: 'transparent'
         },
-        track: {
-          background: '#f0f0f0',
-          strokeWidth: '100%'
-        },
         dataLabels: {
           name: {
-            fontSize: '14px',
-            color: '#444'
+            show: false
           },
           value: {
-            fontSize: '16px',
-            color: '#111',
-            formatter: (val) => `€${val.toFixed(2)}`
+            show: false
           },
           total: {
             show: true,
             label: 'Итого',
+            fontSize: '16px',
+            color: '#333',
             formatter: () => `€${total.toFixed(2)}`
           }
         }
@@ -404,14 +403,29 @@ function updateChart(data, total) {
     colors: colors.slice(0, labels.length),
     legend: {
       show: true,
-      position: 'bottom',
-      fontSize: '12px',
-      labels: { colors: ['#444'] }
+      floating: false,
+      position: 'right',
+      offsetX: 0,
+      offsetY: 0,
+      formatter: (seriesName, opts) => {
+        const value = opts.w.globals.series[opts.seriesIndex];
+        const perc = ((value / total) * 100).toFixed(1);
+        return `${seriesName}: €${value.toFixed(2)} (${perc}%)`;
+      },
+      labels: {
+        colors: ['#444']
+      },
+      markers: {
+        width: 12,
+        height: 12
+      },
+      itemMargin: {
+        horizontal: 10,
+        vertical: 4
+      }
     },
     tooltip: {
-      y: {
-        formatter: val => `€${val.toFixed(2)}`
-      }
+      enabled: false
     }
   });
 
