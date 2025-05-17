@@ -366,24 +366,25 @@ function updateChart(data, total) {
   expenseChart = new ApexCharts(container, {
     chart: {
       type: 'radialBar',
-      height: 360
+      height: 340,
+      offsetY: 0
     },
     series: valuesPercent,
     labels: labels,
     colors: colors.slice(0, labels.length),
     plotOptions: {
       radialBar: {
-        startAngle: -135,
-        endAngle: 135,
-        offsetY: 0,
+        startAngle: 0,
+        endAngle: 270,
         hollow: {
-          size: '35%',
+          margin: 8,
+          size: '40%',
           background: 'transparent'
         },
         track: {
           background: '#e0e0e0',
           strokeWidth: '100%',
-          margin: 6
+          margin: 5
         },
         dataLabels: {
           name: {
@@ -395,7 +396,6 @@ function updateChart(data, total) {
           value: {
             show: true,
             fontSize: '14px',
-            fontWeight: 600,
             color: '#222',
             formatter: (val, opts) => {
               const i = opts.seriesIndex;
@@ -414,7 +414,7 @@ function updateChart(data, total) {
       }
     },
     stroke: {
-      lineCap: 'round'
+      lineCap: "round"
     },
     tooltip: {
       enabled: false
