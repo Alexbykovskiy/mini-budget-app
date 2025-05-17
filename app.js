@@ -356,96 +356,80 @@ function updateChart(data, total) {
     totals[e.category] += Number(e.amount);
   });
 
-  const labels = Object.keys(totals);
-  const valuesRaw = labels.map(k => totals[k]);
-  const valuesPercent = valuesRaw.map(val => (val / total) * 100);
-  const colors = ["#D2AF94", "#186663", "#A6B5B4", "#8C7361", "#002D37", "#5E8C8A", "#C4B59F", "#7F6A93", "#71A1A5", "#A58C7D"];
+  const raw = Object.entries(totals).map(([category, value]) => ({
+    category,
+    value,
+    percent: (value / total) * 100
+  }));
+
+  // Сортировка по проценту (по возрастанию)
+  raw.sort((a, b) => a.percent - b.percent);
+
+  const categories = raw.map(r => r.category);
+  const values = raw.map(r => r.percent);
+  const valuesEuro = raw.map(r => r.value);
+  const colors = ['#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37', '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D'];
 
   if (expenseChart) expenseChart.destroy();
 
   expenseChart = new ApexCharts(container, {
     chart: {
-      type: 'radialBar',
-      height: 360,
+      type: 'bar',
+      height: 40 * raw.length,
+      animations: { enabled: true }
     },
-    series: valuesPercent,
-    labels: labels,
-    colors: colors.slice(0, labels.length),
+    series: [{
+      data: values
+    }],
     plotOptions: {
-      radialBar: {
-        startAngle: 0,
-        endAngle: 270,
-        hollow: {
-          size: '40%',
-          background: 'transparent'
-        },
-        track: {
-          background: '#ccc',
-          strokeWidth: '100%',
-          margin: 5
-        },
+      bar: {
+        horizontal: true,
+        barHeight: '80%',
+        distributed: true,
         dataLabels: {
-          name: { show: false },
-          value: { show: false },
-          total: {
-            show: true,
-            label: 'Итого',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            color: '#222',
-            formatter: () => `€${total.toFixed(2)}`
-          }
+          position: 'left'
         }
       }
     },
-    stroke: {
-      lineCap: "round"
+    colors: colors.slice(0, raw.length),
+    dataLabels: {
+      enabled: true,
+      textAnchor: 'start',
+      style: {
+        colors: ['#000']
+      },
+      formatter: function (val, opt) {
+        const idx = opt.dataPointIndex;
+        return `${categories[idx]}: €${valuesEuro[idx].toFixed(2)} (${val.toFixed(1)}%)`;
+      },
+      offsetX: 10
+    },
+    xaxis: {
+      categories: categories,
+      max: 100,
+      tickAmount: 10,
+      labels: {
+        formatter: val => `${val}%`
+      }
+    },
+    yaxis: {
+      labels: {
+        show: false
+      }
     },
     tooltip: {
       enabled: false
     },
-    legend: {
-      show: false
+    grid: {
+      xaxis: {
+        lines: {
+          show: true
+        }
+      }
     }
   });
 
-  expenseChart.render().then(() => {
-    const svg = container.querySelector("svg");
-    if (!svg) return;
-
-    // Удалим старые подписи
-    svg.querySelectorAll(".custom-label").forEach(el => el.remove());
-
-    const centerX = 200;
-    const centerY = 200;
-    const radius = 140;
-    const angleStart = 0;
-    const angleRange = 270;
-    let currentAngle = angleStart;
-
-    for (let i = 0; i < valuesPercent.length; i++) {
-      const percent = valuesPercent[i];
-      const sweep = (percent / 100) * angleRange;
-      const midAngle = currentAngle + sweep / 2;
-      currentAngle += sweep;
-
-      const rad = (midAngle * Math.PI) / 180;
-      const x = centerX + radius * Math.cos(rad);
-      const y = centerY + radius * Math.sin(rad);
-      const label = `${labels[i]}: €${valuesRaw[i].toFixed(2)} (${percent.toFixed(1)}%)`;
-
-      const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-      text.setAttribute("x", x.toFixed(1));
-      text.setAttribute("y", y.toFixed(1));
-      text.setAttribute("text-anchor", "middle");
-      text.setAttribute("dominant-baseline", "middle");
-      text.setAttribute("font-size", "12px");
-      text.setAttribute("fill", "#333");
-      text.setAttribute("class", "custom-label");
-      text.textContent = label;
-      svg.appendChild(text);
-    }
-  });
+  expenseChart.render();
 }
 function resetForm() {
   form.reset();
