@@ -386,8 +386,11 @@ function drawMiniChart() {
   };
 
   const chart = new google.visualization.PieChart(document.getElementById('mini-donut-chart'));
-  chart.draw(data, options);
-}
+ const chart = new google.visualization.PieChart(document.getElementById('mini-donut-chart'));
+chart.draw(data, {
+  ...options,
+  chartArea: { left: 0, top: 20, width: '100%', height: '100%' }
+});
 
   expenseChart.render().then(() => {
     const legendContainer = document.getElementById("custom-legend");

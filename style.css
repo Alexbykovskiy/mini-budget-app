@@ -1450,26 +1450,24 @@ select {
   gap: 32px;
   align-items: flex-start;
   justify-content: center;
-  flex-wrap: nowrap;
   max-width: 760px;
   margin: 0 auto;
+  flex-wrap: nowrap;
 }
 
-#expenseChart {
-  width: 50%;
-  max-width: 360px;
-  flex-shrink: 0;
+.google-chart {
+  flex: 1 1 50%;
+  max-width: 340px;
+  height: 340px;
 }
 
 .custom-legend {
+  flex: 1 1 50%;
+  max-width: 280px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   font-size: 12px;
-  font-weight: 400;
   color: #333;
-  line-height: 1.2;
-  width: 50%;
-  max-width: 300px;
-  overflow-y: auto;
+  padding-top: 16px;
 }
