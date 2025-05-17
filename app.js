@@ -355,9 +355,7 @@ function updateChart(data, total) {
     if (!totals[e.category]) totals[e.category] = 0;
     totals[e.category] += Number(e.amount);
   });
-legend: {
-  show: false
-}
+
   const raw = Object.entries(totals).map(([category, value]) => ({
     category,
     value,
@@ -370,7 +368,10 @@ legend: {
   const values = raw.map(r => r.percent);
   const valuesEuro = raw.map(r => r.value);
 
-  const colors = ['#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37', '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D'];
+  const colors = [
+    '#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37',
+    '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D'
+  ];
 
   if (expenseChart) expenseChart.destroy();
 
@@ -383,45 +384,44 @@ legend: {
     series: [{
       data: values
     }],
-        colors: colors.slice(0, raw.length),
-   dataLabels: {
-  enabled: true,
-  textAnchor: 'start',
-  style: {
-    colors: ['#fff'],
-    fontWeight: 300,
-    fontSize: '13px'
-  },
-  formatter: function (val, opt) {
-    const idx = opt.dataPointIndex;
-    return `${categories[idx]}: €${valuesEuro[idx].toFixed(2)} (${val.toFixed(1)}%)`;
-  },
-  offsetX: 20
-}
-   plotOptions: {
-  bar: {
-    horizontal: true,
-    barHeight: '80%',
-    distributed: true,
+    colors: colors.slice(0, raw.length),
     dataLabels: {
-      position: 'left'
+      enabled: true,
+      textAnchor: 'start',
+      style: {
+        colors: ['#fff'],
+        fontWeight: 300,
+        fontSize: '13px'
+      },
+      formatter: function (val, opt) {
+        const idx = opt.dataPointIndex;
+        return `${categories[idx]}: €${valuesEuro[idx].toFixed(2)} (${val.toFixed(1)}%)`;
+      },
+      offsetX: 20
     },
-    borderRadius: 6, // для красоты
-  }
-},
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        barHeight: '80%',
+        distributed: true,
+        dataLabels: {
+          position: 'left'
+        },
+        borderRadius: 6
+      }
+    },
     xaxis: {
-  categories: [],
-  labels: {
-    show: false
-  },
-  axisBorder: {
-    show: false
-  },
-  axisTicks: {
-    show: false
-  }
-},
-
+      categories: [],
+      labels: {
+        show: false
+      },
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false
+      }
+    },
     yaxis: {
       labels: {
         show: false
@@ -436,6 +436,9 @@ legend: {
           show: true
         }
       }
+    },
+    legend: {
+      show: false
     }
   });
 
