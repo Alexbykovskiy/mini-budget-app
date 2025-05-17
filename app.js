@@ -366,8 +366,7 @@ function updateChart(data, total) {
   expenseChart = new ApexCharts(container, {
     chart: {
       type: 'radialBar',
-      height: 340,
-      offsetY: 0
+      height: 360,
     },
     series: valuesPercent,
     labels: labels,
@@ -377,31 +376,17 @@ function updateChart(data, total) {
         startAngle: 0,
         endAngle: 270,
         hollow: {
-          margin: 8,
           size: '40%',
           background: 'transparent'
         },
         track: {
-          background: '#e0e0e0',
+          background: '#ccc',
           strokeWidth: '100%',
           margin: 5
         },
         dataLabels: {
-          name: {
-            show: true,
-            fontSize: '13px',
-            offsetY: -6,
-            color: '#444'
-          },
-          value: {
-            show: true,
-            fontSize: '14px',
-            color: '#222',
-            formatter: (val, opts) => {
-              const i = opts.seriesIndex;
-              return `€${valuesRaw[i].toFixed(2)} (${val.toFixed(1)}%)`;
-            }
-          },
+          name: { show: false },
+          value: { show: false },
           total: {
             show: true,
             label: 'Итого',
@@ -425,26 +410,43 @@ function updateChart(data, total) {
   });
 
   expenseChart.render().then(() => {
-  const legendContainer = document.getElementById("chart-legend");
-  if (!legendContainer) return;
-  legendContainer.innerHTML = "";
+    const svg = container.querySelector("svg");
+    if (!svg) return;
 
-  labels.forEach((label, i) => {
-    const val = valuesRaw[i];
-    const perc = (val / total * 100).toFixed(1);
-    const color = colors[i % colors.length];
+    // Удалим старые подписи
+    svg.querySelectorAll(".custom-label").forEach(el => el.remove());
 
-    const item = document.createElement("div");
-    item.className = "chart-legend-item";
-    item.innerHTML = `
-      <span class="chart-legend-color" style="background:${color}"></span>
-      <span>${label}: €${val.toFixed(2)} (${perc}%)</span>
-    `;
-    legendContainer.appendChild(item);
+    const centerX = 200;
+    const centerY = 200;
+    const radius = 140;
+    const angleStart = 0;
+    const angleRange = 270;
+    let currentAngle = angleStart;
+
+    for (let i = 0; i < valuesPercent.length; i++) {
+      const percent = valuesPercent[i];
+      const sweep = (percent / 100) * angleRange;
+      const midAngle = currentAngle + sweep / 2;
+      currentAngle += sweep;
+
+      const rad = (midAngle * Math.PI) / 180;
+      const x = centerX + radius * Math.cos(rad);
+      const y = centerY + radius * Math.sin(rad);
+      const label = `${labels[i]}: €${valuesRaw[i].toFixed(2)} (${percent.toFixed(1)}%)`;
+
+      const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      text.setAttribute("x", x.toFixed(1));
+      text.setAttribute("y", y.toFixed(1));
+      text.setAttribute("text-anchor", "middle");
+      text.setAttribute("dominant-baseline", "middle");
+      text.setAttribute("font-size", "12px");
+      text.setAttribute("fill", "#333");
+      text.setAttribute("class", "custom-label");
+      text.textContent = label;
+      svg.appendChild(text);
+    }
   });
-});
-} 
-
+}
 function resetForm() {
   form.reset();
   document.getElementById('edit-id').value = '';
