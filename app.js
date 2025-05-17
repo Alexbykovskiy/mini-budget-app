@@ -383,23 +383,13 @@ legend: {
     series: [{
       data: values
     }],
-    plotOptions: {
-      bar: {
-        horizontal: true,
-        barHeight: '80%',
-        distributed: true,
-        dataLabels: {
-          position: 'left'
-        }
-      }
-    },
-    colors: colors.slice(0, raw.length),
-    dataLabels: {
+        colors: colors.slice(0, raw.length),
+   dataLabels: {
   enabled: true,
   textAnchor: 'start',
   style: {
     colors: ['#fff'],
-    fontWeight: 400,
+    fontWeight: 300,
     fontSize: '13px'
   },
   formatter: function (val, opt) {
@@ -407,7 +397,7 @@ legend: {
     return `${categories[idx]}: €${valuesEuro[idx].toFixed(2)} (${val.toFixed(1)}%)`;
   },
   offsetX: 20
-},
+}
    plotOptions: {
   bar: {
     horizontal: true,
