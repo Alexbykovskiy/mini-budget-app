@@ -356,96 +356,56 @@ function updateChart(data, total) {
     totals[e.category] += Number(e.amount);
   });
 
-  const raw = Object.entries(totals).map(([category, value]) => ({
-    category,
-    value,
-    percent: (value / total) * 100
-  }));
-
-  raw.sort((a, b) => a.percent - b.percent);
-
-  const categories = raw.map(r => r.category);
-  const values = raw.map(r => r.percent);
-  const valuesEuro = raw.map(r => r.value);
-
-  const colors = [
-    '#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37',
-    '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D'
-  ];
+  const labels = Object.keys(totals);
+  const values = labels.map(k => totals[k]);
 
   if (expenseChart) expenseChart.destroy();
 
   expenseChart = new ApexCharts(container, {
+    series: values,
     chart: {
-      type: 'bar',
-      height: 40 * raw.length,
-      animations: { enabled: true }
+      type: 'donut',
+      width: 360,
     },
-    series: [{
-      data: values
-    }],
-    colors: colors.slice(0, raw.length),
-    dataLabels: {
-      enabled: true,
-      textAnchor: 'start',
-      style: {
-        colors: ['#fff'],
-        fontWeight: 300,
-        fontSize: '13px'
-      },
-      formatter: function (val, opt) {
-        const idx = opt.dataPointIndex;
-        return `${categories[idx]}: €${valuesEuro[idx].toFixed(2)} (${val.toFixed(1)}%)`;
-      },
-      offsetX: 20
-    },
+    labels: labels,
     plotOptions: {
-      bar: {
-        horizontal: true,
-        barHeight: '80%',
-        distributed: true,
-        dataLabels: {
-          position: 'left'
-        },
-        borderRadius: 6
+      pie: {
+        startAngle: -90,
+        endAngle: 270
       }
     },
-    xaxis: {
-  categories: [],
-  max: 30, // ← это как бы "новый 100%"
-  labels: {
-    show: false
-  },
-  axisBorder: {
-    show: false
-  },
-  axisTicks: {
-    show: false
-  }
-},
-    yaxis: {
-      labels: {
-        show: false
+    fill: {
+      type: 'gradient',
+    },
+    dataLabels: {
+      enabled: false
+    },
+    legend: {
+      position: 'bottom',
+      formatter: function(val, opts) {
+        return val + " - €" + values[opts.seriesIndex].toFixed(2);
       }
     },
     tooltip: {
-      enabled: false
-    },
-    grid: {
-      xaxis: {
-        lines: {
-          show: true
-        }
+      y: {
+        formatter: val => `€${val.toFixed(2)}`
       }
     },
-    legend: {
-      show: false
-    }
+    responsive: [{
+      breakpoint: 480,
+      options: {
+        chart: {
+          width: 240
+        },
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }]
   });
 
   expenseChart.render();
 }
-
 function resetForm() {
   form.reset();
   document.getElementById('edit-id').value = '';
