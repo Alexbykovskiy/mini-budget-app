@@ -381,10 +381,18 @@ function updateChart(data, total) {
     label.className = "bar-label";
     label.textContent = `${entry.category}: €${entry.value.toFixed(2)} (${entry.percent.toFixed(1)}%)`;
 
-    const fill = document.createElement("div");
-    fill.className = "bar-fill";
-    fill.style.width = `${(entry.value / maxValue) * 300}px`;
-    fill.style.background = colors[i % colors.length];
+    const track = document.createElement("div");
+track.className = "bar-track";
+
+const fill = document.createElement("div");
+fill.className = "bar-fill";
+fill.style.width = `${(entry.value / maxValue) * 300}px`;
+fill.style.background = colors[i % colors.length];
+
+track.appendChild(fill);
+row.appendChild(label);
+row.appendChild(track);
+container.appendChild(row);
 
     row.appendChild(label);
     row.appendChild(fill);

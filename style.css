@@ -1490,11 +1490,19 @@ select {
   flex-shrink: 0;
   color: #333;
 }
-
-.bar-fill {
+.bar-track {
+  background: #e0e0e0;
+  width: 300px;
   height: 20px;
   border-radius: 4px;
-  background: #ccc;
+  position: relative;
+  overflow: hidden;
+}
+.bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 4px;
   transition: width 0.4s ease;
 }
-
