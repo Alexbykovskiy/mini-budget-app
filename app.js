@@ -177,7 +177,9 @@ function renderExpenses(data) {
   const endMileage = Number(sorted[sorted.length - 1]?.mileage || 0);
   const distance = endMileage - startMileage;
   const latestMileage = entriesWithMileage.length ? Math.max(...entriesWithMileage.map(e => Number(e.mileage))) : 0;
-
+document.getElementById('stat-total-amount').textContent = fullTotal.toFixed(2);
+document.getElementById('stat-distance').textContent = distance;
+document.getElementById('stat-total-km').textContent = latestMileage;
   summary.innerHTML = `Всего: €${fullTotal.toFixed(2)} 
   <span class="inline-km">за ${distance} км</span>
   <span class="inline-km">
@@ -199,7 +201,7 @@ function renderExpenses(data) {
 function calculateCostPerKm(data) {
   const mileageEntries = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));
   if (mileageEntries.length < 2) {
-    document.getElementById('cost-per-km').textContent = "€/км: недостаточно данных";
+    document.getElementById('stat-cost-total').textContent = costPerKm.toFixed(2);
     return;
   }
   const sorted = [...mileageEntries].sort((a, b) => a.date.localeCompare(b.date));
@@ -222,7 +224,7 @@ function calculatePureRunningCost(data) {
   );
   const mileageEntries = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));
   if (mileageEntries.length < 2) {
-    document.getElementById('pure-km-cost').textContent = "€/км: недостаточно данных";
+document.getElementById('stat-cost-pure').textContent = cost.toFixed(2);
     return;
   }
   const sorted = [...mileageEntries].sort((a, b) => a.date.localeCompare(b.date));
@@ -255,8 +257,8 @@ function calculateFuelStats(data) {
   const consumption = distance > 0 ? (totalLiters / distance * 100) : null;
   const pricePerLiter = totalLiters > 0 ? (totalAmount / totalLiters) : null;
 
-  document.getElementById('fuel-consumption').innerHTML =
-    consumption !== null
+  document.getElementById('stat-consumption').textContent =
+  consumption !== null ? consumption.toFixed(1) : '—';
       ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
            <path d="M4 4h8v12H4z"/><path d="M14 4v12"/><path d="M4 8h8"/></svg>
@@ -265,8 +267,8 @@ function calculateFuelStats(data) {
            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
            <path d="M4 4h8v12H4z"/><path d="M14 4v12"/><path d="M4 8h8"/></svg> : —`;
 
-  document.getElementById('fuel-price').textContent =
-    pricePerLiter !== null
+  document.getElementById('stat-price-fuel').textContent =
+  pricePerLiter !== null ? pricePerLiter.toFixed(2) : '—';
       ? `€/л: €${pricePerLiter.toFixed(2)}`
       : `€/л: —`;
 }
