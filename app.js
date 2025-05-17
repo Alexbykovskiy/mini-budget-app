@@ -357,7 +357,8 @@ function updateChart(data, total) {
   });
 
   const labels = Object.keys(totals);
-  const values = labels.map(k => totals[k]);
+  const valuesRaw = labels.map(k => totals[k]);
+  const valuesPercent = valuesRaw.map(val => (val / total) * 100);
   const colors = ["#D2AF94", "#186663", "#A6B5B4", "#8C7361", "#002D37", "#5E8C8A", "#C4B59F", "#7F6A93", "#71A1A5", "#A58C7D"];
 
   if (expenseChart) expenseChart.destroy();
@@ -365,74 +366,67 @@ function updateChart(data, total) {
   expenseChart = new ApexCharts(container, {
     chart: {
       type: 'radialBar',
-      height: 300
+      height: 360
     },
+    series: valuesPercent,
+    labels: labels,
+    colors: colors.slice(0, labels.length),
     plotOptions: {
       radialBar: {
-        inverseOrder: false,
-        startAngle: 0,
-        endAngle: 270,
+        startAngle: -135,
+        endAngle: 135,
+        offsetY: 0,
         hollow: {
-          margin: 5,
-          size: '40%',
+          size: '35%',
           background: 'transparent'
         },
         track: {
-          show: true,
-          background: '#f0f0f0',
+          background: '#e0e0e0',
           strokeWidth: '100%',
-          margin: 5 // Расстояние между кольцами
+          margin: 6
         },
         dataLabels: {
           name: {
-            show: false
+            show: true,
+            fontSize: '13px',
+            offsetY: -6,
+            color: '#444'
           },
           value: {
-            show: false
+            show: true,
+            fontSize: '14px',
+            fontWeight: 600,
+            color: '#222',
+            formatter: (val, opts) => {
+              const i = opts.seriesIndex;
+              return `€${valuesRaw[i].toFixed(2)} (${val.toFixed(1)}%)`;
+            }
           },
           total: {
             show: true,
             label: 'Итого',
             fontSize: '16px',
-            color: '#333',
+            fontWeight: 'bold',
+            color: '#222',
             formatter: () => `€${total.toFixed(2)}`
           }
         }
       }
     },
     stroke: {
-      lineCap: "round"
-    },
-    labels: labels,
-    series: values,
-    colors: colors.slice(0, labels.length),
-    legend: {
-      show: true,
-      position: 'bottom',
-      formatter: (seriesName, opts) => {
-        const val = opts.w.globals.series[opts.seriesIndex];
-        const perc = ((val / total) * 100).toFixed(1);
-        return `${seriesName}: €${val.toFixed(2)} (${perc}%)`;
-      },
-      labels: {
-        useSeriesColors: false
-      },
-      markers: {
-        width: 12,
-        height: 12
-      },
-      itemMargin: {
-        horizontal: 8,
-        vertical: 6
-      }
+      lineCap: 'round'
     },
     tooltip: {
       enabled: false
+    },
+    legend: {
+      show: false
     }
   });
 
   expenseChart.render();
 }
+
 function resetForm() {
   form.reset();
   document.getElementById('edit-id').value = '';
