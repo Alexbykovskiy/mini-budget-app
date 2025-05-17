@@ -1398,7 +1398,6 @@ select {
 
 .stats-cards {
   display: flex;
-  flex-wrap: nowrap;
   justify-content: space-between;
   width: 360px;
   margin: 0 auto 24px auto;
@@ -1406,10 +1405,10 @@ select {
 }
 
 .stats-card {
-  width: 48px;
+  width: 48px; /* точно: 7 карточек * 48px + 6 * 4px gap = 360px */
   background: #e0e0e0;
   border-radius: 16px;
-  padding: 8px 4px;
+  padding: 6px 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1417,7 +1416,9 @@ select {
   box-shadow:
     inset -1px -1px 2px rgba(255, 255, 255, 0.5),
     inset 1px 1px 3px rgba(0, 0, 0, 0.1),
-    2px 2px 6px rgba(0,0,0,0.08);
+    2px 2px 6px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+  flex-grow: 0;
 }
 
 .stats-card h4 {
@@ -1430,7 +1431,7 @@ select {
 }
 
 .stats-card p {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   margin: 0;
   color: #222;
