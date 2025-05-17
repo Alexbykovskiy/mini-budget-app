@@ -408,7 +408,17 @@ legend: {
   },
   offsetX: 20
 },
-   
+   plotOptions: {
+  bar: {
+    horizontal: true,
+    barHeight: '80%',
+    distributed: true,
+    dataLabels: {
+      position: 'left'
+    },
+    borderRadius: 6, // для красоты
+  }
+},
     xaxis: {
   categories: [],
   labels: {
