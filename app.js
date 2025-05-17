@@ -387,7 +387,8 @@ function updateChart(data, total) {
   const fill = document.createElement("div");
   fill.className = "bar-fill";
   fill.style.width = `${(entry.value / maxValue) * 300}px`;
-  fill.style.background = colors[i % colors.length];
+  fill.style.background = '#FF6F3C'; // яркий оранжевый
+
 
   track.appendChild(fill);
   row.appendChild(label);
