@@ -405,13 +405,18 @@ function updateChart(data, total) {
       offsetX: 10
     },
     xaxis: {
-      categories: categories,
-      max: 100,
-      tickAmount: 10,
-      labels: {
-        formatter: val => `${val}%`
-      }
-    },
+  categories: [],
+  labels: {
+    show: false
+  },
+  axisBorder: {
+    show: false
+  },
+  axisTicks: {
+    show: false
+  }
+},
+
     yaxis: {
       labels: {
         show: false
