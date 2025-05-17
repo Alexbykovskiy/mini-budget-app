@@ -367,7 +367,7 @@ function updateChart(data, total) {
   const categories = raw.map(r => r.category);
   const percents = raw.map(r => r.percent);
 const maxValue = Math.max(...percents);
-const values = percents.map(p => (p / maxValue) * 300);
+const values = percents.map(p => (p / maxValue) * 360);
   const valuesEuro = raw.map(r => r.value);
 
   const colors = [
