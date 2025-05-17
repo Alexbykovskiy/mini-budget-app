@@ -359,23 +359,26 @@ function updateChart(data, total) {
   const labels = Object.keys(totals);
   const values = labels.map(k => totals[k]);
 
+  const colors = [
+    '#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37',
+    '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D'
+  ];
+
   if (expenseChart) expenseChart.destroy();
 
   expenseChart = new ApexCharts(container, {
     series: values,
+    labels: labels,
+    colors: colors.slice(0, values.length),
     chart: {
       type: 'donut',
       width: 360,
     },
-    labels: labels,
     plotOptions: {
       pie: {
         startAngle: -90,
         endAngle: 270
       }
-    },
-    fill: {
-      type: 'gradient',
     },
     dataLabels: {
       enabled: false
@@ -406,6 +409,7 @@ function updateChart(data, total) {
 
   expenseChart.render();
 }
+
 function resetForm() {
   form.reset();
   document.getElementById('edit-id').value = '';
