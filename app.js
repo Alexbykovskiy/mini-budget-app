@@ -411,6 +411,76 @@ function drawMiniChart() {
   });
 }
 
+function updateChart(data, total) {
+  const categories = {};
+
+  data.forEach(entry => {
+    const cat = entry.category;
+    const value = Number(entry.amount);
+    if (!categories[cat]) categories[cat] = 0;
+    categories[cat] += value;
+  });
+
+  const chartData = [['Категория', 'Сумма']];
+  for (const cat in categories) {
+    chartData.push([cat, categories[cat]]);
+  }
+
+  const chart = new google.visualization.PieChart(document.getElementById('mini-donut-chart'));
+  const options = {
+    pieHole: 0.5,
+    legend: 'none',
+    backgroundColor: '#e0e0e0',
+    colors: [
+      '#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37',
+      '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D', '#BFB4A3'
+    ],
+    chartArea: { left: 0, top: 20, width: '100%', height: '100%' },
+    pieSliceText: 'none'
+  };
+
+  const googleData = google.visualization.arrayToDataTable(chartData);
+  chart.draw(googleData, options);
+
+  const legendContainer = document.getElementById("custom-legend");
+  if (!legendContainer) return;
+  legendContainer.innerHTML = "";
+
+  const totalSum = chartData.slice(1).reduce((sum, row) => sum + row[1], 0);
+
+  chartData.slice(1).sort((a, b) => b[1] - a[1]).forEach((row, i) => {
+    const [category, value] = row;
+    const percent = ((value / totalSum) * 100).toFixed(1);
+    const color = options.colors[i % options.colors.length];
+
+    const div = document.createElement("div");
+    div.style.display = "flex";
+    div.style.alignItems = "center";
+    div.style.gap = "6px";
+    div.style.fontSize = "11px";
+    div.style.lineHeight = "1.4";
+    div.innerHTML = `
+      <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${color}"></span>
+      <span style="flex:1;">${category}</span>
+      <span style="min-width: 60px; text-align:right;">€${value.toFixed(2)}</span>
+      <span style="min-width: 40px; text-align:right;">${percent}%</span>
+    `;
+    legendContainer.appendChild(div);
+  });
+}
+
+function resetForm() {
+  if (!form) return;
+  form.reset();
+  document.getElementById('edit-id').value = '';
+  const today = new Date().toISOString().split('T')[0];
+  const dateInput = document.getElementById('date');
+  if (dateInput && !dateInput.value) {
+    dateInput.value = today;
+  }
+}
+
+
 function formatDate(isoString) {
   const [year, month, day] = isoString.split("-");
   return `${day}.${month}.${year}`;
