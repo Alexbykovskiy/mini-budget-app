@@ -488,9 +488,11 @@ select#filter-category {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  gap: 12px;
+  gap: 4px;
   width: 360px;
+margin-bottom: 24px; /* ⬅️ добавь вот это */
 }
+
 
 .chart-with-info canvas {
   max-width: 200px;
