@@ -366,7 +366,7 @@ function drawMiniChart() {
       '#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37',
       '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D', '#BFB4A3'
     ],
-    chartArea: { left: 0, top: 10, width: '90%', height: '90%' }
+    chartArea: { left: 0, top: 10, width: '90%', height: '90%' },
     pieSliceText: 'none'
   };
 
