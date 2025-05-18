@@ -357,23 +357,17 @@ function drawMiniChart() {
   ]);
 
   const options = {
-    title: '',
-    pieHole: 0.5,
-    legend: {
-      position: 'right',
-      alignment: 'center',
-      textStyle: {
-        fontSize: 13,
-        color: '#333'
-      }
-    },
-    colors: [
-      '#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37',
-      '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D', '#BFB4A3'
-    ],
-    chartArea: { left: 0, top: 20, width: '100%', height: '100%' },
-    pieSliceText: 'none'
-  };
+  title: '',
+  pieHole: 0.5,
+  legend: 'none',
+  backgroundColor: '#e0e0e0', // или 'transparent'
+  colors: [
+    '#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37',
+    '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D', '#BFB4A3'
+  ],
+  chartArea: { left: 0, top: 20, width: '100%', height: '100%' },
+  pieSliceText: 'none'
+};
 
   const chart = new google.visualization.PieChart(document.getElementById('mini-donut-chart'));
   chart.draw(data, options);
