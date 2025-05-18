@@ -254,16 +254,6 @@ function deleteExpense(id) {
   }
 }
 
-function loadExpenses() {
-  db.collection("users").doc(profileCode).collection("expenses")
-    .orderBy("date", "desc")
-    .onSnapshot(snapshot => {
-      expenses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      fullTotal = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
-      renderExpenses(expenses);
-      loadReminders();  // ← вот это!
-    });
-}
 function fillFormForEdit(exp) {
   document.getElementById('edit-id').value = exp.id;
   document.getElementById('category').value = exp.category;
@@ -385,28 +375,30 @@ function drawMiniChart() {
     pieSliceText: 'none'
   };
 
-  const chart = new google.visualization.PieChart(document.getElementById('mini-donut-chart'));
  const chart = new google.visualization.PieChart(document.getElementById('mini-donut-chart'));
 chart.draw(data, {
   ...options,
   chartArea: { left: 0, top: 20, width: '100%', height: '100%' }
 });
 
-  expenseChart.render().then(() => {
-    const legendContainer = document.getElementById("custom-legend");
-    if (!legendContainer) return;
+     const legendContainer = document.getElementById("custom-legend");
+if (!legendContainer) return;
 
-    legendContainer.innerHTML = "";
+legendContainer.innerHTML = "";
 
-    sorted.forEach((entry, i) => {
-      const row = document.createElement("div");
-      row.className = "legend-row";
-      row.innerHTML = `
-        <span class="legend-color" style="background:${colors[i % colors.length]}"></span>
-        <span class="legend-label">${entry.category}: €${entry.value.toFixed(2)}</span>
-      `;
-      legendContainer.appendChild(row);
-    });
+const colors = options.colors;
+for (let i = 1; i < data.getNumberOfRows(); i++) {
+  const category = data.getValue(i, 0);
+  const value = data.getValue(i, 1);
+  const row = document.createElement("div");
+  row.className = "legend-row";
+  row.innerHTML = `
+    <span class="legend-color" style="background:${colors[(i - 1) % colors.length]}"></span>
+    <span class="legend-label">${category}: €${value.toFixed(2)}</span>
+  `;
+  legendContainer.appendChild(row);
+}
+
   });
 }
 
