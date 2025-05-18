@@ -1447,27 +1447,25 @@ select {
 
 .chart-with-info {
   display: flex;
-  gap: 32px;
-  align-items: flex-start;
-  justify-content: center;
-  max-width: 760px;
+  gap: 8px;
+  width: 360px;
   margin: 0 auto;
   flex-wrap: nowrap;
+  align-items: flex-start;
 }
 
 .google-chart {
-  flex: 1 1 50%;
-  max-width: 340px;
-  height: 340px;
+  flex: 0 0 160px;
+  height: 160px;
 }
 
 .custom-legend {
-  flex: 1 1 50%;
-  max-width: 280px;
+  flex: 1;
+  max-width: 190px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 12px;
+  gap: 4px;
+  font-size: 11px;
   color: #333;
-  padding-top: 16px;
+  padding-top: 4px;
 }

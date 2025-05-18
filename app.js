@@ -334,6 +334,7 @@ function applyFilters() {
   if (!isNaN(rowStart) && !isNaN(rowEnd)) filtered = filtered.slice(rowStart - 1, rowEnd);
 
   renderExpenses(filtered);
+loadReminders(); // добавь эту строку
 }
 
 // Загрузка Google Charts и запуск построения диаграммы
