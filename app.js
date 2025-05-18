@@ -371,47 +371,41 @@ function drawMiniChart() {
       '#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37',
       '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D', '#BFB4A3'
     ],
-    chartArea: { left: 0, top: 20, width: '60%', height: '100%' },
+    chartArea: { left: 0, top: 20, width: '100%', height: '100%' },
     pieSliceText: 'none'
   };
 
- const chart = new google.visualization.PieChart(document.getElementById('mini-donut-chart'));
-chart.draw(data, {
-  ...options,
-  chartArea: { left: 0, top: 20, width: '100%', height: '100%' }
-});
+  const chart = new google.visualization.PieChart(document.getElementById('mini-donut-chart'));
+  chart.draw(data, options);
 
-     const legendContainer = document.getElementById("custom-legend");
-if (!legendContainer) return;
+  const legendContainer = document.getElementById("custom-legend");
+  if (!legendContainer) return;
 
-legendContainer.innerHTML = "";
+  legendContainer.innerHTML = "";
 
-const colors = options.colors;
-for (let i = 1; i < data.getNumberOfRows(); i++) {
-  const category = data.getValue(i, 0);
-  const value = data.getValue(i, 1);
-  const row = document.createElement("div");
-  row.className = "legend-row";
-  row.innerHTML = `
-    <span class="legend-color" style="background:${colors[(i - 1) % colors.length]}"></span>
-    <span class="legend-label">${category}: €${value.toFixed(2)}</span>
-  `;
-  legendContainer.appendChild(row);
-}
+  const rows = [];
+  const colors = options.colors;
 
+  for (let i = 1; i < data.getNumberOfRows(); i++) {
+    rows.push({
+      category: data.getValue(i, 0),
+      value: data.getValue(i, 1),
+      color: colors[(i - 1) % colors.length]
+    });
+  }
+
+  rows.sort((a, b) => b.value - a.value); // сортировка по убыванию
+
+  rows.forEach(entry => {
+    const row = document.createElement("div");
+    row.className = "legend-row";
+    row.innerHTML = `
+      <span class="legend-color" style="background:${entry.color}"></span>
+      <span class="legend-label">${entry.category}: €${entry.value.toFixed(2)}</span>
+    `;
+    legendContainer.appendChild(row);
   });
 }
-
-function resetForm() {
-  form.reset();
-  document.getElementById('edit-id').value = '';
-  const dateInput = document.getElementById('date');
-  if (dateInput) {
-    const today = new Date().toISOString().split('T')[0];
-    dateInput.value = today;
-  }
-}
-
 
 function formatDate(isoString) {
   const [year, month, day] = isoString.split("-");
