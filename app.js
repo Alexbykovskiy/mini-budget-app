@@ -357,28 +357,27 @@ function drawMiniChart() {
   ]);
 
   const options = {
-  title: '',
-  pieHole: 0.5,
-  legend: 'none',
-  backgroundColor: '#e0e0e0', // или 'transparent'
-  colors: [
-    '#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37',
-    '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D', '#BFB4A3'
-  ],
-  chartArea: { left: 0, top: 20, width: '100%', height: '100%' },
-  pieSliceText: 'none'
-};
+    title: '',
+    pieHole: 0.5,
+    legend: 'none',
+    backgroundColor: '#e0e0e0',
+    colors: [
+      '#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37',
+      '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D', '#BFB4A3'
+    ],
+    chartArea: { left: 0, top: 20, width: '100%', height: '100%' },
+    pieSliceText: 'none'
+  };
 
   const chart = new google.visualization.PieChart(document.getElementById('mini-donut-chart'));
   chart.draw(data, options);
 
   const legendContainer = document.getElementById("custom-legend");
   if (!legendContainer) return;
-
   legendContainer.innerHTML = "";
 
-  const rows = [];
   const colors = options.colors;
+  const rows = [];
 
   for (let i = 1; i < data.getNumberOfRows(); i++) {
     rows.push({
@@ -388,14 +387,24 @@ function drawMiniChart() {
     });
   }
 
-  rows.sort((a, b) => b.value - a.value); // сортировка по убыванию
+  const totalSum = rows.reduce((sum, e) => sum + e.value, 0);
+  rows.sort((a, b) => b.value - a.value); // Сортировка по убыванию
 
   rows.forEach(entry => {
+    const percent = ((entry.value / totalSum) * 100).toFixed(1);
     const row = document.createElement("div");
     row.className = "legend-row";
+    row.style.display = "flex";
+    row.style.alignItems = "center";
+    row.style.gap = "6px";
+    row.style.fontSize = "11px";
+    row.style.lineHeight = "1.4";
+
     row.innerHTML = `
-      <span class="legend-color" style="background:${entry.color}"></span>
-      <span class="legend-label">${entry.category}: €${entry.value.toFixed(2)}</span>
+      <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${entry.color}"></span>
+      <span style="flex:1;">${entry.category}</span>
+      <span style="min-width: 60px; text-align:right;">€${entry.value.toFixed(2)}</span>
+      <span style="min-width: 40px; text-align:right;">${percent}%</span>
     `;
     legendContainer.appendChild(row);
   });
