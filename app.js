@@ -337,62 +337,68 @@ function applyFilters() {
 loadReminders(); // добавь эту строку
 }
 
-// Загрузка Google Charts и запуск построения диаграммы
-google.charts.load('current', { packages: ['corechart'] });
-google.charts.setOnLoadCallback(drawMiniChart);
+function updateChart(data, total) {
+  const categoriesMap = {};
 
-function drawMiniChart() {
-  const data = google.visualization.arrayToDataTable([
-    ['Категория', 'Сумма'],
-    ['Мойка', 670],
-    ['Шины', 614],
-    ['Штрафы', 530],
-    ['Страховка', 501],
-    ['Виньетка', 500],
-    ['Тюнинг', 480],
-    ['Ремонт', 379.7],
-    ['Другое', 370],
-    ['Парковка', 360],
-    ['Сервис', 333],
-    ['Топливо', 293.5]
-  ]);
+  data.forEach(entry => {
+    const cat = entry.category;
+    const value = Number(entry.amount);
+    if (!categoriesMap[cat]) categoriesMap[cat] = 0;
+    categoriesMap[cat] += value;
+  });
 
-  const options = {
-    title: '',
-    pieHole: 0.5,
-    legend: 'none',
-    backgroundColor: '#e0e0e0',
-    colors: [
-      '#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37',
-      '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D', '#BFB4A3'
-    ],
-   chartArea: { left: 0, top: 0, width: '85%', height: '85%' },
-    pieSliceText: 'none'
-  };
+  const labels = Object.keys(categoriesMap);
+  const values = Object.values(categoriesMap);
 
-  const chart = new google.visualization.PieChart(document.getElementById('mini-donut-chart'));
-  chart.draw(data, options);
+  const colors = ['#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37',
+                  '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D', '#BFB4A3'];
 
+  if (window.expenseChart) expenseChart.destroy();
+
+  expenseChart = new ApexCharts(document.querySelector("#mini-donut-chart"), {
+    chart: {
+      type: 'donut',
+      width: 200,
+    },
+    series: values,
+    labels: labels,
+    colors: colors,
+    dataLabels: {
+      enabled: false
+    },
+    legend: {
+      show: false
+    },
+    tooltip: {
+      y: {
+        formatter: val => `€${val.toFixed(2)}`
+      }
+    },
+    plotOptions: {
+      pie: {
+        donut: {
+          size: '55%',
+        }
+      }
+    }
+  });
+
+  expenseChart.render();
+
+  // кастомная легенда
   const legendContainer = document.getElementById("custom-legend");
   if (!legendContainer) return;
   legendContainer.innerHTML = "";
 
-  const colors = options.colors;
-  const rows = [];
+  const totalSum = values.reduce((a, b) => a + b, 0);
+  const legendItems = labels.map((label, i) => ({
+    label,
+    value: values[i],
+    color: colors[i % colors.length],
+    percent: ((values[i] / totalSum) * 100).toFixed(1)
+  })).sort((a, b) => b.value - a.value);
 
-  for (let i = 1; i < data.getNumberOfRows(); i++) {
-    rows.push({
-      category: data.getValue(i, 0),
-      value: data.getValue(i, 1),
-      color: colors[(i - 1) % colors.length]
-    });
-  }
-
-  const totalSum = rows.reduce((sum, e) => sum + e.value, 0);
-  rows.sort((a, b) => b.value - a.value); // Сортировка по убыванию
-
-  rows.forEach(entry => {
-    const percent = ((entry.value / totalSum) * 100).toFixed(1);
+  legendItems.forEach(entry => {
     const row = document.createElement("div");
     row.className = "legend-row";
     row.style.display = "flex";
@@ -403,71 +409,14 @@ function drawMiniChart() {
 
     row.innerHTML = `
       <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${entry.color}"></span>
-      <span style="flex:1;">${entry.category}</span>
+      <span style="flex:1;">${entry.label}</span>
       <span style="min-width: 60px; text-align:right;">€${entry.value.toFixed(2)}</span>
-      <span style="min-width: 40px; text-align:right;">${percent}%</span>
+      <span style="min-width: 40px; text-align:right;">${entry.percent}%</span>
     `;
     legendContainer.appendChild(row);
   });
 }
 
-function updateChart(data, total) {
-  const categories = {};
-
-  data.forEach(entry => {
-    const cat = entry.category;
-    const value = Number(entry.amount);
-    if (!categories[cat]) categories[cat] = 0;
-    categories[cat] += value;
-  });
-
-  const chartData = [['Категория', 'Сумма']];
-  for (const cat in categories) {
-    chartData.push([cat, categories[cat]]);
-  }
-
-  const chart = new google.visualization.PieChart(document.getElementById('mini-donut-chart'));
-  const options = {
-    pieHole: 0.5,
-    legend: 'none',
-    backgroundColor: '#e0e0e0',
-    colors: [
-      '#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37',
-      '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D', '#BFB4A3'
-    ],
-   chartArea: { left: 5, top: 5, width: '90%', height: '90%' },
-    pieSliceText: 'none'
-  };
-
-  const googleData = google.visualization.arrayToDataTable(chartData);
-  chart.draw(googleData, options);
-
-  const legendContainer = document.getElementById("custom-legend");
-  if (!legendContainer) return;
-  legendContainer.innerHTML = "";
-
-  const totalSum = chartData.slice(1).reduce((sum, row) => sum + row[1], 0);
-
-  chartData.slice(1).sort((a, b) => b[1] - a[1]).forEach((row, i) => {
-    const [category, value] = row;
-    const percent = ((value / totalSum) * 100).toFixed(1);
-    const color = options.colors[i % options.colors.length];
-
-    const div = document.createElement("div");
-    div.style.display = "flex";
-    div.style.alignItems = "center";
-    div.style.gap = "6px";
-    div.style.fontSize = "11px";
-    div.style.lineHeight = "1.4";
-    div.innerHTML = `
-      <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${color}"></span>
-      <span style="flex:1;">${category}</span>
-      <span style="min-width: 60px; text-align:right;">€${value.toFixed(2)}</span>
-      <span style="min-width: 40px; text-align:right;">${percent}%</span>
-    `;
-    legendContainer.appendChild(div);
-  });
-}
 
 function resetForm() {
   if (!form) return;
