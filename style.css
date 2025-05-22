@@ -1451,7 +1451,7 @@ select {
 
 .chart-with-info {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   width: 360px;
   margin: 0 auto;
   flex-wrap: nowrap;
@@ -1465,8 +1465,8 @@ select {
 }
 
 .custom-legend {
-  flex: 1;
-  max-width: 190px;
+  flex: 0 0 200px; /* фиксируем ширину */
+  max-width: 200px;
   display: flex;
   flex-direction: column;
   gap: 4px;
