@@ -1488,5 +1488,6 @@ select {
   width: 100%;
   box-sizing: border-box;
   gap: 16px;
+margin-left: 0px; /* ← подбери вручную: 20px, 24px, 32px и т.д. */
 }
 
