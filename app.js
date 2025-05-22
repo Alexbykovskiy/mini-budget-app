@@ -379,6 +379,7 @@ if (expenseChart) expenseChart.destroy();
         formatter: val => `€${val.toFixed(2)}`
       }
     },
+
 plotOptions: {
   pie: {
     donut: {
@@ -395,15 +396,13 @@ plotOptions: {
           color: '#222',
           offsetY: 0,
           formatter: () => `€${total.toFixed(2)}`
-        },
-        total: {
-          show: false
         }
       }
     }
   }
-} // ← здесь НЕТ точки с запятой
-});
+} // ← это закрывает plotOptions целиком
+
+}); // ← это закрывает new ApexCharts(...)
 
 expenseChart.render();
   // кастомная легенда
