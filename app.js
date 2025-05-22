@@ -347,14 +347,19 @@ function updateChart(data, total) {
     categoriesMap[cat] += value;
   });
 
-  const labels = Object.keys(categoriesMap);
-  const values = Object.values(categoriesMap);
+  const sortedEntries = Object.entries(categoriesMap)
+  .map(([label, value]) => ({ label, value }))
+  .sort((a, b) => b.value - a.value);
+
+const labels = sortedEntries.map(entry => entry.label);
+const values = sortedEntries.map(entry => entry.value);
+const legendColors = sortedEntries.map((_, i) => colors[i % colors.length]);
 
   const colors = ['#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37',
                   '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D', '#BFB4A3'];
 
   if (window.expenseChart) expenseChart.destroy();
-
+if (window.expenseChart) window.expenseChart.destroy();
   expenseChart = new ApexCharts(document.querySelector("#mini-donut-chart"), {
     chart: {
       type: 'donut',
@@ -362,7 +367,7 @@ function updateChart(data, total) {
     },
     series: values,
     labels: labels,
-    colors: colors,
+    colors: legendColors,,
     dataLabels: {
       enabled: false
     },
@@ -391,12 +396,12 @@ function updateChart(data, total) {
   legendContainer.innerHTML = "";
 
   const totalSum = values.reduce((a, b) => a + b, 0);
-  const legendItems = labels.map((label, i) => ({
-    label,
-    value: values[i],
-    color: colors[i % colors.length],
-    percent: ((values[i] / totalSum) * 100).toFixed(1)
-  })).sort((a, b) => b.value - a.value);
+  const legendItems = sortedEntries.map((entry, i) => ({
+  label: entry.label,
+  value: entry.value,
+  color: legendColors[i],
+  percent: ((entry.value / totalSum) * 100).toFixed(1)
+}));.sort((a, b) => b.value - a.value);
 
   legendItems.forEach(entry => {
     const row = document.createElement("div");
