@@ -405,16 +405,15 @@ if (expenseChart) expenseChart.destroy();
             fontSize: '12px',
             fontWeight: 500,
             color: '#888',
-            formatter: () => `€${total.toFixed(2)}`
-          }
+           formatter: () => `€${total.toFixed(2)}`
         }
       }
     }
-  } // ← закрыли plotOptions
-}); // ← закрыли new ApexCharts(...)
+  }
+} // ← здесь НЕТ точки с запятой
+});
 
-  expenseChart.render();
-
+expenseChart.render();
   // кастомная легенда
   const legendContainer = document.getElementById("custom-legend");
   if (!legendContainer) return;
