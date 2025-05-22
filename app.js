@@ -379,39 +379,39 @@ if (expenseChart) expenseChart.destroy();
         formatter: val => `€${val.toFixed(2)}`
       }
     },
-    plotOptions: {
-  pie: {
-    donut: {
-      size: '55%',
-      labels: {
-        show: true,
-        name: {
+ plotOptions: {
+    pie: {
+      donut: {
+        size: '55%',
+        labels: {
           show: true,
-          fontSize: '12px',
-          color: '#666',
-          offsetY: -10
-        },
-        value: {
-          show: true,
-          fontSize: '18px',
-          fontWeight: 600,
-          color: '#222',
-          offsetY: 10,
-          formatter: () => `€${total.toFixed(2)}`
-        },
-        total: {
-          show: true,
-          label: 'Итого',
-          fontSize: '12px',
-          fontWeight: 500,
-          color: '#888',
-          formatter: () => `€${total.toFixed(2)}`
-         }
+          name: {
+            show: true,
+            fontSize: '12px',
+            color: '#666',
+            offsetY: -10
+          },
+          value: {
+            show: true,
+            fontSize: '18px',
+            fontWeight: 600,
+            color: '#222',
+            offsetY: 10,
+            formatter: () => `€${total.toFixed(2)}`
+          },
+          total: {
+            show: true,
+            label: 'Итого',
+            fontSize: '12px',
+            fontWeight: 500,
+            color: '#888',
+            formatter: () => `€${total.toFixed(2)}`
+          }
+        }
       }
     }
-  }
-},
-
+  } // ← закрыли plotOptions
+}); // ← закрыли new ApexCharts(...)
 
   expenseChart.render();
 
