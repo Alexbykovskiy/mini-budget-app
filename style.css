@@ -1460,12 +1460,33 @@ select {
   text-align: left;
 }
 .custom-legend {
-  flex: 0 0 200px; /* фиксируем ширину */
-  max-width: 200px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  justify-content: center;     /* центр по вертикали */
+  align-items: flex-start;
+  flex-shrink: 0;
+  max-width: 200px;
   font-size: 11px;
   color: #333;
-  padding-top: 4px;
+  gap: 4px;
 }
+.chart-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 260px; /* зависит от высоты блока */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.chart-with-info {
+  display: flex;
+  justify-content: center;      /* по горизонтали */
+  align-items: center;          /* по вертикали */
+  flex-direction: row;
+  height: 260px;                /* задай нужную высоту */
+  width: 100%;
+  box-sizing: border-box;
+  gap: 16px;
+}
+
