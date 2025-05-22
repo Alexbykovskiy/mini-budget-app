@@ -390,11 +390,14 @@ plotOptions: {
           show: false
         },
         value: {
+          show: false // отключаем всплывающее значение при наведении
+        },
+        total: {
           show: true,
+          showAlways: true, // 👈 обязательно!
           fontSize: '14px',
           fontWeight: 600,
           color: '#222',
-          offsetY: 0,
           formatter: () => `€${total.toFixed(2)}`
         }
       }
