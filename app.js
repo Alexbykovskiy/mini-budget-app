@@ -358,7 +358,6 @@ const legendColors = sortedEntries.map((_, i) => colors[i % colors.length]);
   const colors = ['#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37',
                   '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D', '#BFB4A3'];
 
-  if (window.expenseChart) expenseChart.destroy();
 if (window.expenseChart) window.expenseChart.destroy();
   expenseChart = new ApexCharts(document.querySelector("#mini-donut-chart"), {
     chart: {
@@ -367,7 +366,7 @@ if (window.expenseChart) window.expenseChart.destroy();
     },
     series: values,
     labels: labels,
-    colors: legendColors,,
+    colors: legendColors,
     dataLabels: {
       enabled: false
     },
@@ -401,7 +400,7 @@ if (window.expenseChart) window.expenseChart.destroy();
   value: entry.value,
   color: legendColors[i],
   percent: ((entry.value / totalSum) * 100).toFixed(1)
-}));.sort((a, b) => b.value - a.value);
+})).sort((a, b) => b.value - a.value);
 
   legendItems.forEach(entry => {
     const row = document.createElement("div");
