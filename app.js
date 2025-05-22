@@ -393,15 +393,15 @@ if (expenseChart) expenseChart.destroy();
           },
           value: {
             show: true,
-            fontSize: '18px',
+            fontSize: '14px',
             fontWeight: 600,
             color: '#222',
             offsetY: 10,
             formatter: () => `€${total.toFixed(2)}`
           },
           total: {
-            show: true,
-            label: 'Итого',
+  show: false
+}
             fontSize: '12px',
             fontWeight: 500,
             color: '#888',
