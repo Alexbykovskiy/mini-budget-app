@@ -486,12 +486,14 @@ select#filter-category {
 
 .chart-with-info {
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 4px;
+  gap: 6px;
   width: 360px;
-margin-bottom: 24px; /* ⬅️ добавь вот это */
+  margin: 0 auto;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  box-sizing: border-box;
 }
+
 
 
 .chart-with-info canvas {
@@ -1457,8 +1459,9 @@ select {
 }
 
 .google-chart {
-  flex: 0 0 160px;
-  height: 160px;
+  flex: 0 0 140px;
+  height: 140px;
+  box-sizing: border-box;
 }
 
 .custom-legend {
