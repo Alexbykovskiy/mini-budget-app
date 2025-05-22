@@ -1,4 +1,3 @@
-let db = firebase?.firestore?.() || null;
 
 
 window.addEventListener("load", () => {
@@ -347,6 +346,9 @@ function updateChart(data, total) {
     categoriesMap[cat] += value;
   });
 
+ const colors = ['#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37',
+                  '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D', '#BFB4A3'];
+
   const sortedEntries = Object.entries(categoriesMap)
   .map(([label, value]) => ({ label, value }))
   .sort((a, b) => b.value - a.value);
@@ -355,9 +357,7 @@ const labels = sortedEntries.map(entry => entry.label);
 const values = sortedEntries.map(entry => entry.value);
 const legendColors = sortedEntries.map((_, i) => colors[i % colors.length]);
 
-  const colors = ['#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37',
-                  '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D', '#BFB4A3'];
-
+ 
 if (window.expenseChart) window.expenseChart.destroy();
   expenseChart = new ApexCharts(document.querySelector("#mini-donut-chart"), {
     chart: {
