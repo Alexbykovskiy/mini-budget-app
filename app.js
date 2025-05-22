@@ -406,11 +406,11 @@ if (expenseChart) expenseChart.destroy();
           fontWeight: 500,
           color: '#888',
           formatter: () => `€${total.toFixed(2)}`
-        }
+         }
       }
     }
   }
-}
+},
 
 
   expenseChart.render();
