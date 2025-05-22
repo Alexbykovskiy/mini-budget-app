@@ -1451,15 +1451,14 @@ select {
 
 .chart-with-info {
   display: flex;
-  justify-content: center;     /* по горизонтали */
-  align-items: center;         /* по вертикали */
-  flex-wrap: nowrap;
-  gap: 10px;
-  height: 240px;               /* или auto + padding — на твой вкус */
+  justify-content: center;         /* центрируем горизонтально */
+  align-items: center;             /* центрируем вертикально */
+  gap: 20px;
+  min-height: 240px;               /* высота блока */
   width: 100%;
   box-sizing: border-box;
+  text-align: left;
 }
-
 .custom-legend {
   flex: 0 0 200px; /* фиксируем ширину */
   max-width: 200px;
