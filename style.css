@@ -1458,12 +1458,11 @@ select {
   align-items: flex-start;
 }
 
-.google-chart {
-  flex: 0 0 140px;
-  height: 140px;
-  box-sizing: border-box;
+.google-chart > div {
+  width: 140px !important;
+  max-width: 140px !important;
+  overflow: hidden;
 }
-
 .custom-legend {
   flex: 0 0 200px; /* фиксируем ширину */
   max-width: 200px;
