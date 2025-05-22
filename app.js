@@ -358,7 +358,8 @@ const values = sortedEntries.map(entry => entry.value);
 const legendColors = sortedEntries.map((_, i) => colors[i % colors.length]);
 
  
-if (window.expenseChart) window.expenseChart.destroy();
+if (expenseChart) expenseChart.destroy();
+
   expenseChart = new ApexCharts(document.querySelector("#mini-donut-chart"), {
     chart: {
       type: 'donut',
