@@ -1481,13 +1481,13 @@ select {
 
 .chart-with-info {
   display: flex;
-  justify-content: center;      /* по горизонтали */
-  align-items: center;          /* по вертикали */
+  justify-content: center;
+  align-items: center;
   flex-direction: row;
-  height: 260px;                /* задай нужную высоту */
+  height: 260px;
   width: 100%;
   box-sizing: border-box;
   gap: 16px;
-margin-left: 0px; /* ← подбери вручную: 20px, 24px, 32px и т.д. */
+  margin: 0 auto;
 }
 
