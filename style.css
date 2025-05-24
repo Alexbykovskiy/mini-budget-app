@@ -1488,6 +1488,7 @@ select {
   width: 100%;
   box-sizing: border-box;
   gap: 16px;
-  margin: 0 auto;
+ margin-left: -20px; /* 👈 Подбери вручную: -8px, -10px, -12px, -16px */
 }
+
 
