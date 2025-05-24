@@ -1481,14 +1481,23 @@ select {
 
 .chart-with-info {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row;
-  height: 260px;
-  width: 100%;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 360px;
+  margin: 0 auto;
+  padding: 0 20px;
+  gap: 20px;
   box-sizing: border-box;
-  gap: 16px;
- margin-left: -20px; /* 👈 Подбери вручную: -8px, -10px, -12px, -16px */
 }
 
+#mini-donut-chart {
+  width: 150px;
+  max-width: 150px;
+  flex-shrink: 0;
+}
 
+#custom-legend {
+  width: 150px;
+  max-width: 150px;
+  flex-shrink: 0;
+}
