@@ -1488,6 +1488,7 @@ select {
   padding: 0 20px;
   gap: 20px;
   box-sizing: border-box;
+background: #e9fbe9;
 }
 
 #mini-donut-chart {
