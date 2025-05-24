@@ -427,8 +427,8 @@ select#filter-category {
 
 .block.no-shadow {
   box-shadow: none;
-  padding: 24px;
-  background: transparent; /* или #e0e0e0, если хочешь сохранить цвет */
+  padding: 0;               /* 👈 Убираем внутренние отступы */
+  background: transparent;
 }
 
 .toggle-icon-button {
