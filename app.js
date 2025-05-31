@@ -197,7 +197,9 @@ const mileageBeforeSwap = 190000;
 const engineOffsetKm = 64374;
 const engineKm = latestMileage - mileageBeforeSwap + engineOffsetKm;
 const formattedEngineKm = engineKm > 0 ? engineKm.toLocaleString("ru-RU") : "—";
-document.getElementById('stat-engine-km').textContent = `${formattedEngineKm} двигатель`;
+document.getElementById('stat-engine-km').innerHTML = `${formattedEngineKm} <span data-lucide="square-cog" style="width: 10px; height: 10px;"></span>`;
+lucide.createIcons();
+;
 document.getElementById('stat-days').textContent = `${daysDiff} дней`;
 
   updateChart(data, total);
