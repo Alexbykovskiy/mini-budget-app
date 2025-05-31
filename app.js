@@ -199,11 +199,12 @@ const engineKm = latestMileage - mileageBeforeSwap + engineOffsetKm;
 const formattedEngineKm = engineKm > 0 ? engineKm.toLocaleString("ru-RU") : "—";
 document.getElementById('stat-engine-km').textContent = `${formattedEngineKm} двигатель`;
 document.getElementById('stat-days').textContent = `${daysDiff} дней`;
-document.getElementById('stat-total-amount').textContent = total.toFixed(2);
+
   updateChart(data, total);
   calculateCostPerKm(data);
   calculatePureRunningCost(data);
   calculateFuelStats(data);
+document.getElementById('stat-total-amount').textContent = total.toFixed(2);
 }
 
 function calculateCostPerKm(data) {
