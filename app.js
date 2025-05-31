@@ -197,6 +197,8 @@ const mileageBeforeSwap = 190000;
 const engineOffsetKm = 64374;
 const engineKm = latestMileage - mileageBeforeSwap + engineOffsetKm;
 const formattedEngineKm = engineKm > 0 ? engineKm.toLocaleString("ru-RU") : "—";
+document.getElementById('stat-days').textContent = `${daysDiff} дней`;
+
 document.getElementById('stat-engine-km').innerHTML = `
   ${formattedEngineKm}
   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 256 256" fill="currentColor" style="margin-left:4px; vertical-align:middle">
