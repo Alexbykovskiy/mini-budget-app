@@ -186,6 +186,12 @@ if (startDate && endDate) {
 
 document.getElementById('stat-distance').textContent = distance;
 document.getElementById('stat-total-km').textContent = latestMileage;
+const mileageBeforeSwap = 190000;
+const engineOffsetKm = 64374; // 40 000 миль в км
+const engineKm = latestMileage - mileageBeforeSwap + engineOffsetKm;
+const formattedEngineKm = engineKm > 0 ? engineKm.toLocaleString("ru-RU") : "—";
+
+document.getElementById('stat-engine-km').textContent = `${formattedEngineKm} двигатель`;
 document.getElementById('stat-days').textContent = `${daysDiff} дней`;
   updateChart(data, total);
   calculateCostPerKm(data);
