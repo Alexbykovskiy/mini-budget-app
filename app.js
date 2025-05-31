@@ -197,9 +197,12 @@ const mileageBeforeSwap = 190000;
 const engineOffsetKm = 64374;
 const engineKm = latestMileage - mileageBeforeSwap + engineOffsetKm;
 const formattedEngineKm = engineKm > 0 ? engineKm.toLocaleString("ru-RU") : "—";
-document.getElementById('stat-engine-km').innerHTML = `${formattedEngineKm} <span data-lucide="square-cog" style="width: 10px; height: 10px;"></span>`;
-lucide.createIcons();
-;
+document.getElementById('stat-engine-km').innerHTML = `
+  ${formattedEngineKm}
+  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 256 256" fill="currentColor" style="margin-left:4px; vertical-align:middle">
+    <path d="M240,104v48a16,16,0,0,1-16,16H216v16a8,8,0,0,1-16,0V168H184v8a8,8,0,0,1-16,0v-8H128v8a8,8,0,0,1-16,0v-8H88v8a8,8,0,0,1-16,0v-8H56v16a8,8,0,0,1-16,0V168H32a16,16,0,0,1-16-16V104a16,16,0,0,1,16-16H48V80a8,8,0,0,1,8-8H96V56a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8V72h40a8,8,0,0,1,8,8v8h24A16,16,0,0,1,240,104Z"/>
+  </svg>
+`;
 document.getElementById('stat-days').textContent = `${daysDiff} дней`;
 
   updateChart(data, total);
