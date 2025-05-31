@@ -184,13 +184,19 @@ if (startDate && endDate) {
   daysDiff = diff > 0 ? diff : 1;
 }
 
+const latestMileage = entriesWithMileage.length
+  ? Math.max(...entriesWithMileage.map(e => Number(e.mileage)))
+  : 0;
+
 document.getElementById('stat-distance').textContent = distance;
 document.getElementById('stat-total-km').textContent = latestMileage;
+document.getElementById('stat-days').textContent = `${daysDiff} дней`;
+
+// 🛠 Пробег двигателя
 const mileageBeforeSwap = 190000;
-const engineOffsetKm = 64374; // 40 000 миль в км
+const engineOffsetKm = 64374;
 const engineKm = latestMileage - mileageBeforeSwap + engineOffsetKm;
 const formattedEngineKm = engineKm > 0 ? engineKm.toLocaleString("ru-RU") : "—";
-
 document.getElementById('stat-engine-km').textContent = `${formattedEngineKm} двигатель`;
 document.getElementById('stat-days').textContent = `${daysDiff} дней`;
   updateChart(data, total);
