@@ -1510,3 +1510,51 @@ background: #e9fbe9;
   box-shadow: none;
 }
 
+.stats-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.stats-card {
+  width: 120px; /* или авто */
+  height: 90px; /* фиксируем общую высоту */
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between; /* ⬅️ равномерное распределение */
+  text-align: center;
+}
+
+.stats-card h4 {
+  font-size: 12px;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.stats-card p {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.stats-card span {
+  font-size: 0.8em;
+  color: #666;
+}
+
+.stats-card small {
+  font-size: 9px;
+  font-weight: 400;
+  color: #777;
+  line-height: 1;
+  margin-top: 2px;
+}
+
