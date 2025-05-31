@@ -171,15 +171,22 @@ function renderExpenses(data) {
     list.appendChild(li);
   });
 
-  const sorted = [...entriesWithMileage].sort((a, b) => a.date.localeCompare(b.date));
-  const startMileage = Number(sorted[0]?.mileage || 0);
-  const endMileage = Number(sorted[sorted.length - 1]?.mileage || 0);
-  const distance = endMileage - startMileage;
-  const latestMileage = entriesWithMileage.length ? Math.max(...entriesWithMileage.map(e => Number(e.mileage))) : 0;
-document.getElementById('stat-total-amount').textContent = fullTotal.toFixed(2);
+ const sorted = [...entriesWithMileage].sort((a, b) => a.date.localeCompare(b.date));
+const startMileage = Number(sorted[0]?.mileage || 0);
+const endMileage = Number(sorted[sorted.length - 1]?.mileage || 0);
+const distance = endMileage - startMileage;
+
+const startDate = sorted[0]?.date;
+const endDate = sorted[sorted.length - 1]?.date;
+let daysDiff = "—";
+if (startDate && endDate) {
+  const diff = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24));
+  daysDiff = diff > 0 ? diff : 1;
+}
+
 document.getElementById('stat-distance').textContent = distance;
 document.getElementById('stat-total-km').textContent = latestMileage;
-  
+document.getElementById('stat-days').textContent = `${daysDiff} дней`;
   updateChart(data, total);
   calculateCostPerKm(data);
   calculatePureRunningCost(data);
