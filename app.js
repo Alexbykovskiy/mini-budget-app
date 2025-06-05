@@ -1,29 +1,35 @@
 
 
 window.addEventListener("load", () => {
-  db = firebase.firestore();
-  loadExpenses();
-  populateTagList();
+  renderChart();
+  renderTable();
+  renderTags();
   resetForm();
-document.getElementById('open-category-modal').addEventListener('click', () => {
-  const modal = document.getElementById('category-modal');
-  const checkboxContainer = document.getElementById('category-checkboxes');
-  checkboxContainer.innerHTML = allCategories.map(cat => `
-    <label>
-      <input type="checkbox" value="${cat}" ${selectedCategories.includes(cat) ? 'checked' : ''}>
-      ${cat}
-    </label>
-  `).join('');
-  modal.classList.remove('hidden');
-});
 
-  // 📸 Выбор способа загрузки изображения — камера или галерея
-  // 📸 Упрощённая загрузка фото: системное меню (камера, галерея, файлы)
+  document.getElementById('open-category-modal').addEventListener('click', () => {
+    const modal = document.getElementById('category-modal');
+    const checkboxContainer = document.getElementById('category-checkboxes');
+    checkboxContainer.innerHTML = allCategories.map(cat => `
+      <label>
+        <input type="checkbox" value="${cat}" ${selectedCategories.includes(cat) ? 'checked' : ''}>
+        ${cat}
+      </label>
+    `).join('');
+    modal.classList.remove('hidden');
+  });
 
+}); // ← вот после этой строки вставляем ⬇
 
+function closeCategoryModal() {
+  document.getElementById('category-modal').classList.add('hidden');
+}
 
-
-  
+function applyCategorySelection() {
+  const checkboxes = document.querySelectorAll('#category-checkboxes input[type="checkbox"]:checked');
+  selectedCategories = Array.from(checkboxes).map(cb => cb.value);
+  document.getElementById('category-modal').classList.add('hidden');
+  applyFilters();
+}
 
   // Переключатель журнала
   const toggleJournal = document.getElementById("toggle-journal");
