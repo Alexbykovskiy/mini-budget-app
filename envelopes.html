@@ -3,29 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <title>Конверты — Накопления</title>
-  <meta name="viewport" content="width=400, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <div id="envelope-app" class="animated-section delay-1">
+  <div class="animated-section delay-1">
     <fieldset class="block">
-      <h2>Метод конвертов</h2>
-      <p>Здесь будет учёт накоплений и движение по конвертам. Всё отдельно от Mini Cooper.</p>
+      <h2>Мои конверты</h2>
+      <div id="envelope-list"></div>
+    </fieldset>
+
+    <fieldset class="block">
+      <h2>Добавить конверт</h2>
+      <form id="envelope-form" class="expense-form">
+        <div class="row">
+          <input type="text" id="envelope-name" placeholder="Название" required />
+          <input type="number" id="envelope-goal" placeholder="Цель (€)" required />
+        </div>
+        <div class="form-buttons">
+          <button type="reset" class="round-btn orange">&#10006;</button>
+          <button type="submit" class="round-btn green">&#10004;</button>
+        </div>
+      </form>
     </fieldset>
   </div>
 
-  <!-- Навигационное меню внизу -->
- <nav class="main-bottom-menu">
-  <a href="index.html" class="menu-btn" title="Mini Budget">
-    <span class="menu-icon"><span data-lucide="car"></span></span>
-  </a>
-  <a href="envelopes.html" class="menu-btn active" title="Конверты">
-    <span class="menu-icon"><span data-lucide="mail"></span></span>
-  </a>
-</nav>
-<script>lucide.createIcons();</script>
+  <!-- Нижнее меню -->
+  <nav class="main-bottom-menu">
+    <a href="index.html" class="menu-btn" title="Mini Budget">
+      <span class="menu-icon"><span data-lucide="car"></span></span>
+    </a>
+    <a href="envelopes.html" class="menu-btn active" title="Конверты">
+      <span class="menu-icon"><span data-lucide="mail"></span></span>
+    </a>
+  </nav>
 
   <script src="envelopes-app.js"></script>
- </body>
+  <script>lucide.createIcons();</script>
+</body>
 </html>
