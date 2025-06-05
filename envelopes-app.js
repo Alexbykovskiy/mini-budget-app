@@ -12,6 +12,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+console.log("📦 Firestore подключен:", db);
 
 const form = document.getElementById("envelope-form");
 const nameInput = document.getElementById("envelope-name");
@@ -22,10 +23,19 @@ form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const name = nameInput.value.trim();
   const goal = parseFloat(goalInput.value);
-  if (!name || isNaN(goal)) return;
-  await db.collection("envelopes").add({ name, goal, current: 0, created: Date.now() });
-  form.reset();
-  loadEnvelopes();
+  if (!name || isNaN(goal)) {
+    console.warn("❗ Неправильные данные формы");
+    return;
+  }
+
+  try {
+    await db.collection("envelopes").add({ name, goal, current: 0, created: Date.now() });
+    console.log("✅ Конверт добавлен:", name);
+    form.reset();
+    loadEnvelopes();
+  } catch (e) {
+    console.error("❌ Ошибка добавления:", e.message || e);
+  }
 });
 
 async function loadEnvelopes() {
