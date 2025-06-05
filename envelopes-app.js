@@ -314,16 +314,22 @@ async function openDistributionEditor() {
   }
 
   function updateTotalDisplay() {
-    const total = calculateTotalPercent();
-    const remaining = 100 - total;
-    totalSumDisplay.innerHTML = `🧮 Распределено: <strong>${total}%</strong>, свободно: <strong>${remaining}%</strong>`;
-    saveBtn.disabled = total !== 100;
-    if (total !== 100) {
-      totalSumDisplay.style.color = "#cc0000";
-    } else {
-      totalSumDisplay.style.color = "#186663";
-    }
+  const total = calculateTotalPercent();
+  const remaining = 100 - total;
+  totalSumDisplay.innerHTML = `🧮 Распределено: <strong>${total}%</strong>, свободно: <strong>${remaining}%</strong>`;
+
+  if (total > 100) {
+    totalSumDisplay.style.color = "#cc0000"; // красный — ошибка
+    saveBtn.disabled = true;
+  } else if (total < 100) {
+    totalSumDisplay.style.color = "#ff9900"; // оранжевый — предупреждение
+    saveBtn.disabled = false; // можно сохранить
+  } else {
+    totalSumDisplay.style.color = "#186663"; // зелёный — ок
+    saveBtn.disabled = false;
   }
+}
+
 
   snapshot.forEach(doc => {
     const id = doc.id;
