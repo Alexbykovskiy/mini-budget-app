@@ -56,34 +56,45 @@ async function loadEnvelopes() {
     return;
   }
   list.innerHTML = "";
-  snapshot.forEach(doc => {
+
+  // Сначала отображаем основной (isPrimary: true), потом остальные
+  const envelopes = snapshot.docs;
+  const primary = envelopes.find(doc => doc.data().isPrimary);
+  const others = envelopes.filter(doc => !doc.data().isPrimary);
+
+  const ordered = primary ? [primary, ...others] : envelopes;
+
+  ordered.forEach(doc => {
     const data = doc.data();
     const percent = Math.min(100, Math.round(data.percent || 0));
+    const isPrimary = data.isPrimary === true;
     const block = document.createElement("fieldset");
     block.className = "block";
     block.innerHTML = `
       <div class="expense-entry">
         <div class="expense-left">
           <div class="top-line">
-            <span><strong>${data.name}</strong></span>
+            <span><strong>${data.name}${isPrimary ? " <span style='color:#999'>(общий)</span>" : ""}</strong></span>
             <span style="font-size:0.8em;color:#999">${percent}%</span>
           </div>
           <div class="bottom-line">
             <span>€${data.current.toFixed(2)} / €${data.goal.toFixed(2)}</span>
             ${data.comment ? `<div class="info-line">${data.comment}</div>` : ""}
-            ${data.includeInDistribution === false ? `<div class="info-line" style="color:#aaa">Не участвует в распределении</div>` : ""}
+            ${data.includeInDistribution === false && !isPrimary ? `<div class="info-line" style="color:#aaa">Не участвует в распределении</div>` : ""}
           </div>
         </div>
         <div class="expense-right">
           <button class="round-btn light small" onclick="addToEnvelope('${doc.id}')">
             <span data-lucide="plus"></span>
           </button>
-          <button class="round-btn gray small" onclick="editEnvelope('${doc.id}', '${data.name}', ${data.goal}, '${data.comment || ''}', ${data.percent || 0}, ${data.includeInDistribution !== false})">
-            <span data-lucide="pencil"></span>
-          </button>
-          <button class="round-btn red small" onclick="deleteEnvelope('${doc.id}')">
-            <span data-lucide="trash-2"></span>
-          </button>
+          ${!isPrimary ? `
+            <button class="round-btn gray small" onclick="editEnvelope('${doc.id}', '${data.name}', ${data.goal}, '${data.comment || ''}', ${data.percent || 0}, ${data.includeInDistribution !== false})">
+              <span data-lucide="pencil"></span>
+            </button>
+            <button class="round-btn red small" onclick="deleteEnvelope('${doc.id}')">
+              <span data-lucide="trash-2"></span>
+            </button>
+          ` : ""}
           <button class="round-btn blue small" onclick="transferEnvelope('${doc.id}', ${data.current})">
             <span data-lucide="move-horizontal"></span>
           </button>
@@ -124,9 +135,16 @@ async function editEnvelope(id, oldName, oldGoal, oldComment, oldPercent, oldInc
 }
 
 async function deleteEnvelope(id) {
+  const ref = db.collection("envelopes").doc(id);
+  const snap = await ref.get();
+  if (snap.exists && snap.data().isPrimary) {
+    alert("Нельзя удалить основной конверт.");
+    return;
+  }
   if (!confirm("Удалить этот конверт?")) return;
-  await db.collection("envelopes").doc(id).delete();
+  await ref.delete();
   loadEnvelopes();
+}
 }
 
 async function transferEnvelope(fromId, maxAmount) {
@@ -163,6 +181,26 @@ async function distributeIncome() {
     alert("Нет активных процентов для распределения.");
     return;
   }
+if (totalPercent < 100) {
+  const leftover = total * ((100 - totalPercent) / 100);
+  const fallback = await db.collection("envelopes")
+    .where("isPrimary", "==", true)
+    .limit(1)
+    .get();
+  
+  if (!fallback.empty) {
+    const fallbackDoc = fallback.docs[0];
+    const fallbackId = fallbackDoc.id;
+    const current = fallbackDoc.data().current || 0;
+
+    await db.collection("envelopes").doc(fallbackId).update({
+      current: current + leftover
+    });
+  } else {
+    alert("Остаток некуда поместить: основной конверт не задан.");
+  }
+}
+
   await Promise.all(snapshot.docs.map(async (doc) => {
     const data = doc.data();
     const part = (parseFloat(data.percent || 0) / totalPercent) * total;
@@ -172,6 +210,29 @@ async function distributeIncome() {
   }));
   loadEnvelopes();
 }
+
+async function ensurePrimaryEnvelopeExists() {
+  const check = await db.collection("envelopes").where("isPrimary", "==", true).limit(1).get();
+  if (check.empty) {
+    await db.collection("envelopes").add({
+      name: "Общий",
+      goal: 1000000,
+      comment: "Основной резервный конверт",
+      current: 0,
+      created: Date.now(),
+      percent: 0,
+      includeInDistribution: false,
+      isPrimary: true
+    });
+    console.log("✅ Конверт 'Общий' создан автоматически");
+  }
+}
+
+window.addEventListener("DOMContentLoaded", async () => {
+  await ensurePrimaryEnvelopeExists();
+  loadEnvelopes();
+});
+
 
 async function openDistributionEditor() {
   const snapshot = await db.collection("envelopes").orderBy("created", "asc").get();
@@ -185,6 +246,8 @@ async function openDistributionEditor() {
   container.innerHTML = `<h3 style='margin-bottom: 12px'>Настройка процентов</h3>`;
 
   const ranges = [];
+  let totalSumDisplay;
+
   snapshot.forEach(doc => {
     const data = doc.data();
     if (data.includeInDistribution === false) return;
@@ -200,11 +263,22 @@ async function openDistributionEditor() {
     ranges.push({ id: doc.id, initial: data.percent || 0 });
   });
 
+  totalSumDisplay = document.createElement("div");
+  totalSumDisplay.id = "total-percent-display";
+  totalSumDisplay.style.fontSize = "0.9em";
+  totalSumDisplay.style.marginTop = "8px";
+  totalSumDisplay.style.marginBottom = "16px";
+  container.appendChild(totalSumDisplay);
+
   const saveBtn = document.createElement("button");
   saveBtn.textContent = "Сохранить";
   saveBtn.style.marginTop = "1em";
   saveBtn.className = "primary-btn";
+  saveBtn.disabled = true;
   saveBtn.onclick = async () => {
+    const total = calculateTotalPercent();
+    if (total !== 100) return;
+
     await Promise.all(ranges.map(async (r) => {
       const val = parseFloat(document.getElementById(`range-${r.id}`).value);
       await db.collection("envelopes").doc(r.id).update({ percent: val });
@@ -230,6 +304,27 @@ async function openDistributionEditor() {
 
   document.body.appendChild(modal);
 
+  function calculateTotalPercent() {
+    let total = 0;
+    ranges.forEach(r => {
+      const val = parseFloat(document.getElementById(`range-${r.id}`).value);
+      total += val;
+    });
+    return total;
+  }
+
+  function updateTotalDisplay() {
+    const total = calculateTotalPercent();
+    const remaining = 100 - total;
+    totalSumDisplay.innerHTML = `🧮 Распределено: <strong>${total}%</strong>, свободно: <strong>${remaining}%</strong>`;
+    saveBtn.disabled = total !== 100;
+    if (total !== 100) {
+      totalSumDisplay.style.color = "#cc0000";
+    } else {
+      totalSumDisplay.style.color = "#186663";
+    }
+  }
+
   snapshot.forEach(doc => {
     const id = doc.id;
     const range = document.getElementById(`range-${id}`);
@@ -237,9 +332,12 @@ async function openDistributionEditor() {
     if (range && label) {
       range.addEventListener("input", () => {
         label.textContent = `${range.value}%`;
+        updateTotalDisplay();
       });
     }
   });
+
+  updateTotalDisplay();
 }
 
-window.addEventListener("DOMContentLoaded", loadEnvelopes);
+// <button onclick="openDistributionEditor()">Настроить проценты</button>
