@@ -145,7 +145,7 @@ async function deleteEnvelope(id) {
   await ref.delete();
   loadEnvelopes();
 }
-}
+
 
 async function transferEnvelope(fromId, maxAmount) {
   const amount = prompt("Сколько перевести (€)?");
