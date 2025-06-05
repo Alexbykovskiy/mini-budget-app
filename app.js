@@ -344,13 +344,37 @@ function populateTagList() {
   });
 }
 
+function toggleCategoryDropdown() {
+  document.getElementById("category-options").classList.toggle("hidden");
+}
+
+// обновим отображаемый текст по выбранным категориям
+function updateSelectedCategoriesDisplay() {
+  const checkboxes = document.querySelectorAll("#category-options input[type='checkbox']");
+  const selected = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+  const display = selected.length > 0 ? `Объектов: ${selected.length}` : "Выбрать категории";
+  document.querySelector(".dropdown-selected").textContent = display;
+}
+
+document.addEventListener("click", (e) => {
+  const wrapper = document.getElementById("filter-category-wrapper");
+  if (!wrapper.contains(e.target)) {
+    document.getElementById("category-options").classList.add("hidden");
+  }
+});
+
+document.querySelectorAll("#category-options input[type='checkbox']").forEach(cb => {
+  cb.addEventListener("change", updateSelectedCategoriesDisplay);
+});
+
 
 function applyFilters() {
   const from = document.getElementById("filter-from").value;
   const to = document.getElementById("filter-to").value;
   const tag = document.getElementById("filter-tag").value.replace('#', '');
- const categorySelect = document.getElementById("filter-category");
-const selectedCategories = Array.from(categorySelect.selectedOptions).map(opt => opt.value);
+
+  const categoryCheckboxes = document.querySelectorAll("#category-options input[type='checkbox']");
+  const selectedCategories = Array.from(categoryCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
 
   const rowStart = parseInt(document.getElementById("filter-row-start")?.value);
   const rowEnd = parseInt(document.getElementById("filter-row-end")?.value);
@@ -360,13 +384,12 @@ const selectedCategories = Array.from(categorySelect.selectedOptions).map(opt =>
   if (to) filtered = filtered.filter(e => e.date <= to);
   if (tag) filtered = filtered.filter(e => e.tag === tag);
   if (selectedCategories.length > 0) {
-  filtered = filtered.filter(e => selectedCategories.includes(e.category));
-}
-
+    filtered = filtered.filter(e => selectedCategories.includes(e.category));
+  }
   if (!isNaN(rowStart) && !isNaN(rowEnd)) filtered = filtered.slice(rowStart - 1, rowEnd);
 
   renderExpenses(filtered);
-loadReminders(); // добавь эту строку
+  loadReminders();
 }
 
 function updateChart(data, total) {
