@@ -38,20 +38,7 @@ window.addEventListener("load", () => {
     });
   }
 
-  // Переключатель "добавить напоминание"
-  const toggleInfoAdd = document.getElementById("toggle-info-add");
-  const infoAddWrapper = document.getElementById("info-add-wrapper");
-  const infoAddBlock = infoAddWrapper?.closest('.block');
-  if (toggleInfoAdd && infoAddWrapper && infoAddBlock) {
-    toggleInfoAdd.addEventListener("change", () => {
-      const isOn = toggleInfoAdd.checked;
-      infoAddWrapper.classList.remove("collapsed", "expanded");
-      infoAddWrapper.classList.add(isOn ? "expanded" : "collapsed");
-      infoAddBlock.classList.toggle("auto-height", isOn);
-      loadReminders();
-    });
-  }
-}); // ← здесь заканчивается window.addEventListener
+ }); // ← здесь заканчивается window.addEventListener
 
 // ---- Теперь вне этого блока идут только функции! ----
 
@@ -69,43 +56,7 @@ function applyCategorySelection() {
 }
 
 
-  // Переключатель журнала
-  const toggleJournal = document.getElementById("toggle-journal");
-const journalWrapper = document.getElementById("expense-list-wrapper");
-const journalBlock = journalWrapper?.closest('.block');
-if (toggleJournal && journalWrapper && journalBlock) {
-  toggleJournal.addEventListener("change", () => {
-    const isOn = toggleJournal.checked;
-    journalWrapper.classList.remove("collapsed", "expanded");
-    journalWrapper.classList.add(isOn ? "expanded" : "collapsed");
-    journalBlock.classList.toggle("auto-height", isOn);
-  });
-}
-
- const toggleJournal = document.getElementById("toggle-journal");
-const journalWrapper = document.getElementById("expense-list-wrapper");
-const journalBlock = journalWrapper?.closest('.block');
-if (toggleJournal && journalWrapper && journalBlock) {
-  toggleJournal.addEventListener("change", () => {
-    const isOn = toggleJournal.checked;
-    journalWrapper.classList.remove("collapsed", "expanded");
-    journalWrapper.classList.add(isOn ? "expanded" : "collapsed");
-    journalBlock.classList.toggle("auto-height", isOn);
-  });
-}
-
- const toggleInfoAdd = document.getElementById("toggle-info-add");
-const infoAddWrapper = document.getElementById("info-add-wrapper");
-const infoAddBlock = infoAddWrapper?.closest('.block');
-if (toggleInfoAdd && infoAddWrapper && infoAddBlock) {
-  toggleInfoAdd.addEventListener("change", () => {
-    const isOn = toggleInfoAdd.checked;
-    infoAddWrapper.classList.remove("collapsed", "expanded");
-    infoAddWrapper.classList.add(isOn ? "expanded" : "collapsed");
-    infoAddBlock.classList.toggle("auto-height", isOn);
-    loadReminders();
-  });
-}
+  
 });
 const profileCode = "mini";
 
