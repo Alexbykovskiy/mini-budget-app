@@ -5,6 +5,18 @@ window.addEventListener("load", () => {
   loadExpenses();
   populateTagList();
   resetForm();
+document.getElementById('open-category-modal').addEventListener('click', () => {
+  const modal = document.getElementById('category-modal');
+  const checkboxContainer = document.getElementById('category-checkboxes');
+  checkboxContainer.innerHTML = allCategories.map(cat => `
+    <label>
+      <input type="checkbox" value="${cat}" ${selectedCategories.includes(cat) ? 'checked' : ''}>
+      ${cat}
+    </label>
+  `).join('');
+  modal.classList.remove('hidden');
+});
+
   // 📸 Выбор способа загрузки изображения — камера или галерея
   // 📸 Упрощённая загрузка фото: системное меню (камера, галерея, файлы)
 
