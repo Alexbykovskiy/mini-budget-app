@@ -1609,3 +1609,57 @@ select#filter-category[multiple] {
 .dropdown-options.hidden {
   display: none;
 }
+.dropdown-multiselect {
+  position: relative;
+  width: 100%;
+  font-size: 16px;
+}
+
+.dropdown-selected {
+  width: 100%;
+  padding: 10px 14px;
+  background: #e0e0e0;
+  border-radius: 14px;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
+  color: #333;
+  text-align: left;
+  cursor: pointer;
+  border: none;
+  font-size: 16px;
+}
+
+.dropdown-selected:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #FFA35C;
+}
+
+.dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #e0e0e0;
+  border-radius: 14px;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+  padding: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.dropdown-options label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  font-size: 14px;
+  color: #333;
+}
+
+.dropdown-options input[type="checkbox"] {
+  transform: scale(1.1);
+}
+
+.dropdown-options.hidden {
+  display: none;
+}

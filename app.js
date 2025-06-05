@@ -373,25 +373,28 @@ function applyFilters() {
   const to = document.getElementById("filter-to").value;
   const tag = document.getElementById("filter-tag").value.replace('#', '');
 
-  const categoryCheckboxes = document.querySelectorAll("#category-options input[type='checkbox']");
-  const selectedCategories = Array.from(categoryCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+  const selectedCategories = Array.from(
+    document.querySelectorAll('#category-options input[type="checkbox"]:checked')
+  ).map(cb => cb.value);
 
   const rowStart = parseInt(document.getElementById("filter-row-start")?.value);
   const rowEnd = parseInt(document.getElementById("filter-row-end")?.value);
 
   let filtered = expenses;
+
   if (from) filtered = filtered.filter(e => e.date >= from);
   if (to) filtered = filtered.filter(e => e.date <= to);
   if (tag) filtered = filtered.filter(e => e.tag === tag);
   if (selectedCategories.length > 0) {
     filtered = filtered.filter(e => selectedCategories.includes(e.category));
   }
-  if (!isNaN(rowStart) && !isNaN(rowEnd)) filtered = filtered.slice(rowStart - 1, rowEnd);
+  if (!isNaN(rowStart) && !isNaN(rowEnd)) {
+    filtered = filtered.slice(rowStart - 1, rowEnd);
+  }
 
   renderExpenses(filtered);
   loadReminders();
 }
-
 function updateChart(data, total) {
   const categoriesMap = {};
 
@@ -715,4 +718,15 @@ function showToast(message = "Готово!") {
 function showInfoImage(url) { /* ...добавить позже... */ }
 // Сворачивание блока добавления напоминания
 
-  
+  function toggleCategoryDropdown() {
+  const dropdown = document.getElementById("category-options");
+  dropdown.classList.toggle("hidden");
+}
+
+// Закрыть выпадающий список, если клик вне него
+document.addEventListener("click", (e) => {
+  const wrapper = document.getElementById("filter-category-wrapper");
+  if (!wrapper.contains(e.target)) {
+    document.getElementById("category-options").classList.add("hidden");
+  }
+});

@@ -68,7 +68,8 @@
         <input list="tag-list" id="filter-tag" placeholder="#тег" />
         <datalist id="tag-list"></datalist>
       <div class="dropdown-multiselect" id="filter-category-wrapper">
-  <div class="dropdown-selected" onclick="toggleCategoryDropdown()">Выбрать категории</div>
+  <button type="button" class="dropdown-selected" onclick="toggleCategoryDropdown()">Выбрать категории</button>
+
   <div class="dropdown-options hidden" id="category-options">
     <label><input type="checkbox" value="Топливо"> Топливо</label>
     <label><input type="checkbox" value="Парковка"> Парковка</label>
