@@ -16,19 +16,21 @@ const db = firebase.firestore();
 const form = document.getElementById("envelope-form");
 const nameInput = document.getElementById("envelope-name");
 const goalInput = document.getElementById("envelope-goal");
+const commentInput = document.getElementById("envelope-comment");
 const list = document.getElementById("envelope-list");
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const name = nameInput.value.trim();
   const goal = parseFloat(goalInput.value);
+  const comment = commentInput.value.trim();
   if (!name || isNaN(goal)) {
     console.warn("❗ Неправильные данные формы");
     return;
   }
 
   try {
-    await db.collection("envelopes").add({ name, goal, current: 0, created: Date.now() });
+    await db.collection("envelopes").add({ name, goal, comment, current: 0, created: Date.now() });
     console.log("✅ Конверт добавлен:", name);
     form.reset();
     loadEnvelopes();
@@ -48,31 +50,34 @@ async function loadEnvelopes() {
   snapshot.forEach(doc => {
     const data = doc.data();
     const percent = Math.min(100, Math.round((data.current / data.goal) * 100));
-    const block = document.createElement("div");
-    block.className = "expense-entry";
+    const block = document.createElement("fieldset");
+    block.className = "block";
     block.innerHTML = `
-      <div class="expense-left">
-        <div class="top-line">
-          <span><strong>${data.name}</strong></span>
-          <span style="font-size:0.8em;color:#999">${percent}%</span>
+      <div class="expense-entry">
+        <div class="expense-left">
+          <div class="top-line">
+            <span><strong>${data.name}</strong></span>
+            <span style="font-size:0.8em;color:#999">${percent}%</span>
+          </div>
+          <div class="bottom-line">
+            <span>€${data.current.toFixed(2)} / €${data.goal.toFixed(2)}</span>
+            ${data.comment ? `<div class="info-line">${data.comment}</div>` : ""}
+          </div>
         </div>
-        <div class="bottom-line">
-          <span>€${data.current.toFixed(2)} / €${data.goal.toFixed(2)}</span>
+        <div class="expense-right">
+          <button class="round-btn light small" onclick="addToEnvelope('${doc.id}')">
+            <span data-lucide="plus"></span>
+          </button>
+          <button class="round-btn gray small" onclick="editEnvelope('${doc.id}', '${data.name}', ${data.goal}, '${data.comment || ''}')">
+            <span data-lucide="pencil"></span>
+          </button>
+          <button class="round-btn red small" onclick="deleteEnvelope('${doc.id}')">
+            <span data-lucide="trash-2"></span>
+          </button>
+          <button class="round-btn blue small" onclick="transferEnvelope('${doc.id}', ${data.current})">
+            <span data-lucide="move-horizontal"></span>
+          </button>
         </div>
-      </div>
-      <div class="expense-right">
-        <button class="round-btn light small" onclick="addToEnvelope('${doc.id}')">
-          <span data-lucide="plus"></span>
-        </button>
-        <button class="round-btn gray small" onclick="editEnvelope('${doc.id}', '${data.name}', ${data.goal})">
-          <span data-lucide="pencil"></span>
-        </button>
-        <button class="round-btn red small" onclick="deleteEnvelope('${doc.id}')">
-          <span data-lucide="trash-2"></span>
-        </button>
-        <button class="round-btn blue small" onclick="transferEnvelope('${doc.id}', ${data.current})">
-          <span data-lucide="move-horizontal"></span>
-        </button>
       </div>
     `;
     list.appendChild(block);
@@ -93,13 +98,15 @@ async function addToEnvelope(id) {
   loadEnvelopes();
 }
 
-async function editEnvelope(id, oldName, oldGoal) {
+async function editEnvelope(id, oldName, oldGoal, oldComment) {
   const newName = prompt("Новое название:", oldName);
   const newGoal = prompt("Новая цель (€):", oldGoal);
+  const newComment = prompt("Комментарий:", oldComment);
   const name = newName?.trim();
   const goal = parseFloat(newGoal);
+  const comment = newComment?.trim();
   if (!name || isNaN(goal) || goal <= 0) return;
-  await db.collection("envelopes").doc(id).update({ name, goal });
+  await db.collection("envelopes").doc(id).update({ name, goal, comment });
   loadEnvelopes();
 }
 
