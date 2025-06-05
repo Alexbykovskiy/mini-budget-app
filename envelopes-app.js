@@ -75,7 +75,8 @@ async function loadEnvelopes() {
         <div class="expense-left">
           <div class="top-line">
             <span><strong>${data.name}${isPrimary ? " <span style='color:#999'>(общий)</span>" : ""}</strong></span>
-            <span style="font-size:0.8em;color:#999">${percent}%</span>
+            <span style="font-size:0.8em;color:#999">${isPrimary ? "остаток" : percent + "%"}</span>
+
           </div>
           <div class="bottom-line">
             <span>€${data.current.toFixed(2)} / €${data.goal.toFixed(2)}</span>
