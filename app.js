@@ -344,57 +344,26 @@ function populateTagList() {
   });
 }
 
-function toggleCategoryDropdown() {
-  document.getElementById("category-options").classList.toggle("hidden");
-}
-
-// обновим отображаемый текст по выбранным категориям
-function updateSelectedCategoriesDisplay() {
-  const checkboxes = document.querySelectorAll("#category-options input[type='checkbox']");
-  const selected = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
-  const display = selected.length > 0 ? `Объектов: ${selected.length}` : "Выбрать категории";
-  document.querySelector(".dropdown-selected").textContent = display;
-}
-
-document.addEventListener("click", (e) => {
-  const wrapper = document.getElementById("filter-category-wrapper");
-  if (!wrapper.contains(e.target)) {
-    document.getElementById("category-options").classList.add("hidden");
-  }
-});
-
-document.querySelectorAll("#category-options input[type='checkbox']").forEach(cb => {
-  cb.addEventListener("change", updateSelectedCategoriesDisplay);
-});
-
 
 function applyFilters() {
   const from = document.getElementById("filter-from").value;
   const to = document.getElementById("filter-to").value;
   const tag = document.getElementById("filter-tag").value.replace('#', '');
-
-  const selectedCategories = Array.from(
-    document.querySelectorAll('#category-options input[type="checkbox"]:checked')
-  ).map(cb => cb.value);
-
+  const categoryFilter = document.getElementById("filter-category")?.value;
   const rowStart = parseInt(document.getElementById("filter-row-start")?.value);
   const rowEnd = parseInt(document.getElementById("filter-row-end")?.value);
 
   let filtered = expenses;
-
   if (from) filtered = filtered.filter(e => e.date >= from);
   if (to) filtered = filtered.filter(e => e.date <= to);
   if (tag) filtered = filtered.filter(e => e.tag === tag);
-  if (selectedCategories.length > 0) {
-    filtered = filtered.filter(e => selectedCategories.includes(e.category));
-  }
-  if (!isNaN(rowStart) && !isNaN(rowEnd)) {
-    filtered = filtered.slice(rowStart - 1, rowEnd);
-  }
+  if (categoryFilter && categoryFilter !== "Все") filtered = filtered.filter(e => e.category === categoryFilter);
+  if (!isNaN(rowStart) && !isNaN(rowEnd)) filtered = filtered.slice(rowStart - 1, rowEnd);
 
   renderExpenses(filtered);
-  loadReminders();
+loadReminders(); // добавь эту строку
 }
+
 function updateChart(data, total) {
   const categoriesMap = {};
 
@@ -718,28 +687,4 @@ function showToast(message = "Готово!") {
 function showInfoImage(url) { /* ...добавить позже... */ }
 // Сворачивание блока добавления напоминания
 
-  function toggleCategoryDropdown() {
-  const dropdown = document.getElementById("category-options");
-  dropdown.classList.toggle("hidden");
-}
-
-// Закрыть выпадающий список, если клик вне него
-document.addEventListener("click", (e) => {
-  const wrapper = document.getElementById("filter-category-wrapper");
-  if (!wrapper.contains(e.target)) {
-    document.getElementById("category-options").classList.add("hidden");
-  }
-});
-function toggleCategoryDropdown() {
-  document.getElementById("category-modal").classList.remove("hidden");
-}
-
-function closeCategoryModal() {
-  document.getElementById("category-modal").classList.add("hidden");
-}
-
-// Просто обновляем текст (по желанию можно добавить вывод количества выбранных)
-function confirmCategorySelection() {
-  closeCategoryModal();
-  // тут ничего не нужно делать — applyFilters сам считает отмеченные чекбоксы
-}
+  
