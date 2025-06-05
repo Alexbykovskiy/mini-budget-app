@@ -30,7 +30,15 @@ form.addEventListener("submit", async (e) => {
   }
 
   try {
-    await db.collection("envelopes").add({ name, goal, comment, current: 0, created: Date.now() });
+    await db.collection("envelopes").add({
+      name,
+      goal,
+      comment,
+      current: 0,
+      created: Date.now(),
+      percent: 0,
+      includeInDistribution: true
+    });
     console.log("✅ Конверт добавлен:", name);
     form.reset();
     loadEnvelopes();
@@ -49,7 +57,7 @@ async function loadEnvelopes() {
   list.innerHTML = "";
   snapshot.forEach(doc => {
     const data = doc.data();
-    const percent = Math.min(100, Math.round((data.current / data.goal) * 100));
+    const percent = Math.min(100, Math.round((data.percent || 0)));
     const block = document.createElement("fieldset");
     block.className = "block";
     block.innerHTML = `
@@ -62,13 +70,14 @@ async function loadEnvelopes() {
           <div class="bottom-line">
             <span>€${data.current.toFixed(2)} / €${data.goal.toFixed(2)}</span>
             ${data.comment ? `<div class="info-line">${data.comment}</div>` : ""}
+            ${data.includeInDistribution === false ? `<div class="info-line" style="color:#aaa">Не участвует в распределении</div>` : ""}
           </div>
         </div>
         <div class="expense-right">
           <button class="round-btn light small" onclick="addToEnvelope('${doc.id}')">
             <span data-lucide="plus"></span>
           </button>
-          <button class="round-btn gray small" onclick="editEnvelope('${doc.id}', '${data.name}', ${data.goal}, '${data.comment || ''}')">
+          <button class="round-btn gray small" onclick="editEnvelope('${doc.id}', '${data.name}', ${data.goal}, '${data.comment || ''}', ${data.percent || 0}, ${data.includeInDistribution !== false})">
             <span data-lucide="pencil"></span>
           </button>
           <button class="round-btn red small" onclick="deleteEnvelope('${doc.id}')">
@@ -98,15 +107,20 @@ async function addToEnvelope(id) {
   loadEnvelopes();
 }
 
-async function editEnvelope(id, oldName, oldGoal, oldComment) {
+async function editEnvelope(id, oldName, oldGoal, oldComment, oldPercent, oldInclude) {
   const newName = prompt("Новое название:", oldName);
   const newGoal = prompt("Новая цель (€):", oldGoal);
   const newComment = prompt("Комментарий:", oldComment);
+  const newPercent = prompt("Процент (%):", oldPercent);
+  const includeInDistribution = confirm("Включить в автораспределение?");
+
   const name = newName?.trim();
   const goal = parseFloat(newGoal);
   const comment = newComment?.trim();
-  if (!name || isNaN(goal) || goal <= 0) return;
-  await db.collection("envelopes").doc(id).update({ name, goal, comment });
+  const percent = parseFloat(newPercent);
+
+  if (!name || isNaN(goal) || goal <= 0 || isNaN(percent)) return;
+  await db.collection("envelopes").doc(id).update({ name, goal, comment, percent, includeInDistribution });
   loadEnvelopes();
 }
 
