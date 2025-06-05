@@ -1726,3 +1726,43 @@ background: #e9fbe9;
 .menu-btn.active .lucide {
   stroke: white;
 }
+
+.menu-btn {
+  all: unset; /* сброс всех стандартных стилей */
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  opacity: 0.6;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.menu-btn .menu-icon {
+  background: transparent;
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-btn .lucide {
+  width: 28px;
+  height: 28px;
+  stroke: #bbb;
+  stroke-width: 2.2;
+}
+
+.menu-btn.active {
+  opacity: 1;
+}
+
+.menu-btn.active .menu-icon {
+  background: #FFA35C;
+}
+
+.menu-btn.active .lucide {
+  stroke: white;
+}
