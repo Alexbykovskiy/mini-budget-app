@@ -730,3 +730,16 @@ document.addEventListener("click", (e) => {
     document.getElementById("category-options").classList.add("hidden");
   }
 });
+function toggleCategoryDropdown() {
+  document.getElementById("category-modal").classList.remove("hidden");
+}
+
+function closeCategoryModal() {
+  document.getElementById("category-modal").classList.add("hidden");
+}
+
+// Просто обновляем текст (по желанию можно добавить вывод количества выбранных)
+function confirmCategorySelection() {
+  closeCategoryModal();
+  // тут ничего не нужно делать — applyFilters сам считает отмеченные чекбоксы
+}
