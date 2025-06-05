@@ -7,6 +7,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+padding-bottom: 72px; /* чтобы не пряталось под меню */
 }
 
 h1 {
