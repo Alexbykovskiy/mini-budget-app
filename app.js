@@ -36,7 +36,6 @@ window.addEventListener("load", () => {
       journalWrapper.classList.add(isOn ? "expanded" : "collapsed");
       journalBlock.classList.toggle("auto-height", isOn);
     });
-  }
 
  }); // ← здесь заканчивается window.addEventListener
 
