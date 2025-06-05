@@ -2,41 +2,39 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Конверты — Накопления</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Конверты бюджета</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <div class="animated-section delay-1">
+  <main class="container">
     <fieldset class="block">
-      <h2>Мои конверты</h2>
-      <div id="envelope-list"></div>
-    </fieldset>
-
-    <fieldset class="block">
-      <h2>Добавить конверт</h2>
+      <legend>Добавить конверт</legend>
       <form id="envelope-form" class="expense-form">
         <div class="row">
           <input type="text" id="envelope-name" placeholder="Название" required />
           <input type="number" id="envelope-goal" placeholder="Цель (€)" required />
-  <div class="row">
-    <input type="text" id="envelope-comment" placeholder="Комментарий" />
-  </div>
-
         </div>
-        <div class="form-buttons">
-          <button type="reset" class="round-btn orange">&#10006;</button>
-          <button type="submit" class="round-btn green">&#10004;</button>
+        <div class="row">
+          <input type="text" id="envelope-comment" placeholder="Комментарий (необязательно)" />
+        </div>
+        <div class="row end">
+          <button type="submit" class="primary-btn">Добавить</button>
         </div>
       </form>
     </fieldset>
-  </div>
 
-  <!-- Нижнее меню -->
+    <div class="controls row" style="gap: 12px; justify-content: space-between; margin-top: 24px;">
+      <button id="distribute-income" class="primary-btn">➕ Добавить доход</button>
+      <button onclick="openDistributionEditor()" class="gray-btn">⚙️ Настроить проценты</button>
+    </div>
+
+    <div id="envelope-list" class="section-list" style="margin-top: 16px;"></div>
+  </main>
+
   <nav class="main-bottom-menu">
     <a href="index.html" class="menu-btn" title="Mini Budget">
       <span class="menu-icon"><span data-lucide="car"></span></span>
