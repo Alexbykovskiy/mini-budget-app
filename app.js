@@ -349,10 +349,8 @@ function applyFilters() {
   const from = document.getElementById("filter-from").value;
   const to = document.getElementById("filter-to").value;
   const tag = document.getElementById("filter-tag").value.replace('#', '');
-   const checkboxes = document.querySelectorAll("#filter-categories input[type='checkbox']");
-  const selectedCategories = Array.from(checkboxes)
-    .filter(cb => cb.checked)
-    .map(cb => cb.value);
+ const categorySelect = document.getElementById("filter-category");
+const selectedCategories = Array.from(categorySelect.selectedOptions).map(opt => opt.value);
 
   const rowStart = parseInt(document.getElementById("filter-row-start")?.value);
   const rowEnd = parseInt(document.getElementById("filter-row-end")?.value);
@@ -361,9 +359,9 @@ function applyFilters() {
   if (from) filtered = filtered.filter(e => e.date >= from);
   if (to) filtered = filtered.filter(e => e.date <= to);
   if (tag) filtered = filtered.filter(e => e.tag === tag);
-    if (selectedCategories.length > 0) {
-    filtered = filtered.filter(e => selectedCategories.includes(e.category));
-  }
+  if (selectedCategories.length > 0) {
+  filtered = filtered.filter(e => selectedCategories.includes(e.category));
+}
 
   if (!isNaN(rowStart) && !isNaN(rowEnd)) filtered = filtered.slice(rowStart - 1, rowEnd);
 
