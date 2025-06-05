@@ -1612,3 +1612,48 @@ background: #e9fbe9;
 .menu-btn.active .lucide {
   stroke: white;
 }
+.main-bottom-menu {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 64px;
+  background: #1e1e1e; /* графит */
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 9999;
+  padding: 0;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+}
+.menu-btn {
+  flex: 1;
+  text-align: center;
+  color: #bbb;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+}
+.menu-btn .menu-icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  border-radius: 12px;
+}
+.menu-btn .lucide {
+  width: 28px;
+  height: 28px;
+  stroke: #bbb;
+  stroke-width: 2.5;
+}
+.menu-btn.active {
+  opacity: 1;
+}
+.menu-btn.active .menu-icon {
+  background: #FFA35C;
+}
+.menu-btn.active .lucide {
+  stroke: white;
+}
