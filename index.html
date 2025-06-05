@@ -64,29 +64,21 @@
         <input type="date" id="filter-from" />
         <input type="date" id="filter-to" />
       </div>
-      <div class="row">
-        <input list="tag-list" id="filter-tag" placeholder="#тег" />
-        <datalist id="tag-list"></datalist>
-        <button id="open-category-modal" class="round-btn green" type="button">Выбрать категории</button>
-<span id="selected-categories-preview" style="font-size:12px; margin-top: 6px; display:block; color:#444;"></span>
+    <div class="row">
+  <input list="tag-list" id="filter-tag" placeholder="#тег" />
+  <datalist id="tag-list"></datalist>
+</div>
 
-          <option value="Все">Все категории</option>
-          <option>Топливо</option>
-          <option>Парковка</option>
-          <option>Штрафы</option>
-          <option>Сервис</option>
-          <option>Ремонт</option>
-          <option>Страховка</option>
-          <option>Шины</option>
-          <option>Тюнинг</option>
-          <option>Мойка</option>
-          <option>Виньетка/Платные дороги</option>
-          <option>Другое</option>
-        </select>
-      </div>
-      <div class="row">
-        <input type="number" id="filter-row-start" placeholder="Строка от" />
-        <input type="number" id="filter-row-end" placeholder="до строки" />
+<div class="row">
+  <button id="open-category-modal" type="button" class="filter-field-button">
+    Выбрать категории
+  </button>
+</div>
+
+<div class="row">
+  <input type="number" id="filter-row-start" placeholder="Строка от" />
+  <input type="number" id="filter-row-end" placeholder="до строки" />
+</div>
       </div>
       <div class="form-buttons">
         <button class="round-btn orange" onclick="location.reload()" title="Сброс">&#10006;</button>

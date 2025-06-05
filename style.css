@@ -1595,4 +1595,20 @@ background: #e9fbe9;
   max-height: 200px;
   overflow-y: auto;
 }
+.filter-field-button {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 16px;
+  border-radius: 14px;
+  border: none;
+  outline: none;
+  background: #e0e0e0;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
+  color: #333;
+  text-align: left;
+  cursor: pointer;
+}
+.filter-field-button:hover {
+  opacity: 0.95;
+}
 
