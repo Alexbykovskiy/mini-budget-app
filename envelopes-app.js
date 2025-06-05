@@ -61,14 +61,17 @@ async function loadEnvelopes() {
         </div>
       </div>
       <div class="expense-right">
-        <button class="round-btn light" onclick="addToEnvelope('${doc.id}')">
+        <button class="round-btn light small" onclick="addToEnvelope('${doc.id}')">
           <span data-lucide="plus"></span>
         </button>
-        <button class="round-btn gray" onclick="editEnvelope('${doc.id}', '${data.name}', ${data.goal})">
+        <button class="round-btn gray small" onclick="editEnvelope('${doc.id}', '${data.name}', ${data.goal})">
           <span data-lucide="pencil"></span>
         </button>
-        <button class="round-btn red" onclick="deleteEnvelope('${doc.id}')">
+        <button class="round-btn red small" onclick="deleteEnvelope('${doc.id}')">
           <span data-lucide="trash-2"></span>
+        </button>
+        <button class="round-btn blue small" onclick="transferEnvelope('${doc.id}', ${data.current})">
+          <span data-lucide="move-horizontal"></span>
         </button>
       </div>
     `;
@@ -103,6 +106,30 @@ async function editEnvelope(id, oldName, oldGoal) {
 async function deleteEnvelope(id) {
   if (!confirm("Удалить этот конверт?")) return;
   await db.collection("envelopes").doc(id).delete();
+  loadEnvelopes();
+}
+
+async function transferEnvelope(fromId, maxAmount) {
+  const amount = prompt("Сколько перевести (€)?");
+  const value = parseFloat(amount);
+  if (isNaN(value) || value <= 0 || value > maxAmount) return;
+
+  const toId = prompt("ID конверта, в который перевести:");
+  if (!toId || toId === fromId) return;
+
+  const fromRef = db.collection("envelopes").doc(fromId);
+  const toRef = db.collection("envelopes").doc(toId);
+
+  await db.runTransaction(async (t) => {
+    const fromDoc = await t.get(fromRef);
+    const toDoc = await t.get(toRef);
+    if (!fromDoc.exists || !toDoc.exists) throw new Error("Один из конвертов не найден");
+    const fromData = fromDoc.data();
+    const toData = toDoc.data();
+    t.update(fromRef, { current: (fromData.current || 0) - value });
+    t.update(toRef, { current: (toData.current || 0) + value });
+  });
+
   loadEnvelopes();
 }
 
