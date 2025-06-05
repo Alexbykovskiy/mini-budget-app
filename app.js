@@ -1,11 +1,18 @@
-
-
 window.addEventListener("load", () => {
   renderChart();
   renderTable();
   renderTags();
   resetForm();
 
+  // Категории и выбранные категории
+  const allCategories = [
+    "Топливо", "Парковка", "Штрафы", "Сервис", "Ремонт",
+    "Страховка", "Шины", "Тюнинг", "Мойка", "Виньетка/Платные дороги", "Другое"
+  ];
+  // Глобально let selectedCategories — так можно, потому что функции ниже его видят через window!
+  window.selectedCategories = [];
+
+  // Обработчик открытия модального окна выбора категорий
   document.getElementById('open-category-modal').addEventListener('click', () => {
     const modal = document.getElementById('category-modal');
     const checkboxContainer = document.getElementById('category-checkboxes');
@@ -17,19 +24,6 @@ window.addEventListener("load", () => {
     `).join('');
     modal.classList.remove('hidden');
   });
-
-}); // ← вот после этой строки вставляем ⬇
-
-function closeCategoryModal() {
-  document.getElementById('category-modal').classList.add('hidden');
-}
-
-function applyCategorySelection() {
-  const checkboxes = document.querySelectorAll('#category-checkboxes input[type="checkbox"]:checked');
-  selectedCategories = Array.from(checkboxes).map(cb => cb.value);
-  document.getElementById('category-modal').classList.add('hidden');
-  applyFilters();
-}
 
   // Переключатель журнала
   const toggleJournal = document.getElementById("toggle-journal");
@@ -44,19 +38,6 @@ function applyCategorySelection() {
     });
   }
 
-  // Переключатель фильтров
-  const filterToggleBtn = document.getElementById("toggle-filters");
-  const filtersWrapper = document.getElementById("filters-wrapper");
-  const filtersBlock = filtersWrapper?.closest('.block');
-  if (filterToggleBtn && filtersWrapper && filtersBlock) {
-    filterToggleBtn.addEventListener("change", () => {
-      const isOn = filterToggleBtn.checked;
-      filtersWrapper.classList.remove("collapsed", "expanded");
-      filtersWrapper.classList.add(isOn ? "expanded" : "collapsed");
-      filtersBlock.classList.toggle("auto-height", isOn);
-    });
-  }
-
   // Переключатель "добавить напоминание"
   const toggleInfoAdd = document.getElementById("toggle-info-add");
   const infoAddWrapper = document.getElementById("info-add-wrapper");
@@ -67,9 +48,64 @@ function applyCategorySelection() {
       infoAddWrapper.classList.remove("collapsed", "expanded");
       infoAddWrapper.classList.add(isOn ? "expanded" : "collapsed");
       infoAddBlock.classList.toggle("auto-height", isOn);
-loadReminders();
+      loadReminders();
     });
   }
+}); // ← здесь заканчивается window.addEventListener
+
+// ---- Теперь вне этого блока идут только функции! ----
+
+function closeCategoryModal() {
+  document.getElementById('category-modal').classList.add('hidden');
+}
+
+function applyCategorySelection() {
+  const checkboxes = document.querySelectorAll('#category-checkboxes input[type="checkbox"]:checked');
+  selectedCategories = Array.from(checkboxes).map(cb => cb.value);
+  document.getElementById('category-modal').classList.add('hidden');
+  document.getElementById('selected-categories-preview').textContent =
+    selectedCategories.length > 0 ? selectedCategories.join(', ') : 'Все категории';
+  applyFilters();
+}
+
+
+  // Переключатель журнала
+  const toggleJournal = document.getElementById("toggle-journal");
+const journalWrapper = document.getElementById("expense-list-wrapper");
+const journalBlock = journalWrapper?.closest('.block');
+if (toggleJournal && journalWrapper && journalBlock) {
+  toggleJournal.addEventListener("change", () => {
+    const isOn = toggleJournal.checked;
+    journalWrapper.classList.remove("collapsed", "expanded");
+    journalWrapper.classList.add(isOn ? "expanded" : "collapsed");
+    journalBlock.classList.toggle("auto-height", isOn);
+  });
+}
+
+ const toggleJournal = document.getElementById("toggle-journal");
+const journalWrapper = document.getElementById("expense-list-wrapper");
+const journalBlock = journalWrapper?.closest('.block');
+if (toggleJournal && journalWrapper && journalBlock) {
+  toggleJournal.addEventListener("change", () => {
+    const isOn = toggleJournal.checked;
+    journalWrapper.classList.remove("collapsed", "expanded");
+    journalWrapper.classList.add(isOn ? "expanded" : "collapsed");
+    journalBlock.classList.toggle("auto-height", isOn);
+  });
+}
+
+ const toggleInfoAdd = document.getElementById("toggle-info-add");
+const infoAddWrapper = document.getElementById("info-add-wrapper");
+const infoAddBlock = infoAddWrapper?.closest('.block');
+if (toggleInfoAdd && infoAddWrapper && infoAddBlock) {
+  toggleInfoAdd.addEventListener("change", () => {
+    const isOn = toggleInfoAdd.checked;
+    infoAddWrapper.classList.remove("collapsed", "expanded");
+    infoAddWrapper.classList.add(isOn ? "expanded" : "collapsed");
+    infoAddBlock.classList.toggle("auto-height", isOn);
+    loadReminders();
+  });
+}
 });
 const profileCode = "mini";
 
@@ -708,41 +744,3 @@ function showToast(message = "Готово!") {
 function showInfoImage(url) { /* ...добавить позже... */ }
 // Сворачивание блока добавления напоминания
 
-   const allCategories = [
-    "Топливо", "Парковка", "Штрафы", "Сервис", "Ремонт",
-    "Страховка", "Шины", "Тюнинг", "Мойка", "Виньетка/Платные дороги", "Другое"
-  ];
-  let selectedCategories = [];
-
-  document.getElementById('open-category-modal').addEventListener('click', () => {
-    const modal = document.getElementById('category-modal');
-    const checkboxContainer = document.getElementById('category-checkboxes');
-    checkboxContainer.innerHTML = allCategories.map(cat => `
-      <label>
-        <input type="checkbox" value="${cat}" ${selectedCategories.includes(cat) ? 'checked' : ''}>
-        ${cat}
-      </label>
-    `).join('');
-    modal.classList.remove('hidden');
-  });
-
-  // ... остальной твой код ...
-});
-
-// --- А вот эти две функции оставить вне этого блока ---
-
-function closeCategoryModal() {
-  document.getElementById('category-modal').classList.add('hidden');
-}
-
-function applyCategorySelection() {
-  const checkboxes = document.querySelectorAll('#category-checkboxes input[type="checkbox"]');
-  selectedCategories = Array.from(checkboxes)
-    .filter(cb => cb.checked)
-    .map(cb => cb.value);
-
-  document.getElementById('selected-categories-preview').textContent =
-    selectedCategories.length > 0 ? selectedCategories.join(', ') : 'Все категории';
-  closeCategoryModal();
-  applyFilters();
-}
