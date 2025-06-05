@@ -1558,3 +1558,27 @@ background: #e9fbe9;
   margin-top: 2px;
 }
 
+.multi-select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 14px;
+  color: #444;
+}
+
+.multi-select label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #e0e0e0;
+  border-radius: 14px;
+  box-shadow: inset 2px 2px 4px #bebebe, inset -2px -2px 4px #ffffff;
+  cursor: pointer;
+}
+
+.multi-select input[type="checkbox"] {
+  transform: scale(1.2);
+}
+
+

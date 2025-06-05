@@ -67,20 +67,20 @@
       <div class="row">
         <input list="tag-list" id="filter-tag" placeholder="#тег" />
         <datalist id="tag-list"></datalist>
-        <select id="filter-category">
-          <option value="Все">Все категории</option>
-          <option>Топливо</option>
-          <option>Парковка</option>
-          <option>Штрафы</option>
-          <option>Сервис</option>
-          <option>Ремонт</option>
-          <option>Страховка</option>
-          <option>Шины</option>
-          <option>Тюнинг</option>
-          <option>Мойка</option>
-          <option>Виньетка/Платные дороги</option>
-          <option>Другое</option>
-        </select>
+       <div id="filter-categories" class="multi-select">
+  <label><input type="checkbox" value="Топливо"> Топливо</label>
+  <label><input type="checkbox" value="Парковка"> Парковка</label>
+  <label><input type="checkbox" value="Штрафы"> Штрафы</label>
+  <label><input type="checkbox" value="Сервис"> Сервис</label>
+  <label><input type="checkbox" value="Ремонт"> Ремонт</label>
+  <label><input type="checkbox" value="Страховка"> Страховка</label>
+  <label><input type="checkbox" value="Шины"> Шины</label>
+  <label><input type="checkbox" value="Тюнинг"> Тюнинг</label>
+  <label><input type="checkbox" value="Мойка"> Мойка</label>
+  <label><input type="checkbox" value="Виньетка/Платные дороги"> Виньетка/Платные дороги</label>
+  <label><input type="checkbox" value="Другое"> Другое</label>
+</div>
+
       </div>
       <div class="row">
         <input type="number" id="filter-row-start" placeholder="Строка от" />
