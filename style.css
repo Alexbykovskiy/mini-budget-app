@@ -1562,64 +1562,53 @@ background: #e9fbe9;
   position: fixed;
   bottom: 0;
   left: 0;
-  width: 100vw;
-  max-width: 480px;
-  margin: 0 auto;
-  background: #222;        /* тёмно-серый */
-  border-radius: 20px 20px 0 0;
-  box-shadow: 0 -3px 16px #bebebe30;
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-  z-index: 99999;
+  right: 0;
   height: 64px;
-  padding-bottom: env(safe-area-inset-bottom, 0);
+  background: #1E1E1E; /* графит */
+  z-index: 9999;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding-bottom: env(safe-area-inset-bottom, 0); /* для iOS */
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
 }
 
+/* Кнопки меню */
 .menu-btn {
   flex: 1;
   text-align: center;
-  padding: 10px 0 4px 0;
-  color: #fff;
-  opacity: 0.6;
-  font-size: 26px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: none;
-  background: none;
-  cursor: pointer;
+  color: #bbb;
+  opacity: 0.7;
   transition: opacity 0.2s;
-  position: relative;
-}
-
-.menu-btn.active,
-.menu-btn:hover {
-  opacity: 1;
 }
 
 .menu-btn .menu-icon {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 38px;
-  height: 38px;
-  background: #444;
+  background: transparent;
   border-radius: 12px;
-}
-
-.menu-btn.active .menu-icon {
-  background: #FFA35C;
-  color: #fff;
+  padding: 6px;
 }
 
 .menu-btn .lucide {
   width: 28px;
   height: 28px;
-  stroke-width: 2.3;
-  stroke: #fff;
+  stroke-width: 2.5;
+  stroke: #bbb;
+}
+
+/* Активная кнопка */
+.menu-btn.active {
+  opacity: 1;
+}
+
+.menu-btn.active .menu-icon {
+  background: #FFA35C;
 }
 
 .menu-btn.active .lucide {
-  stroke: #fff;
+  stroke: white;
 }
