@@ -276,17 +276,14 @@ async function openDistributionEditor() {
   saveBtn.className = "primary-btn";
   saveBtn.disabled = true;
   saveBtn.onclick = async () => {
-    const total = calculateTotalPercent();
-    if (total !== 100) return;
-
-    await Promise.all(ranges.map(async (r) => {
-      const val = parseFloat(document.getElementById(`range-${r.id}`).value);
-      await db.collection("envelopes").doc(r.id).update({ percent: val });
-    }));
-    alert("Проценты сохранены");
-    document.body.removeChild(modal);
-    loadEnvelopes();
-  };
+  await Promise.all(ranges.map(async (r) => {
+    const val = parseFloat(document.getElementById(`range-${r.id}`).value);
+    await db.collection("envelopes").doc(r.id).update({ percent: val });
+  }));
+  alert("Проценты сохранены");
+  document.body.removeChild(modal);
+  loadEnvelopes();
+};
 
   container.appendChild(saveBtn);
 
