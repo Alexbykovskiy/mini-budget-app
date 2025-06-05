@@ -12,7 +12,6 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-console.log("📦 Firestore подключен:", db);
 
 const form = document.getElementById("envelope-form");
 const nameInput = document.getElementById("envelope-name");
@@ -65,6 +64,12 @@ async function loadEnvelopes() {
         <button class="round-btn light" onclick="addToEnvelope('${doc.id}')">
           <span data-lucide="plus"></span>
         </button>
+        <button class="round-btn gray" onclick="editEnvelope('${doc.id}', '${data.name}', ${data.goal})">
+          <span data-lucide="pencil"></span>
+        </button>
+        <button class="round-btn red" onclick="deleteEnvelope('${doc.id}')">
+          <span data-lucide="trash-2"></span>
+        </button>
       </div>
     `;
     list.appendChild(block);
@@ -82,6 +87,22 @@ async function addToEnvelope(id) {
     const data = doc.data();
     t.update(ref, { current: (data.current || 0) + value });
   });
+  loadEnvelopes();
+}
+
+async function editEnvelope(id, oldName, oldGoal) {
+  const newName = prompt("Новое название:", oldName);
+  const newGoal = prompt("Новая цель (€):", oldGoal);
+  const name = newName?.trim();
+  const goal = parseFloat(newGoal);
+  if (!name || isNaN(goal) || goal <= 0) return;
+  await db.collection("envelopes").doc(id).update({ name, goal });
+  loadEnvelopes();
+}
+
+async function deleteEnvelope(id) {
+  if (!confirm("Удалить этот конверт?")) return;
+  await db.collection("envelopes").doc(id).delete();
   loadEnvelopes();
 }
 
