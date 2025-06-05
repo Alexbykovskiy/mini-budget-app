@@ -708,24 +708,28 @@ function showToast(message = "Готово!") {
 function showInfoImage(url) { /* ...добавить позже... */ }
 // Сворачивание блока добавления напоминания
 
-  const allCategories = [
-  "Топливо", "Парковка", "Штрафы", "Сервис", "Ремонт",
-  "Страховка", "Шины", "Тюнинг", "Мойка", "Виньетка/Платные дороги", "Другое"
-];
+   const allCategories = [
+    "Топливо", "Парковка", "Штрафы", "Сервис", "Ремонт",
+    "Страховка", "Шины", "Тюнинг", "Мойка", "Виньетка/Платные дороги", "Другое"
+  ];
+  let selectedCategories = [];
 
-let selectedCategories = [];
+  document.getElementById('open-category-modal').addEventListener('click', () => {
+    const modal = document.getElementById('category-modal');
+    const checkboxContainer = document.getElementById('category-checkboxes');
+    checkboxContainer.innerHTML = allCategories.map(cat => `
+      <label>
+        <input type="checkbox" value="${cat}" ${selectedCategories.includes(cat) ? 'checked' : ''}>
+        ${cat}
+      </label>
+    `).join('');
+    modal.classList.remove('hidden');
+  });
 
-document.getElementById('open-category-modal').addEventListener('click', () => {
-  const modal = document.getElementById('category-modal');
-  const checkboxContainer = document.getElementById('category-checkboxes');
-  checkboxContainer.innerHTML = allCategories.map(cat => `
-    <label>
-      <input type="checkbox" value="${cat}" ${selectedCategories.includes(cat) ? 'checked' : ''}>
-      ${cat}
-    </label>
-  `).join('');
-  modal.classList.remove('hidden');
+  // ... остальной твой код ...
 });
+
+// --- А вот эти две функции оставить вне этого блока ---
 
 function closeCategoryModal() {
   document.getElementById('category-modal').classList.add('hidden');
