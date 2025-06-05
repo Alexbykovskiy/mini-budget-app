@@ -357,7 +357,10 @@ function applyFilters() {
   if (from) filtered = filtered.filter(e => e.date >= from);
   if (to) filtered = filtered.filter(e => e.date <= to);
   if (tag) filtered = filtered.filter(e => e.tag === tag);
-  if (categoryFilter && categoryFilter !== "Все") filtered = filtered.filter(e => e.category === categoryFilter);
+  if (selectedCategories.length > 0) {
+  filtered = filtered.filter(e => selectedCategories.includes(e.category));
+}
+
   if (!isNaN(rowStart) && !isNaN(rowEnd)) filtered = filtered.slice(rowStart - 1, rowEnd);
 
   renderExpenses(filtered);
@@ -687,4 +690,37 @@ function showToast(message = "Готово!") {
 function showInfoImage(url) { /* ...добавить позже... */ }
 // Сворачивание блока добавления напоминания
 
-  
+  const allCategories = [
+  "Топливо", "Парковка", "Штрафы", "Сервис", "Ремонт",
+  "Страховка", "Шины", "Тюнинг", "Мойка", "Виньетка/Платные дороги", "Другое"
+];
+
+let selectedCategories = [];
+
+document.getElementById('open-category-modal').addEventListener('click', () => {
+  const modal = document.getElementById('category-modal');
+  const checkboxContainer = document.getElementById('category-checkboxes');
+  checkboxContainer.innerHTML = allCategories.map(cat => `
+    <label>
+      <input type="checkbox" value="${cat}" ${selectedCategories.includes(cat) ? 'checked' : ''}>
+      ${cat}
+    </label>
+  `).join('');
+  modal.classList.remove('hidden');
+});
+
+function closeCategoryModal() {
+  document.getElementById('category-modal').classList.add('hidden');
+}
+
+function applyCategorySelection() {
+  const checkboxes = document.querySelectorAll('#category-checkboxes input[type="checkbox"]');
+  selectedCategories = Array.from(checkboxes)
+    .filter(cb => cb.checked)
+    .map(cb => cb.value);
+
+  document.getElementById('selected-categories-preview').textContent =
+    selectedCategories.length > 0 ? selectedCategories.join(', ') : 'Все категории';
+  closeCategoryModal();
+  applyFilters();
+}

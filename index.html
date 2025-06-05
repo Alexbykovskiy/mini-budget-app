@@ -67,7 +67,9 @@
       <div class="row">
         <input list="tag-list" id="filter-tag" placeholder="#тег" />
         <datalist id="tag-list"></datalist>
-        <select id="filter-category">
+        <button id="open-category-modal" class="round-btn green" type="button">Выбрать категории</button>
+<span id="selected-categories-preview" style="font-size:12px; margin-top: 6px; display:block; color:#444;"></span>
+
           <option value="Все">Все категории</option>
           <option>Топливо</option>
           <option>Парковка</option>
@@ -234,6 +236,17 @@
   display: none;
 }
 </style>
+<!-- Модальное окно выбора категорий -->
+<div id="category-modal" class="modal hidden">
+  <div class="modal-content">
+    <h3>Выберите категории</h3>
+    <div id="category-checkboxes"></div>
+    <div class="form-buttons">
+      <button class="round-btn orange" onclick="closeCategoryModal()">Отмена</button>
+      <button class="round-btn green" onclick="applyCategorySelection()">Выбрать</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
