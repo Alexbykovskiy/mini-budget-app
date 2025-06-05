@@ -1,29 +1,17 @@
+
+
 window.addEventListener("load", () => {
-  renderChart();
-  renderTable();
-  renderTags();
+  db = firebase.firestore();
+  loadExpenses();
+  populateTagList();
   resetForm();
+  // 📸 Выбор способа загрузки изображения — камера или галерея
+  // 📸 Упрощённая загрузка фото: системное меню (камера, галерея, файлы)
 
-  // Категории и выбранные категории
-  const allCategories = [
-    "Топливо", "Парковка", "Штрафы", "Сервис", "Ремонт",
-    "Страховка", "Шины", "Тюнинг", "Мойка", "Виньетка/Платные дороги", "Другое"
-  ];
-  // Глобально let selectedCategories — так можно, потому что функции ниже его видят через window!
-  window.selectedCategories = [];
 
-  // Обработчик открытия модального окна выбора категорий
-  document.getElementById('open-category-modal').addEventListener('click', () => {
-    const modal = document.getElementById('category-modal');
-    const checkboxContainer = document.getElementById('category-checkboxes');
-    checkboxContainer.innerHTML = allCategories.map(cat => `
-      <label>
-        <input type="checkbox" value="${cat}" ${selectedCategories.includes(cat) ? 'checked' : ''}>
-        ${cat}
-      </label>
-    `).join('');
-    modal.classList.remove('hidden');
-  });
+
+
+  
 
   // Переключатель журнала
   const toggleJournal = document.getElementById("toggle-journal");
@@ -38,25 +26,32 @@ window.addEventListener("load", () => {
     });
   }
 
- }); // ← здесь заканчивается window.addEventListener
+  // Переключатель фильтров
+  const filterToggleBtn = document.getElementById("toggle-filters");
+  const filtersWrapper = document.getElementById("filters-wrapper");
+  const filtersBlock = filtersWrapper?.closest('.block');
+  if (filterToggleBtn && filtersWrapper && filtersBlock) {
+    filterToggleBtn.addEventListener("change", () => {
+      const isOn = filterToggleBtn.checked;
+      filtersWrapper.classList.remove("collapsed", "expanded");
+      filtersWrapper.classList.add(isOn ? "expanded" : "collapsed");
+      filtersBlock.classList.toggle("auto-height", isOn);
+    });
+  }
 
-// ---- Теперь вне этого блока идут только функции! ----
-
-function closeCategoryModal() {
-  document.getElementById('category-modal').classList.add('hidden');
-}
-
-function applyCategorySelection() {
-  const checkboxes = document.querySelectorAll('#category-checkboxes input[type="checkbox"]:checked');
-  selectedCategories = Array.from(checkboxes).map(cb => cb.value);
-  document.getElementById('category-modal').classList.add('hidden');
-  document.getElementById('selected-categories-preview').textContent =
-    selectedCategories.length > 0 ? selectedCategories.join(', ') : 'Все категории';
-  applyFilters();
-}
-
-
-  
+  // Переключатель "добавить напоминание"
+  const toggleInfoAdd = document.getElementById("toggle-info-add");
+  const infoAddWrapper = document.getElementById("info-add-wrapper");
+  const infoAddBlock = infoAddWrapper?.closest('.block');
+  if (toggleInfoAdd && infoAddWrapper && infoAddBlock) {
+    toggleInfoAdd.addEventListener("change", () => {
+      const isOn = toggleInfoAdd.checked;
+      infoAddWrapper.classList.remove("collapsed", "expanded");
+      infoAddWrapper.classList.add(isOn ? "expanded" : "collapsed");
+      infoAddBlock.classList.toggle("auto-height", isOn);
+loadReminders();
+    });
+  }
 });
 const profileCode = "mini";
 
@@ -362,10 +357,7 @@ function applyFilters() {
   if (from) filtered = filtered.filter(e => e.date >= from);
   if (to) filtered = filtered.filter(e => e.date <= to);
   if (tag) filtered = filtered.filter(e => e.tag === tag);
-  if (selectedCategories.length > 0) {
-  filtered = filtered.filter(e => selectedCategories.includes(e.category));
-}
-
+  if (categoryFilter && categoryFilter !== "Все") filtered = filtered.filter(e => e.category === categoryFilter);
   if (!isNaN(rowStart) && !isNaN(rowEnd)) filtered = filtered.slice(rowStart - 1, rowEnd);
 
   renderExpenses(filtered);
@@ -695,3 +687,4 @@ function showToast(message = "Готово!") {
 function showInfoImage(url) { /* ...добавить позже... */ }
 // Сворачивание блока добавления напоминания
 
+  
