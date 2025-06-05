@@ -82,9 +82,11 @@ function calculateRemainingPercent() {
       <div class="expense-entry">
         <div class="expense-left">
           <div class="top-line">
-            <span class="top-line">
-  ${isPrimary ? `<strong>${data.name}</strong> <span style="color:#999">(общий)</span>` : `<strong>${data.name}</strong>`}
+            <span class="top-name">
+  <strong>${data.name}</strong>
+  ${isPrimary ? "<span style='color:#999'>(общий)</span>" : ""}
 </span>
+
             <<span style="font-size:0.8em;color:#999">${isPrimary ? calculateRemainingPercent() + "%" : percent + "%"}</span>
 
 
