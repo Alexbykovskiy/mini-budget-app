@@ -63,6 +63,14 @@ async function loadEnvelopes() {
   const others = envelopes.filter(doc => !doc.data().isPrimary);
 
   const ordered = primary ? [primary, ...others] : envelopes;
+function calculateRemainingPercent() {
+  return others.reduce((acc, doc) => {
+    const p = parseFloat(doc.data().percent || 0);
+    return acc + p;
+  }, 0) <= 100
+    ? 100 - others.reduce((acc, doc) => acc + parseFloat(doc.data().percent || 0), 0)
+    : 0;
+}
 
   ordered.forEach(doc => {
     const data = doc.data();
@@ -75,7 +83,8 @@ async function loadEnvelopes() {
         <div class="expense-left">
           <div class="top-line">
             <span><strong>${data.name}${isPrimary ? " <span style='color:#999'>(общий)</span>" : ""}</strong></span>
-            <span style="font-size:0.8em;color:#999">${isPrimary ? "остаток" : percent + "%"}</span>
+            <<span style="font-size:0.8em;color:#999">${isPrimary ? calculateRemainingPercent() + "%" : percent + "%"}</span>
+
 
           </div>
           <div class="bottom-line">
