@@ -89,41 +89,46 @@ const remaining = 100 - calculateRemainingPercent();
     const block = document.createElement("div");
 
    block.className = "block envelope-block"; // 👈 добавляем envelope-block
-    block.innerHTML = `
-      <div class="expense-entry">
-        <div class="expense-left">
-          <div class="top-line">
-            <span class="top-name">
-              <strong>${data.name}</strong>
-              ${isPrimary ? "<span style='color:#999'>(общий)</span>" : ""}
-            </span>
-            <span style="font-size:0.8em;color:#999">${isPrimary ? remaining + "%" : percent + "%"}</span>
-          </div>
-          <div class="bottom-line">
-            <span>€${data.current.toFixed(2)} / €${data.goal.toFixed(2)}</span>
-            ${data.comment ? `<div class="info-line">${data.comment}</div>` : ""}
-            ${data.includeInDistribution === false && !isPrimary ? `<div class="info-line" style="color:#aaa">Не участвует в распределении</div>` : ""}
-          </div>
-        </div>
-        <div class="expense-right">
-          <button class="round-btn light small" onclick="addToEnvelope('${doc.id}')">
-            <span data-lucide="plus"></span>
-          </button>
-          ${!(isPrimary || isMiniBudget) ? `
-  <button class="round-btn gray small" onclick="editEnvelope('${doc.id}', '${data.name}', ${data.goal}, '${data.comment || ''}', ${data.percent || 0}, ${data.includeInDistribution !== false})">
-    <span data-lucide="pencil"></span>
-  </button>
-  <button class="round-btn red small" onclick="deleteEnvelope('${doc.id}')">
-    <span data-lucide="trash-2"></span>
-  </button>
-` : ""}
-
-          <button class="round-btn blue small" onclick="transferEnvelope('${doc.id}', ${data.current})">
-            <span data-lucide="move-horizontal"></span>
-          </button>
-        </div>
+block.innerHTML = `
+  <div class="expense-entry">
+    <div class="expense-left">
+      <div class="top-line">
+        <span class="top-name">
+          <strong>${data.name}</strong>
+          ${isPrimary ? "<span style='color:#999'>(общий)</span>" : ""}
+        </span>
+        <span style="font-size:0.8em;color:#999">${isPrimary ? remaining + "%" : percent + "%"}</span>
       </div>
-    `;
+      <div class="bottom-line">
+        <span>€${data.current.toFixed(2)} / €${data.goal.toFixed(2)}</span>
+        ${data.comment ? `<div class="info-line">${data.comment}</div>` : ""}
+        ${data.includeInDistribution === false && !isPrimary ? `<div class="info-line" style="color:#aaa">Не участвует в распределении</div>` : ""}
+      </div>
+    </div>
+    <div class="expense-right" style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+      <!-- Кнопка меню (3 полоски) -->
+      ${!(isPrimary || isMiniBudget) ? `
+      <button class="round-btn gray small menu-btn" data-id="${doc.id}">
+        <span data-lucide="menu"></span>
+      </button>
+      ` : ""}
+      <!-- 4 основные круглые кнопки -->
+      <button class="round-btn green small" onclick="startEditEnvelope('${doc.id}')">
+        <span data-lucide="pencil"></span>
+      </button>
+      <button class="round-btn blue small" onclick="addToEnvelope('${doc.id}')">
+        <span data-lucide="plus"></span>
+      </button>
+      <button class="round-btn red small" onclick="subtractFromEnvelope('${doc.id}')">
+        <span data-lucide="minus"></span>
+      </button>
+      <button class="round-btn orange small" onclick="transferEnvelope('${doc.id}', ${data.current})">
+        <span data-lucide="move-horizontal"></span>
+      </button>
+    </div>
+  </div>
+`;
+
     list.appendChild(block);
   });
   lucide.createIcons();
@@ -131,6 +136,18 @@ const remaining = 100 - calculateRemainingPercent();
 
 // остальные функции не изменялись...
 
+async function subtractFromEnvelope(id) {
+  const amount = prompt("Сколько вычесть (€)?");
+  const value = parseFloat(amount);
+  if (isNaN(value) || value <= 0) return;
+  const ref = db.collection("envelopes").doc(id);
+  await db.runTransaction(async (t) => {
+    const doc = await t.get(ref);
+    const data = doc.data();
+    t.update(ref, { current: (data.current || 0) - value });
+  });
+  loadEnvelopes();
+}
 
 async function addToEnvelope(id) {
   const amount = prompt("Сколько добавить (€)?");
@@ -363,6 +380,15 @@ ranges.forEach(r => {
   }
 });
 
+setTimeout(() => {
+  document.querySelectorAll('.menu-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.getAttribute('data-id');
+      showEnvelopeMenu(btn, id);
+    });
+  });
+}, 0);
 
   function calculateTotalPercent() {
     return ranges.reduce((acc, r) => acc + parseFloat(document.getElementById(`range-${r.id}`).value || 0), 0);
@@ -443,3 +469,56 @@ ranges.forEach(r => {
   updateTotalDisplay();
   lucide.createIcons();
 }
+
+function showEnvelopeMenu(btn, id) {
+  // Убрать старое меню, если есть
+  const oldMenu = document.getElementById('envelope-menu-popup');
+  if (oldMenu) oldMenu.remove();
+
+  const menu = document.createElement('div');
+  menu.id = 'envelope-menu-popup';
+  menu.style.position = 'absolute';
+  const rect = btn.getBoundingClientRect();
+  menu.style.top = `${rect.bottom + window.scrollY + 6}px`;
+  menu.style.left = `${rect.left + window.scrollX - 8}px`;
+  menu.style.background = '#fff';
+  menu.style.boxShadow = '0 2px 12px rgba(0,0,0,0.15)';
+  menu.style.borderRadius = '10px';
+  menu.style.padding = '8px 0';
+  menu.style.zIndex = 9999;
+  menu.style.minWidth = '120px';
+  menu.innerHTML = `
+    <button class="menu-item" style="display:flex;align-items:center;gap:8px;padding:8px 16px;width:100%;background:none;border:none;cursor:pointer;">
+      <span data-lucide="pencil"></span> Редактировать
+    </button>
+    <button class="menu-item" style="display:flex;align-items:center;gap:8px;padding:8px 16px;width:100%;background:none;border:none;cursor:pointer;">
+      <span data-lucide="trash-2"></span> Удалить
+    </button>
+  `;
+  document.body.appendChild(menu);
+  lucide.createIcons();
+
+  // Клик вне меню — закрыть
+  setTimeout(() => {
+    document.addEventListener('mousedown', function handler(ev) {
+      if (!menu.contains(ev.target) && ev.target !== btn) {
+        menu.remove();
+        document.removeEventListener('mousedown', handler);
+      }
+    });
+  }, 50);
+
+  // Обработчики
+  menu.children[0].onclick = () => { menu.remove(); startEditEnvelope(id); };
+  menu.children[1].onclick = () => { menu.remove(); deleteEnvelope(id); };
+}
+
+function startEditEnvelope(id) {
+  db.collection("envelopes").doc(id).get().then(doc => {
+    if (doc.exists) {
+      const d = doc.data();
+      editEnvelope(id, d.name, d.goal, d.comment || '', d.percent || 0, d.includeInDistribution !== false);
+    }
+  });
+}
+
