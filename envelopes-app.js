@@ -13,7 +13,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-const form = document.getElementById("envelope-form");
+const form = document.getElementById("add-envelope-form");
 const nameInput = document.getElementById("envelope-name");
 const goalInput = document.getElementById("envelope-goal");
 const commentInput = document.getElementById("envelope-comment");
@@ -26,22 +26,29 @@ if (incomeButton) {
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const name = nameInput.value.trim();
-  const goal = parseFloat(goalInput.value);
-  const comment = commentInput.value.trim();
-  if (!name || isNaN(goal)) return;
+  const name = document.getElementById('envelope-name').value.trim();
+  const hasGoal = document.getElementById('envelope-has-goal').checked;
+  const goal = hasGoal ? Number(document.getElementById('envelope-goal').value) : 0;
+  const comment = document.getElementById('envelope-comment').value.trim();
+  const distribution = document.getElementById('envelope-distribution').checked;
+  const percent = distribution ? Number(document.getElementById('envelope-percent').value) : 0;
+
+  if (!name) return; // имя обязательно
+  if (hasGoal && (!goal || isNaN(goal))) return; // если цель отмечена — нужна сумма
 
   try {
     await db.collection("envelopes").add({
       name,
-      goal,
+      goal: hasGoal ? goal : 0,
       comment,
       current: 0,
       created: Date.now(),
-      percent: 0,
-      includeInDistribution: true
+      includeInDistribution: distribution,
+      percent
     });
     form.reset();
+    document.getElementById('goal-block').style.display = 'none';
+    document.getElementById('percent-block').style.display = 'none';
     loadEnvelopes();
   } catch (e) {
     console.error("Ошибка:", e.message);
@@ -320,6 +327,21 @@ window.addEventListener("DOMContentLoaded", async () => {
   await ensureSystemEnvelopes();
   loadEnvelopes();
 });
+
+document.getElementById('envelope-has-goal').addEventListener('change', function() {
+  document.getElementById('goal-block').style.display = this.checked ? 'block' : 'none';
+});
+
+document.getElementById('envelope-distribution').addEventListener('change', function() {
+  const block = document.getElementById('percent-block');
+  block.style.display = this.checked ? 'block' : 'none';
+  document.getElementById('envelope-percent').disabled = !this.checked;
+});
+
+document.getElementById('envelope-percent').addEventListener('input', function() {
+  document.getElementById('envelope-percent-label').textContent = this.value + "%";
+});
+
 
 // envelopes-app.js (финальная версия openDistributionEditor)
 

@@ -13,18 +13,40 @@
   <main class="container">
     <fieldset class="block">
       <legend>Добавить конверт</legend>
-      <form id="envelope-form" class="expense-form">
-        <div class="row">
-          <input type="text" id="envelope-name" placeholder="Название" required />
-          <input type="number" id="envelope-goal" placeholder="Цель (€)" required />
-        </div>
-        <div class="row">
-          <input type="text" id="envelope-comment" placeholder="Комментарий (необязательно)" />
-        </div>
-        <div class="row end">
-          <button type="submit" class="primary-btn">Добавить</button>
-        </div>
-      </form>
+<form id="add-envelope-form" autocomplete="off">
+  <label>
+    Название<br>
+    <input type="text" id="envelope-name" required autocomplete="off">
+  </label>
+
+  <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 4px 0;">
+    <input type="checkbox" id="envelope-has-goal">
+    <span>Цель</span>
+  </label>
+  <div id="goal-block" style="display:none;">
+    <input type="number" id="envelope-goal" min="0" step="1" placeholder="Сумма цели">
+  </div>
+
+  <label>
+    Комментарий<br>
+    <input type="text" id="envelope-comment" autocomplete="off">
+  </label>
+
+  <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 4px 0;">
+    <input type="checkbox" id="envelope-distribution">
+    <span>Участвовать в распределении</span>
+  </label>
+  <div id="percent-block" style="display:none;">
+    <label style="display: flex; align-items: center; gap: 12px;">
+      <input type="range" id="envelope-percent" min="0" max="100" step="1" value="0" style="width:120px;">
+      <span id="envelope-percent-label">0%</span>
+    </label>
+  </div>
+
+  <button type="submit" class="round-btn green" style="margin-top:18px;">
+    <span data-lucide="plus"></span> Добавить
+  </button>
+</form>
     </fieldset>
 
     <div class="controls row" style="gap: 12px; justify-content: space-between; margin-top: 24px;">
