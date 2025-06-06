@@ -276,8 +276,17 @@ function deleteExpense(id) {
   }
 
   if (confirm("Удалить запись?")) {
-    db.collection("users").doc(profileCode).collection("expenses").doc(id).delete()
-.then(() => showToast("Запись удалена"));
+    // 1. Сначала получаем сумму расхода
+    db.collection("users").doc(profileCode).collection("expenses").doc(id).get().then(doc => {
+      if (!doc.exists) return;
+      const amount = Number(doc.data().amount) || 0;
+      // 2. Удаляем запись
+      db.collection("users").doc(profileCode).collection("expenses").doc(id).delete().then(async () => {
+        // 3. Возвращаем сумму в MiniBudget
+        await subtractFromMiniBudget(-amount); // минус на минус = вернуть обратно
+        showToast("Запись удалена");
+      });
+    });
   }
 }
 
@@ -325,15 +334,24 @@ form.onsubmit = async (e) => {
   const data = { category, amount, mileage, liters, date, note, tag };
   const ref = db.collection("users").doc(profileCode).collection("expenses");
 
-  if (id) {
-    await ref.doc(id).update(data);
-  } else {
-    await ref.add(data);
-    if (tag) {
-      await db.collection("users").doc(profileCode).collection("tags").doc(tag).set({ used: true });
-    }
-    await subtractFromMiniBudget(amount);
+if (id) {
+  // Получаем старое значение расхода
+  const oldDoc = await ref.doc(id).get();
+  const oldAmount = Number(oldDoc.data()?.amount) || 0;
+  await ref.doc(id).update(data);
+  // Корректируем MiniBudget на разницу
+  const diff = amount - oldAmount;
+  if (diff !== 0) {
+    await subtractFromMiniBudget(diff);
   }
+} else {
+  await ref.add(data);
+  if (tag) {
+    await db.collection("users").doc(profileCode).collection("tags").doc(tag).set({ used: true });
+  }
+  await subtractFromMiniBudget(amount);
+}
+
 
   // --- Всё остальное после логики добавления ---
   const dateInput = document.getElementById('date');
