@@ -131,6 +131,16 @@ block.innerHTML = `
 
     list.appendChild(block);
   });
+setTimeout(() => {
+  document.querySelectorAll('.menu-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.getAttribute('data-id');
+      showEnvelopeMenu(btn, id);
+    });
+  });
+}, 0);
+
   lucide.createIcons();
 }
 
