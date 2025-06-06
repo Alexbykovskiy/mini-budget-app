@@ -308,36 +308,26 @@ async function subtractFromMiniBudget(amount) {
 }
 
 
-form.onsubmit = (e) => {
+form.onsubmit = async (e) => {
   e.preventDefault();
- if (!db) {
+  if (!db) {
     console.error("Firestore не инициализирован (form submit)");
     return;
   }
   const id = document.getElementById('edit-id').value;
-  const category = document.getElementById('category').value;
-  const amount = parseFloat(document.getElementById('amount').value.replace(',', '.'));
-  const mileage = document.getElementById('mileage').value;
-  const liters = parseFloat(document.getElementById('liters').value.replace(',', '.'));
-  const date = document.getElementById('date').value || new Date().toISOString().split('T')[0];
-  const note = document.getElementById('note').value;
-
-  // 👉 Нормализуем тег: только строчные буквы, слитно, без пробелов
-  let tag = document.getElementById('tag').value.trim().toLowerCase().replace(/\s+/g, '');
-
+  // ... переменные ...
   const data = { category, amount, mileage, liters, date, note, tag };
   const ref = db.collection("users").doc(profileCode).collection("expenses");
 
   if (id) {
-    ref.doc(id).update(data);
+    await ref.doc(id).update(data);
   } else {
-    ref.add(data).then(() => {
-      // 👉 Сохраняем новый тег, если он не пустой
-      if (tag) {
-        db.collection("users").doc(profileCode).collection("tags").doc(tag).set({ used: true });
-      }
- // --- Вот здесь вызываем списание из MiniBudget ---
-      subtractFromMiniBudget(amount);
+    await ref.add(data);
+    if (tag) {
+      await db.collection("users").doc(profileCode).collection("tags").doc(tag).set({ used: true });
+    }
+    await subtractFromMiniBudget(amount);
+  }
     });
   }
 const dateInput = document.getElementById('date');
