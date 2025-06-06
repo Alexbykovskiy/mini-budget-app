@@ -1812,22 +1812,14 @@ input[type=range]::-moz-range-track {
 }
 .envelope-block {
   width: 360px;
-  height: 270px;
-  min-height: 270px;
-  max-height: 270px;
-  overflow: hidden;
-}
-.envelope-block {
-  width: 360px;
-  height: 270px;
-  min-height: 270px;
-  max-height: 270px;
+  height: 270px !important;
+  min-height: 270px !important;
+  max-height: 270px !important;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: stretch;
 }
-
 .envelope-block .expense-entry {
   flex: 1 1 auto;
   height: 100%;
