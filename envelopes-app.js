@@ -247,6 +247,8 @@ window.addEventListener("DOMContentLoaded", async () => {
 
 // envelopes-app.js (финальная версия openDistributionEditor)
 
+// envelopes-app.js (финальная версия openDistributionEditor)
+
 async function openDistributionEditor() {
   const snapshot = await db.collection("envelopes").orderBy("created", "asc").get();
   if (snapshot.empty) {
@@ -286,9 +288,7 @@ async function openDistributionEditor() {
       <label style='display:block; font-weight:bold; margin-bottom:4px;'>
         <span id='label-${doc.id}' style='margin-right:8px;'>${percentValue}%</span>${data.name}
       </label>
-      <div style='padding: 0 8px;'>
-  <input type='range' ... style='width:100%;'>
-</div>
+      <input type='range' min='0' max='100' step='1' value='${percentValue}' id='range-${doc.id}' style='width:100%'>
     `;
     container.appendChild(row);
     ranges.push({ id: doc.id });
@@ -324,14 +324,14 @@ async function openDistributionEditor() {
 
   const cancelBtn = document.createElement("button");
   cancelBtn.className = "round-btn orange";
-  cancelBtn.innerHTML = '<span data-lucide="x" style="width: 24px; height: 24px;"></span>';
+  cancelBtn.innerHTML = '<span data-lucide="x"></span>';
   cancelBtn.onclick = () => {
     document.body.removeChild(modal);
   };
 
   const saveBtn = document.createElement("button");
   saveBtn.className = "round-btn green";
-  saveBtn.innerHTML = '<span data-lucide="check" style="width: 24px; height: 24px;"></span>';
+  saveBtn.innerHTML = '<span data-lucide="check"></span>';
   saveBtn.onclick = async () => {
     await Promise.all(ranges.map(async (r) => {
       const val = parseFloat(document.getElementById(`range-${r.id}`).value);
