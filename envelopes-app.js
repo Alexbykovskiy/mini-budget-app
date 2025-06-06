@@ -70,12 +70,13 @@ ordered.push(...others);
 
 
  function calculateRemainingPercent() {
-  // others + MiniBudget
-  let sum = others.reduce((acc, doc) => acc + parseFloat(doc.data().percent || 0), 0);
-  if (miniBudget) {
-    sum += parseFloat(miniBudget.data().percent || 0);
-  }
-  return sum;
+  // Суммируем percent для всех конвертов, кроме isPrimary
+  return envelopes.reduce((acc, doc) => {
+    if (!doc.data().isPrimary) {
+      return acc + parseFloat(doc.data().percent || 0);
+    }
+    return acc;
+  }, 0);
 }
 const remaining = 100 - calculateRemainingPercent();
 
