@@ -329,19 +329,29 @@ async function openDistributionEditor() {
 ranges.forEach(r => {
   const range = document.getElementById(`range-${r.id}`);
   const cb = document.getElementById(`cb-${r.id}`);
-  if (range && cb) {
+  const label = document.getElementById(`label-${r.id}`);
+  if (range && cb && label) {
+    // инициализация
     range.disabled = !cb.checked;
+    if (!cb.checked) {
+      range.value = 0;
+      label.textContent = "0%";
+    }
+    // слушатель чекбокса
     cb.addEventListener("change", () => {
-      if (!cb.checked) {
+      if (cb.checked) {
+        range.disabled = false;
+        // НЕ меняем range.value — пусть пользователь сам крутит!
+      } else {
         range.value = 0;
         range.disabled = true;
-        range.dispatchEvent(new Event('input'));
-        document.getElementById(`label-${r.id}`).textContent = `0%`;
-      } else {
-        range.disabled = false;
-        // При активации галочки оставляем value прежним (0, если только что отключили, или то, что пользователь выбрал!)
-        // Автоматически не ставим никакой процент — пользователь сразу может крутить бегунок
+        label.textContent = "0%";
       }
+      updateTotalDisplay();
+    });
+    // слушатель бегунка для лейбла
+    range.addEventListener("input", () => {
+      label.textContent = `${range.value}%`;
       updateTotalDisplay();
     });
   }
@@ -389,9 +399,10 @@ ranges.forEach(r => {
   saveBtn.onclick = async () => {
   await Promise.all(ranges.map(async (r) => {
     const cb = document.getElementById(`cb-${r.id}`);
-    const val = cb.checked ? parseFloat(document.getElementById(`range-${r.id}`).value) : 0;
+    const range = document.getElementById(`range-${r.id}`);
+    const percent = cb.checked ? parseFloat(range.value) : 0;
     await db.collection("envelopes").doc(r.id).update({
-      percent: val,
+      percent,
       includeInDistribution: cb.checked
     });
   }));
@@ -399,6 +410,7 @@ ranges.forEach(r => {
   document.body.removeChild(modal);
   loadEnvelopes();
 };
+
 
 
   buttonRow.appendChild(cancelBtn);
