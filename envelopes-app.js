@@ -92,15 +92,10 @@ const remaining = 100 - calculateRemainingPercent();
 block.innerHTML = `
   <div class="expense-entry">
     <div class="expense-left">
-      <div class="top-line">
-        <span class="top-name">
-          <strong>${data.name}</strong>
-          ${isPrimary ? "<span style='color:#999'> </span>" : ""}
-        </span>
-        <div class="top-line" style="display:flex; align-items:center; justify-content:space-between;">
+<div class="top-line" style="display:flex; align-items:center; justify-content:space-between;">
   <span class="top-name">
     <strong>${data.name}</strong>
-    ${isPrimary ? "<span style='color:#999'> </span>" : ""}
+    ${isPrimary ? "<span style='color:#999'>(общий)</span>" : ""}
   </span>
   ${!isPrimary ? `
     <div class="progress-ring" style="width:36px; height:36px;">
@@ -124,7 +119,7 @@ block.innerHTML = `
     <span style="font-size:0.8em;color:#999">${remaining}%</span>
   `}
 </div>
-      </div>
+
       <div class="bottom-line">
         <span>€${data.current.toFixed(2)} / €${data.goal.toFixed(2)}</span>
         ${data.comment ? `<div class="info-line">${data.comment}</div>` : ""}
