@@ -58,10 +58,16 @@ async function loadEnvelopes() {
   list.innerHTML = "";
 
   const envelopes = snapshot.docs;
-  const primary = envelopes.find(doc => doc.data().isPrimary);
-  const others = envelopes.filter(doc => !doc.data().isPrimary);
+const primary = envelopes.find(doc => doc.data().isPrimary);
+const miniBudget = envelopes.find(doc => doc.data().isMiniBudget);
+const others = envelopes.filter(doc => !doc.data().isPrimary && !doc.data().isMiniBudget);
 
-  const ordered = primary ? [primary, ...others] : envelopes;
+// Итоговый порядок: Общий → MiniBudget → остальные
+const ordered = [];
+if (primary) ordered.push(primary);
+if (miniBudget) ordered.push(miniBudget);
+ordered.push(...others);
+
 
   function calculateRemainingPercent() {
     return others.reduce((acc, doc) => acc + parseFloat(doc.data().percent || 0), 0);
@@ -253,7 +259,7 @@ async function ensureSystemEnvelopes() {
       current: 0,
       created: Date.now(),
       percent: 0,
-      includeInDistribution: false,
+      includeInDistribution: true,
       isMiniBudget: true
     });
     console.log("✅ Конверт 'MiniBudget' создан автоматически");
@@ -298,7 +304,8 @@ async function openDistributionEditor() {
 
   snapshot.forEach(doc => {
     const data = doc.data();
-    if (data.includeInDistribution === false || data.isPrimary) return;
+   if (data.includeInDistribution === false || data.isPrimary) return;
+// а для MiniBudget ничего не фильтруем!
 
     const row = document.createElement("div");
     row.style.marginBottom = "16px";
