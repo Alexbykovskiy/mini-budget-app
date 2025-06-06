@@ -125,12 +125,18 @@ block.innerHTML = `
   </div>
 </div>
       <div class="bottom-line">
-        <span>
-  €${data.current.toFixed(2)} / ${data.goal && data.goal > 0 ? "€" + data.goal.toFixed(2) : "&infin;"}
-</span>
-        ${data.comment ? `<div class="info-line">${data.comment}</div>` : ""}
-        ${data.includeInDistribution === false && !isPrimary ? `<div class="info-line" style="color:#aaa">Не участвует в распределении</div>` : ""}
-      </div>
+  <span>
+    €${data.current.toFixed(2)} /
+    ${
+      (isPrimary || isMiniBudget || !data.goal || data.goal == 0)
+         ? '<span style="font-size:1.35em;vertical-align:-2px;">&#8734;</span>'
+        : "€" + data.goal.toFixed(2)
+    }
+  </span>
+  ${data.comment ? `<div class="info-line">${data.comment}</div>` : ""}
+  ${data.includeInDistribution === false && !isPrimary ? `<div class="info-line" style="color:#aaa">Не участвует в распределении</div>` : ""}
+</div>
+
     </div>
     <div class="expense-right" style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
       <!-- Кнопка меню (3 полоски) -->
