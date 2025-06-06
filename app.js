@@ -292,6 +292,22 @@ function fillFormForEdit(exp) {
   document.getElementById('tag').value = exp.tag || '';
 }
 
+// --- Функция для списания суммы из конверта MiniBudget ---
+async function subtractFromMiniBudget(amount) {
+  // Получаем ссылку на Firestore (db уже определён выше)
+  // envelopes коллекция находится в общем пространстве, без users/mini
+  const snapshot = await firebase.firestore().collection("envelopes").where("isMiniBudget", "==", true).limit(1).get();
+  if (!snapshot.empty) {
+    const doc = snapshot.docs[0];
+    const ref = firebase.firestore().collection("envelopes").doc(doc.id);
+    await firebase.firestore().runTransaction(async (t) => {
+      const d = await t.get(ref);
+      t.update(ref, { current: (d.data().current || 0) - amount });
+    });
+  }
+}
+
+
 form.onsubmit = (e) => {
   e.preventDefault();
  if (!db) {
@@ -320,6 +336,8 @@ form.onsubmit = (e) => {
       if (tag) {
         db.collection("users").doc(profileCode).collection("tags").doc(tag).set({ used: true });
       }
+ // --- Вот здесь вызываем списание из MiniBudget ---
+      subtractFromMiniBudget(amount);
     });
   }
 const dateInput = document.getElementById('date');

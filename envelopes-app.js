@@ -72,6 +72,7 @@ async function loadEnvelopes() {
   ordered.forEach(doc => {
     const data = doc.data();
     const percent = Math.min(100, Math.round(data.percent || 0));
+    const isMiniBudget = data.isMiniBudget === true;
     const isPrimary = data.isPrimary === true;
     const block = document.createElement("div");
 
@@ -96,14 +97,15 @@ async function loadEnvelopes() {
           <button class="round-btn light small" onclick="addToEnvelope('${doc.id}')">
             <span data-lucide="plus"></span>
           </button>
-          ${!isPrimary ? `
-            <button class="round-btn gray small" onclick="editEnvelope('${doc.id}', '${data.name}', ${data.goal}, '${data.comment || ''}', ${data.percent || 0}, ${data.includeInDistribution !== false})">
-              <span data-lucide="pencil"></span>
-            </button>
-            <button class="round-btn red small" onclick="deleteEnvelope('${doc.id}')">
-              <span data-lucide="trash-2"></span>
-            </button>
-          ` : ""}
+          ${!(isPrimary || isMiniBudget) ? `
+  <button class="round-btn gray small" onclick="editEnvelope('${doc.id}', '${data.name}', ${data.goal}, '${data.comment || ''}', ${data.percent || 0}, ${data.includeInDistribution !== false})">
+    <span data-lucide="pencil"></span>
+  </button>
+  <button class="round-btn red small" onclick="deleteEnvelope('${doc.id}')">
+    <span data-lucide="trash-2"></span>
+  </button>
+` : ""}
+
           <button class="round-btn blue small" onclick="transferEnvelope('${doc.id}', ${data.current})">
             <span data-lucide="move-horizontal"></span>
           </button>
@@ -149,10 +151,10 @@ async function editEnvelope(id, oldName, oldGoal, oldComment, oldPercent, oldInc
 async function deleteEnvelope(id) {
   const ref = db.collection("envelopes").doc(id);
   const snap = await ref.get();
-  if (snap.exists && snap.data().isPrimary) {
-    alert("Нельзя удалить основной конверт.");
-    return;
-  }
+ if (snap.exists && (snap.data().isPrimary || snap.data().isMiniBudget)) {
+  alert("Нельзя удалить этот конверт.");
+  return;
+}
   if (!confirm("Удалить этот конверт?")) return;
   await ref.delete();
   loadEnvelopes();
@@ -223,9 +225,11 @@ if (totalPercent < 100) {
   loadEnvelopes();
 }
 
-async function ensurePrimaryEnvelopeExists() {
-  const check = await db.collection("envelopes").where("isPrimary", "==", true).limit(1).get();
-  if (check.empty) {
+// === ДОБАВЬ вместо ensurePrimaryEnvelopeExists ===
+async function ensureSystemEnvelopes() {
+  // 1. Создаём "Общий", если его нет
+  const primary = await db.collection("envelopes").where("isPrimary", "==", true).limit(1).get();
+  if (primary.empty) {
     await db.collection("envelopes").add({
       name: "Общий",
       goal: 1000000,
@@ -238,13 +242,27 @@ async function ensurePrimaryEnvelopeExists() {
     });
     console.log("✅ Конверт 'Общий' создан автоматически");
   }
-}
 
+  // 2. Создаём "MiniBudget", если его нет
+  const miniBudget = await db.collection("envelopes").where("isMiniBudget", "==", true).limit(1).get();
+  if (miniBudget.empty) {
+    await db.collection("envelopes").add({
+      name: "MiniBudget",
+      goal: 1000000,
+      comment: "Mini Budget. Деньги списываются автоматически",
+      current: 0,
+      created: Date.now(),
+      percent: 0,
+      includeInDistribution: false,
+      isMiniBudget: true
+    });
+    console.log("✅ Конверт 'MiniBudget' создан автоматически");
+  }
+}
 window.addEventListener("DOMContentLoaded", async () => {
-  await ensurePrimaryEnvelopeExists();
+  await ensureSystemEnvelopes();
   loadEnvelopes();
 });
-
 
 // envelopes-app.js (финальная версия openDistributionEditor)
 
