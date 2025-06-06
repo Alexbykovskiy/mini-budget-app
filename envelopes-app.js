@@ -498,13 +498,41 @@ function showEnvelopeMenu(btn, id) {
   menu.style.zIndex = 9999;
   menu.style.minWidth = '120px';
   menu.innerHTML = `
-    <button class="menu-item" style="display:flex;align-items:center;gap:8px;padding:8px 16px;width:100%;background:none;border:none;cursor:pointer;">
-      <span data-lucide="pencil"></span> Редактировать
-    </button>
-    <button class="menu-item" style="display:flex;align-items:center;gap:8px;padding:8px 16px;width:100%;background:none;border:none;cursor:pointer;">
-      <span data-lucide="trash-2"></span> Удалить
-    </button>
-  `;
+    menu.innerHTML = `
+  <button class="menu-item" style="
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 16px;
+    width:100%;
+    background:none;
+    border:none;
+    cursor:pointer;
+    color:#186663;
+    font-size:16px;
+    font-weight:500;
+    transition:background 0.15s;
+  " onmouseover="this.style.background='#f0f7f6'" onmouseout="this.style.background='none'">
+    <span data-lucide="pencil"></span> Редактировать
+  </button>
+  <button class="menu-item" style="
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 16px;
+    width:100%;
+    background:none;
+    border:none;
+    cursor:pointer;
+    color:#ff4d4f;
+    font-size:16px;
+    font-weight:500;
+    transition:background 0.15s;
+  " onmouseover="this.style.background='#fff5f5'" onmouseout="this.style.background='none'">
+    <span data-lucide="trash-2"></span> Удалить
+  </button>
+`;
+
   document.body.appendChild(menu);
   lucide.createIcons();
 
