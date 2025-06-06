@@ -311,14 +311,15 @@ async function openDistributionEditor() {
     const row = document.createElement("div");
     row.style.marginBottom = "16px";
     const percentValue = data.percent || 0;
-    row.innerHTML = `
-  <label style='display:flex; align-items:center; font-weight:bold; margin-bottom:4px; gap:8px;'>
-    <input type="checkbox" id="cb-${doc.id}" ${data.includeInDistribution !== false ? "checked" : ""} style="margin-right:2px;">
+  row.innerHTML = `
+  <div style="display:flex; align-items:center; gap:8px; font-weight:bold; margin-bottom:4px;">
+    <input type="checkbox" id="cb-${doc.id}" ${data.includeInDistribution !== false ? "checked" : ""} style="accent-color:#186663; width:18px; height:18px; margin:0;">
     <span id='label-${doc.id}' style='min-width:36px; text-align:right;'>${percentValue}%</span>
     <span>${data.name}</span>
-  </label>
+  </div>
   <input type='range' min='0' max='100' step='1' value='${percentValue}' id='range-${doc.id}' style='width:100%'>
 `;
+
 
     container.appendChild(row);
     ranges.push({ id: doc.id });
@@ -329,13 +330,12 @@ ranges.forEach(r => {
   const range = document.getElementById(`range-${r.id}`);
   const cb = document.getElementById(`cb-${r.id}`);
   if (range && cb) {
-    // При инициализации: если чекбокс снят — range неактивен
     range.disabled = !cb.checked;
-    // Когда меняется чекбокс — делаем range активным/неактивным
     cb.addEventListener("change", () => {
       range.disabled = !cb.checked;
       if (!cb.checked) {
         range.value = 0;
+        range.dispatchEvent(new Event('input')); // ⬅️ запусти обновление процентов
         document.getElementById(`label-${r.id}`).textContent = `0%`;
       }
       updateTotalDisplay();
