@@ -23,7 +23,17 @@ const incomeButton = document.getElementById("distribute-income");
 if (incomeButton) {
   incomeButton.addEventListener("click", distributeIncome);
 }
-
+document.getElementById('cancel-edit-btn').addEventListener('click', function() {
+  editingEnvelopeId = null;
+  form.reset();
+  document.getElementById('envelope-goal').style.display = 'none';
+  document.getElementById('envelope-percent').style.display = 'none';
+  document.getElementById('envelope-percent-label').style.display = 'none';
+  const submitBtn = document.querySelector('#add-envelope-form button[type="submit"]');
+  submitBtn.innerHTML = '<span data-lucide="check"></span>';
+  this.style.display = 'none';
+  lucide.createIcons();
+});
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const name = document.getElementById('envelope-name').value.trim();
@@ -33,28 +43,42 @@ form.addEventListener("submit", async (e) => {
   const distribution = document.getElementById('envelope-distribution').checked;
   const percent = distribution ? Number(document.getElementById('envelope-percent').value) : 0;
 
-  if (!name) return; // имя обязательно
-  if (hasGoal && (!goal || isNaN(goal))) return; // если цель отмечена — нужна сумма
+  if (!name) return;
 
   try {
-    await db.collection("envelopes").add({
-      name,
-      goal: hasGoal ? goal : 0,
-      comment,
-      current: 0,
-      created: Date.now(),
-      includeInDistribution: distribution,
-      percent
-    });
+    if (editingEnvelopeId) {
+      await db.collection("envelopes").doc(editingEnvelopeId).update({
+        name,
+        goal,
+        comment,
+        includeInDistribution: distribution,
+        percent
+      });
+      editingEnvelopeId = null;
+      document.getElementById('cancel-edit-btn').style.display = 'none';
+      const submitBtn = document.querySelector('#add-envelope-form button[type="submit"]');
+      submitBtn.innerHTML = '<span data-lucide="check"></span>';
+      lucide.createIcons();
+    } else {
+      await db.collection("envelopes").add({
+        name,
+        goal,
+        comment,
+        current: 0,
+        created: Date.now(),
+        includeInDistribution: distribution,
+        percent
+      });
+    }
     form.reset();
-    document.getElementById('goal-block').style.display = 'none';
-    document.getElementById('percent-block').style.display = 'none';
+    document.getElementById('envelope-goal').style.display = 'none';
+    document.getElementById('envelope-percent').style.display = 'none';
+    document.getElementById('envelope-percent-label').style.display = 'none';
     loadEnvelopes();
-  } catch (e) {
-    console.error("Ошибка:", e.message);
+  } catch (err) {
+    alert("Ошибка при добавлении: " + err.message);
   }
-});
-
+});let editingEnvelopeId = null;
 async function loadEnvelopes() {
   list.innerHTML = "<p style='color:#999'>Загрузка...</p>";
   const snapshot = await db.collection("envelopes").orderBy("created", "asc").get();
@@ -68,6 +92,28 @@ async function loadEnvelopes() {
 const primary = envelopes.find(doc => doc.data().isPrimary);
 const miniBudget = envelopes.find(doc => doc.data().isMiniBudget);
 const others = envelopes.filter(doc => !doc.data().isPrimary && !doc.data().isMiniBudget);
+
+function fillEditForm(data, id) {
+  document.getElementById('envelope-name').value = data.name || "";
+  document.getElementById('envelope-comment').value = data.comment || "";
+  document.getElementById('envelope-has-goal').checked = !!(data.goal && data.goal > 0);
+  document.getElementById('envelope-goal').style.display = (data.goal && data.goal > 0) ? 'inline-block' : 'none';
+  document.getElementById('envelope-goal').value = data.goal && data.goal > 0 ? data.goal : '';
+  document.getElementById('envelope-distribution').checked = data.includeInDistribution === undefined ? true : !!data.includeInDistribution;
+  document.getElementById('envelope-percent').style.display = document.getElementById('envelope-percent-label').style.display =
+    document.getElementById('envelope-distribution').checked ? 'inline-block' : 'none';
+  document.getElementById('envelope-percent').disabled = !document.getElementById('envelope-distribution').checked;
+  document.getElementById('envelope-percent').value = data.percent || 0;
+  document.getElementById('envelope-percent-label').textContent = (data.percent || 0) + "%";
+  editingEnvelopeId = id;
+
+  // Меняем кнопку: ставим "save" вместо "check"
+  const submitBtn = document.querySelector('#add-envelope-form button[type="submit"]');
+  submitBtn.innerHTML = '<span data-lucide="save"></span>';
+  document.getElementById('cancel-edit-btn').style.display = 'inline-flex';
+  lucide.createIcons();
+}
+
 
 // Итоговый порядок: Общий → MiniBudget → остальные
 const ordered = [];
@@ -605,11 +651,10 @@ function showEnvelopeMenu(btn, id) {
   menu.children[1].onclick = () => { menu.remove(); deleteEnvelope(id); };
 }
 
-function startEditEnvelope(id) {
+ffunction startEditEnvelope(id) {
   db.collection("envelopes").doc(id).get().then(doc => {
     if (doc.exists) {
-      const d = doc.data();
-      editEnvelope(id, d.name, d.goal, d.comment || '', d.percent || 0, d.includeInDistribution !== false);
+      fillEditForm(doc.data(), id);
     }
   });
 }
@@ -642,18 +687,33 @@ addForm.addEventListener('submit', async (e) => {
   const distribution = document.getElementById('envelope-distribution').checked;
   const percent = distribution ? Number(document.getElementById('envelope-percent').value) : 0;
 
-  if (!name) return; // Не добавлять, если не введено имя
+  if (!name) return; // имя обязательно
 
   try {
-    await db.collection("envelopes").add({
-      name,
-      goal: hasGoal ? goal : 0,
-      comment,
-      current: 0,
-      created: Date.now(),
-      includeInDistribution: distribution,
-      percent
-    });
+    if (editingEnvelopeId) {
+      await db.collection("envelopes").doc(editingEnvelopeId).update({
+        name,
+        goal,
+        comment,
+        includeInDistribution: distribution,
+        percent
+      });
+      editingEnvelopeId = null;
+      document.getElementById('cancel-edit-btn').style.display = 'none';
+      const submitBtn = document.querySelector('#add-envelope-form button[type="submit"]');
+      submitBtn.innerHTML = '<span data-lucide="check"></span>';
+      lucide.createIcons();
+    } else {
+      await db.collection("envelopes").add({
+        name,
+        goal,
+        comment,
+        current: 0,
+        created: Date.now(),
+        includeInDistribution: distribution,
+        percent
+      });
+    }
     addForm.reset();
     document.getElementById('envelope-goal').style.display = 'none';
     document.getElementById('envelope-percent').style.display = 'none';
@@ -663,4 +723,3 @@ addForm.addEventListener('submit', async (e) => {
     alert("Ошибка при добавлении: " + err.message);
   }
 });
-
