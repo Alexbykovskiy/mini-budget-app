@@ -69,11 +69,16 @@ if (miniBudget) ordered.push(miniBudget);
 ordered.push(...others);
 
 
-  function calculateRemainingPercent() {
-    return others.reduce((acc, doc) => acc + parseFloat(doc.data().percent || 0), 0);
+ function calculateRemainingPercent() {
+  // others + MiniBudget
+  let sum = others.reduce((acc, doc) => acc + parseFloat(doc.data().percent || 0), 0);
+  if (miniBudget) {
+    sum += parseFloat(miniBudget.data().percent || 0);
   }
+  return sum;
+}
+const remaining = 100 - calculateRemainingPercent();
 
-  const remaining = 100 - calculateRemainingPercent();
 
   ordered.forEach(doc => {
     const data = doc.data();
