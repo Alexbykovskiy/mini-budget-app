@@ -332,14 +332,15 @@ ranges.forEach(r => {
   if (range && cb) {
     range.disabled = !cb.checked;
     cb.addEventListener("change", () => {
-      range.disabled = !cb.checked;
       if (!cb.checked) {
         range.value = 0;
-        range.dispatchEvent(new Event('input')); // обновить лейбл и расчет
+        range.disabled = true;
+        range.dispatchEvent(new Event('input'));
         document.getElementById(`label-${r.id}`).textContent = `0%`;
       } else {
-        // Галочку включили — бегунок становится активным и можно сразу тянуть
-        // ничего сбрасывать не нужно!
+        range.disabled = false;
+        // При активации галочки оставляем value прежним (0, если только что отключили, или то, что пользователь выбрал!)
+        // Автоматически не ставим никакой процент — пользователь сразу может крутить бегунок
       }
       updateTotalDisplay();
     });
