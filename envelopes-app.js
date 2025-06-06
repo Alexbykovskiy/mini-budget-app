@@ -384,11 +384,11 @@ ranges.forEach(r => {
   saveBtn.innerHTML = '<span data-lucide="check"></span>';
   saveBtn.onclick = async () => {
   await Promise.all(ranges.map(async (r) => {
-    const val = parseFloat(document.getElementById(`range-${r.id}`).value);
-    const checked = document.getElementById(`cb-${r.id}`).checked;
+    const cb = document.getElementById(`cb-${r.id}`);
+    const val = cb.checked ? parseFloat(document.getElementById(`range-${r.id}`).value) : 0;
     await db.collection("envelopes").doc(r.id).update({
       percent: val,
-      includeInDistribution: checked
+      includeInDistribution: cb.checked
     });
   }));
   alert("Проценты сохранены");
