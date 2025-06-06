@@ -251,6 +251,38 @@ async function openDistributionEditor() {
     alert("Нет доступных конвертов для настройки.");
     return;
   }
+const buttonRow = document.createElement("div");
+buttonRow.className = "row end";
+buttonRow.style.marginTop = "16px";
+buttonRow.style.display = "flex";
+buttonRow.style.justifyContent = "center";
+buttonRow.style.gap = "32px";
+
+const cancelBtn = document.createElement("button");
+cancelBtn.className = "round-btn orange";
+cancelBtn.innerHTML = '<span data-lucide="x"></span>';
+cancelBtn.onclick = () => {
+  document.body.removeChild(modal);
+};
+
+const saveBtn = document.createElement("button");
+saveBtn.className = "round-btn green";
+saveBtn.innerHTML = '<span data-lucide="check"></span>';
+saveBtn.onclick = async () => {
+  await Promise.all(ranges.map(async (r) => {
+    const val = parseFloat(document.getElementById(`range-${r.id}`).value);
+    await db.collection("envelopes").doc(r.id).update({ percent: val });
+  }));
+  alert("Проценты сохранены");
+  document.body.removeChild(modal);
+  loadEnvelopes();
+};
+
+buttonRow.appendChild(cancelBtn);
+buttonRow.appendChild(saveBtn);
+container.appendChild(buttonRow);
+
+lucide.createIcons();
 
   const modal = document.createElement("div");
   modal.style.position = "fixed";
@@ -316,21 +348,7 @@ async function openDistributionEditor() {
     }
   }
 
-  const saveBtn = document.createElement("button");
-  saveBtn.textContent = "Сохранить";
-  saveBtn.className = "primary-btn";
-  saveBtn.style.marginTop = "16px";
-  saveBtn.onclick = async () => {
-    await Promise.all(ranges.map(async (r) => {
-      const val = parseFloat(document.getElementById(`range-${r.id}`).value);
-      await db.collection("envelopes").doc(r.id).update({ percent: val });
-    }));
-    alert("Проценты сохранены");
-    document.body.removeChild(modal);
-    loadEnvelopes();
-  };
-
-  container.appendChild(saveBtn);
+ 
   modal.appendChild(container);
   document.body.appendChild(modal);
 
