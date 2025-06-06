@@ -497,8 +497,7 @@ function showEnvelopeMenu(btn, id) {
   menu.style.padding = '8px 0';
   menu.style.zIndex = 9999;
   menu.style.minWidth = '120px';
-  menu.innerHTML = `
-    menu.innerHTML = `
+     menu.innerHTML = `
   <button class="menu-item" style="
     display:flex;
     align-items:center;
