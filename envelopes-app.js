@@ -97,29 +97,26 @@ block.innerHTML = `
     <strong>${data.name}</strong>
     ${isPrimary ? "<span style='color:#999'>(общий)</span>" : ""}
   </span>
-  ${!isPrimary ? `
-    <div class="progress-ring" style="width:36px; height:36px;">
-      <svg width="36" height="36">
-        <circle cx="18" cy="18" r="16" stroke="#e0e0e0" stroke-width="4" fill="none"/>
-        <circle
-          cx="18" cy="18" r="16"
-          stroke="#186663"
-          stroke-width="4"
-          fill="none"
-          stroke-linecap="round"
-          stroke-dasharray="${2 * Math.PI * 16}"
-          stroke-dashoffset="${2 * Math.PI * 16 * (1 - Math.min(1, data.current / data.goal))}"
-          style="transition: stroke-dashoffset 0.4s;"/>
-        <text x="18" y="22" text-anchor="middle" font-size="13" fill="#186663" font-weight="bold">
-          ${Math.round(Math.min(1, data.current / data.goal) * 100)}%
-        </text>
-      </svg>
-    </div>
-  ` : `
-    <span style="font-size:0.8em;color:#999">${remaining}%</span>
-  `}
+  <div class="progress-ring" style="width:36px; height:36px;">
+    <svg width="36" height="36">
+      <!-- Фон — всегда круг (темно-серый) -->
+      <circle cx="18" cy="18" r="16" stroke="#888" stroke-width="4" fill="none"/>
+      <!-- Прогресс — дуга, оранжевая -->
+      <circle
+        cx="18" cy="18" r="16"
+        stroke="#f7931e"
+        stroke-width="4"
+        fill="none"
+        stroke-linecap="round"
+        stroke-dasharray="${2 * Math.PI * 16}"
+        stroke-dashoffset="${2 * Math.PI * 16 * (1 - (isPrimary ? remaining/100 : Math.min(1, data.current / data.goal)))}"
+        style="transition: stroke-dashoffset 0.4s;"/>
+      <text x="18" y="22" text-anchor="middle" font-size="13" fill="#f7931e" font-weight="bold">
+        ${isPrimary ? remaining : Math.round(Math.min(1, data.current / data.goal) * 100)}%
+      </text>
+    </svg>
+  </div>
 </div>
-
       <div class="bottom-line">
         <span>€${data.current.toFixed(2)} / €${data.goal.toFixed(2)}</span>
         ${data.comment ? `<div class="info-line">${data.comment}</div>` : ""}
