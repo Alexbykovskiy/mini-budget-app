@@ -1810,3 +1810,10 @@ input[type=range]::-moz-range-track {
   border-radius: 3px;
   height: 6px;
 }
+.envelope-block {
+  width: 360px;
+  height: 270px;
+  min-height: 270px;
+  max-height: 270px;
+  overflow: hidden;
+}

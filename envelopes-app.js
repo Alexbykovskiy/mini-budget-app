@@ -74,7 +74,7 @@ async function loadEnvelopes() {
     const percent = Math.min(100, Math.round(data.percent || 0));
     const isPrimary = data.isPrimary === true;
     const block = document.createElement("fieldset");
-    block.className = "block";
+   block.className = "block envelope-block"; // 👈 добавляем envelope-block
     block.innerHTML = `
       <div class="expense-entry">
         <div class="expense-left">
