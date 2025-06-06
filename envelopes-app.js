@@ -95,12 +95,12 @@ block.innerHTML = `
       <div class="top-line">
         <span class="top-name">
           <strong>${data.name}</strong>
-          ${isPrimary ? "<span style='color:#999'>(общий)</span>" : ""}
+          ${isPrimary ? "<span style='color:#999'> </span>" : ""}
         </span>
         <div class="top-line" style="display:flex; align-items:center; justify-content:space-between;">
   <span class="top-name">
     <strong>${data.name}</strong>
-    ${isPrimary ? "<span style='color:#999'>(общий)</span>" : ""}
+    ${isPrimary ? "<span style='color:#999'> </span>" : ""}
   </span>
   ${!isPrimary ? `
     <div class="progress-ring" style="width:36px; height:36px;">
