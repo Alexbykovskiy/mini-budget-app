@@ -311,14 +311,39 @@ async function openDistributionEditor() {
     row.style.marginBottom = "16px";
     const percentValue = data.percent || 0;
     row.innerHTML = `
-      <label style='display:block; font-weight:bold; margin-bottom:4px;'>
-        <span id='label-${doc.id}' style='margin-right:8px;'>${percentValue}%</span>${data.name}
-      </label>
-      <input type='range' min='0' max='100' step='1' value='${percentValue}' id='range-${doc.id}' style='width:100%'>
-    `;
+  <label style='display:block; font-weight:bold; margin-bottom:4px;'>
+    <span id='label-${doc.id}' style='margin-right:8px;'>${percentValue}%</span>${data.name}
+  </label>
+  <label style="font-size: 12px; color: #186663; margin-bottom: 6px; display: flex; align-items: center; gap:6px;">
+    <input type="checkbox" id="cb-${doc.id}" ${data.includeInDistribution !== false ? "checked" : ""} style="margin-right:4px;">
+    <span>Распределение</span>
+  </label>
+  <input type='range' min='0' max='100' step='1' value='${percentValue}' id='range-${doc.id}' style='width:100%'>
+`;
+
     container.appendChild(row);
     ranges.push({ id: doc.id });
   });
+
+// После того как все row/range/checkbox созданы:
+ranges.forEach(r => {
+  const range = document.getElementById(`range-${r.id}`);
+  const cb = document.getElementById(`cb-${r.id}`);
+  if (range && cb) {
+    // При инициализации: если чекбокс снят — range неактивен
+    range.disabled = !cb.checked;
+    // Когда меняется чекбокс — делаем range активным/неактивным
+    cb.addEventListener("change", () => {
+      range.disabled = !cb.checked;
+      if (!cb.checked) {
+        range.value = 0;
+        document.getElementById(`label-${r.id}`).textContent = `0%`;
+      }
+      updateTotalDisplay();
+    });
+  }
+});
+
 
   function calculateTotalPercent() {
     return ranges.reduce((acc, r) => acc + parseFloat(document.getElementById(`range-${r.id}`).value || 0), 0);
@@ -359,14 +384,19 @@ async function openDistributionEditor() {
   saveBtn.className = "round-btn green";
   saveBtn.innerHTML = '<span data-lucide="check"></span>';
   saveBtn.onclick = async () => {
-    await Promise.all(ranges.map(async (r) => {
-      const val = parseFloat(document.getElementById(`range-${r.id}`).value);
-      await db.collection("envelopes").doc(r.id).update({ percent: val });
-    }));
-    alert("Проценты сохранены");
-    document.body.removeChild(modal);
-    loadEnvelopes();
-  };
+  await Promise.all(ranges.map(async (r) => {
+    const val = parseFloat(document.getElementById(`range-${r.id}`).value);
+    const checked = document.getElementById(`cb-${r.id}`).checked;
+    await db.collection("envelopes").doc(r.id).update({
+      percent: val,
+      includeInDistribution: checked
+    });
+  }));
+  alert("Проценты сохранены");
+  document.body.removeChild(modal);
+  loadEnvelopes();
+};
+
 
   buttonRow.appendChild(cancelBtn);
   buttonRow.appendChild(saveBtn);
