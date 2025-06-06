@@ -335,8 +335,11 @@ ranges.forEach(r => {
       range.disabled = !cb.checked;
       if (!cb.checked) {
         range.value = 0;
-        range.dispatchEvent(new Event('input')); // ⬅️ запусти обновление процентов
+        range.dispatchEvent(new Event('input')); // обновить лейбл и расчет
         document.getElementById(`label-${r.id}`).textContent = `0%`;
+      } else {
+        // Галочку включили — бегунок становится активным и можно сразу тянуть
+        // ничего сбрасывать не нужно!
       }
       updateTotalDisplay();
     });
