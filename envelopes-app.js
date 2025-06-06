@@ -126,8 +126,7 @@ block.innerHTML = `
 </div>
       <div class="bottom-line">
   <span>
-    €${data.current.toFixed(2)} /
-    ${
+    €${data.current.toFixed(2)} / ${
       (isPrimary || isMiniBudget || !data.goal || data.goal == 0)
          ? '<span style="font-size:1.35em;vertical-align:-2px;">&#8734;</span>'
         : "€" + data.goal.toFixed(2)
