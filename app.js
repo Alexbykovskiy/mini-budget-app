@@ -315,7 +315,13 @@ form.onsubmit = async (e) => {
     return;
   }
   const id = document.getElementById('edit-id').value;
-  // ... переменные ...
+  const category = document.getElementById('category').value;
+  const amount = parseFloat(document.getElementById('amount').value.replace(',', '.'));
+  const mileage = document.getElementById('mileage').value;
+  const liters = document.getElementById('liters').value;
+  const date = document.getElementById('date').value;
+  const note = document.getElementById('note').value;
+  const tag = document.getElementById('tag').value.trim();
   const data = { category, amount, mileage, liters, date, note, tag };
   const ref = db.collection("users").doc(profileCode).collection("expenses");
 
@@ -328,18 +334,16 @@ form.onsubmit = async (e) => {
     }
     await subtractFromMiniBudget(amount);
   }
-    });
+
+  // --- Всё остальное после логики добавления ---
+  const dateInput = document.getElementById('date');
+  if (dateInput && !dateInput.value) {
+    dateInput.value = new Date().toISOString().split('T')[0];
   }
-const dateInput = document.getElementById('date');
-if (dateInput && !dateInput.value) {
-  dateInput.value = new Date().toISOString().split('T')[0];
-}
-showToast("Расход добавлен!");
+  showToast("Расход добавлен!");
   form.reset();
   document.getElementById('edit-id').value = '';
-};
-
-function fetchTags() {
+};function fetchTags() {
   return db.collection("users").doc(profileCode).collection("tags").get()
     .then(snapshot => snapshot.docs.map(doc => doc.id));
 }
