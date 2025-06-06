@@ -18,22 +18,17 @@
     <input type="text" id="envelope-name" placeholder="Название" style="flex:1;">
     <input type="text" id="envelope-comment" placeholder="Комментарий" style="flex:1;">
   </div>
-
-  <div style="display:flex; align-items:center; gap:8px;">
+  <div style="display:flex; gap:10px; align-items:center;">
     <input type="checkbox" id="envelope-has-goal" style="width:18px; height:18px;">
     <span>Цель</span>
-    <input type="number" id="envelope-goal" min="0" step="1" placeholder="Сумма"
-           style="width:90px; margin-left:8px; display:none;">
+    <input type="number" id="envelope-goal" min="0" step="1" placeholder="Сумма" style="flex:1; min-width:0; display:none;">
   </div>
-
-  <div style="display:flex; align-items:center; gap:8px;">
+  <div style="display:flex; gap:10px; align-items:center;">
     <input type="checkbox" id="envelope-distribution" style="width:18px; height:18px;">
     <span>Распределение</span>
-    <input type="range" id="envelope-percent" min="0" max="100" step="1" value="0"
-           style="width:90px; margin-left:8px; display:none;">
-    <span id="envelope-percent-label" style="display:none; min-width:32px;">0%</span>
+    <input type="range" id="envelope-percent" min="0" max="100" step="1" value="0" style="flex:1; min-width:0; display:none;">
+    <span id="envelope-percent-label" style="display:none; min-width:38px;">0%</span>
   </div>
-
   <button type="submit" class="round-btn green" style="width:48px; height:48px; align-self:flex-end;">
     <span data-lucide="check"></span>
   </button>

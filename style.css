@@ -1871,3 +1871,17 @@ input[type=range]::-moz-range-track {
   font-size: 1em;
 }
 
+#add-envelope-form input[type="number"],
+#add-envelope-form input[type="range"],
+#add-envelope-form input[type="text"] {
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1px solid #eee;
+  font-size: 1em;
+  height: 38px;
+}
+
+#add-envelope-form input[type="range"] {
+  padding: 0;
+  height: 38px;
+}
