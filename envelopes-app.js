@@ -57,20 +57,17 @@ async function loadEnvelopes() {
   }
   list.innerHTML = "";
 
-  // Сначала отображаем основной (isPrimary: true), потом остальные
   const envelopes = snapshot.docs;
   const primary = envelopes.find(doc => doc.data().isPrimary);
   const others = envelopes.filter(doc => !doc.data().isPrimary);
 
   const ordered = primary ? [primary, ...others] : envelopes;
-function calculateRemainingPercent() {
-  return others.reduce((acc, doc) => {
-    const p = parseFloat(doc.data().percent || 0);
-    return acc + p;
-  }, 0) <= 100
-    ? 100 - others.reduce((acc, doc) => acc + parseFloat(doc.data().percent || 0), 0)
-    : 0;
-}
+
+  function calculateRemainingPercent() {
+    return others.reduce((acc, doc) => acc + parseFloat(doc.data().percent || 0), 0);
+  }
+
+  const remaining = 100 - calculateRemainingPercent();
 
   ordered.forEach(doc => {
     const data = doc.data();
@@ -83,13 +80,10 @@ function calculateRemainingPercent() {
         <div class="expense-left">
           <div class="top-line">
             <span class="top-name">
-  <strong>${data.name}</strong>
-  ${isPrimary ? "<span style='color:#999'>(общий)</span>" : ""}
-</span>
-
-            <<span style="font-size:0.8em;color:#999">${isPrimary ? calculateRemainingPercent() + "%" : percent + "%"}</span>
-
-
+              <strong>${data.name}</strong>
+              ${isPrimary ? "<span style='color:#999'>(общий)</span>" : ""}
+            </span>
+            <span style="font-size:0.8em;color:#999">${isPrimary ? remaining + "%" : percent + "%"}</span>
           </div>
           <div class="bottom-line">
             <span>€${data.current.toFixed(2)} / €${data.goal.toFixed(2)}</span>
@@ -119,6 +113,9 @@ function calculateRemainingPercent() {
   });
   lucide.createIcons();
 }
+
+// остальные функции не изменялись...
+
 
 async function addToEnvelope(id) {
   const amount = prompt("Сколько добавить (€)?");
