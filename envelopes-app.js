@@ -302,16 +302,16 @@ async function openDistributionEditor() {
   container.appendChild(saveBtn);
 
   const modal = document.createElement("div");
-  modal.style.position = "fixed";
-  modal.style.top = "50%";
-  modal.style.left = "50%";
-  modal.style.transform = "translate(-50%, -50%)";
-  modal.style.background = "#fff";
-  modal.style.padding = "24px";
-  modal.style.borderRadius = "12px";
-  modal.style.boxShadow = "0 8px 24px rgba(0,0,0,0.2)";
-  modal.style.zIndex = "9999";
-  modal.appendChild(container);
+ modal.style.position = "fixed";
+modal.style.top = "50%";
+modal.style.left = "50%";
+modal.style.transform = "translate(-50%, -50%)";
+modal.style.background = "#f0f0f0"; // ← светло-серый фон
+modal.style.padding = "24px";
+modal.style.borderRadius = "12px";
+modal.style.boxShadow = "0 8px 24px rgba(0,0,0,0.2)";
+modal.style.zIndex = "9999";
+modal.style.width = "320px"; // ← фиксированная ширина
 
   document.body.appendChild(modal);
 
