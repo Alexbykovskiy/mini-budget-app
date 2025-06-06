@@ -651,7 +651,7 @@ function showEnvelopeMenu(btn, id) {
   menu.children[1].onclick = () => { menu.remove(); deleteEnvelope(id); };
 }
 
-ffunction startEditEnvelope(id) {
+function startEditEnvelope(id) {
   db.collection("envelopes").doc(id).get().then(doc => {
     if (doc.exists) {
       fillEditForm(doc.data(), id);
