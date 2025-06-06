@@ -1812,14 +1812,17 @@ input[type=range]::-moz-range-track {
 }
 .envelope-block {
   width: 360px;
-  height: 270px !important;
-  min-height: 270px !important;
-  max-height: 270px !important;
+  height: 270px;
+  min-height: 270px;
+  max-height: 270px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: stretch;
+  margin-bottom: 32px; /* чтобы у всех был одинаковый отступ снизу */
+  box-sizing: border-box;
 }
+
 .envelope-block .expense-entry {
   flex: 1 1 auto;
   height: 100%;
@@ -1827,11 +1830,23 @@ input[type=range]::-moz-range-track {
   display: flex;
   flex-direction: row;
   align-items: stretch;
+  box-sizing: border-box;
 }
-.envelope-block .expense-left,
-.envelope-block .expense-right {
-  min-height: 0;
+
+.envelope-block .expense-left {
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  min-width: 0;
+}
+
+.envelope-block .expense-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;    /* 👈 теперь кнопки всегда прижаты к низу */
+  min-width: 80px;
+  height: 100%;                 /* 👈 растягивается на всю высоту блока */
+  gap: 12px;
 }
