@@ -99,34 +99,41 @@ const remaining = 100 - calculateRemainingPercent();
 block.innerHTML = `
   <div class="expense-entry">
     <div class="expense-left">
-<div class="top-line" style="display:flex; align-items:center; justify-content:space-between;">
-  <span class="top-name">
+<div class="top-line" style="display:flex; align-items:center; gap:14px; justify-content:space-between;">
+  <span class="top-name" style="display:flex; align-items:center; gap:12px;">
     <strong>${data.name}</strong>
     ${isPrimary ? "<span style='color:#999'>(общий)</span>" : ""}
+    <span style="font-size:0.97em; color:#888; min-width:38px;">
+      ${
+        isPrimary
+          ? (typeof remaining === 'number' ? remaining : 0) + "%"
+          : (typeof data.percent === 'number' ? data.percent : 0) + "%"
+      }
+    </span>
   </span>
   ${
-    (!isPrimary && !isMiniBudget && data.goal && data.goal > 0)
-    ?
-      `<div class="progress-ring" style="width:36px; height:36px;">
-        <svg width="36" height="36">
-          <circle cx="18" cy="18" r="16" stroke="#888" stroke-width="4" fill="none"/>
-          <circle
-            cx="18" cy="18" r="16"
-            stroke="#f7931e"
-            stroke-width="4"
-            fill="none"
-            stroke-linecap="round"
-            stroke-dasharray="${2 * Math.PI * 16}"
-            stroke-dashoffset="${2 * Math.PI * 16 * (1 - Math.min(1, data.current / data.goal))}"
-            style="transition: stroke-dashoffset 0.4s;"/>
-          <text x="18" y="22" text-anchor="middle" font-size="13" fill="#f7931e" font-weight="bold">
-            ${Math.round(Math.min(1, data.current / data.goal) * 100)}%
-          </text>
-        </svg>
-      </div>`
-    : ""
+    (!isPrimary && data.goal && data.goal > 0)
+      ? `<div class="progress-ring" style="width:36px; height:36px; margin-left:6px;">
+          <svg width="36" height="36">
+            <circle cx="18" cy="18" r="16" stroke="#888" stroke-width="4" fill="none"/>
+            <circle
+              cx="18" cy="18" r="16"
+              stroke="#f7931e"
+              stroke-width="4"
+              fill="none"
+              stroke-linecap="round"
+              stroke-dasharray="${2 * Math.PI * 16}"
+              stroke-dashoffset="${2 * Math.PI * 16 * (1 - Math.min(1, data.current / data.goal))}"
+              style="transition: stroke-dashoffset 0.4s;"/>
+            <text x="18" y="22" text-anchor="middle" font-size="13" fill="#f7931e" font-weight="bold">
+              ${Math.round(Math.min(1, data.current / data.goal) * 100)}%
+            </text>
+          </svg>
+        </div>`
+      : ""
   }
 </div>
+
       <div class="bottom-line">
   <span>
     €${data.current.toFixed(2)} / ${
