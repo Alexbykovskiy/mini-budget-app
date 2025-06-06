@@ -332,15 +332,14 @@ document.getElementById('envelope-has-goal').addEventListener('change', function
   document.getElementById('envelope-goal').style.display = this.checked ? 'inline-block' : 'none';
 });
 document.getElementById('envelope-distribution').addEventListener('change', function() {
-  const block = document.getElementById('percent-block');
-  block.style.display = this.checked ? 'block' : 'none';
-  document.getElementById('envelope-percent').disabled = !this.checked;
+  const range = document.getElementById('envelope-percent');
+  const label = document.getElementById('envelope-percent-label');
+  range.style.display = label.style.display = this.checked ? 'inline-block' : 'none';
+  range.disabled = !this.checked;
 });
-
 document.getElementById('envelope-percent').addEventListener('input', function() {
   document.getElementById('envelope-percent-label').textContent = this.value + "%";
 });
-
 
 // envelopes-app.js (финальная версия openDistributionEditor)
 
