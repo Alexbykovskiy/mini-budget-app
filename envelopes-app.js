@@ -252,16 +252,29 @@ async function openDistributionEditor() {
     return;
   }
 
+  const modal = document.createElement("div");
+  modal.style.position = "fixed";
+  modal.style.top = "50%";
+  modal.style.left = "50%";
+  modal.style.transform = "translate(-50%, -50%)";
+  modal.style.background = "#f0f0f0";
+  modal.style.padding = "24px";
+  modal.style.borderRadius = "12px";
+  modal.style.boxShadow = "0 8px 24px rgba(0,0,0,0.2)";
+  modal.style.zIndex = "9999";
+  modal.style.width = "320px";
+
   const container = document.createElement("div");
-  container.style.padding = "1em";
   container.innerHTML = `<h3 style='margin-bottom: 12px'>Настройка процентов</h3>`;
 
   const ranges = [];
-  let totalSumDisplay;
+  let totalSumDisplay = document.createElement("div");
+  totalSumDisplay.style.margin = "8px 0";
+  container.appendChild(totalSumDisplay);
 
   snapshot.forEach(doc => {
     const data = doc.data();
-    if (data.includeInDistribution === false) return;
+    if (data.includeInDistribution === false || data.isPrimary) return;
 
     const row = document.createElement("div");
     row.style.marginBottom = "12px";
@@ -271,75 +284,50 @@ async function openDistributionEditor() {
       <span id='label-${doc.id}' style='font-size:0.8em;'>${data.percent || 0}%</span>
     `;
     container.appendChild(row);
-    ranges.push({ id: doc.id, initial: data.percent || 0 });
+    ranges.push({ id: doc.id });
   });
 
-  totalSumDisplay = document.createElement("div");
-  totalSumDisplay.id = "total-percent-display";
-  totalSumDisplay.style.fontSize = "0.9em";
-  totalSumDisplay.style.marginTop = "8px";
-  totalSumDisplay.style.marginBottom = "16px";
-  container.appendChild(totalSumDisplay);
-
-  const saveBtn = document.createElement("button");
-  saveBtn.textContent = "Сохранить";
-  saveBtn.style.marginTop = "1em";
-  saveBtn.className = "primary-btn";
-  saveBtn.disabled = true;
-  saveBtn.onclick = async () => {
-  await Promise.all(ranges.map(async (r) => {
-    const val = parseFloat(document.getElementById(`range-${r.id}`).value);
-    await db.collection("envelopes").doc(r.id).update({ percent: val });
-  }));
-  alert("Проценты сохранены");
-  document.body.removeChild(modal);
-  loadEnvelopes();
-};
-
-  container.appendChild(saveBtn);
-
-  const modal = document.createElement("div");
- modal.style.position = "fixed";
-modal.style.top = "50%";
-modal.style.left = "50%";
-modal.style.transform = "translate(-50%, -50%)";
-modal.style.background = "#f0f0f0"; // ← светло-серый фон
-modal.style.padding = "24px";
-modal.style.borderRadius = "12px";
-modal.style.boxShadow = "0 8px 24px rgba(0,0,0,0.2)";
-modal.style.zIndex = "9999";
-modal.style.width = "320px"; // ← фиксированная ширина
-
-  document.body.appendChild(modal);
-
   function calculateTotalPercent() {
-    let total = 0;
-    ranges.forEach(r => {
-      const val = parseFloat(document.getElementById(`range-${r.id}`).value);
-      total += val;
-    });
-    return total;
+    return ranges.reduce((acc, r) => acc + parseFloat(document.getElementById(`range-${r.id}`).value || 0), 0);
   }
 
   function updateTotalDisplay() {
-  const total = calculateTotalPercent();
-  const remaining = 100 - total;
-  totalSumDisplay.innerHTML = `🧮 Распределено: <strong>${total}%</strong>, свободно: <strong>${remaining}%</strong>`;
+    const total = calculateTotalPercent();
+    const remaining = 100 - total;
+    totalSumDisplay.innerHTML = `🧮 Распределено: <strong>${total}%</strong>, свободно: <strong>${remaining}%</strong>`;
 
-  if (total > 100) {
-    totalSumDisplay.style.color = "#cc0000"; // красный — ошибка
-    saveBtn.disabled = true;
-  } else if (total < 100) {
-    totalSumDisplay.style.color = "#ff9900"; // оранжевый — предупреждение
-    saveBtn.disabled = false; // можно сохранить
-  } else {
-    totalSumDisplay.style.color = "#186663"; // зелёный — ок
-    saveBtn.disabled = false;
+    if (total > 100) {
+      totalSumDisplay.style.color = "#cc0000";
+      saveBtn.disabled = true;
+    } else if (total < 100) {
+      totalSumDisplay.style.color = "#ff9900";
+      saveBtn.disabled = false;
+    } else {
+      totalSumDisplay.style.color = "#186663";
+      saveBtn.disabled = false;
+    }
   }
-}
 
+  const saveBtn = document.createElement("button");
+  saveBtn.textContent = "Сохранить";
+  saveBtn.className = "primary-btn";
+  saveBtn.style.marginTop = "16px";
+  saveBtn.onclick = async () => {
+    await Promise.all(ranges.map(async (r) => {
+      const val = parseFloat(document.getElementById(`range-${r.id}`).value);
+      await db.collection("envelopes").doc(r.id).update({ percent: val });
+    }));
+    alert("Проценты сохранены");
+    document.body.removeChild(modal);
+    loadEnvelopes();
+  };
+
+  container.appendChild(saveBtn);
+  modal.appendChild(container);
+  document.body.appendChild(modal);
 
   snapshot.forEach(doc => {
+    if (doc.data().includeInDistribution === false || doc.data().isPrimary) return;
     const id = doc.id;
     const range = document.getElementById(`range-${id}`);
     const label = document.getElementById(`label-${id}`);
@@ -353,5 +341,3 @@ modal.style.width = "320px"; // ← фиксированная ширина
 
   updateTotalDisplay();
 }
-
-// <button onclick="openDistributionEditor()">Настроить проценты</button>
