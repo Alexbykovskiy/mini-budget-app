@@ -272,7 +272,7 @@ async function ensureSystemEnvelopes() {
     await db.collection("envelopes").add({
       name: "Общий",
       goal: 1000000,
-      comment: "Основной резервный конверт",
+      comment: "Основной конверт",
       current: 0,
       created: Date.now(),
       percent: 0,
