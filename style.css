@@ -1817,3 +1817,29 @@ input[type=range]::-moz-range-track {
   max-height: 270px;
   overflow: hidden;
 }
+.envelope-block {
+  width: 360px;
+  height: 270px;
+  min-height: 270px;
+  max-height: 270px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+}
+
+.envelope-block .expense-entry {
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+}
+.envelope-block .expense-left,
+.envelope-block .expense-right {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
