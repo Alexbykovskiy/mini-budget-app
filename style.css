@@ -1857,3 +1857,9 @@ input[type=range]::-moz-range-track {
   stroke-width: 2.2;
   vertical-align: middle;
 }
+
+.progress-ring {
+  display: inline-block;
+  margin-left: 10px;
+  vertical-align: middle;
+}
