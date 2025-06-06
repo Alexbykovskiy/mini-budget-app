@@ -329,9 +329,8 @@ window.addEventListener("DOMContentLoaded", async () => {
 });
 
 document.getElementById('envelope-has-goal').addEventListener('change', function() {
-  document.getElementById('goal-block').style.display = this.checked ? 'block' : 'none';
+  document.getElementById('envelope-goal').style.display = this.checked ? 'inline-block' : 'none';
 });
-
 document.getElementById('envelope-distribution').addEventListener('change', function() {
   const block = document.getElementById('percent-block');
   block.style.display = this.checked ? 'block' : 'none';
@@ -598,4 +597,54 @@ function startEditEnvelope(id) {
     }
   });
 }
+// Цель: показать поле при активации чекбокса
+document.getElementById('envelope-has-goal').addEventListener('change', function() {
+  document.getElementById('envelope-goal').style.display = this.checked ? 'inline-block' : 'none';
+});
+
+// Распределение: показать бегунок при активации чекбокса
+document.getElementById('envelope-distribution').addEventListener('change', function() {
+  const range = document.getElementById('envelope-percent');
+  const label = document.getElementById('envelope-percent-label');
+  range.style.display = label.style.display = this.checked ? 'inline-block' : 'none';
+  range.disabled = !this.checked;
+});
+
+// Обновлять процент при движении бегунка
+document.getElementById('envelope-percent').addEventListener('input', function() {
+  document.getElementById('envelope-percent-label').textContent = this.value + "%";
+});
+
+
+
+addForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = document.getElementById('envelope-name').value.trim();
+  const hasGoal = document.getElementById('envelope-has-goal').checked;
+  const goal = hasGoal ? Number(document.getElementById('envelope-goal').value) : 0;
+  const comment = document.getElementById('envelope-comment').value.trim();
+  const distribution = document.getElementById('envelope-distribution').checked;
+  const percent = distribution ? Number(document.getElementById('envelope-percent').value) : 0;
+
+  if (!name) return; // Не добавлять, если не введено имя
+
+  try {
+    await db.collection("envelopes").add({
+      name,
+      goal: hasGoal ? goal : 0,
+      comment,
+      current: 0,
+      created: Date.now(),
+      includeInDistribution: distribution,
+      percent
+    });
+    addForm.reset();
+    document.getElementById('envelope-goal').style.display = 'none';
+    document.getElementById('envelope-percent').style.display = 'none';
+    document.getElementById('envelope-percent-label').style.display = 'none';
+    loadEnvelopes();
+  } catch (err) {
+    alert("Ошибка при добавлении: " + err.message);
+  }
+});
 

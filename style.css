@@ -1863,3 +1863,11 @@ input[type=range]::-moz-range-track {
   margin-left: 10px;
   vertical-align: middle;
 }
+#add-envelope-form input[type="text"],
+#add-envelope-form input[type="number"] {
+  border-radius: 10px;
+  padding: 6px 10px;
+  border: 1px solid #eee;
+  font-size: 1em;
+}
+

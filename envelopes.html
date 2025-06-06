@@ -13,38 +13,32 @@
   <main class="container">
     <fieldset class="block">
       <legend>Добавить конверт</legend>
-<form id="add-envelope-form" autocomplete="off">
-  <label>
-    Название<br>
-    <input type="text" id="envelope-name" required autocomplete="off">
-  </label>
+<form id="add-envelope-form" style="display:flex; flex-direction:column; gap:12px;">
 
-  <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 4px 0;">
-    <input type="checkbox" id="envelope-has-goal">
+  <!-- Первая строка: Название (узкое) + Комментарий (шире) -->
+  <div style="display:flex; gap:10px;">
+    <input type="text" id="envelope-name" placeholder="Название" style="flex:1 1 120px; max-width:160px;">
+    <input type="text" id="envelope-comment" placeholder="Комментарий" style="flex:2 1 200px;">
+  </div>
+
+  <!-- Вторая строка: Чекбокс Цель + поле суммы если чекнут -->
+  <div style="display:flex; align-items:center; gap:8px;">
+    <input type="checkbox" id="envelope-has-goal" style="width:18px; height:18px;">
     <span>Цель</span>
-  </label>
-  <div id="goal-block" style="display:none;">
-    <input type="number" id="envelope-goal" min="0" step="1" placeholder="Сумма цели">
+    <input type="number" id="envelope-goal" min="0" step="1" placeholder="Сумма" style="width:90px; margin-left:8px; display:none;">
   </div>
 
-  <label>
-    Комментарий<br>
-    <input type="text" id="envelope-comment" autocomplete="off">
-  </label>
-
-  <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 4px 0;">
-    <input type="checkbox" id="envelope-distribution">
+  <!-- Третья строка: Чекбокс распределения + бегунок если чекнут -->
+  <div style="display:flex; align-items:center; gap:8px;">
+    <input type="checkbox" id="envelope-distribution" style="width:18px; height:18px;">
     <span>Участвовать в распределении</span>
-  </label>
-  <div id="percent-block" style="display:none;">
-    <label style="display: flex; align-items: center; gap: 12px;">
-      <input type="range" id="envelope-percent" min="0" max="100" step="1" value="0" style="width:120px;">
-      <span id="envelope-percent-label">0%</span>
-    </label>
+    <input type="range" id="envelope-percent" min="0" max="100" step="1" value="0" style="width:90px; margin-left:8px; display:none;">
+    <span id="envelope-percent-label" style="display:none; min-width:32px;">0%</span>
   </div>
 
-  <button type="submit" class="round-btn green" style="margin-top:18px;">
-    <span data-lucide="plus"></span> Добавить
+  <!-- Кнопка только с галочкой -->
+  <button type="submit" class="round-btn green" style="width:48px; height:48px; align-self:flex-end;">
+    <span data-lucide="check"></span>
   </button>
 </form>
     </fieldset>
