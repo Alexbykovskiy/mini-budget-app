@@ -279,7 +279,10 @@ async function openDistributionEditor() {
     const row = document.createElement("div");
     row.style.marginBottom = "12px";
   row.innerHTML = `
-  <label style='display:block; font-weight:bold; margin-bottom:4px;'>${data.name}</label>
+  <label style='display:block; font-weight:bold; margin-bottom:4px;'>
+  <span id='label-${doc.id}' style='margin-right:8px;'>${data.percent || 0}%</span>${data.name}
+</label>
+
   <div style='display: flex; align-items: center; gap: 8px; margin-top: 2px;'>
     <span style='font-size: 0.75em; width: 28px; text-align: left;'>0%</span>
     <input type='range' min='0' max='100' step='1' value='${data.percent || 0}' id='range-${doc.id}' style='flex: 1; margin: 0;'>
