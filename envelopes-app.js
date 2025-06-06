@@ -304,19 +304,18 @@ async function openDistributionEditor() {
 
   snapshot.forEach(doc => {
     const data = doc.data();
-   if (data.includeInDistribution === false || data.isPrimary) return;
+   if (data.isPrimary) return;
+
 // а для MiniBudget ничего не фильтруем!
 
     const row = document.createElement("div");
     row.style.marginBottom = "16px";
     const percentValue = data.percent || 0;
     row.innerHTML = `
-  <label style='display:block; font-weight:bold; margin-bottom:4px;'>
-    <span id='label-${doc.id}' style='margin-right:8px;'>${percentValue}%</span>${data.name}
-  </label>
-  <label style="font-size: 12px; color: #186663; margin-bottom: 6px; display: flex; align-items: center; gap:6px;">
-    <input type="checkbox" id="cb-${doc.id}" ${data.includeInDistribution !== false ? "checked" : ""} style="margin-right:4px;">
-    <span>Распределение</span>
+  <label style='display:flex; align-items:center; font-weight:bold; margin-bottom:4px; gap:8px;'>
+    <input type="checkbox" id="cb-${doc.id}" ${data.includeInDistribution !== false ? "checked" : ""} style="margin-right:2px;">
+    <span id='label-${doc.id}' style='min-width:36px; text-align:right;'>${percentValue}%</span>
+    <span>${data.name}</span>
   </label>
   <input type='range' min='0' max='100' step='1' value='${percentValue}' id='range-${doc.id}' style='width:100%'>
 `;
