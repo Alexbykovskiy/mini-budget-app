@@ -84,20 +84,6 @@ form.addEventListener("submit", async (e) => {
 
 let editingEnvelopeId = null;
 
-async function loadEnvelopes() {
-  list.innerHTML = "<p style='color:#999'>Загрузка...</p>";
-  const snapshot = await db.collection("envelopes").orderBy("created", "asc").get();
-  if (snapshot.empty) {
-    list.innerHTML = "<p style='color:#bbb'>Нет ни одного конверта</p>";
-    return;
-  }
-  list.innerHTML = "";
-
-  const envelopes = snapshot.docs;
-const primary = envelopes.find(doc => doc.data().isPrimary);
-const miniBudget = envelopes.find(doc => doc.data().isMiniBudget);
-const others = envelopes.filter(doc => !doc.data().isPrimary && !doc.data().isMiniBudget);
-
 function fillEditForm(data, id) {
   document.getElementById('envelope-name').value = data.name || "";
   document.getElementById('envelope-comment').value = data.comment || "";
@@ -118,6 +104,22 @@ function fillEditForm(data, id) {
   document.getElementById('cancel-edit-btn').style.display = 'inline-flex';
   lucide.createIcons();
 }
+
+
+async function loadEnvelopes() {
+  list.innerHTML = "<p style='color:#999'>Загрузка...</p>";
+  const snapshot = await db.collection("envelopes").orderBy("created", "asc").get();
+  if (snapshot.empty) {
+    list.innerHTML = "<p style='color:#bbb'>Нет ни одного конверта</p>";
+    return;
+  }
+  list.innerHTML = "";
+
+  const envelopes = snapshot.docs;
+const primary = envelopes.find(doc => doc.data().isPrimary);
+const miniBudget = envelopes.find(doc => doc.data().isMiniBudget);
+const others = envelopes.filter(doc => !doc.data().isPrimary && !doc.data().isMiniBudget);
+
 
 
 // Итоговый порядок: Общий → MiniBudget → остальные
