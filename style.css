@@ -1883,6 +1883,11 @@ input[type=range]::-moz-range-track {
 }
 
 .round-btn.menu {
-  background: #e0e0e0;
+  background: #e0e0e0 !important;
   color: #888;
+  box-shadow: none;
+}
+
+.round-btn.menu .lucide {
+  stroke: #bbb;
 }
