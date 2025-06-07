@@ -202,9 +202,9 @@ block.innerHTML = `
     <div class="expense-right" style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
       <!-- Кнопка меню (3 полоски) -->
       ${!(isPrimary || isMiniBudget) ? `
-      <button class="round-btn gray small menu-btn" data-id="${doc.id}">
-        <span data-lucide="menu"></span>
-      </button>
+      <button class="round-btn menu small menu-btn" data-id="${doc.id}">
+  <span data-lucide="menu"></span>
+</button>
       ` : ""}
       <!-- 4 основные круглые кнопки -->
             <button class="round-btn blue small" onclick="addToEnvelope('${doc.id}')">

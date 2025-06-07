@@ -1881,3 +1881,8 @@ input[type=range]::-moz-range-track {
   box-sizing: border-box;
   padding: 6px 12px;
 }
+
+.round-btn.menu {
+  background: #e0e0e0;
+  color: #888;
+}
