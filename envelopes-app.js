@@ -78,7 +78,12 @@ form.addEventListener("submit", async (e) => {
   } catch (err) {
     alert("Ошибка при добавлении: " + err.message);
   }
-});let editingEnvelopeId = null;
+});
+
+
+
+let editingEnvelopeId = null;
+
 async function loadEnvelopes() {
   list.innerHTML = "<p style='color:#999'>Загрузка...</p>";
   const snapshot = await db.collection("envelopes").orderBy("created", "asc").get();
@@ -201,10 +206,7 @@ block.innerHTML = `
       </button>
       ` : ""}
       <!-- 4 основные круглые кнопки -->
-      <button class="round-btn green small" onclick="startEditEnvelope('${doc.id}')">
-        <span data-lucide="pencil"></span>
-      </button>
-      <button class="round-btn blue small" onclick="addToEnvelope('${doc.id}')">
+            <button class="round-btn blue small" onclick="addToEnvelope('${doc.id}')">
         <span data-lucide="plus"></span>
       </button>
       <button class="round-btn red small" onclick="subtractFromEnvelope('${doc.id}')">
