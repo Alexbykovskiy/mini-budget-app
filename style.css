@@ -1884,10 +1884,13 @@ input[type=range]::-moz-range-track {
 
 .round-btn.menu {
   background: #e0e0e0 !important;
-  color: #888;
-  box-shadow: none;
+  color: #888 !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
-.round-btn.menu .lucide {
-  stroke: #bbb;
+.round-btn.menu .lucide,
+.round-btn.menu svg {
+  stroke: #bbb !important;
+  color: #bbb !important;
 }
