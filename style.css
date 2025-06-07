@@ -1894,33 +1894,3 @@ input[type=range]::-moz-range-track {
   stroke: #bbb !important;
   color: #bbb !important;
 }
-
-.distribution-settings {
-  width: 100%;
-  margin-bottom: 16px;
-}
-
-.distribution-settings .round-btn.light {
-  background: #e0e0e0;
-  color: #186663;
-  box-shadow: none;
-  border: 1px solid #eee;
-  font-size: 16px;
-}
-
-.distribution-settings .round-btn.light span.lucide {
-  stroke: #186663;
-}
-
-.distribution-settings.expanded #distribution-arrow {
-  transform: rotate(180deg);
-  transition: transform 0.3s;
-}
-.distribution-settings.collapsed #distribution-arrow {
-  transform: rotate(0deg);
-  transition: transform 0.3s;
-}
-
-#distribution-settings-content {
-  animation: fadeInUp 0.3s;
-}

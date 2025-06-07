@@ -411,6 +411,178 @@ document.getElementById('envelope-percent').addEventListener('input', function()
 
 // envelopes-app.js (финальная версия openDistributionEditor)
 
+async function openDistributionEditor() {
+  const snapshot = await db.collection("envelopes").orderBy("created", "asc").get();
+  if (snapshot.empty) {
+    alert("Нет доступных конвертов для настройки.");
+    return;
+  }
+
+  const modal = document.createElement("div");
+  modal.style.position = "fixed";
+  modal.style.top = "50%";
+  modal.style.left = "50%";
+  modal.style.transform = "translate(-50%, -50%)";
+  modal.style.background = "#f0f0f0";
+  modal.style.padding = "24px";
+  modal.style.borderRadius = "12px";
+  modal.style.boxShadow = "0 8px 24px rgba(0,0,0,0.2)";
+  modal.style.zIndex = "9999";
+  modal.style.width = "320px";
+
+  const container = document.createElement("div");
+  container.innerHTML = `<h3 style='margin-bottom: 12px'>Настройка процентов</h3>`;
+
+  const ranges = [];
+
+  const totalSumDisplay = document.createElement("div");
+  totalSumDisplay.style.margin = "8px 0";
+  container.appendChild(totalSumDisplay);
+
+  snapshot.forEach(doc => {
+    const data = doc.data();
+   if (data.isPrimary) return;
+
+// а для MiniBudget ничего не фильтруем!
+
+    const row = document.createElement("div");
+    row.style.marginBottom = "16px";
+    const percentValue = data.percent || 0;
+  row.innerHTML = `
+  <div style="display:flex; align-items:center; gap:8px; font-weight:bold; margin-bottom:4px;">
+    <input type="checkbox" id="cb-${doc.id}" ${data.includeInDistribution !== false ? "checked" : ""} style="accent-color:#186663; width:18px; height:18px; margin:0;">
+    <span id='label-${doc.id}' style='min-width:36px; text-align:right;'>${percentValue}%</span>
+    <span>${data.name}</span>
+  </div>
+  <input type='range' min='0' max='100' step='1' value='${percentValue}' id='range-${doc.id}' style='width:100%'>
+`;
+
+
+    container.appendChild(row);
+    ranges.push({ id: doc.id });
+  });
+
+// После того как все row/range/checkbox созданы:
+ranges.forEach(r => {
+  const range = document.getElementById(`range-${r.id}`);
+  const cb = document.getElementById(`cb-${r.id}`);
+  const label = document.getElementById(`label-${r.id}`);
+  if (range && cb && label) {
+    // инициализация
+    range.disabled = !cb.checked;
+    if (!cb.checked) {
+      range.value = 0;
+      label.textContent = "0%";
+    }
+    // слушатель чекбокса
+    cb.addEventListener("change", () => {
+      if (cb.checked) {
+        range.disabled = false;
+        // НЕ меняем range.value — пусть пользователь сам крутит!
+      } else {
+        range.value = 0;
+        range.disabled = true;
+        label.textContent = "0%";
+      }
+      updateTotalDisplay();
+    });
+    // слушатель бегунка для лейбла
+    range.addEventListener("input", () => {
+      label.textContent = `${range.value}%`;
+      updateTotalDisplay();
+    });
+  }
+});
+
+setTimeout(() => {
+  document.querySelectorAll('.menu-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.getAttribute('data-id');
+      showEnvelopeMenu(btn, id);
+    });
+  });
+}, 0);
+
+  function calculateTotalPercent() {
+    return ranges.reduce((acc, r) => acc + parseFloat(document.getElementById(`range-${r.id}`).value || 0), 0);
+  }
+
+  function updateTotalDisplay() {
+    const total = calculateTotalPercent();
+    const remaining = 100 - total;
+    totalSumDisplay.innerHTML = `🧮 Распределено: <strong>${total}%</strong>, свободно: <strong>${remaining}%</strong>`;
+
+    if (total > 100) {
+      totalSumDisplay.style.color = "#cc0000";
+      saveBtn.disabled = true;
+    } else if (total < 100) {
+      totalSumDisplay.style.color = "#ff9900";
+      saveBtn.disabled = false;
+    } else {
+      totalSumDisplay.style.color = "#186663";
+      saveBtn.disabled = false;
+    }
+  }
+
+  const buttonRow = document.createElement("div");
+  buttonRow.className = "row end";
+  buttonRow.style.marginTop = "16px";
+  buttonRow.style.display = "flex";
+  buttonRow.style.justifyContent = "center";
+  buttonRow.style.gap = "32px";
+
+  const cancelBtn = document.createElement("button");
+  cancelBtn.className = "round-btn orange";
+  cancelBtn.innerHTML = '<span data-lucide="x"></span>';
+  cancelBtn.onclick = () => {
+    document.body.removeChild(modal);
+  };
+
+  const saveBtn = document.createElement("button");
+  saveBtn.className = "round-btn green";
+  saveBtn.innerHTML = '<span data-lucide="check"></span>';
+  saveBtn.onclick = async () => {
+  await Promise.all(ranges.map(async (r) => {
+    const cb = document.getElementById(`cb-${r.id}`);
+    const range = document.getElementById(`range-${r.id}`);
+    const percent = cb.checked ? parseFloat(range.value) : 0;
+    await db.collection("envelopes").doc(r.id).update({
+      percent,
+      includeInDistribution: cb.checked
+    });
+  }));
+  alert("Проценты сохранены");
+  document.body.removeChild(modal);
+  loadEnvelopes();
+};
+
+
+
+  buttonRow.appendChild(cancelBtn);
+  buttonRow.appendChild(saveBtn);
+  container.appendChild(buttonRow);
+
+  modal.appendChild(container);
+  document.body.appendChild(modal);
+
+  // слушатели изменений значений ползунков
+  snapshot.forEach(doc => {
+    if (doc.data().includeInDistribution === false || doc.data().isPrimary) return;
+    const id = doc.id;
+    const range = document.getElementById(`range-${id}`);
+    const label = document.getElementById(`label-${id}`);
+    if (range && label) {
+      range.addEventListener("input", () => {
+        label.textContent = `${range.value}%`;
+        updateTotalDisplay();
+      });
+    }
+  });
+
+  updateTotalDisplay();
+  lucide.createIcons();
+}
 
 function showEnvelopeMenu(btn, id) {
   // Убрать старое меню, если есть
@@ -506,149 +678,6 @@ document.getElementById('envelope-distribution').addEventListener('change', func
 document.getElementById('envelope-percent').addEventListener('input', function() {
   document.getElementById('envelope-percent-label').textContent = this.value + "%";
 });
-
-
-document.addEventListener("DOMContentLoaded", function () {
-  const wrapper = document.getElementById("distribution-settings-wrapper");
-  const btn = document.getElementById("toggle-distribution-settings");
-  const content = document.getElementById("distribution-settings-content");
-  let expanded = false;
-
-  btn.addEventListener("click", async function () {
-    expanded = !expanded;
-    if (expanded) {
-      wrapper.classList.remove("collapsed");
-      wrapper.classList.add("expanded");
-      btn.querySelector("#distribution-arrow").innerHTML = "&#9650;";
-      content.style.display = "block";
-      // ВСТАВЬ ТУТ РЕНДЕР ДИСТРИБЬЮТОРА!
-      await openDistributionEditorInline(content);
-    } else {
-      wrapper.classList.remove("expanded");
-      wrapper.classList.add("collapsed");
-      btn.querySelector("#distribution-arrow").innerHTML = "&#9660;";
-      content.style.display = "none";
-      content.innerHTML = "";
-    }
-  });
-});
-
-async function openDistributionEditorInline(container) {
-  const snapshot = await db.collection("envelopes").orderBy("created", "asc").get();
-  if (snapshot.empty) {
-    container.innerHTML = "<p>Нет доступных конвертов для настройки.</p>";
-    return;
-  }
-
-  container.innerHTML = ""; // Очищаем для повторного открытия
-  const box = document.createElement("div");
-  box.style.background = "#f0f0f0";
-  box.style.padding = "16px";
-  box.style.borderRadius = "12px";
-  box.style.boxShadow = "0 4px 16px rgba(0,0,0,0.08)";
-  box.style.width = "100%";
-  box.style.maxWidth = "340px";
-  box.style.margin = "0 auto";
-
-  // Копируй содержимое редактора процентов, но БЕЗ modal, alert, без закрытия окна!
-  // Можно просто взять содержимое openDistributionEditor, чуть упростить:
-
-  const ranges = [];
-  const totalSumDisplay = document.createElement("div");
-  totalSumDisplay.style.margin = "8px 0";
-  box.appendChild(totalSumDisplay);
-
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    if (data.isPrimary) return;
-    const row = document.createElement("div");
-    row.style.marginBottom = "14px";
-    const percentValue = data.percent || 0;
-    row.innerHTML = `
-      <div style="display:flex; align-items:center; gap:8px; font-weight:bold; margin-bottom:4px;">
-        <input type="checkbox" id="cb-${doc.id}" ${data.includeInDistribution !== false ? "checked" : ""} style="accent-color:#186663; width:18px; height:18px; margin:0;">
-        <span id='label-${doc.id}' style='min-width:36px; text-align:right;'>${percentValue}%</span>
-        <span>${data.name}</span>
-      </div>
-      <input type='range' min='0' max='100' step='1' value='${percentValue}' id='range-${doc.id}' style='width:100%'>
-    `;
-    box.appendChild(row);
-    ranges.push({ id: doc.id });
-  });
-
-  // Логика суммы
-  function calculateTotalPercent() {
-    return ranges.reduce((acc, r) => acc + parseFloat(document.getElementById(`range-${r.id}`).value || 0), 0);
-  }
-  function updateTotalDisplay() {
-    const total = calculateTotalPercent();
-    const remaining = 100 - total;
-    totalSumDisplay.innerHTML = `🧮 Распределено: <strong>${total}%</strong>, свободно: <strong>${remaining}%</strong>`;
-    if (total > 100) {
-      totalSumDisplay.style.color = "#cc0000";
-      saveBtn.disabled = true;
-    } else if (total < 100) {
-      totalSumDisplay.style.color = "#ff9900";
-      saveBtn.disabled = false;
-    } else {
-      totalSumDisplay.style.color = "#186663";
-      saveBtn.disabled = false;
-    }
-  }
-
-  // Слушатели
-  ranges.forEach(r => {
-    const range = box.querySelector(`#range-${r.id}`);
-    const cb = box.querySelector(`#cb-${r.id}`);
-    const label = box.querySelector(`#label-${r.id}`);
-    if (range && cb && label) {
-      range.disabled = !cb.checked;
-      if (!cb.checked) {
-        range.value = 0;
-        label.textContent = "0%";
-      }
-      cb.addEventListener("change", () => {
-        if (cb.checked) {
-          range.disabled = false;
-        } else {
-          range.value = 0;
-          range.disabled = true;
-          label.textContent = "0%";
-        }
-        updateTotalDisplay();
-      });
-      range.addEventListener("input", () => {
-        label.textContent = `${range.value}%`;
-        updateTotalDisplay();
-      });
-    }
-  });
-
-  // Кнопка сохранить
-  const saveBtn = document.createElement("button");
-  saveBtn.className = "round-btn green";
-  saveBtn.innerHTML = '<span data-lucide="check"></span>';
-  saveBtn.style.marginTop = "10px";
-  saveBtn.onclick = async () => {
-    await Promise.all(ranges.map(async (r) => {
-      const cb = box.querySelector(`#cb-${r.id}`);
-      const range = box.querySelector(`#range-${r.id}`);
-      const percent = cb.checked ? parseFloat(range.value) : 0;
-      await db.collection("envelopes").doc(r.id).update({
-        percent,
-        includeInDistribution: cb.checked
-      });
-    }));
-    loadEnvelopes();
-    saveBtn.innerHTML = '✓';
-    setTimeout(() => { saveBtn.innerHTML = '<span data-lucide="check"></span>'; }, 1200);
-  };
-
-  box.appendChild(saveBtn);
-  container.appendChild(box);
-  updateTotalDisplay();
-  lucide.createIcons();
-}
 
 
 
