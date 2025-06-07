@@ -26,6 +26,8 @@ if (incomeButton) {
 document.getElementById('cancel-edit-btn').addEventListener('click', function() {
   editingEnvelopeId = null;
   form.reset();
+renderInlineDistributionEditor();
+
   document.getElementById('envelope-goal').style.display = 'none';
   document.getElementById('envelope-percent').style.display = 'none';
   document.getElementById('envelope-percent-label').style.display = 'none';
@@ -80,7 +82,64 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
+async function renderInlineDistributionEditor() {
+  const container = document.getElementById('inline-distribution-editor');
+  if (!container) return;
+  // Показывать только если чекбокс распределения отмечен
+  const show = document.getElementById('envelope-distribution').checked;
+  container.style.display = show ? 'block' : 'none';
+  if (!show) {
+    container.innerHTML = '';
+    return;
+  }
 
+  // Загружаем конверты (без isPrimary)
+  const snapshot = await db.collection("envelopes").orderBy("created", "asc").get();
+  if (snapshot.empty) {
+    container.innerHTML = "<span style='color:#aaa'>Нет других конвертов для распределения.</span>";
+    return;
+  }
+
+  // Фильтруем те, что участвуют в распределении (кроме текущего редактируемого)
+  const editingId = editingEnvelopeId;
+  const envelopes = snapshot.docs.filter(doc =>
+    !doc.data().isPrimary &&
+    (!editingId || doc.id !== editingId)
+  );
+
+  // Собираем UI
+  let html = `<div style="font-weight:600; margin-bottom:6px;">Распределение по конвертам:</div>`;
+  let total = 0;
+  envelopes.forEach(doc => {
+    const data = doc.data();
+    const percent = Math.min(100, Math.round(data.percent || 0));
+    total += percent;
+    html += `
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:2px; font-size: 14px;">
+        <span style="width:36px; text-align:right;">${percent}%</span>
+        <span>${data.name}</span>
+      </div>
+    `;
+  });
+
+  // Текущий конверт (тот, который в форме сейчас)
+  const ownPercent = Number(document.getElementById('envelope-percent').value || 0);
+  total += ownPercent;
+
+  html += `<div style="margin-top: 8px; font-size:13px;">
+    <strong>Итого распределено:</strong> <span id="inline-dist-total" style="font-weight:600; ${total>100?'color:#C93D1F':total<100?'color:#E1A700':'color:#186663'}">${total}%</span>
+    <span style="color:#888">/ 100%</span>
+  </div>`;
+  if (total > 100) {
+    html += `<div style="color:#C93D1F; font-weight:500;">Внимание: распределено больше 100%!</div>`;
+  } else if (total < 100) {
+    html += `<div style="color:#E1A700; font-weight:500;">Внимание: часть суммы не распределена!</div>`;
+  } else {
+    html += `<div style="color:#186663;">Распределение корректно.</div>`;
+  }
+
+  container.innerHTML = html;
+}
 
 let editingEnvelopeId = null;
 
@@ -103,6 +162,8 @@ function fillEditForm(data, id) {
   submitBtn.innerHTML = '<span data-lucide="save"></span>';
   document.getElementById('cancel-edit-btn').style.display = 'inline-flex';
   lucide.createIcons();
+renderInlineDistributionEditor();
+
 }
 
 
@@ -397,15 +458,22 @@ window.addEventListener("DOMContentLoaded", async () => {
 document.getElementById('envelope-has-goal').addEventListener('change', function() {
   document.getElementById('envelope-goal').style.display = this.checked ? 'inline-block' : 'none';
 });
+
 document.getElementById('envelope-distribution').addEventListener('change', function() {
   const range = document.getElementById('envelope-percent');
   const label = document.getElementById('envelope-percent-label');
   range.style.display = label.style.display = this.checked ? 'inline-block' : 'none';
   range.disabled = !this.checked;
+  renderInlineDistributionEditor();
 });
+
 document.getElementById('envelope-percent').addEventListener('input', function() {
   document.getElementById('envelope-percent-label').textContent = this.value + "%";
+  renderInlineDistributionEditor();
 });
+
+// Один отдельный вызов для инициализации, если нужно:
+renderInlineDistributionEditor();
 
 // envelopes-app.js (финальная версия openDistributionEditor)
 
@@ -666,17 +734,21 @@ document.getElementById('envelope-has-goal').addEventListener('change', function
   document.getElementById('envelope-goal').style.display = this.checked ? 'inline-block' : 'none';
 });
 
+renderInlineDistributionEditor();
+
+
 // Распределение: показать бегунок при активации чекбокса
 document.getElementById('envelope-distribution').addEventListener('change', function() {
   const range = document.getElementById('envelope-percent');
   const label = document.getElementById('envelope-percent-label');
   range.style.display = label.style.display = this.checked ? 'inline-block' : 'none';
   range.disabled = !this.checked;
+  renderInlineDistributionEditor();  // <-- ВАЖНО
 });
 
-// Обновлять процент при движении бегунка
 document.getElementById('envelope-percent').addEventListener('input', function() {
   document.getElementById('envelope-percent-label').textContent = this.value + "%";
+  renderInlineDistributionEditor();  // <-- ВАЖНО
 });
 
 

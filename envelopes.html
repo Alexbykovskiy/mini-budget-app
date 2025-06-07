@@ -29,6 +29,8 @@
     <span id="envelope-percent-label" style="display:none; min-width:38px;">0%</span>
     <input type="range" id="envelope-percent" min="0" max="100" step="1" value="0" style="flex:1; min-width:0; display:none;">
   </div>
+  <!-- ВСТАВЛЯЕМ РЕДАКТОР СРАЗУ ПОСЛЕ блока распределения -->
+  <div id="inline-distribution-editor" style="display:none; margin: 0 0 8px 0;"></div>
   <div style="display:flex; gap:10px; justify-content:flex-end; align-items:center;">
     <button id="cancel-edit-btn" type="button" style="display:none; width:48px; height:48px; background:#f7931e; border:none; border-radius:50%; align-items:center; justify-content:center;">
       <span data-lucide="x"></span>
@@ -40,10 +42,10 @@
 </form>
     </fieldset>
 
-    <div class="controls row" style="gap: 12px; justify-content: space-between; margin-top: 24px;">
-      <button id="distribute-income" class="primary-btn">➕ Добавить доход</button>
-      <button onclick="openDistributionEditor()" class="gray-btn">⚙️ Настроить проценты</button>
-    </div>
+ <div class="controls row" style="gap: 12px; justify-content: flex-start; margin-top: 24px;">
+  <button id="distribute-income" class="primary-btn">➕ Добавить доход</button>
+</div>
+
 
     <div id="envelope-list" class="section-list" style="margin-top: 16px;"></div>
   </main>
