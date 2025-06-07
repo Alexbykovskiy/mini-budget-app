@@ -162,27 +162,26 @@ block.innerHTML = `
       }
     </span>
   </span>
-  ${
-    (!isPrimary && data.goal && data.goal > 0)
-      ? `<div class="progress-ring" style="width:36px; height:36px; margin-left:6px;">
-          <svg width="36" height="36">
-            <circle cx="18" cy="18" r="16" stroke="#888" stroke-width="4" fill="none"/>
-            <circle
-              cx="18" cy="18" r="16"
-              stroke="#f7931e"
-              stroke-width="4"
-              fill="none"
-              stroke-linecap="round"
-              stroke-dasharray="${2 * Math.PI * 16}"
-              stroke-dashoffset="${2 * Math.PI * 16 * (1 - Math.min(1, data.current / data.goal))}"
-              style="transition: stroke-dashoffset 0.4s;"/>
-            <text x="18" y="22" text-anchor="middle" font-size="13" fill="#f7931e" font-weight="bold">
-              ${Math.round(Math.min(1, data.current / data.goal) * 100)}%
-            </text>
-          </svg>
-        </div>`
-      : ""
-  }
+  ${(!isPrimary && !isMiniBudget && data.goal && data.goal > 0)
+  ? `<div class="progress-ring" style="width:36px; height:36px; margin-left:6px;">
+      <svg width="36" height="36">
+        <circle cx="18" cy="18" r="16" stroke="#888" stroke-width="4" fill="none"/>
+        <circle
+          cx="18" cy="18" r="16"
+          stroke="#f7931e"
+          stroke-width="4"
+          fill="none"
+          stroke-linecap="round"
+          stroke-dasharray="${2 * Math.PI * 16}"
+          stroke-dashoffset="${2 * Math.PI * 16 * (1 - Math.min(1, data.current / data.goal))}"
+          style="transition: stroke-dashoffset 0.4s;"/>
+        <text x="18" y="22" text-anchor="middle" font-size="13" fill="#f7931e" font-weight="bold">
+          ${Math.round(Math.min(1, data.current / data.goal) * 100)}%
+        </text>
+      </svg>
+    </div>`
+  : ""
+}
 </div>
 
       <div class="bottom-line">
