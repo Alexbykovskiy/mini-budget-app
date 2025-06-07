@@ -616,7 +616,7 @@ function showEnvelopeMenu(btn, id) {
     font-weight:500;
     transition:background 0.15s;
   " onmouseover="this.style.background='#f0f7f6'" onmouseout="this.style.background='none'">
-    <span data-lucide="pencil"></span> Редактировать
+    <span data-lucide="pencil"></span>
   </button>
   <button class="menu-item" style="
     display:flex;
@@ -632,7 +632,7 @@ function showEnvelopeMenu(btn, id) {
     font-weight:500;
     transition:background 0.15s;
   " onmouseover="this.style.background='#fff5f5'" onmouseout="this.style.background='none'">
-    <span data-lucide="trash-2"></span> Удалить
+    <span data-lucide="trash-2"></span>
   </button>
 `;
 
