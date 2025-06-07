@@ -86,12 +86,8 @@ async function renderInlineDistributionEditor() {
   const container = document.getElementById('inline-distribution-editor');
   if (!container) return;
   // Показывать только если чекбокс распределения отмечен
-  const show = document.getElementById('envelope-distribution').checked;
-  container.style.display = show ? 'block' : 'none';
-  if (!show) {
-    container.innerHTML = '';
-    return;
-  }
+  container.style.display = 'block';
+
 
   // Загружаем конверты (без isPrimary)
   const snapshot = await db.collection("envelopes").orderBy("created", "asc").get();
