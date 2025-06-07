@@ -372,44 +372,50 @@ async function distributeIncome() {
   const amount = prompt("Сколько дохода добавить (€)?");
   const total = parseFloat(amount);
   if (isNaN(total) || total <= 0) return;
-  const snapshot = await db.collection("envelopes").where("includeInDistribution", "==", true).get();
-  let totalPercent = 0;
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    totalPercent += parseFloat(data.percent || 0);
-  });
-  if (totalPercent === 0) {
-    alert("Нет активных процентов для распределения.");
+
+  // Получаем все конверты
+  const snapshot = await db.collection("envelopes").orderBy("created", "asc").get();
+  if (snapshot.empty) {
+    alert("Нет доступных конвертов для распределения.");
     return;
   }
 
-  // Новый блок — находим ID общего (isPrimary) вне зависимости от includeInDistribution
+  // Находим основной (общий) конверт
   let primaryId = null, primaryCurrent = 0;
-  const primarySnap = await db.collection("envelopes").where("isPrimary", "==", true).limit(1).get();
-  if (!primarySnap.empty) {
-    const doc = primarySnap.docs[0];
-    primaryId = doc.id;
-    primaryCurrent = doc.data().current || 0;
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    if (data.isPrimary) {
+      primaryId = doc.id;
+      primaryCurrent = data.current || 0;
+    }
+  });
+
+  if (!primaryId) {
+    alert("Основной конверт не найден.");
+    return;
   }
 
-  // Если процент не 100 — остаток идёт в "Общий"
-  if (totalPercent < 100 && primaryId) {
-    const leftover = total * ((100 - totalPercent) / 100);
+  // Распределяем проценты
+  let distributed = 0;
+  await Promise.all(snapshot.docs.map(async (doc) => {
+    const data = doc.data();
+    if (data.includeInDistribution && !data.isPrimary) {
+      const percent = parseFloat(data.percent || 0);
+      const part = total * (percent / 100);
+      distributed += part;
+      await db.collection("envelopes").doc(doc.id).update({
+        current: (data.current || 0) + part
+      });
+    }
+  }));
+
+  // Остаток — в "Общий"
+  const leftover = total - distributed;
+  if (leftover > 0) {
     await db.collection("envelopes").doc(primaryId).update({
       current: primaryCurrent + leftover
     });
-  } else if (totalPercent < 100) {
-    alert("Остаток некуда поместить: основной конверт не задан.");
   }
-
-  // Остальное — по активным конвертам
-  await Promise.all(snapshot.docs.map(async (doc) => {
-    const data = doc.data();
-    const part = (parseFloat(data.percent || 0) / totalPercent) * total;
-    await db.collection("envelopes").doc(doc.id).update({
-      current: (data.current || 0) + part
-    });
-  }));
   loadEnvelopes();
 }
 
