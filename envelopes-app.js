@@ -660,21 +660,30 @@ function showEnvelopeMenu(btn, id) {
   const oldMenu = document.getElementById('envelope-menu-popup');
   if (oldMenu) oldMenu.remove();
 
-  // Создаём меню, полностью копируя стиль меню из app.js
+  // Плашка с тем же цветом, что и фон (серый)
   const menu = document.createElement('div');
   menu.id = 'envelope-menu-popup';
-  menu.className = 'action-icons'; // 👈 Это твой базовый стиль для компактных popup
-
-  // Позиционирование (аналогично твоему app.js)
-  const rect = btn.getBoundingClientRect();
+  menu.className = 'action-icons';
   menu.style.position = 'absolute';
-  menu.style.top = `${rect.top + window.scrollY + 8}px`;
+  const rect = btn.getBoundingClientRect();
+  menu.style.top = `${rect.top + window.scrollY + 4}px`;
   menu.style.left = `${rect.right + window.scrollX + 12}px`;
+  menu.style.background = '#e0e0e0'; // <-- вот это ключевая строка!
+  menu.style.boxShadow = '4px 4px 12px #bebebe, -4px -4px 12px #ffffff';
+  menu.style.borderRadius = '12px';
+  menu.style.display = 'flex';
+  menu.style.flexDirection = 'row';
+  menu.style.padding = '6px';
+  menu.style.gap = '6px';
+  menu.style.zIndex = 100;
 
-  // Меню — две кнопки, как в app.js
   menu.innerHTML = `
-    <button class="action-btn" title="Редактировать"><span data-lucide="pencil"></span></button>
-    <button class="action-btn" id="envelope-menu-del" title="Удалить"><span data-lucide="trash-2"></span></button>
+    <button class="action-btn" title="Редактировать" style="background:#e0e0e0;">
+      <span data-lucide="pencil" style="stroke:#888;stroke-width:2.2;"></span>
+    </button>
+    <button class="action-btn" id="envelope-menu-del" title="Удалить" style="background:#e0e0e0;">
+      <span data-lucide="trash-2" style="stroke:#888;stroke-width:2.2;"></span>
+    </button>
   `;
 
   document.body.appendChild(menu);
@@ -690,7 +699,7 @@ function showEnvelopeMenu(btn, id) {
     });
   }, 50);
 
-  // Скрываем кнопку удаления для isPrimary и isMiniBudget
+  // Скрыть кнопку удаления для спецконвертов
   db.collection("envelopes").doc(id).get().then(doc => {
     const data = doc.data();
     if (data.isPrimary || data.isMiniBudget) {
