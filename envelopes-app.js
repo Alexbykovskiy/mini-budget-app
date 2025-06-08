@@ -655,27 +655,6 @@ setTimeout(() => {
   lucide.createIcons();
 }
 
-function showEnvelopeMenu(btn, id) {
-  // Убрать старое меню, если есть
-  const oldMenu = document.getElementById('envelope-menu-popup');
-  if (oldMenu) oldMenu.remove();
-
-  // Серое неоморфное меню-плашка с SVG-иконками
-  const menu = document.createElement('div');
-  menu.id = 'envelope-menu-popup';
-  menu.style.position = 'absolute';
-  const rect = btn.getBoundingClientRect();
-  menu.style.top = `${rect.top + window.scrollY + 4}px`;
-  menu.style.left = `${rect.right + window.scrollX + 12}px`;
-  menu.style.background = '#e0e0e0';
-  menu.style.boxShadow = '4px 4px 12px #bebebe, -4px -4px 12px #ffffff';
-  menu.style.borderRadius = '12px';
-  menu.style.display = 'flex';
-  menu.style.flexDirection = 'row';
-  menu.style.padding = '6px';
-  menu.style.gap = '6px';
-  menu.style.zIndex = 100;
-
   // Два круглых svg-кнопки, как в MiniBudget
 function showEnvelopeMenu(btn, id) {
   // Убрать старое меню, если есть
