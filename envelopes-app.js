@@ -682,7 +682,7 @@ function showEnvelopeMenu(btn, id) {
       style="background:#e0e0e0; border-radius:50%; width:40px; height:40px; border:none; box-shadow:4px 4px 12px #bebebe, -4px -4px 12px #ffffff; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform 0.15s;"
       title="Редактировать"
     >
-      <svg width="50" height="50" stroke="#444" stroke-width="2.2" fill="none" viewBox="0 0 24 24">
+      <svg width="32" height="32" stroke="#444" stroke-width="2.2" fill="none" viewBox="0 0 24 24">
         <path d="M3 17.25V21h3.75l11-11.03-3.75-3.75L3 17.25z"></path>
         <path d="M21.41 6.34c.38-.38.38-1.02 0-1.41l-2.34-2.34a1.003 1.003 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path>
       </svg>
@@ -692,7 +692,7 @@ function showEnvelopeMenu(btn, id) {
       style="background:#e0e0e0; border-radius:50%; width:40px; height:40px; border:none; box-shadow:4px 4px 12px #bebebe, -4px -4px 12px #ffffff; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform 0.15s;"
       title="Удалить"
     >
-      <svg width="50" height="50" stroke="#444" stroke-width="2.2" fill="none" viewBox="0 0 24 24">
+      <svg width="32" height="32" stroke="#444" stroke-width="2.2" fill="none" viewBox="0 0 24 24">
         <polyline points="3 6 5 6 21 6"></polyline>
         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
         <line x1="10" y1="11" x2="10" y2="17"></line>

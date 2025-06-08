@@ -1894,3 +1894,7 @@ input[type=range]::-moz-range-track {
   stroke: #bbb !important;
   color: #bbb !important;
 }
+#envelope-menu-popup button svg {
+  width: 32px !important;
+  height: 32px !important;
+}
