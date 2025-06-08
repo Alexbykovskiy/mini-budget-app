@@ -722,19 +722,29 @@ function showEnvelopeMenu(btn, id) {
 `;
 
 
-  document.body.appendChild(menu);
-  lucide.createIcons();
+ document.body.appendChild(menu);
+lucide.createIcons();
 
 setTimeout(() => {
   menu.querySelectorAll('span[data-lucide]').forEach(el => {
+    // Стиль для контейнера-спана (на всякий случай)
     el.style.stroke = '#444';
     el.style.fill = 'none';
     el.style.strokeWidth = '1.9';
     el.style.width = '24px';
     el.style.height = '24px';
     el.style.display = 'block';
+    // Стиль для самого SVG (главное!)
+    const svg = el.querySelector('svg');
+    if (svg) {
+      svg.style.width = '24px';
+      svg.style.height = '24px';
+      svg.style.stroke = '#444';
+      svg.style.fill = 'none';
+      svg.style.strokeWidth = '1.9';
+    }
   });
-}, 30);
+}, 40);
 
   // Принудительно перекрасим иконки (если Lucide всё равно вставляет свои цвета)
   setTimeout(() => {
