@@ -660,15 +660,14 @@ function showEnvelopeMenu(btn, id) {
   const oldMenu = document.getElementById('envelope-menu-popup');
   if (oldMenu) oldMenu.remove();
 
-  // Плашка с тем же цветом, что и фон (серый)
+  // Серое неоморфное меню-плашка только через inline-стили!
   const menu = document.createElement('div');
   menu.id = 'envelope-menu-popup';
-  menu.className = 'action-icons';
   menu.style.position = 'absolute';
   const rect = btn.getBoundingClientRect();
   menu.style.top = `${rect.top + window.scrollY + 4}px`;
   menu.style.left = `${rect.right + window.scrollX + 12}px`;
-  menu.style.background = '#e0e0e0'; // <-- вот это ключевая строка!
+  menu.style.background = '#e0e0e0';
   menu.style.boxShadow = '4px 4px 12px #bebebe, -4px -4px 12px #ffffff';
   menu.style.borderRadius = '12px';
   menu.style.display = 'flex';
@@ -677,17 +676,62 @@ function showEnvelopeMenu(btn, id) {
   menu.style.gap = '6px';
   menu.style.zIndex = 100;
 
+  // Кнопки — только inline-стили!
   menu.innerHTML = `
-    <button class="action-btn" title="Редактировать" style="background:#e0e0e0;">
-      <span data-lucide="pencil" style="stroke:#888;stroke-width:2.2;"></span>
+    <button
+      style="
+        background:#e0e0e0;
+        border-radius:50%;
+        width:40px;
+        height:40px;
+        border:none;
+        box-shadow:4px 4px 12px #bebebe, -4px -4px 12px #ffffff;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        cursor:pointer;
+        transition:transform 0.15s;
+      "
+      title="Редактировать"
+    >
+      <span data-lucide="pencil"
+        style="stroke:#444;fill:none;stroke-width:1.9;"
+      ></span>
     </button>
-    <button class="action-btn" id="envelope-menu-del" title="Удалить" style="background:#e0e0e0;">
-      <span data-lucide="trash-2" style="stroke:#888;stroke-width:2.2;"></span>
+    <button
+      id="envelope-menu-del"
+      style="
+        background:#e0e0e0;
+        border-radius:50%;
+        width:40px;
+        height:40px;
+        border:none;
+        box-shadow:4px 4px 12px #bebebe, -4px -4px 12px #ffffff;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        cursor:pointer;
+        transition:transform 0.15s;
+      "
+      title="Удалить"
+    >
+      <span data-lucide="trash-2"
+        style="stroke:#444;fill:none;stroke-width:1.9;"
+      ></span>
     </button>
   `;
 
   document.body.appendChild(menu);
   lucide.createIcons();
+
+  // Принудительно перекрасим иконки (если Lucide всё равно вставляет свои цвета)
+  setTimeout(() => {
+    menu.querySelectorAll('span[data-lucide]').forEach(el => {
+      el.style.stroke = '#444';
+      el.style.fill = 'none';
+      el.style.strokeWidth = '1.9';
+    });
+  }, 30);
 
   // Клик вне меню — закрыть
   setTimeout(() => {
