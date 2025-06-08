@@ -678,10 +678,17 @@ function showEnvelopeMenu(btn, id) {
 
   // Кнопки — только inline-стили!
 menu.innerHTML = `
-  <button ...>
+  <button
+    style="background:#e0e0e0; border-radius:50%; width:40px; height:40px; border:none; box-shadow:4px 4px 12px #bebebe, -4px -4px 12px #ffffff; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform 0.15s;"
+    title="Редактировать"
+  >
     <span data-lucide="pencil" class="lucide" style="width:28px;height:28px;stroke:#444;stroke-width:2.2;fill:none;display:block;"></span>
   </button>
-  <button ...>
+  <button
+    id="envelope-menu-del"
+    style="background:#e0e0e0; border-radius:50%; width:40px; height:40px; border:none; box-shadow:4px 4px 12px #bebebe, -4px -4px 12px #ffffff; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform 0.15s;"
+    title="Удалить"
+  >
     <span data-lucide="trash-2" class="lucide" style="width:28px;height:28px;stroke:#444;stroke-width:2.2;fill:none;display:block;"></span>
   </button>
 `;
@@ -695,7 +702,7 @@ setTimeout(() => {
     el.style.width = '28px';
     el.style.height = '28px';
     el.style.display = 'block';
-    // Стиль для самого SVG (главное!)
+    // Сам SVG
     const svg = el.querySelector('svg');
     if (svg) {
       svg.style.width = '28px';
@@ -706,7 +713,6 @@ setTimeout(() => {
     }
   });
 }, 40);
-
   // Принудительно перекрасим иконки (если Lucide всё равно вставляет свои цвета)
   setTimeout(() => {
     menu.querySelectorAll('span[data-lucide]').forEach(el => {
