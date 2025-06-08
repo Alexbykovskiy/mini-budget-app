@@ -1894,6 +1894,7 @@ input[type=range]::-moz-range-track {
   stroke: #bbb !important;
   color: #bbb !important;
 }
+
 #envelope-menu-popup {
   background: #e0e0e0 !important;
   box-shadow: 4px 4px 12px #bebebe, -4px -4px 12px #ffffff !important;
@@ -1925,7 +1926,7 @@ input[type=range]::-moz-range-track {
 #envelope-menu-popup button svg {
   width: 22px !important;
   height: 22px !important;
-  stroke: #444 !important;      /* темно-графитовый */
+  stroke: #444 !important;
   color: #444 !important;
   stroke-width: 2.2;
 }
