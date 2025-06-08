@@ -258,7 +258,7 @@ const progressPercent = (goalForCalc && goalForCalc > 0)
   ? Math.round(addedThisMonth / goalForCalc * 100)
   : 0;
 // ...
-<span class="env-balance-goal">${goalDisplay}</span>
+
 
             </div>
             <div class="envelope-distribution">
