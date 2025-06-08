@@ -205,77 +205,74 @@ const remaining = 100 - calculateRemainingPercent();
     const isPrimary = data.isPrimary === true;
     const block = document.createElement("div");
 
-   block.className = "block envelope-block"; // 👈 добавляем envelope-block
+  block.className = "block envelope-block";
+
+// Адаптивный шрифт для заголовка (JS)
+const name = data.name || "";
+let titleFontSize = "2em";
+if (name.length > 18) titleFontSize = "1.4em";
+if (name.length > 28) titleFontSize = "1.05em";
+
+// Круговой прогресс: вычисляем сумму, процент и угол дуги
+const addedThisMonth = /* вычисли сумму пополнений за месяц для этого конверта */;
+const goal = data.goal > 0 ? data.goal : 1;
+const progress = Math.min(addedThisMonth / goal, 1);
+const progressPercent = Math.round(addedThisMonth / goal * 100);
+
+// Распределение процентов
+const distributionPercent = data.percent || 0;
+
 block.innerHTML = `
-  <div class="expense-entry">
-    <div class="expense-left">
-<div class="top-line" style="display:flex; align-items:center; gap:14px; justify-content:space-between;">
-  <span class="top-name" style="display:flex; align-items:center; gap:12px;">
-    <strong>${data.name}</strong>
-    ${isPrimary ? "<span style='color:#999'>(общий)</span>" : ""}
-    <span style="font-size:0.97em; color:#888; min-width:38px;">
-      ${
-        isPrimary
-          ? (typeof remaining === 'number' ? remaining : 0) + "%"
-          : (typeof data.percent === 'number' ? data.percent : 0) + "%"
-      }
-    </span>
-  </span>
-  ${(!isPrimary && !isMiniBudget && data.goal && data.goal > 0)
-  ? `<div class="progress-ring" style="width:36px; height:36px; margin-left:6px;">
-      <svg width="36" height="36">
-        <circle cx="18" cy="18" r="16" stroke="#888" stroke-width="4" fill="none"/>
-        <circle
-          cx="18" cy="18" r="16"
-          stroke="#f7931e"
-          stroke-width="4"
-          fill="none"
-          stroke-linecap="round"
-          stroke-dasharray="${2 * Math.PI * 16}"
-          stroke-dashoffset="${2 * Math.PI * 16 * (1 - Math.min(1, data.current / data.goal))}"
-          style="transition: stroke-dashoffset 0.4s;"/>
-        <text x="18" y="22" text-anchor="middle" font-size="13" fill="#f7931e" font-weight="bold">
-          ${Math.round(Math.min(1, data.current / data.goal) * 100)}%
-        </text>
-      </svg>
-    </div>`
-  : ""
-}
-</div>
-
-      <div class="bottom-line">
-  <span>
-    €${data.current.toFixed(2)} / ${
-      (isPrimary || isMiniBudget || !data.goal || data.goal == 0)
-         ? '<span style="font-size:1.35em;vertical-align:-2px;">&#8734;</span>'
-        : "€" + data.goal.toFixed(2)
-    }
-  </span>
-  ${data.comment ? `<div class="info-line">${data.comment}</div>` : ""}
-  ${data.includeInDistribution === false && !isPrimary ? `<div class="info-line" style="color:#aaa">Не участвует в распределении</div>` : ""}
-</div>
-
+  <div class="envelope-card-grid">
+    <div class="envelope-main">
+      <div class="envelope-header" style="font-size:${titleFontSize}; color:#23292D; font-weight:700;">
+        ${escapeHTML(name)}
+      </div>
+      <div class="envelope-row" style="display:flex;align-items:center;gap:20px;">
+        <div class="envelope-progress-info">
+          <div class="envelope-balance">
+            <span class="env-balance-main">${data.current.toFixed(2)}</span>
+            <span class="env-balance-sep">/</span>
+            <span class="env-balance-goal">${goal.toFixed(0)}</span>
+          </div>
+          <div class="envelope-distribution">
+            <span style="color:#999;font-size:13px;">Распределение:</span>
+            <span style="color:#186663;font-weight:600;font-size:14px;">${distributionPercent}%</span>
+          </div>
+        </div>
+        <div class="envelope-progress-ring">
+          <svg width="60" height="60">
+            <circle cx="30" cy="30" r="26" stroke="#EEE" stroke-width="8" fill="none"/>
+            <circle
+              cx="30" cy="30" r="26"
+              stroke="#FFA35C"
+              stroke-width="8"
+              fill="none"
+              stroke-linecap="round"
+              stroke-dasharray="${2 * Math.PI * 26}"
+              stroke-dashoffset="${2 * Math.PI * 26 * (1 - progress)}"
+              style="transition:stroke-dashoffset 0.4s;"
+            />
+            <text x="30" y="36" text-anchor="middle" font-size="18" fill="#FFA35C" font-weight="bold">${progressPercent}%</text>
+          </svg>
+        </div>
+      </div>
+      <div class="envelope-stats" style="margin: 8px 0 4px 0;">
+        <div>Добавлено в этом месяце: <b>${addedThisMonth.toFixed(2)}</b></div>
+        <div>Потрачено в этом месяце: <b>${spentThisMonth.toFixed(2)}</b></div>
+      </div>
+      <div class="envelope-divider"></div>
+      <div class="envelope-comment">${escapeHTML(data.comment || "Комментарий не указан")}</div>
     </div>
-    <div class="expense-right" style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
-      <!-- Кнопка меню (3 полоски) -->
-      ${!isPrimary ? `
-  <button class="round-btn menu small menu-btn" data-id="${doc.id}">
-    <span data-lucide="menu"></span>
-  </button>
-` : ""}
-           <!-- 4 основные круглые кнопки -->
-            <button class="round-btn blue small" onclick="addToEnvelope('${doc.id}')">
-        <span data-lucide="plus"></span>
-      </button>
-      <button class="round-btn red small" onclick="subtractFromEnvelope('${doc.id}')">
-        <span data-lucide="minus"></span>
-      </button>
-      <button class="round-btn orange small" onclick="transferEnvelope('${doc.id}', ${data.current})">
-        <span data-lucide="move-horizontal"></span>
-      </button>
+    <div class="envelope-actions">
+      <button class="round-btn menu small menu-btn" data-id="${doc.id}" title="Меню"><span data-lucide="menu"></span></button>
+      <button class="round-btn orange small" onclick="addToEnvelope('${doc.id}')" title="Добавить"><span data-lucide="plus"></span></button>
+      <button class="round-btn orange small" onclick="subtractFromEnvelope('${doc.id}')" title="Вычесть"><span data-lucide="minus"></span></button>
+      <button class="round-btn orange small" onclick="transferEnvelope('${doc.id}', ${data.current})" title="Перевести"><span data-lucide="move-horizontal"></span></button>
     </div>
   </div>
 `;
+
 
     list.appendChild(block);
   });

@@ -1924,3 +1924,133 @@ input[type=range]::-moz-range-track {
   color: #444 !important;
   stroke-width: 2.2;
 }
+
+
+.envelope-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 64px;
+  gap: 0 12px;
+  align-items: stretch;
+  min-height: 220px;
+  height: 100%;
+}
+
+.envelope-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+}
+
+.envelope-header {
+  min-height: 32px;
+  max-height: 48px;
+  font-family: inherit;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
+  /* без фона */
+}
+
+.envelope-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.envelope-progress-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.envelope-balance {
+  font-size: 2.2em;
+  color: #23292D;
+  font-weight: 800;
+  margin-bottom: 0;
+}
+
+.env-balance-sep {
+  font-size: 1.1em;
+  color: #bbb;
+  margin: 0 5px;
+}
+.env-balance-goal {
+  font-size: 1.3em;
+  color: #bbb;
+}
+
+.envelope-progress-ring {
+  min-width: 60px;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.envelope-distribution {
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+.envelope-stats {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #222;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.envelope-divider {
+  width: 100%;
+  height: 2px;
+  margin: 8px 0 4px 0;
+  background: #e0e0e0;
+  box-shadow: inset 2px 2px 6px #bebebe, inset -2px -2px 6px #ffffff;
+  border-radius: 2px;
+}
+
+.envelope-comment {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #186663;
+  font-weight: 500;
+  word-break: break-all;
+  background: #f5f7f7;
+  border-radius: 10px;
+  padding: 8px 10px;
+  min-height: 32px;
+  max-height: 46px;
+  overflow: auto;
+}
+
+.envelope-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  height: 100%;
+  justify-content: center;
+}
+.envelope-actions .round-btn {
+  background: #FFA35C !important;
+  color: white !important;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff !important;
+}
+.envelope-actions .round-btn.menu {
+  background: #e0e0e0 !important;
+  color: #888 !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+.envelope-actions .round-btn .lucide,
+.envelope-actions .round-btn svg {
+  stroke: #fff !important;
+}
+.envelope-actions .round-btn.menu .lucide,
+.envelope-actions .round-btn.menu svg {
+  stroke: #888 !important;
+}
