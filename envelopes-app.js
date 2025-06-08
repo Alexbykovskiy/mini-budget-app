@@ -532,7 +532,13 @@ async function resetAllEnvelopes() {
   alert("Все балансы конвертов обнулены!");
   loadEnvelopes();
 }
-document.getElementById('reset-envelopes').addEventListener('click', resetAllEnvelopes);
+window.addEventListener("DOMContentLoaded", async () => {
+  await ensureSystemEnvelopes();
+  loadEnvelopes();
+  // ДОБАВЬ внутри этого события!
+  document.getElementById('reset-envelopes').addEventListener('click', resetAllEnvelopes);
+});
+
 
 
 window.addEventListener("DOMContentLoaded", async () => {
@@ -829,5 +835,10 @@ document.getElementById('envelope-percent').addEventListener('input', function()
   renderInlineDistributionEditor();  // <-- ВАЖНО
 });
 
-
+window.addEventListener("DOMContentLoaded", async () => {
+  await ensureSystemEnvelopes();
+  loadEnvelopes();
+  // Здесь уже все кнопки на месте!
+  document.getElementById('reset-envelopes').addEventListener('click', resetAllEnvelopes);
+});
 
