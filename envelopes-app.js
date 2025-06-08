@@ -729,40 +729,7 @@ function showEnvelopeMenu(btn, id) {
 }
 
 
-  // Принудительно перекрасим иконки (если Lucide всё равно вставляет свои цвета)
-  setTimeout(() => {
-    menu.querySelectorAll('span[data-lucide]').forEach(el => {
-      el.style.stroke = '#444';
-      el.style.fill = 'none';
-      el.style.strokeWidth = '1.9';
-    });
-  }, 30);
-
-  // Клик вне меню — закрыть
-  setTimeout(() => {
-    document.addEventListener('mousedown', function handler(ev) {
-      if (!menu.contains(ev.target) && ev.target !== btn) {
-        menu.remove();
-        document.removeEventListener('mousedown', handler);
-      }
-    });
-  }, 50);
-
-  // Скрыть кнопку удаления для спецконвертов
-  db.collection("envelopes").doc(id).get().then(doc => {
-    const data = doc.data();
-    if (data.isPrimary || data.isMiniBudget) {
-      const delBtn = document.getElementById('envelope-menu-del');
-      if (delBtn) delBtn.style.display = 'none';
-    }
-  });
-
-  // Обработчики
-  const [editBtn, delBtn] = menu.querySelectorAll('button');
-  editBtn.onclick = () => { menu.remove(); startEditEnvelope(id); };
-  delBtn.onclick = () => { menu.remove(); deleteEnvelope(id); };
-}
-function startEditEnvelope(id) {
+ function startEditEnvelope(id) {
   db.collection("envelopes").doc(id).get().then(doc => {
     if (doc.exists) {
       fillEditForm(doc.data(), id);
