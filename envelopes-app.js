@@ -306,12 +306,21 @@ block.innerHTML = `
       <div class="envelope-divider"></div>
       <div class="envelope-comment">${escapeHTML(data.comment || "Комментарий не указан")}</div>
     </div>
-    <div class="envelope-actions">
-      <button class="round-btn menu small menu-btn" data-id="${doc.id}" title="Меню"><span data-lucide="menu"></span></button>
-      <button class="round-btn orange small" onclick="addToEnvelope('${doc.id}')" title="Добавить"><span data-lucide="plus"></span></button>
-      <button class="round-btn orange small" onclick="subtractFromEnvelope('${doc.id}')" title="Вычесть"><span data-lucide="minus"></span></button>
-      <button class="round-btn orange small" onclick="transferEnvelope('${doc.id}', ${data.current})" title="Перевести"><span data-lucide="move-horizontal"></span></button>
-    </div>
+   <div class="envelope-actions">
+  <button class="round-btn menu small menu-btn" data-id="${doc.id}" title="Меню">
+    <span data-lucide="menu"></span>
+  </button>
+  <button class="round-btn orange small" onclick="addToEnvelope('${doc.id}')" title="Добавить">
+    <span data-lucide="plus"></span>
+  </button>
+  <button class="round-btn orange small" onclick="subtractFromEnvelope('${doc.id}')" title="Вычесть">
+    <span data-lucide="minus"></span>
+  </button>
+  <button class="round-btn orange small" onclick="transferEnvelope('${doc.id}', ${data.current})" title="Перевести">
+    <span data-lucide="move-horizontal"></span>
+  </button>
+</div>
+
   </div>
 `;
 

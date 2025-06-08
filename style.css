@@ -2030,27 +2030,45 @@ input[type=range]::-moz-range-track {
 .envelope-actions {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-end; /* строго к правому краю */
   gap: 10px;
   height: 100%;
   justify-content: center;
 }
+
 .envelope-actions .round-btn {
-  background: #FFA35C !important;
-  color: white !important;
-  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff !important;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #FFA35C;
+  color: white;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+  border: none;
+  font-size: 1.8em;
+  transition: transform 0.2s;
 }
+
 .envelope-actions .round-btn.menu {
   background: #e0e0e0 !important;
   color: #888 !important;
   box-shadow: none !important;
-  border: none !important;
 }
-.envelope-actions .round-btn .lucide,
-.envelope-actions .round-btn svg {
-  stroke: #fff !important;
+
+.envelope-actions .round-btn .lucide {
+  width: 28px !important;
+  height: 28px !important;
+  stroke-width: 2.4;
 }
-.envelope-actions .round-btn.menu .lucide,
-.envelope-actions .round-btn.menu svg {
+
+.envelope-actions .round-btn.menu .lucide {
   stroke: #888 !important;
+  color: #888 !important;
+}
+
+.envelope-actions .round-btn.orange .lucide {
+  stroke: #fff !important;
+  color: #fff !important;
 }
