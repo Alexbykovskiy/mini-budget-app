@@ -522,28 +522,28 @@ async function ensureSystemEnvelopes() {
 
 }
 async function resetAllEnvelopes() {
-  if (!confirm("ВНИМАНИЕ: Это обнулит ВСЕ балансы конвертов. Продолжить?")) return;
-  const snapshot = await db.collection('envelopes').get();
+  if (!confirm("ВНИМАНИЕ: Это удалит все балансы и всю историю транзакций. Продолжить?")) return;
+
+  // 1. Обнуляем все балансы envelope'ов
+  const envelopesSnapshot = await db.collection('envelopes').get();
   const batch = db.batch();
-  snapshot.forEach(doc => {
+  envelopesSnapshot.forEach(doc => {
     batch.update(doc.ref, { current: 0 });
   });
   await batch.commit();
-  alert("Все балансы конвертов обнулены!");
+
+  // 2. Удаляем ВСЕ транзакции
+  // Firestore не поддерживает прямое удаление коллекции, поэтому поштучно или батчами
+  const transactionsSnapshot = await db.collection('transactions').get();
+  const batch2 = db.batch();
+  transactionsSnapshot.forEach(doc => {
+    batch2.delete(doc.ref);
+  });
+  await batch2.commit();
+
+  alert("Все балансы и история транзакций полностью сброшены!");
   loadEnvelopes();
 }
-window.addEventListener("DOMContentLoaded", async () => {
-  await ensureSystemEnvelopes();
-  loadEnvelopes();
-  // ДОБАВЬ внутри этого события!
-  document.getElementById('reset-envelopes').addEventListener('click', resetAllEnvelopes);
-});
-
-
-
-window.addEventListener("DOMContentLoaded", async () => {
-  await ensureSystemEnvelopes();
-  loadEnvelopes();
 });
 
 document.getElementById('envelope-has-goal').addEventListener('change', function() {
@@ -838,7 +838,5 @@ document.getElementById('envelope-percent').addEventListener('input', function()
 window.addEventListener("DOMContentLoaded", async () => {
   await ensureSystemEnvelopes();
   loadEnvelopes();
-  // Здесь уже все кнопки на месте!
   document.getElementById('reset-envelopes').addEventListener('click', resetAllEnvelopes);
 });
-
