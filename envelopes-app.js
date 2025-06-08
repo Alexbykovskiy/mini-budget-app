@@ -677,71 +677,32 @@ function showEnvelopeMenu(btn, id) {
   menu.style.zIndex = 100;
 
   // Кнопки — только inline-стили!
-  menu.innerHTML = `
-  <button
-    style="
-      background:#e0e0e0;
-      border-radius:50%;
-      width:40px;
-      height:40px;
-      border:none;
-      box-shadow:4px 4px 12px #bebebe, -4px -4px 12px #ffffff;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      cursor:pointer;
-      transition:transform 0.15s;
-    "
-    title="Редактировать"
-  >
-    <span data-lucide="pencil"
-      style="stroke:#444;fill:none;stroke-width:1.9;width:24px;height:24px;display:block;"
-    ></span>
+menu.innerHTML = `
+  <button ...>
+    <span data-lucide="pencil" class="lucide" style="width:28px;height:28px;stroke:#444;stroke-width:2.2;fill:none;display:block;"></span>
   </button>
-  <button
-    id="envelope-menu-del"
-    style="
-      background:#e0e0e0;
-      border-radius:50%;
-      width:40px;
-      height:40px;
-      border:none;
-      box-shadow:4px 4px 12px #bebebe, -4px -4px 12px #ffffff;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      cursor:pointer;
-      transition:transform 0.15s;
-    "
-    title="Удалить"
-  >
-    <span data-lucide="trash-2"
-      style="stroke:#444;fill:none;stroke-width:1.9;width:24px;height:24px;display:block;"
-    ></span>
+  <button ...>
+    <span data-lucide="trash-2" class="lucide" style="width:28px;height:28px;stroke:#444;stroke-width:2.2;fill:none;display:block;"></span>
   </button>
 `;
-
-
- document.body.appendChild(menu);
 lucide.createIcons();
 
 setTimeout(() => {
   menu.querySelectorAll('span[data-lucide]').forEach(el => {
-    // Стиль для контейнера-спана (на всякий случай)
     el.style.stroke = '#444';
     el.style.fill = 'none';
-    el.style.strokeWidth = '1.9';
-    el.style.width = '24px';
-    el.style.height = '24px';
+    el.style.strokeWidth = '2.2';
+    el.style.width = '28px';
+    el.style.height = '28px';
     el.style.display = 'block';
     // Стиль для самого SVG (главное!)
     const svg = el.querySelector('svg');
     if (svg) {
-      svg.style.width = '24px';
-      svg.style.height = '24px';
+      svg.style.width = '28px';
+      svg.style.height = '28px';
       svg.style.stroke = '#444';
       svg.style.fill = 'none';
-      svg.style.strokeWidth = '1.9';
+      svg.style.strokeWidth = '2.2';
     }
   });
 }, 40);
