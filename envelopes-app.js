@@ -310,11 +310,10 @@ block.innerHTML = `
   </div>
 `;
 
-list.appendChild(block);
+  list.appendChild(block);
+}); // <-- это закрытие только forEach
 
-});
-
- 
+// --- после forEach, но до конца функции loadEnvelopes ---
 setTimeout(() => {
   document.querySelectorAll('.menu-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -325,8 +324,8 @@ setTimeout(() => {
   });
 }, 0);
 
-  lucide.createIcons();
-}
+lucide.createIcons();
+} // <-- это уже конец всей функции loadEnvelopes
 
 // остальные функции не изменялись...
 
