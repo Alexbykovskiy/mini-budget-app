@@ -678,51 +678,63 @@ function showEnvelopeMenu(btn, id) {
 
   // Кнопки — только inline-стили!
   menu.innerHTML = `
-    <button
-      style="
-        background:#e0e0e0;
-        border-radius:50%;
-        width:40px;
-        height:40px;
-        border:none;
-        box-shadow:4px 4px 12px #bebebe, -4px -4px 12px #ffffff;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        cursor:pointer;
-        transition:transform 0.15s;
-      "
-      title="Редактировать"
-    >
-      <span data-lucide="pencil"
-        style="stroke:#444;fill:none;stroke-width:1.9;"
-      ></span>
-    </button>
-    <button
-      id="envelope-menu-del"
-      style="
-        background:#e0e0e0;
-        border-radius:50%;
-        width:40px;
-        height:40px;
-        border:none;
-        box-shadow:4px 4px 12px #bebebe, -4px -4px 12px #ffffff;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        cursor:pointer;
-        transition:transform 0.15s;
-      "
-      title="Удалить"
-    >
-      <span data-lucide="trash-2"
-        style="stroke:#444;fill:none;stroke-width:1.9;"
-      ></span>
-    </button>
-  `;
+  <button
+    style="
+      background:#e0e0e0;
+      border-radius:50%;
+      width:40px;
+      height:40px;
+      border:none;
+      box-shadow:4px 4px 12px #bebebe, -4px -4px 12px #ffffff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      transition:transform 0.15s;
+    "
+    title="Редактировать"
+  >
+    <span data-lucide="pencil"
+      style="stroke:#444;fill:none;stroke-width:1.9;width:24px;height:24px;display:block;"
+    ></span>
+  </button>
+  <button
+    id="envelope-menu-del"
+    style="
+      background:#e0e0e0;
+      border-radius:50%;
+      width:40px;
+      height:40px;
+      border:none;
+      box-shadow:4px 4px 12px #bebebe, -4px -4px 12px #ffffff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      transition:transform 0.15s;
+    "
+    title="Удалить"
+  >
+    <span data-lucide="trash-2"
+      style="stroke:#444;fill:none;stroke-width:1.9;width:24px;height:24px;display:block;"
+    ></span>
+  </button>
+`;
+
 
   document.body.appendChild(menu);
   lucide.createIcons();
+
+setTimeout(() => {
+  menu.querySelectorAll('span[data-lucide]').forEach(el => {
+    el.style.stroke = '#444';
+    el.style.fill = 'none';
+    el.style.strokeWidth = '1.9';
+    el.style.width = '24px';
+    el.style.height = '24px';
+    el.style.display = 'block';
+  });
+}, 30);
 
   // Принудительно перекрасим иконки (если Lucide всё равно вставляет свои цвета)
   setTimeout(() => {
