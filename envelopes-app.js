@@ -519,7 +519,22 @@ async function ensureSystemEnvelopes() {
     });
     console.log("✅ Конверт 'MiniBudget' создан автоматически");
   }
+
 }
+async function resetAllEnvelopes() {
+  if (!confirm("ВНИМАНИЕ: Это обнулит ВСЕ балансы конвертов. Продолжить?")) return;
+  const snapshot = await db.collection('envelopes').get();
+  const batch = db.batch();
+  snapshot.forEach(doc => {
+    batch.update(doc.ref, { current: 0 });
+  });
+  await batch.commit();
+  alert("Все балансы конвертов обнулены!");
+  loadEnvelopes();
+}
+document.getElementById('reset-envelopes').addEventListener('click', resetAllEnvelopes);
+
+
 window.addEventListener("DOMContentLoaded", async () => {
   await ensureSystemEnvelopes();
   loadEnvelopes();
