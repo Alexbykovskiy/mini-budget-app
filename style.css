@@ -1930,3 +1930,32 @@ input[type=range]::-moz-range-track {
   color: #444 !important;
   stroke-width: 2.2;
 }
+
+
+#envelope-menu-popup .popup-menu-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50% !important;
+  background: #e0e0e0 !important;
+  color: #444 !important;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff !important;
+  border: none !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+#envelope-menu-popup .popup-menu-btn:hover {
+  transform: scale(1.08);
+}
+
+#envelope-menu-popup .popup-menu-btn svg {
+  width: 22px !important;
+  height: 22px !important;
+  stroke: #444 !important;
+  color: #444 !important;
+  stroke-width: 2.2;
+}
