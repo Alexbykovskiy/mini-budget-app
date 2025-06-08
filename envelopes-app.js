@@ -12,6 +12,23 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+async function getEnvelopeMonthStats(envelopeId) {
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  let added = 0;
+  let spent = 0;
+  const query = await db.collection("transactions")
+    .where("envelopeId", "==", envelopeId)
+    .where("date", ">=", monthStart)
+    .get();
+  query.forEach(doc => {
+    const t = doc.data();
+    if (t.amount > 0) added += t.amount;
+    if (t.amount < 0) spent += Math.abs(t.amount);
+  });
+  return { added, spent };
+}
+
 
 const form = document.getElementById("add-envelope-form");
 const nameInput = document.getElementById("envelope-name");
@@ -198,84 +215,83 @@ ordered.push(...others);
 const remaining = 100 - calculateRemainingPercent();
 
 
-  ordered.forEach(doc => {
-    const data = doc.data();
-    const percent = Math.min(100, Math.round(data.percent || 0));
-    const isMiniBudget = data.isMiniBudget === true;
-    const isPrimary = data.isPrimary === true;
-    const block = document.createElement("div");
-
+ordered.forEach(async doc => {
+  const data = doc.data();
+  const percent = Math.min(100, Math.round(data.percent || 0));
+  const isMiniBudget = data.isMiniBudget === true;
+  const isPrimary = data.isPrimary === true;
+  const block = document.createElement("div");
   block.className = "block envelope-block";
+  const name = data.name || "";
+  let titleFontSize = "2em";
+  if (name.length > 18) titleFontSize = "1.4em";
+  if (name.length > 28) titleFontSize = "1.05em";
 
-// Адаптивный шрифт для заголовка (JS)
-const name = data.name || "";
-let titleFontSize = "2em";
-if (name.length > 18) titleFontSize = "1.4em";
-if (name.length > 28) titleFontSize = "1.05em";
+  // ВАЖНО: ждём результат из Firestore — сколько добавлено и потрачено за месяц:
+  const monthStats = await getEnvelopeMonthStats(doc.id); // вызываем новую функцию
+  const addedThisMonth = monthStats.added;
+  const spentThisMonth = monthStats.spent;
 
-// Круговой прогресс: вычисляем сумму, процент и угол дуги
-const addedThisMonth = /* вычисли сумму пополнений за месяц для этого конверта */;
-const goal = data.goal > 0 ? data.goal : 1;
-const progress = Math.min(addedThisMonth / goal, 1);
-const progressPercent = Math.round(addedThisMonth / goal * 100);
+  // Всё остальное, как раньше:
+  const goal = data.goal > 0 ? data.goal : 1;
+  const progress = Math.min(addedThisMonth / goal, 1);
+  const progressPercent = Math.round(addedThisMonth / goal * 100);
+  const distributionPercent = data.percent || 0;
 
-// Распределение процентов
-const distributionPercent = data.percent || 0;
-
-block.innerHTML = `
-  <div class="envelope-card-grid">
-    <div class="envelope-main">
-      <div class="envelope-header" style="font-size:${titleFontSize}; color:#23292D; font-weight:700;">
-        ${escapeHTML(name)}
-      </div>
-      <div class="envelope-row" style="display:flex;align-items:center;gap:20px;">
-        <div class="envelope-progress-info">
-          <div class="envelope-balance">
-            <span class="env-balance-main">${data.current.toFixed(2)}</span>
-            <span class="env-balance-sep">/</span>
-            <span class="env-balance-goal">${goal.toFixed(0)}</span>
+  block.innerHTML = `
+    <div class="envelope-card-grid">
+      <div class="envelope-main">
+        <div class="envelope-header" style="font-size:${titleFontSize}; color:#23292D; font-weight:700;">
+          ${escapeHTML(name)}
+        </div>
+        <div class="envelope-row" style="display:flex;align-items:center;gap:20px;">
+          <div class="envelope-progress-info">
+            <div class="envelope-balance">
+              <span class="env-balance-main">${data.current.toFixed(2)}</span>
+              <span class="env-balance-sep">/</span>
+              <span class="env-balance-goal">${goal.toFixed(0)}</span>
+            </div>
+            <div class="envelope-distribution">
+              <span style="color:#999;font-size:13px;">Распределение:</span>
+              <span style="color:#186663;font-weight:600;font-size:14px;">${distributionPercent}%</span>
+            </div>
           </div>
-          <div class="envelope-distribution">
-            <span style="color:#999;font-size:13px;">Распределение:</span>
-            <span style="color:#186663;font-weight:600;font-size:14px;">${distributionPercent}%</span>
+          <div class="envelope-progress-ring">
+            <svg width="60" height="60">
+              <circle cx="30" cy="30" r="26" stroke="#EEE" stroke-width="8" fill="none"/>
+              <circle
+                cx="30" cy="30" r="26"
+                stroke="#FFA35C"
+                stroke-width="8"
+                fill="none"
+                stroke-linecap="round"
+                stroke-dasharray="${2 * Math.PI * 26}"
+                stroke-dashoffset="${2 * Math.PI * 26 * (1 - progress)}"
+                style="transition:stroke-dashoffset 0.4s;"
+              />
+              <text x="30" y="36" text-anchor="middle" font-size="18" fill="#FFA35C" font-weight="bold">${progressPercent}%</text>
+            </svg>
           </div>
         </div>
-        <div class="envelope-progress-ring">
-          <svg width="60" height="60">
-            <circle cx="30" cy="30" r="26" stroke="#EEE" stroke-width="8" fill="none"/>
-            <circle
-              cx="30" cy="30" r="26"
-              stroke="#FFA35C"
-              stroke-width="8"
-              fill="none"
-              stroke-linecap="round"
-              stroke-dasharray="${2 * Math.PI * 26}"
-              stroke-dashoffset="${2 * Math.PI * 26 * (1 - progress)}"
-              style="transition:stroke-dashoffset 0.4s;"
-            />
-            <text x="30" y="36" text-anchor="middle" font-size="18" fill="#FFA35C" font-weight="bold">${progressPercent}%</text>
-          </svg>
+        <div class="envelope-stats" style="margin: 8px 0 4px 0;">
+          <div>Добавлено в этом месяце: <b>${addedThisMonth.toFixed(2)}</b></div>
+          <div>Потрачено в этом месяце: <b>${spentThisMonth.toFixed(2)}</b></div>
         </div>
+        <div class="envelope-divider"></div>
+        <div class="envelope-comment">${escapeHTML(data.comment || "Комментарий не указан")}</div>
       </div>
-      <div class="envelope-stats" style="margin: 8px 0 4px 0;">
-        <div>Добавлено в этом месяце: <b>${addedThisMonth.toFixed(2)}</b></div>
-        <div>Потрачено в этом месяце: <b>${spentThisMonth.toFixed(2)}</b></div>
+      <div class="envelope-actions">
+        <button class="round-btn menu small menu-btn" data-id="${doc.id}" title="Меню"><span data-lucide="menu"></span></button>
+        <button class="round-btn orange small" onclick="addToEnvelope('${doc.id}')" title="Добавить"><span data-lucide="plus"></span></button>
+        <button class="round-btn orange small" onclick="subtractFromEnvelope('${doc.id}')" title="Вычесть"><span data-lucide="minus"></span></button>
+        <button class="round-btn orange small" onclick="transferEnvelope('${doc.id}', ${data.current})" title="Перевести"><span data-lucide="move-horizontal"></span></button>
       </div>
-      <div class="envelope-divider"></div>
-      <div class="envelope-comment">${escapeHTML(data.comment || "Комментарий не указан")}</div>
     </div>
-    <div class="envelope-actions">
-      <button class="round-btn menu small menu-btn" data-id="${doc.id}" title="Меню"><span data-lucide="menu"></span></button>
-      <button class="round-btn orange small" onclick="addToEnvelope('${doc.id}')" title="Добавить"><span data-lucide="plus"></span></button>
-      <button class="round-btn orange small" onclick="subtractFromEnvelope('${doc.id}')" title="Вычесть"><span data-lucide="minus"></span></button>
-      <button class="round-btn orange small" onclick="transferEnvelope('${doc.id}', ${data.current})" title="Перевести"><span data-lucide="move-horizontal"></span></button>
-    </div>
-  </div>
-`;
+  `;
+  list.appendChild(block);
+});
 
-
-    list.appendChild(block);
-  });
+ 
 setTimeout(() => {
   document.querySelectorAll('.menu-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -297,11 +313,18 @@ async function subtractFromEnvelope(id) {
   if (isNaN(value) || value <= 0) return;
   const ref = db.collection("envelopes").doc(id);
   await db.runTransaction(async (t) => {
-    const doc = await t.get(ref);
-    const data = doc.data();
-    t.update(ref, { current: (data.current || 0) - value });
-  });
-  loadEnvelopes();
+  const docSnap = await t.get(ref);
+  const data = docSnap.data();
+  t.update(ref, { current: (data.current || 0) - value });
+});
+await db.collection("transactions").add({
+  envelopeId: id,
+  amount: -value,
+  type: "subtract",
+  date: Date.now()
+});
+loadEnvelopes();
+
 }
 
 async function addToEnvelope(id) {
@@ -310,11 +333,19 @@ async function addToEnvelope(id) {
   if (isNaN(value) || value <= 0) return;
   const ref = db.collection("envelopes").doc(id);
   await db.runTransaction(async (t) => {
-    const doc = await t.get(ref);
-    const data = doc.data();
-    t.update(ref, { current: (data.current || 0) + value });
-  });
-  loadEnvelopes();
+  const docSnap = await t.get(ref);
+  const data = docSnap.data();
+  t.update(ref, { current: (data.current || 0) + value });
+});
+// ДОБАВЬ это после транзакции, но до loadEnvelopes();
+await db.collection("transactions").add({
+  envelopeId: id,
+  amount: value,
+  type: "add",
+  date: Date.now()
+});
+loadEnvelopes();
+
 }
 
 async function editEnvelope(id, oldName, oldGoal, oldComment, oldPercent, oldInclude) {
@@ -354,15 +385,31 @@ async function transferEnvelope(fromId, maxAmount) {
   const fromRef = db.collection("envelopes").doc(fromId);
   const toRef = db.collection("envelopes").doc(toId);
   await db.runTransaction(async (t) => {
-    const fromDoc = await t.get(fromRef);
-    const toDoc = await t.get(toRef);
-    if (!fromDoc.exists || !toDoc.exists) throw new Error("Один из конвертов не найден");
-    const fromData = fromDoc.data();
-    const toData = toDoc.data();
-    t.update(fromRef, { current: (fromData.current || 0) - value });
-    t.update(toRef, { current: (toData.current || 0) + value });
-  });
-  loadEnvelopes();
+  const fromDoc = await t.get(fromRef);
+  const toDoc = await t.get(toRef);
+  if (!fromDoc.exists || !toDoc.exists) throw new Error("Один из конвертов не найден");
+  const fromData = fromDoc.data();
+  const toData = toDoc.data();
+  t.update(fromRef, { current: (fromData.current || 0) - value });
+  t.update(toRef, { current: (toData.current || 0) + value });
+});
+// Две записи: исходящий и входящий трансфер
+await db.collection("transactions").add({
+  envelopeId: fromId,
+  amount: -value,
+  type: "transfer-out",
+  toEnvelopeId: toId,
+  date: Date.now()
+});
+await db.collection("transactions").add({
+  envelopeId: toId,
+  amount: value,
+  type: "transfer-in",
+  fromEnvelopeId: fromId,
+  date: Date.now()
+});
+loadEnvelopes();
+
 }
 
 async function distributeIncome() {
@@ -403,6 +450,13 @@ async function distributeIncome() {
       await db.collection("envelopes").doc(doc.id).update({
         current: (data.current || 0) + part
       });
+await db.collection("transactions").add({
+  envelopeId: doc.id,
+  amount: part,
+  type: "income",
+  date: Date.now()
+});
+
     }
   }));
 
@@ -412,6 +466,13 @@ async function distributeIncome() {
     await db.collection("envelopes").doc(primaryId).update({
       current: primaryCurrent + leftover
     });
+await db.collection("transactions").add({
+  envelopeId: primaryId,
+  amount: leftover,
+  type: "income",
+  date: Date.now()
+});
+
   }
   loadEnvelopes();
 }
