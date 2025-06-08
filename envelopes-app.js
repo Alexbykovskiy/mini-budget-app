@@ -660,33 +660,21 @@ function showEnvelopeMenu(btn, id) {
   const oldMenu = document.getElementById('envelope-menu-popup');
   if (oldMenu) oldMenu.remove();
 
+  // Создаём меню, полностью копируя стиль меню из app.js
   const menu = document.createElement('div');
   menu.id = 'envelope-menu-popup';
-  menu.style.position = 'absolute';
-  const rect = btn.getBoundingClientRect();
-  menu.style.top = `${rect.bottom + window.scrollY + 8}px`;
-  menu.style.left = `${rect.left + window.scrollX + 60}px`; // Чуть правее
-  menu.style.background = '#fff';
-  menu.style.boxShadow = '0 6px 16px rgba(0,0,0,0.12)';
-  menu.style.borderRadius = '16px';
-  menu.style.padding = '10px 14px';
-  menu.style.zIndex = 9999;
-  menu.style.display = 'flex';
-  menu.style.flexDirection = 'row';
-  menu.style.gap = '12px';
-  menu.style.alignItems = 'center';
-  menu.style.minWidth = '0';
-  menu.style.width = 'auto';
-  menu.style.height = 'auto';
+  menu.className = 'action-icons'; // 👈 Это твой базовый стиль для компактных popup
 
-  // Формируем две круглые кнопки без текста
+  // Позиционирование (аналогично твоему app.js)
+  const rect = btn.getBoundingClientRect();
+  menu.style.position = 'absolute';
+  menu.style.top = `${rect.top + window.scrollY + 8}px`;
+  menu.style.left = `${rect.right + window.scrollX + 12}px`;
+
+  // Меню — две кнопки, как в app.js
   menu.innerHTML = `
-    <button class="round-btn menu-action-btn" title="Редактировать" style="background:#fff; color:#186663; box-shadow:4px 4px 12px #bebebe, -4px -4px 12px #ffffff; border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center; border:none;">
-      <span data-lucide="pencil"></span>
-    </button>
-    <button class="round-btn menu-action-btn" id="envelope-menu-del" title="Удалить" style="background:#fff; color:#c93d1f; box-shadow:4px 4px 12px #bebebe, -4px -4px 12px #ffffff; border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center; border:none;">
-      <span data-lucide="trash-2"></span>
-    </button>
+    <button class="action-btn" title="Редактировать"><span data-lucide="pencil"></span></button>
+    <button class="action-btn" id="envelope-menu-del" title="Удалить"><span data-lucide="trash-2"></span></button>
   `;
 
   document.body.appendChild(menu);
@@ -702,7 +690,7 @@ function showEnvelopeMenu(btn, id) {
     });
   }, 50);
 
-  // Получаем инфу о типе конверта — не показываем "Удалить" для специальных
+  // Скрываем кнопку удаления для isPrimary и isMiniBudget
   db.collection("envelopes").doc(id).get().then(doc => {
     const data = doc.data();
     if (data.isPrimary || data.isMiniBudget) {
@@ -712,8 +700,9 @@ function showEnvelopeMenu(btn, id) {
   });
 
   // Обработчики
-  menu.children[0].onclick = () => { menu.remove(); startEditEnvelope(id); };
-  menu.children[1].onclick = () => { menu.remove(); deleteEnvelope(id); };
+  const [editBtn, delBtn] = menu.querySelectorAll('button');
+  editBtn.onclick = () => { menu.remove(); startEditEnvelope(id); };
+  delBtn.onclick = () => { menu.remove(); deleteEnvelope(id); };
 }
 function startEditEnvelope(id) {
   db.collection("envelopes").doc(id).get().then(doc => {
