@@ -242,23 +242,24 @@ ordered.forEach(async doc => {
   const spentThisMonth = monthStats.spent;
 
   // Всё остальное, как раньше:
-  const goal = data.goal > 0 ? data.goal : 1;
-  const progress = Math.min(addedThisMonth / goal, 1);
-  const progressPercent = Math.round(addedThisMonth / goal * 100);
-  const distributionPercent = data.percent || 0;
+let goalDisplay;
+let goalForCalc;
+if (data.goal > 0) {
+  goalDisplay = data.goal.toFixed(0);
+  goalForCalc = data.goal;
+} else {
+  goalDisplay = '∞';
+  goalForCalc = null;
+}
+const progress = (goalForCalc && goalForCalc > 0)
+  ? Math.min(addedThisMonth / goalForCalc, 1)
+  : 0;
+const progressPercent = (goalForCalc && goalForCalc > 0)
+  ? Math.round(addedThisMonth / goalForCalc * 100)
+  : 0;
+// ...
+<span class="env-balance-goal">${goalDisplay}</span>
 
-  block.innerHTML = `
-    <div class="envelope-card-grid">
-      <div class="envelope-main">
-        <div class="envelope-header" style="font-size:${titleFontSize}; color:#23292D; font-weight:700;">
-          ${escapeHTML(name)}
-        </div>
-        <div class="envelope-row" style="display:flex;align-items:center;gap:20px;">
-          <div class="envelope-progress-info">
-            <div class="envelope-balance">
-              <span class="env-balance-main">${data.current.toFixed(2)}</span>
-              <span class="env-balance-sep">/</span>
-              <span class="env-balance-goal">${goal.toFixed(0)}</span>
             </div>
             <div class="envelope-distribution">
               <span style="color:#999;font-size:13px;">Распределение:</span>
