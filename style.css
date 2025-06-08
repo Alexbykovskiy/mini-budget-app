@@ -1898,3 +1898,29 @@ input[type=range]::-moz-range-track {
   width: 32px !important;
   height: 32px !important;
 }
+
+#envelope-menu-popup button,
+.menu-actions button {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #e0e0e0;
+  border: none;
+  box-shadow: 4px 4px 12px #bebebe, -4px -4px 12px #ffffff;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+#envelope-menu-popup button:hover,
+.menu-actions button:hover {
+  transform: scale(1.08);
+}
+#envelope-menu-popup button svg,
+.menu-actions button svg {
+  width: 20px !important;
+  height: 20px !important;
+  stroke: #444 !important;
+}

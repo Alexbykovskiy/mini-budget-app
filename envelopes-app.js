@@ -677,31 +677,41 @@ function showEnvelopeMenu(btn, id) {
   menu.style.zIndex = 100;
 
   // Два круглых svg-кнопки, как в MiniBudget
+function showEnvelopeMenu(btn, id) {
+  // Убрать старое меню, если есть
+  const oldMenu = document.getElementById('envelope-menu-popup');
+  if (oldMenu) oldMenu.remove();
+
+  // Серое неоморфное меню-плашка с Lucide-иконками
+  const menu = document.createElement('div');
+  menu.id = 'envelope-menu-popup';
+  menu.style.position = 'absolute';
+  const rect = btn.getBoundingClientRect();
+  menu.style.top = `${rect.top + window.scrollY + 4}px`;
+  menu.style.left = `${rect.right + window.scrollX + 12}px`;
+  menu.style.background = '#e0e0e0';
+  menu.style.boxShadow = '4px 4px 12px #bebebe, -4px -4px 12px #ffffff';
+  menu.style.borderRadius = '12px';
+  menu.style.display = 'flex';
+  menu.style.flexDirection = 'row';
+  menu.style.padding = '6px';
+  menu.style.gap = '6px';
+  menu.style.zIndex = 100;
+
+  // Меню с Lucide-иконками (точно как в напоминаниях)
   menu.innerHTML = `
-    <button
-      style="background:#e0e0e0; border-radius:50%; width:40px; height:40px; border:none; box-shadow:4px 4px 12px #bebebe, -4px -4px 12px #ffffff; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform 0.15s;"
-      title="Редактировать"
-    >
-      <svg width="32" height="32" stroke="#444" stroke-width="2.2" fill="none" viewBox="0 0 24 24">
-        <path d="M3 17.25V21h3.75l11-11.03-3.75-3.75L3 17.25z"></path>
-        <path d="M21.41 6.34c.38-.38.38-1.02 0-1.41l-2.34-2.34a1.003 1.003 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path>
-      </svg>
+    <button class="popup-menu-btn" title="Редактировать">
+      <span data-lucide="pencil"></span>
     </button>
-    <button
-      id="envelope-menu-del"
-      style="background:#e0e0e0; border-radius:50%; width:40px; height:40px; border:none; box-shadow:4px 4px 12px #bebebe, -4px -4px 12px #ffffff; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform 0.15s;"
-      title="Удалить"
-    >
-      <svg width="32" height="32" stroke="#444" stroke-width="2.2" fill="none" viewBox="0 0 24 24">
-        <polyline points="3 6 5 6 21 6"></polyline>
-        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
-        <line x1="10" y1="11" x2="10" y2="17"></line>
-        <line x1="14" y1="11" x2="14" y2="17"></line>
-      </svg>
+    <button class="popup-menu-btn" id="envelope-menu-del" title="Удалить">
+      <span data-lucide="trash-2"></span>
     </button>
   `;
 
   document.body.appendChild(menu);
+
+  // Вызов рендера иконок Lucide
+  lucide.createIcons();
 
   // Клик вне меню — закрыть
   setTimeout(() => {
