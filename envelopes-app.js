@@ -668,44 +668,30 @@ function showEnvelopeMenu(btn, id) {
   menu.style.left = `${rect.left + window.scrollX - 8}px`;
   menu.style.background = '#fff';
   menu.style.boxShadow = '0 2px 12px rgba(0,0,0,0.15)';
-  menu.style.borderRadius = '10px';
+  menu.style.borderRadius = '14px';
   menu.style.padding = '8px 0';
   menu.style.zIndex = 9999;
-  menu.style.minWidth = '120px';
-     menu.innerHTML = `
-  <button class="menu-item" style="
-    display:flex;
-    align-items:center;
-    gap:8px;
-    padding:8px 16px;
-    width:100%;
-    background:none;
-    border:none;
-    cursor:pointer;
-    color:#186663;
-    font-size:16px;
-    font-weight:500;
-    transition:background 0.15s;
-  " onmouseover="this.style.background='#f0f7f6'" onmouseout="this.style.background='none'">
-    <span data-lucide="pencil"></span>
-  </button>
-  <button class="menu-item" style="
-    display:flex;
-    align-items:center;
-    gap:8px;
-    padding:8px 16px;
-    width:100%;
-    background:none;
-    border:none;
-    cursor:pointer;
-    color:#ff4d4f;
-    font-size:16px;
-    font-weight:500;
-    transition:background 0.15s;
-  " onmouseover="this.style.background='#fff5f5'" onmouseout="this.style.background='none'">
-    <span data-lucide="trash-2"></span>
-  </button>
-`;
+  menu.style.minWidth = '150px';
+  menu.style.display = 'flex';
+  menu.style.flexDirection = 'column';
+  menu.innerHTML = `
+    <button class="menu-item" style="
+      display:flex; align-items:center; gap:10px; padding:14px 24px;
+      background:none; border:none; cursor:pointer;
+      color:#186663; font-size:17px; font-weight:500; border-radius:14px 14px 0 0;
+      transition:background 0.15s;
+    " onmouseover="this.style.background='#f0f7f6'" onmouseout="this.style.background='none'">
+      <span data-lucide="pencil"></span> Редактировать
+    </button>
+    <button class="menu-item" id="envelope-menu-del" style="
+      display:flex; align-items:center; gap:10px; padding:14px 24px;
+      background:none; border:none; cursor:pointer;
+      color:#c93d1f; font-size:17px; font-weight:500; border-radius:0 0 14px 14px;
+      transition:background 0.15s;
+    " onmouseover="this.style.background='#fff5f5'" onmouseout="this.style.background='none'">
+      <span data-lucide="trash-2"></span> Удалить
+    </button>
+  `;
 
   document.body.appendChild(menu);
   lucide.createIcons();
@@ -720,11 +706,20 @@ function showEnvelopeMenu(btn, id) {
     });
   }, 50);
 
+  // Получаем инфу о типе конверта — не показываем "Удалить" для специальных
+  db.collection("envelopes").doc(id).get().then(doc => {
+    const data = doc.data();
+    if (data.isPrimary || data.isMiniBudget) {
+      // Скрываем кнопку удаления
+      const delBtn = document.getElementById('envelope-menu-del');
+      if (delBtn) delBtn.style.display = 'none';
+    }
+  });
+
   // Обработчики
   menu.children[0].onclick = () => { menu.remove(); startEditEnvelope(id); };
   menu.children[1].onclick = () => { menu.remove(); deleteEnvelope(id); };
 }
-
 function startEditEnvelope(id) {
   db.collection("envelopes").doc(id).get().then(doc => {
     if (doc.exists) {
