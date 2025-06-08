@@ -660,7 +660,7 @@ function showEnvelopeMenu(btn, id) {
   const oldMenu = document.getElementById('envelope-menu-popup');
   if (oldMenu) oldMenu.remove();
 
-  // Серое неоморфное меню-плашка, SVG как в MiniBudget
+  // Серое неоморфное меню-плашка с SVG-иконками
   const menu = document.createElement('div');
   menu.id = 'envelope-menu-popup';
   menu.style.position = 'absolute';
@@ -676,6 +676,7 @@ function showEnvelopeMenu(btn, id) {
   menu.style.gap = '6px';
   menu.style.zIndex = 100;
 
+  // Два круглых svg-кнопки, как в MiniBudget
   menu.innerHTML = `
     <button
       style="background:#e0e0e0; border-radius:50%; width:40px; height:40px; border:none; box-shadow:4px 4px 12px #bebebe, -4px -4px 12px #ffffff; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform 0.15s;"
@@ -712,7 +713,7 @@ function showEnvelopeMenu(btn, id) {
     });
   }, 50);
 
-  // Скрыть кнопку удаления для спецконвертов
+  // Скрыть кнопку удаления для "Общий" и "MiniBudget"
   db.collection("envelopes").doc(id).get().then(doc => {
     const data = doc.data();
     if (data.isPrimary || data.isMiniBudget) {
@@ -726,7 +727,6 @@ function showEnvelopeMenu(btn, id) {
   editBtn.onclick = () => { menu.remove(); startEditEnvelope(id); };
   delBtn.onclick = () => { menu.remove(); deleteEnvelope(id); };
 }
-lucide.createIcons();
 
 
   // Принудительно перекрасим иконки (если Lucide всё равно вставляет свои цвета)
