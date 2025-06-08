@@ -544,7 +544,6 @@ async function resetAllEnvelopes() {
   alert("Все балансы и история транзакций полностью сброшены!");
   loadEnvelopes();
 }
-});
 
 document.getElementById('envelope-has-goal').addEventListener('change', function() {
   document.getElementById('envelope-goal').style.display = this.checked ? 'inline-block' : 'none';
