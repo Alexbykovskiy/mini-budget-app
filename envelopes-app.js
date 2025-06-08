@@ -664,32 +664,28 @@ function showEnvelopeMenu(btn, id) {
   menu.id = 'envelope-menu-popup';
   menu.style.position = 'absolute';
   const rect = btn.getBoundingClientRect();
-  menu.style.top = `${rect.bottom + window.scrollY + 6}px`;
-  menu.style.left = `${rect.left + window.scrollX - 8}px`;
+  menu.style.top = `${rect.bottom + window.scrollY + 8}px`;
+  menu.style.left = `${rect.left + window.scrollX + 60}px`; // Чуть правее
   menu.style.background = '#fff';
-  menu.style.boxShadow = '0 2px 12px rgba(0,0,0,0.15)';
-  menu.style.borderRadius = '14px';
-  menu.style.padding = '8px 0';
+  menu.style.boxShadow = '0 6px 16px rgba(0,0,0,0.12)';
+  menu.style.borderRadius = '16px';
+  menu.style.padding = '10px 14px';
   menu.style.zIndex = 9999;
-  menu.style.minWidth = '150px';
   menu.style.display = 'flex';
-  menu.style.flexDirection = 'column';
+  menu.style.flexDirection = 'row';
+  menu.style.gap = '12px';
+  menu.style.alignItems = 'center';
+  menu.style.minWidth = '0';
+  menu.style.width = 'auto';
+  menu.style.height = 'auto';
+
+  // Формируем две круглые кнопки без текста
   menu.innerHTML = `
-    <button class="menu-item" style="
-      display:flex; align-items:center; gap:10px; padding:14px 24px;
-      background:none; border:none; cursor:pointer;
-      color:#186663; font-size:17px; font-weight:500; border-radius:14px 14px 0 0;
-      transition:background 0.15s;
-    " onmouseover="this.style.background='#f0f7f6'" onmouseout="this.style.background='none'">
-      <span data-lucide="pencil"></span> Редактировать
+    <button class="round-btn menu-action-btn" title="Редактировать" style="background:#fff; color:#186663; box-shadow:4px 4px 12px #bebebe, -4px -4px 12px #ffffff; border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center; border:none;">
+      <span data-lucide="pencil"></span>
     </button>
-    <button class="menu-item" id="envelope-menu-del" style="
-      display:flex; align-items:center; gap:10px; padding:14px 24px;
-      background:none; border:none; cursor:pointer;
-      color:#c93d1f; font-size:17px; font-weight:500; border-radius:0 0 14px 14px;
-      transition:background 0.15s;
-    " onmouseover="this.style.background='#fff5f5'" onmouseout="this.style.background='none'">
-      <span data-lucide="trash-2"></span> Удалить
+    <button class="round-btn menu-action-btn" id="envelope-menu-del" title="Удалить" style="background:#fff; color:#c93d1f; box-shadow:4px 4px 12px #bebebe, -4px -4px 12px #ffffff; border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center; border:none;">
+      <span data-lucide="trash-2"></span>
     </button>
   `;
 
@@ -710,7 +706,6 @@ function showEnvelopeMenu(btn, id) {
   db.collection("envelopes").doc(id).get().then(doc => {
     const data = doc.data();
     if (data.isPrimary || data.isMiniBudget) {
-      // Скрываем кнопку удаления
       const delBtn = document.getElementById('envelope-menu-del');
       if (delBtn) delBtn.style.display = 'none';
     }
