@@ -867,3 +867,17 @@ window.addEventListener("DOMContentLoaded", async () => {
   loadEnvelopes();
   document.getElementById('reset-envelopes').addEventListener('click', resetAllEnvelopes);
 });
+const toggleAddEnvelope = document.getElementById("toggle-add-envelope");
+  const addEnvelopeWrapper = document.getElementById("add-envelope-wrapper");
+  const addEnvelopeToggleContainer = addEnvelopeWrapper?.querySelector('.add-envelope-toggle-container');
+  if (toggleAddEnvelope && addEnvelopeWrapper && addEnvelopeToggleContainer) {
+    toggleAddEnvelope.addEventListener("change", () => {
+      const isOn = toggleAddEnvelope.checked;
+      addEnvelopeWrapper.classList.remove("collapsed", "expanded");
+      addEnvelopeWrapper.classList.add(isOn ? "expanded" : "collapsed");
+      addEnvelopeToggleContainer.style.display = isOn ? "block" : "none";
+    });
+  }
+  // Можно по умолчанию свернуть
+  if (addEnvelopeToggleContainer) addEnvelopeToggleContainer.style.display = "none";
+});

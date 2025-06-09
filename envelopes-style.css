@@ -157,3 +157,118 @@ body {
     max-width: 96vw !important;
   }
 }
+#add-envelope-wrapper {
+  width: 380px;
+  margin-left: auto;
+  margin-right: auto;
+  overflow: hidden;
+  max-height: 2000px;
+  padding: 0 16px 24px 16px;
+  transition: max-height 1.5s ease-in-out, padding 1.5s ease-in-out;
+  margin-bottom: 24px;
+  position: relative;
+}
+#add-envelope-wrapper.collapsed {
+  max-height: 40px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  width: 380px;
+  overflow: hidden;
+}
+#add-envelope-wrapper.collapsed .add-envelope-toggle-container {
+  display: none;
+}
+#add-envelope-wrapper.expanded .add-envelope-toggle-container {
+  display: block;
+}
+.toggle-add-envelope-fix {
+  position: absolute;
+  top: 7px;
+  right: 12px;
+  width: 38px;
+  height: 24px;
+  z-index: 10;
+}
+.toggle-add-envelope-fix .slider {
+  width: 38px;
+  height: 24px;
+  background-color: #ccc;
+  border-radius: 999px;
+}
+.toggle-add-envelope-fix .slider:before {
+  width: 16px;
+  height: 16px;
+  top: 4px;
+  left: 4px;
+}
+.add-envelope-form .row {
+  display: flex;
+  flex-wrap: nowrap;
+  margin-bottom: 10px;
+  gap: 12px;
+}
+.add-envelope-form .row input,
+.add-envelope-form .row select {
+  flex: 1;
+}
+.add-envelope-form input[type="date"],
+.add-envelope-form input[type="text"],
+.add-envelope-form input[type="number"] {
+  background: #e0e0e0;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+  border-radius: 14px;
+  padding: 10px 14px;
+  border: none;
+  font-size: 16px;
+}
+.add-envelope-form input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #186663;
+}
+.add-envelope-form .form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+.add-envelope-form .round-btn.orange {
+  background: #FFA35C;
+  color: #fff;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-size: 1.8em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+}
+.add-envelope-form .round-btn.orange .lucide {
+  stroke: #fff !important;
+  color: #fff !important;
+  width: 28px !important;
+  height: 28px !important;
+}
+.add-envelope-form #cancel-edit-btn {
+  background: #FFA35C;
+  color: #fff;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-size: 1.8em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+  border: none;
+  margin-right: 8px;
+}
+.add-envelope-form #cancel-edit-btn .lucide {
+  stroke: #fff !important;
+  color: #fff !important;
+  width: 28px !important;
+  height: 28px !important;
+}
+
