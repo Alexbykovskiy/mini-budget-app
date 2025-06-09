@@ -587,3 +587,33 @@ main.container, .block, ... {
     0 8px 32px 0 rgba(255,163,92,0.18),
     0 2px 8px 0 rgba(255,255,255,0.17) inset;
 }
+
+.round-btn.orange {
+  background: rgba(255,163,92,0.19); /* очень прозрачный оранжевый */
+  backdrop-filter: blur(12px) brightness(1.26) contrast(1.17) saturate(1.7);
+  -webkit-backdrop-filter: blur(12px) brightness(1.26) contrast(1.17) saturate(1.7);
+  border: 1.5px solid rgba(255,255,255,0.38);
+  box-shadow:
+    0 6px 18px 0 rgba(255,163,92,0.18),
+    0 1px 3px 0 rgba(255,255,255,0.22) inset;
+  border-radius: 50%;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  z-index: 2;
+  transition: box-shadow 0.18s, filter 0.15s;
+}
+
+.round-btn.orange:after {
+  content: '';
+  position: absolute;
+  left: 23%;
+  top: 15%;
+  width: 54%;
+  height: 37%;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.33) 0%, rgba(255,255,255,0.00) 100%);
+  pointer-events: none;
+  filter: blur(1.5px);
+  border-radius: 50%;
+  z-index: 2;
+}
