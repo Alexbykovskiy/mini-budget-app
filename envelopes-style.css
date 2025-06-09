@@ -487,6 +487,8 @@ body {
   position: fixed;
   top: 0; left: 0; width: 100vw; height: 100vh;
   z-index: 0;
+transform: translateZ(0);
+  will-change: transform;
   background:
     linear-gradient(rgba(240,240,240,0.25), rgba(224,224,224,0.30)),
     url('envelopes-background.jpg') center center / cover no-repeat;
