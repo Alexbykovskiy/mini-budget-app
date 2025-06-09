@@ -802,3 +802,48 @@ main.container, .block, ... {
     rgba(255,255,255,0) 100%
   );
 }
+.add-envelope-form input[type="text"],
+.add-envelope-form input[type="number"] {
+  background: rgba(255,255,255,0.22);                /* полупрозрачное стекло */
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+  border-radius: 13px;
+  border: 1.2px solid rgba(255,255,255,0.32);        /* легкая стеклянная обводка */
+  padding: 10px 15px;
+  font-size: 15px;
+  color: #23292D;
+  box-shadow: 0 2px 6px 0 rgba(0,0,0,0.05) inset, 0 1.5px 6px 0 rgba(0,0,0,0.03);
+  transition: box-shadow 0.18s, border-color 0.16s, background 0.13s;
+  outline: none;
+}
+
+/* Красивый эффект при фокусе */
+.add-envelope-form input[type="text"]:focus,
+.add-envelope-form input[type="number"]:focus {
+  border-color: #FFA35C;
+  box-shadow: 0 0 0 2.5px rgba(255,163,92,0.18);
+  background: rgba(255,255,255,0.30);
+}
+
+
+.add-envelope-form textarea {
+  background: rgba(255,255,255,0.22);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+  border-radius: 13px;
+  border: 1.2px solid rgba(255,255,255,0.32);
+  padding: 10px 15px;
+  font-size: 15px;
+  color: #23292D;
+  min-height: 38px;
+  resize: vertical;
+  box-shadow: 0 2px 6px 0 rgba(0,0,0,0.05) inset, 0 1.5px 6px 0 rgba(0,0,0,0.03);
+  transition: box-shadow 0.18s, border-color 0.16s, background 0.13s;
+  outline: none;
+}
+
+.add-envelope-form textarea:focus {
+  border-color: #FFA35C;
+  box-shadow: 0 0 0 2.5px rgba(255,163,92,0.18);
+  background: rgba(255,255,255,0.30);
+}
