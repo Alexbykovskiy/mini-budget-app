@@ -229,8 +229,10 @@ ordered.forEach(async doc => {
   const percent = Math.min(100, Math.round(data.percent || 0));
   const isMiniBudget = data.isMiniBudget === true;
   const isPrimary = data.isPrimary === true;
-  const block = document.createElement("div");
-  block.className = "block envelope-block";
+
+
+ const block = document.createElement("div");
+block.className = "envelope-card-grid";
   const name = data.name || "";
   let titleFontSize = "2em";
   if (name.length > 18) titleFontSize = "1.4em";
@@ -322,7 +324,7 @@ block.innerHTML = `
   </div>
 `;
 
-  list.appendChild(block);
+  envelopeGridContainer.appendChild(block);
 }); // <-- это закрытие только forEach
 
 // --- после forEach, но до конца функции loadEnvelopes ---

@@ -1810,15 +1810,6 @@ input[type=range]::-moz-range-track {
   border-radius: 3px;
   height: 6px;
 }
-.envelope-block {
-  width: 360px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: stretch;
-  margin-bottom: 32px; /* чтобы у всех был одинаковый отступ снизу */
-  box-sizing: border-box;
-}
 
 .envelope-block .expense-entry {
   flex: 1 1 auto;
@@ -2078,4 +2069,62 @@ input[type=range]::-moz-range-track {
   width: 100%;
   height: 100%;
   box-sizing: border-box;
+}
+
+.envelope-grid-container {
+  display: grid;
+  grid-template-columns: repeat(2, 170px); /* 2 колонки по 170px */
+  gap: 20px;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+.envelope-card-grid {
+  width: 170px !important;
+  min-width: 170px !important;
+  max-width: 170px !important;
+  min-height: 180px;
+  background: #e0e0e0;
+  border-radius: 20px;
+  box-shadow: 9px 9px 16px #bebebe, -9px -9px 16px #ffffff;
+  padding: 8px 8px 16px 8px;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 1fr 36px;
+  gap: 0 4px;
+  align-items: start;
+  margin-bottom: 0;
+}
+
+.envelope-card-grid .envelope-header,
+.envelope-card-grid .envelope-balance,
+.envelope-card-grid .env-balance-goal,
+.envelope-card-grid .envelope-comment,
+.envelope-card-grid .envelope-row,
+.envelope-card-grid .envelope-stats,
+.envelope-card-grid .envelope-actions .round-btn {
+  font-size: 0.82em;
+}
+
+.envelope-card-grid .envelope-header {
+  font-size: 1em !important;
+  margin-bottom: 4px;
+}
+.envelope-card-grid .envelope-balance {
+  font-size: 1.15em;
+}
+.envelope-card-grid .envelope-actions .round-btn {
+  width: 30px;
+  height: 30px;
+  font-size: 1em;
+  min-width: 30px;
+  min-height: 30px;
+  padding: 0;
+}
+.envelope-card-grid .envelope-progress-ring {
+  min-width: 36px;
+  min-height: 36px;
+  width: 36px;
+  height: 36px;
 }
