@@ -426,3 +426,13 @@ body {
   margin-left: 12px;
 }
 
+.add-envelope-form .row {
+  display: flex;
+  gap: 8px;
+}
+.add-envelope-form input[type="text"] {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 50%;
+  box-sizing: border-box;
+}
