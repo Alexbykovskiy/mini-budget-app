@@ -1812,9 +1812,6 @@ input[type=range]::-moz-range-track {
 }
 .envelope-block {
   width: 360px;
-  height: 270px;
-  min-height: 270px;
-  max-height: 270px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
