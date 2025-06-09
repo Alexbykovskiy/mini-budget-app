@@ -1914,14 +1914,6 @@ input[type=range]::-moz-range-track {
 }
 
 
-.envelope-card-grid {
-  display: grid;
-  grid-template-columns: 1fr 64px;
-  gap: 0 12px;
-  align-items: stretch;
-  min-height: 220px;
-  height: 100%;
-}
 
 .envelope-main {
   height: 100%;
@@ -2014,7 +2006,7 @@ input[type=range]::-moz-range-track {
   min-height: 32px;
   max-height: 46px;
   overflow: auto;
-  white-space: pre-line; /* чтобы переносить \n и длинные строки */
+  white-space: pre-line;
 }
 
 .envelope-actions {
