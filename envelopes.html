@@ -26,20 +26,22 @@
         <input type="text" id="envelope-comment" placeholder="Комментарий">
       </div>
       <div class="row">
-        <label style="display:flex;align-items:center;">
-          <input type="checkbox" id="envelope-has-goal" style="margin-right:8px;">
-          Цель
-        </label>
-        <input type="number" id="envelope-goal" min="0" step="1" placeholder="Сумма" style="flex:1;min-width:0; text-align:right; display:none;">
-      </div>
-      <div class="row">
-        <label style="display:flex;align-items:center;">
-          <input type="checkbox" id="envelope-distribution" style="margin-right:8px;">
-          Распределение
-        </label>
-        <span id="envelope-percent-label" style="display:none; min-width:38px;">0%</span>
-        <input type="range" id="envelope-percent" min="0" max="100" step="1" value="0" style="flex:1; min-width:0; display:none;">
-      </div>
+  <label class="ios-switch ios-switch-green" style="margin-right:8px;">
+    <input type="checkbox" id="envelope-has-goal">
+    <span class="slider"></span>
+  </label>
+  <span>Цель</span>
+  <input type="number" id="envelope-goal" min="0" step="1" placeholder="Сумма" style="flex:1;min-width:0; text-align:right; display:none;">
+</div>
+<div class="row">
+  <label class="ios-switch ios-switch-green" style="margin-right:8px;">
+    <input type="checkbox" id="envelope-distribution">
+    <span class="slider"></span>
+  </label>
+  <span>Распределение</span>
+  <span id="envelope-percent-label" style="display:none; min-width:38px;">0%</span>
+  <input type="range" id="envelope-percent" min="0" max="100" step="1" value="0" style="flex:1; min-width:0; display:none;">
+</div>
       <div id="inline-distribution-editor" style="display:none; margin: 0 0 8px 0;"></div>
       <!-- Здесь можно добавить блок с процентами по конвертам, если нужно -->
       <div class="form-buttons">

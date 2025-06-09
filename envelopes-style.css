@@ -322,6 +322,12 @@ body {
 .ios-switch input:checked + .slider:before {
   transform: translateX(14px);
 }
+.ios-switch-green .slider {
+  background: #ccc;
+}
+.ios-switch-green input:checked + .slider {
+  background: #186663;
+}
 
 .add-envelope-form .row {
   display: flex;
@@ -338,13 +344,13 @@ body {
 .add-envelope-form input[type="checkbox"] {
   margin-right: 8px;
 }
-.add-envelope-form .round-btn.orange {
-  background: #FFA35C;
+.add-envelope-form .round-btn.green {
+  background: #186663;
   color: #fff;
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  font-size: 1.7em;
+  font-size: 1.8em;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -352,6 +358,12 @@ body {
   border: none;
   margin-left: auto;
   margin-top: 12px;
+}
+.add-envelope-form .round-btn.green .lucide {
+  stroke: #fff !important;
+  color: #fff !important;
+  width: 28px !important;
+  height: 28px !important;
 }
 .add-envelope-form input[type="text"],
 .add-envelope-form input[type="number"] {
@@ -363,3 +375,14 @@ body {
   font-size: 16px;
   margin-right: 0;
 }
+
+.add-envelope-form input[type="text"], .add-envelope-form input[type="number"] {
+  background: #e0e0e0;
+  box-shadow: inset 2px 2px 6px #bebebe, inset -2px -2px 6px #ffffff;
+  border-radius: 14px;
+  padding: 8px 10px;
+  border: none;
+  font-size: 14px;
+  margin-right: 0;
+}
+
