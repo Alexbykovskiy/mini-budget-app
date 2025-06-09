@@ -763,3 +763,42 @@ main.container, .block, ... {
   color: #FFA35C !important; /* твой оранжевый */
   font-weight: 700;
 }
+
+.ios-switch input:checked + .slider::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 54px;
+  height: 40px;
+  border-radius: 50%;
+  opacity: 0.39;
+  z-index: 1;
+  pointer-events: none;
+  filter: blur(12px);
+  background: linear-gradient(120deg,
+    rgba(34, 212, 116, 0.24) 0%,
+    rgba(34, 212, 116, 0.10) 70%,
+    rgba(255,255,255,0) 100%
+  );
+}
+
+
+.ios-switch input:checked + .slider.orange::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 54px;
+  height: 40px;
+  border-radius: 50%;
+  opacity: 0.37;
+  z-index: 1;
+  pointer-events: none;
+  filter: blur(12px);
+  background: linear-gradient(120deg,
+    rgba(255, 163, 92, 0.21) 0%,
+    rgba(255, 163, 92, 0.09) 70%,
+    rgba(255,255,255,0) 100%
+  );
+}
