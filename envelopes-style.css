@@ -515,3 +515,75 @@ main.container, .block, ... {
   border-radius: 24px;
   border: 1px solid rgba(255,255,255,0.28);
 }
+
+.round-btn.orange {
+  background: linear-gradient(
+    120deg,
+    rgba(255,163,92,0.40) 0%,
+    rgba(255,163,92,0.76) 100%
+  );
+  backdrop-filter: blur(10px) brightness(1.15) contrast(1.13);
+  -webkit-backdrop-filter: blur(10px) brightness(1.15) contrast(1.13);
+  border: 1.5px solid rgba(255,255,255,0.28);
+  box-shadow:
+    0 4px 16px 0 rgba(255,163,92,0.18),
+    0 1px 3px 0 rgba(255,255,255,0.23) inset,
+    0 0.5px 2px 0 rgba(0,0,0,0.08);
+}
+
+.round-btn.orange:after {
+  content: '';
+  position: absolute;
+  left: 22%;
+  top: 17%;
+  width: 56%;
+  height: 38%;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.29) 0%, rgba(255,255,255,0.00) 100%);
+  pointer-events: none;
+  filter: blur(1.4px);
+  border-radius: 50%;
+}
+
+.round-btn {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 163, 92, 0.45) 0%,   /* Оранжевый, полупрозрачный */
+    rgba(255, 163, 92, 0.70) 100%  /* Более плотный оранжевый */
+  );
+  backdrop-filter: blur(8px) brightness(1.15) contrast(1.1);
+  -webkit-backdrop-filter: blur(8px) brightness(1.15) contrast(1.1);
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.30);
+  box-shadow:
+    0 4px 16px 0 rgba(255,163,92,0.13),   /* Цветная тень */
+    0 1px 3px 0 rgba(255,255,255,0.20) inset, /* Внутренняя светлая “линза” */
+    0 0.5px 2px 0 rgba(0,0,0,0.07);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, box-shadow 0.2s, filter 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.round-btn:after {
+  content: '';
+  position: absolute;
+  left: 22%;
+  top: 18%;
+  width: 55%;
+  height: 35%;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.36) 0%, rgba(255,255,255,0.00) 80%);
+  pointer-events: none;
+  filter: blur(1.2px);
+  border-radius: 50%;
+}
+
+.round-btn:hover {
+  filter: brightness(1.08) saturate(1.25);
+  box-shadow:
+    0 8px 32px 0 rgba(255,163,92,0.18),
+    0 2px 8px 0 rgba(255,255,255,0.17) inset;
+}
