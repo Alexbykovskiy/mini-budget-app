@@ -465,7 +465,7 @@ body {
   align-items: center;
   justify-content: center;
   color: #bbb;
-  font-size: 100px;     /* вот ТУТ увеличь! */
+  font-size: 70px;     /* вот ТУТ увеличь! */
   font-weight: 600;
   opacity: .7;
   user-select: none;
