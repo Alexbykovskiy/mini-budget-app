@@ -248,7 +248,10 @@ block.className = "envelope-card-grid";
   // Всё остальное, как раньше:
 let goalDisplay;
 let goalForCalc;
-if (data.goal > 0) {
+if (isPrimary) { // общий конверт — всегда бесконечность!
+  goalDisplay = '∞';
+  goalForCalc = null;
+} else if (data.goal > 0) {
   goalDisplay = data.goal.toFixed(0);
   goalForCalc = data.goal;
 } else {
