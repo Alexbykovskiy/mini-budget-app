@@ -617,3 +617,29 @@ main.container, .block, ... {
   border-radius: 50%;
   z-index: 2;
 }
+
+/* КНОПКИ */
+.round-btn,
+.envelope-actions .round-btn,
+.add-envelope-form .round-btn.orange {
+  background: linear-gradient(135deg, #FFA35C 60%, #FFD1B1 100%);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(255,163,92,0.18), 0 1px 3px 0 rgba(255,255,255,0.13) inset;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.16s, background 0.13s;
+}
+.round-btn:after {
+  content: '';
+  position: absolute;
+  left: 25%;
+  top: 16%;
+  width: 50%;
+  height: 33%;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.00) 100%);
+  pointer-events: none;
+  filter: blur(1.1px);
+  border-radius: 50%;
+}
