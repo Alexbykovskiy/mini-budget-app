@@ -866,8 +866,9 @@ window.addEventListener("DOMContentLoaded", async () => {
   await ensureSystemEnvelopes();
   loadEnvelopes();
   document.getElementById('reset-envelopes').addEventListener('click', resetAllEnvelopes);
-});
-const toggleAddEnvelope = document.getElementById("toggle-add-envelope");
+
+  // --- Добавь обработчик для сворачивания/разворачивания "добавить конверт" ---
+  const toggleAddEnvelope = document.getElementById("toggle-add-envelope");
   const addEnvelopeWrapper = document.getElementById("add-envelope-wrapper");
   const addEnvelopeToggleContainer = addEnvelopeWrapper?.querySelector('.add-envelope-toggle-container');
   if (toggleAddEnvelope && addEnvelopeWrapper && addEnvelopeToggleContainer) {
@@ -877,7 +878,7 @@ const toggleAddEnvelope = document.getElementById("toggle-add-envelope");
       addEnvelopeWrapper.classList.add(isOn ? "expanded" : "collapsed");
       addEnvelopeToggleContainer.style.display = isOn ? "block" : "none";
     });
+    // По умолчанию свернуто
+    addEnvelopeToggleContainer.style.display = "none";
   }
-  // Можно по умолчанию свернуть
-  if (addEnvelopeToggleContainer) addEnvelopeToggleContainer.style.display = "none";
 });
