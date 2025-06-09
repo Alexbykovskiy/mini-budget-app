@@ -647,8 +647,7 @@ main.container, .block, ... {
 .block,
 .envelope-card-grid,
 #add-envelope-wrapper {
-  /* твой матовый фон */
-  background: rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.22);  /* более прозрачный блок */
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-radius: 24px;
@@ -658,7 +657,7 @@ main.container, .block, ... {
   overflow: hidden;
 }
 
-/* Светлая фаска: вверх+право */
+/* Светлая фаска: верх+право, ШИРЕ и ЯРЧЕ */
 .block:before,
 .envelope-card-grid:before,
 #add-envelope-wrapper:before {
@@ -670,13 +669,13 @@ main.container, .block, ... {
   z-index: 2;
   background:
     linear-gradient(135deg,
-      rgba(255,255,255,0.22) 0%,     /* яркая фаска угол вверх-лево */
-      rgba(255,255,255,0.10) 20%,
-      rgba(255,255,255,0.00) 60%
+      rgba(255,255,255,0.36) 0%,     /* Яркая фаска угол вверх-лево */
+      rgba(255,255,255,0.15) 32%,
+      rgba(255,255,255,0.00) 68%
     );
 }
 
-/* Тёмная фаска: низ+лево */
+/* Тёмная фаска: низ+лево, ШИРЕ */
 .block:after,
 .envelope-card-grid:after,
 #add-envelope-wrapper:after {
@@ -688,8 +687,8 @@ main.container, .block, ... {
   z-index: 2;
   background:
     linear-gradient(315deg,
-      rgba(0,0,0,0.13) 0%,           /* тёмная фаска угол низ-право */
-      rgba(0,0,0,0.05) 16%,
-      rgba(0,0,0,0.00) 60%
+      rgba(0,0,0,0.20) 0%,           /* Тёмная фаска угол низ-право */
+      rgba(0,0,0,0.09) 28%,
+      rgba(0,0,0,0.00) 70%
     );
 }
