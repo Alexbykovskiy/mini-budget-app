@@ -11,7 +11,43 @@
 </head>
 <body>
   <main class="container">
-    <legend>Добавить конверт</legend>
+    <fieldset class="block collapsed animated-section delay-2" id="add-envelope-wrapper">
+  <div class="section-title-row">
+    <h2 class="section-title">Добавить конверт</h2>
+  </div>
+  <label class="ios-switch toggle-add-envelope-fix">
+    <input type="checkbox" id="toggle-add-envelope">
+    <span class="slider"></span>
+  </label>
+  <div class="add-envelope-toggle-container">
+    <form id="add-envelope-form" class="add-envelope-form">
+      <div class="row">
+        <input type="text" id="envelope-name" placeholder="Название" required>
+        <input type="text" id="envelope-comment" placeholder="Комментарий">
+      </div>
+      <div class="row">
+        <input type="checkbox" id="envelope-has-goal" style="width:18px; height:18px;">
+        <span>Цель</span>
+        <input type="number" id="envelope-goal" min="0" step="1" placeholder="Сумма" style="flex:1; min-width:0; display:none; text-align:right;">
+      </div>
+      <div class="row">
+        <input type="checkbox" id="envelope-distribution" style="width:18px; height:18px;">
+        <span>Распределение</span>
+        <span id="envelope-percent-label" style="display:none; min-width:38px;">0%</span>
+        <input type="range" id="envelope-percent" min="0" max="100" step="1" value="0" style="flex:1; min-width:0; display:none;">
+      </div>
+      <div id="inline-distribution-editor" style="display:none; margin: 0 0 8px 0;"></div>
+      <div class="form-buttons">
+        <button id="cancel-edit-btn" type="button" style="display:none;">
+          <span data-lucide="x"></span>
+        </button>
+        <button type="submit" class="round-btn orange">
+          <span data-lucide="check"></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</fieldset>
 
  <div class="controls row" style="gap: 12px; justify-content: flex-start; margin-top: 24px;">
   <button id="distribute-income" class="primary-btn">➕ Добавить доход</button>
