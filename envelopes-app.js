@@ -199,7 +199,7 @@ async function loadEnvelopes() {
   list.innerHTML = "";
 const envelopeGridContainer = document.createElement("div");
 envelopeGridContainer.className = "envelope-grid-container";
-envelopeGridContainer.appendChild(block);
+list.appendChild(envelopeGridContainer); // <-- ЭТУ строку ОСТАВЬ!
   const envelopes = snapshot.docs;
 const primary = envelopes.find(doc => doc.data().isPrimary);
 const miniBudget = envelopes.find(doc => doc.data().isMiniBudget);
