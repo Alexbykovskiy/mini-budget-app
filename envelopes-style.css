@@ -482,3 +482,23 @@ body {
   padding: 20px 0 72px 0;
   max-width: 360px;
 }
+
+.background-fixed {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: 0;
+  background:
+    linear-gradient(rgba(240,240,240,0.25), rgba(224,224,224,0.30)),
+    url('envelopes-background.jpg') center center / cover no-repeat;
+  background-attachment: fixed; /* пусть будет, не мешает */
+  pointer-events: none; /* фон не перехватывает клики */
+}
+body {
+  /* убери фон с body! */
+  background: none !important;
+  position: relative;
+}
+main.container, .block, ... {
+  position: relative;
+  z-index: 1;
+}
