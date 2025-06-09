@@ -2,19 +2,19 @@ body {
   font-family: 'Segoe UI', sans-serif;
   background: #e0e0e0;
   color: #333;
-  margin: 0;
+  margin: 0 auto;
   padding: 20px 0 72px 0;
+  max-width: 360px;
 }
 
 .envelope-grid-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  grid-template-columns: repeat(2, 170px);
   gap: 20px;
   justify-content: center;
   width: 100%;
   margin-bottom: 40px;
 }
-
 /* Неоморфная карточка */
 .envelope-card-grid {
   width: 170px !important;
@@ -33,6 +33,7 @@ body {
   margin-bottom: 0;
   transition: box-shadow 0.2s;
 }
+
 .envelope-card-grid:hover {
   box-shadow: 2px 2px 32px #b2b8b9, 0 -4px 24px #fff6;
 }
@@ -168,4 +169,20 @@ body {
 .envelope-card-grid ::-webkit-scrollbar {
   width: 7px;
   background: #f5f7f7;
+}
+
+
+@media (max-width: 400px) {
+  body {
+    max-width: 100vw;
+  }
+  .envelope-grid-container {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .envelope-card-grid {
+    width: 96vw !important;
+    min-width: 96vw !important;
+    max-width: 96vw !important;
+  }
 }
