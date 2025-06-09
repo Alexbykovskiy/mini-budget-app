@@ -751,3 +751,15 @@ main.container, .block, ... {
   font-size: 14px;
   font-weight: 600;
 }
+.distribution-warning {
+  color: #FFA35C !important;
+  font-weight: 700;
+  font-size: 1.03em;
+  margin-top: 7px;
+  letter-spacing: 0.01em;
+}
+
+.distribution-warning {
+  color: #FFA35C !important; /* твой оранжевый */
+  font-weight: 700;
+}
