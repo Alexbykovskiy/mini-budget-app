@@ -647,7 +647,7 @@ main.container, .block, ... {
 .block,
 .envelope-card-grid,
 #add-envelope-wrapper {
-  background: rgba(255,255,255,0.22);  /* более прозрачный блок */
+  background: rgba(255,255,255,0.32);  /* более прозрачный блок */
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-radius: 24px;
