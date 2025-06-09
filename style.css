@@ -2064,9 +2064,9 @@ input[type=range]::-moz-range-track {
 }
 
 .envelope-card-grid {
-  width: 170px !important;
-  min-width: 170px !important;
-  max-width: 170px !important;
+  width: 360px !important;
+  min-width: 360px !important;
+  max-width: 360px !important;
   min-height: 180px;
   background: #e0e0e0;
   border-radius: 20px;
