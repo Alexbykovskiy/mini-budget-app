@@ -387,3 +387,42 @@ body {
   font-size: 14px;
   margin-right: 0;
 }
+
+.block,
+#add-envelope-wrapper,
+.envelope-card-grid {
+  width: 360px;
+  max-width: 98vw;
+  margin: 0 auto 24px auto;
+  border-radius: 24px;
+  background: #e0e0e0;
+  box-shadow: 9px 9px 18px #bfc8c8, -9px -9px 18px #ffffff;
+  padding: 18px 10px 22px 10px;
+  border: none;
+  position: relative;
+  box-sizing: border-box;
+}
+#add-envelope-wrapper.collapsed,
+#add-envelope-wrapper.expanded {
+  width: 360px;
+  padding: 18px 10px 22px 10px;
+  box-sizing: border-box;
+}
+.section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 38px;
+  width: 100%;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+}
+.section-title {
+  font-size: 1.12em;
+  font-weight: 700;
+  margin: 0;
+}
+.toggle-add-envelope-fix {
+  margin-left: 12px;
+}
+
