@@ -490,7 +490,7 @@ body {
 transform: translateZ(0);
   will-change: transform;
   background:
-    linear-gradient(rgba(240,240,240,0.25), rgba(224,224,224,0.30)),
+    linear-gradient(rgba(240,240,240,0.06), rgba(224,224,224,0.09)),
     url('envelopes-background.jpg') center center / cover no-repeat;
   background-attachment: fixed; /* пусть будет, не мешает */
   pointer-events: none; /* фон не перехватывает клики */
