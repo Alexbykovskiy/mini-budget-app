@@ -2033,10 +2033,9 @@ input[type=range]::-moz-range-track {
   flex-direction: column;
   align-items: flex-end;
   gap: 10px;
-  height: 100%;
-  justify-content: flex-start; /* или flex-end, если хочешь кнопки внизу! */
+  height: auto;           /* <-- ВАЖНО! (было 100% — убираем) */
+  justify-content: flex-start;
 }
-
 .envelope-actions .round-btn {
   width: 48px;
   height: 48px;
@@ -2077,9 +2076,9 @@ input[type=range]::-moz-range-track {
   display: grid;
   grid-template-columns: 1fr 64px;
   gap: 0 12px;
-  align-items: stretch;
-  height: 100%;
+  align-items: start; /* ⬅️ ВАЖНО: должно быть start, а не stretch */
   min-height: 220px;
   width: 100%;
+  height: 100%;
   box-sizing: border-box;
 }
