@@ -722,3 +722,32 @@ main.container, .block, ... {
   opacity: 0.85;
   font-size: 1em;
 }
+
+.env-balance-main {
+  color: #23292D !important;
+  font-size: 2.3em;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.15em;
+  opacity: 0.95;
+}
+
+.env-balance-sep,
+.env-balance-goal {
+  color: #23292D !important;
+  opacity: 0.85;
+  font-size: 1em;
+}
+
+.envelope-distribution span:first-child {
+  color: #23292D !important;
+  font-size: 14px;
+  font-weight: 400;
+  opacity: 0.74;
+  letter-spacing: 0.01em;
+}
+.envelope-distribution span:last-child {
+  color: #23292D !important;
+  font-size: 14px;
+  font-weight: 600;
+}
