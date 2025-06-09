@@ -263,70 +263,69 @@ const progressPercent = (goalForCalc && goalForCalc > 0)
   : 0;
 
 // ===== ВСТАВЬ ЗДЕСЬ =====
+// ===== ВСТАВЬ ЗДЕСЬ =====
 block.innerHTML = `
-  <div class="envelope-card-grid">
-    <div class="envelope-main">
-      <div class="envelope-header" style="font-size:${titleFontSize}; color:#23292D; font-weight:700;">
-        ${escapeHTML(name)}
-      </div>
-      <div class="envelope-row" style="display:flex;align-items:center;gap:20px;">
-        <div class="envelope-progress-info">
-          <div class="envelope-balance">
-            <span class="env-balance-main">${data.current.toFixed(2)}</span>
-            <span class="env-balance-sep">/</span>
-            <span class="env-balance-goal">${goalDisplay}</span>
-          </div>
-          <div class="envelope-distribution">
-            <span style="color:#999;font-size:13px;">Распределение:</span>
-            <span style="color:#186663;font-weight:600;font-size:14px;">${percent}%</span>
-          </div>
-        </div>
-        <div class="envelope-progress-ring">
-          ${
-            goalForCalc && goalForCalc > 0
-              ? `<svg width="60" height="60">
-                  <circle cx="30" cy="30" r="26" stroke="#EEE" stroke-width="8" fill="none"/>
-                  <circle
-                    cx="30" cy="30" r="26"
-                    stroke="#FFA35C"
-                    stroke-width="8"
-                    fill="none"
-                    stroke-linecap="round"
-                    stroke-dasharray="${2 * Math.PI * 26}"
-                    stroke-dashoffset="${2 * Math.PI * 26 * (1 - progress)}"
-                    style="transition:stroke-dashoffset 0.4s;"
-                  />
-                  <text x="30" y="36" text-anchor="middle" font-size="18" fill="#FFA35C" font-weight="bold">${progressPercent}%</text>
-                </svg>`
-              : `<div style="width:60px;height:60px;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:2.5em;opacity:.6;">∞</div>`
-          }
-        </div>
-      </div>
-      <div class="envelope-stats" style="margin: 8px 0 4px 0;">
-        <div>Добавлено в этом месяце: <b>${addedThisMonth.toFixed(2)}</b></div>
-        <div>Потрачено в этом месяце: <b>${spentThisMonth.toFixed(2)}</b></div>
-      </div>
-      <div class="envelope-divider"></div>
-      <div class="envelope-comment">${escapeHTML(data.comment || "Комментарий не указан")}</div>
+  <div class="envelope-main">
+    <div class="envelope-header" style="font-size:${titleFontSize}; color:#23292D; font-weight:700;">
+      ${escapeHTML(name)}
     </div>
-    <div class="envelope-actions">
-      <button class="round-btn menu small menu-btn" data-id="${doc.id}" title="Меню">
-        <span data-lucide="menu"></span>
-      </button>
-      <button class="round-btn orange small" onclick="addToEnvelope('${doc.id}')" title="Добавить">
-        <span data-lucide="plus"></span>
-      </button>
-      <button class="round-btn orange small" onclick="subtractFromEnvelope('${doc.id}')" title="Вычесть">
-        <span data-lucide="minus"></span>
-      </button>
-      <button class="round-btn orange small" onclick="transferEnvelope('${doc.id}', ${data.current})" title="Перевести">
-        <span data-lucide="move-horizontal"></span>
-      </button></div>
-
+    <div class="envelope-row" style="display:flex;align-items:center;gap:20px;">
+      <div class="envelope-progress-info">
+        <div class="envelope-balance">
+          <span class="env-balance-main">${data.current.toFixed(2)}</span>
+          <span class="env-balance-sep">/</span>
+          <span class="env-balance-goal">${goalDisplay}</span>
+        </div>
+        <div class="envelope-distribution">
+          <span style="color:#999;font-size:13px;">Распределение:</span>
+          <span style="color:#186663;font-weight:600;font-size:14px;">${percent}%</span>
+        </div>
+      </div>
+      <div class="envelope-progress-ring">
+        ${
+          goalForCalc && goalForCalc > 0
+            ? `<svg width="60" height="60">
+                <circle cx="30" cy="30" r="26" stroke="#EEE" stroke-width="8" fill="none"/>
+                <circle
+                  cx="30" cy="30" r="26"
+                  stroke="#FFA35C"
+                  stroke-width="8"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-dasharray="${2 * Math.PI * 26}"
+                  stroke-dashoffset="${2 * Math.PI * 26 * (1 - progress)}"
+                  style="transition:stroke-dashoffset 0.4s;"
+                />
+                <text x="30" y="36" text-anchor="middle" font-size="18" fill="#FFA35C" font-weight="bold">${progressPercent}%</text>
+              </svg>`
+            : `<div style="width:60px;height:60px;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:2.5em;opacity:.6;">∞</div>`
+        }
+      </div>
+    </div>
+    <div class="envelope-stats" style="margin: 8px 0 4px 0;">
+      <div>Добавлено в этом месяце: <b>${addedThisMonth.toFixed(2)}</b></div>
+      <div>Потрачено в этом месяце: <b>${spentThisMonth.toFixed(2)}</b></div>
+    </div>
+    <div class="envelope-divider"></div>
+    <div class="envelope-comment">${escapeHTML(data.comment || "Комментарий не указан")}</div>
+  </div>
+  <div class="envelope-actions">
+    <button class="round-btn menu small menu-btn" data-id="${doc.id}" title="Меню">
+      <span data-lucide="menu"></span>
+    </button>
+    <button class="round-btn orange small" onclick="addToEnvelope('${doc.id}')" title="Добавить">
+      <span data-lucide="plus"></span>
+    </button>
+    <button class="round-btn orange small" onclick="subtractFromEnvelope('${doc.id}')" title="Вычесть">
+      <span data-lucide="minus"></span>
+    </button>
+    <button class="round-btn orange small" onclick="transferEnvelope('${doc.id}', ${data.current})" title="Перевести">
+      <span data-lucide="move-horizontal"></span>
+    </button>
   </div>
 `;
+envelopeGridContainer.appendChild(block);
 
-  envelopeGridContainer.appendChild(block);
 }); // <-- это закрытие только forEach
 
 // --- после forEach, но до конца функции loadEnvelopes ---
