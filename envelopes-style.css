@@ -695,7 +695,7 @@ main.container, .block, ... {
 
 .infinity-ring {
   color: #23292D !important;
-  opacity: 0.85;
+  opacity: 0.60;
   font-size: 70px;
   font-weight: 600;
   user-select: none;
@@ -715,4 +715,10 @@ main.container, .block, ... {
   color: #23292D !important;
   font-size: 14px;
   font-weight: 600;
+}
+
+.env-balance-sep {
+  color: #23292D !important;
+  opacity: 0.85;
+  font-size: 1em;
 }
