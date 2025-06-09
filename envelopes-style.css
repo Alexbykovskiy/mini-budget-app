@@ -67,10 +67,10 @@ body {
   color: #186663;
 }
 .envelope-progress-ring {
-  min-width: 36px;
-  min-height: 36px;
-  width: 36px;
-  height: 36px;
+  min-width: 60px;
+  min-height: 60px;
+  width: 60px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
