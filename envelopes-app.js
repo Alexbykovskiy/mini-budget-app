@@ -337,7 +337,7 @@ block.innerHTML = `
       <line x1="5" y1="12" x2="19" y2="12"/>
     </svg>
   </button>
-  <button class="round-btn orange small" onclick="transferEnvelope('${doc.id}', ${data.current})" title="Перевести">
+ <button class="round-btn orange small" onclick="transferEnvelope('${doc.id}', ${Number(data.current || 0)})" title="Перевести">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="18 8 22 12 18 16"/>
       <line x1="2" y1="12" x2="22" y2="12"/>
