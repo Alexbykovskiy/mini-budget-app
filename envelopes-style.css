@@ -144,8 +144,7 @@ body {
 .envelope-actions .round-btn.menu {
   background: #f5f7f7;
   color: #23292D;
-  box-shadow: 2px 2px 6px #d1d7d9, -2px -2px 6px #fff;
-}
+  }
 
 /* Для мобильных */
 @media (max-width: 400px) {
@@ -629,8 +628,7 @@ main.container, .block, ... {
   color: #fff;
   border: none;
   border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(255,163,92,0.18), 0 1px 3px 0 rgba(255,255,255,0.13) inset;
-  position: relative;
+    position: relative;
   overflow: hidden;
   transition: box-shadow 0.16s, background 0.13s;
 }
