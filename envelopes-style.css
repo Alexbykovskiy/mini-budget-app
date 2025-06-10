@@ -843,15 +843,22 @@ body * {
   position: absolute;
   z-index: 3;
   pointer-events: none;
-  inset: 0;
-  border-radius: inherit;
+  top: 0; left: 0; width: 100%; height: 100%;
+  border-radius: inherit;     /* ← повторяет скругления блока! */
+  box-sizing: border-box;
   padding: 0;
   margin: 0;
-  box-sizing: border-box;
-  /* Имитируем рамку с помощью box-shadow с градиентом: */
-  box-shadow:
-    0 0 0 4px rgba(255,255,255,0.80),      /* внешний glow */
-    0 0 0 8px rgba(255,255,255,0.04);      /* еле заметное сияние */
-  /* Можно добавить background: linear-gradient(...), если нужен fade по углам */
-  /* opacity и цвета регулируй под себя */
+
+  /* Сам градиент на border через background и прозрачный внутренний слой: */
+  background:
+    linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0) 100%);
+  /* имитация толстой рамки: рисуем фон и делаем "дырку" через box-shadow */
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0) padding-box;
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+
+  /* Имитируем толщину рамки */
+  border: 0.21em solid transparent;      /* регулировка толщины */
+  /* border можно убрать полностью, если не влияет на рендер */
 }
