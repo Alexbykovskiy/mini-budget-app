@@ -418,23 +418,21 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 38px;
-  height: 38px;
+  min-height: 44px;
   width: 100%;
   margin-bottom: 12px;
   box-sizing: border-box;
-  position: relative;
 }
-
 .section-title {
   font-size: 1.12em;
   font-weight: 700;
   margin: 0;
-  padding-top: 0;
+  padding-top: 13px;   /* ← вот эту строку добавь */
 }
 
 .toggle-add-envelope-fix {
-  position: static;     /* убери absolute! */
+  width: 38px;
+  height: 24px;
   margin-left: 12px;
 }
 .add-envelope-form .row {
