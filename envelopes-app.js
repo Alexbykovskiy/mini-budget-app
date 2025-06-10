@@ -183,16 +183,6 @@ renderInlineDistributionEditor();
 
 }
 
-function initMenuButtons() {
-  document.querySelectorAll('.menu-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const id = btn.getAttribute('data-id');
-      showEnvelopeMenu(btn, id);
-    });
-  });
-}
-
 
 async function loadEnvelopes() {
   list.innerHTML = "<p style='color:#999'>Загрузка...</p>";
@@ -231,7 +221,7 @@ ordered.push(...others);
 const remaining = 100 - calculateRemainingPercent();
 
 
-await Promise.all(ordered.map(async doc => {
+ordered.forEach(async doc => {
   const data = doc.data();
   const percent = Math.min(100, Math.round(data.percent || 0));
   const isMiniBudget = data.isMiniBudget === true;
@@ -351,6 +341,16 @@ envelopeGridContainer.appendChild(block);
 }); // <-- это закрытие только forEach
 
 
+// --- после forEach, но до конца функции loadEnvelopes ---
+setTimeout(() => {
+  document.querySelectorAll('.menu-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.getAttribute('data-id');
+      showEnvelopeMenu(btn, id);
+    });
+  });
+}, 0);
 
 } // <-- это уже конец всей функции loadEnvelopes
 
