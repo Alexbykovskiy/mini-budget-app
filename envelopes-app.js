@@ -829,10 +829,6 @@ function showEnvelopeMenu(btn, id) {
   `;
 
   document.body.appendChild(menu);
-const [editBtn, delBtn, historyBtn] = menu.querySelectorAll('button');
-  editBtn.onclick = () => { menu.remove(); startEditEnvelope(id); };
-  delBtn.onclick = () => { menu.remove(); deleteEnvelope(id); };
-  historyBtn.onclick = () => { menu.remove(); showEnvelopeHistory(id); };
 
 
   // Клик вне меню — закрыть
