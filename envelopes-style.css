@@ -825,4 +825,7 @@ main.container, .block, ... {
   background: rgba(255,255,255,0.30);
 }
 
-
+body,
+body * {
+  color: rgba(255,255,255,0.60) !important;
+}
