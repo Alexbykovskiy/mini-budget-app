@@ -879,3 +879,26 @@ body * {
   transform: scale(1);
   pointer-events: auto;
 }
+
+/* Стиль для анимируемого поля "Сумма" */
+.goal-input {
+  max-width: 0;
+  opacity: 0;
+  transform: scale(0.9);
+  transition: all 0.3s ease;
+  pointer-events: none;
+  margin-left: 12px;
+  text-align: right;
+  flex: 1 1 auto;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Когда чекбокс активен — показываем */
+.goal-row.active .goal-input {
+  max-width: 100%;
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
