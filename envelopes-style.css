@@ -175,18 +175,20 @@ body {
 }
 #add-envelope-wrapper.collapsed {
   max-height: 40px;
-  padding: 18px 16px 0 16px;  /* верхний паддинг как в expanded! */
+  padding: 18px 16px 0 16px;
   display: flex;
   align-items: center;
   width: 360px;
   overflow: hidden;
 }
+
 #add-envelope-wrapper.collapsed .add-envelope-toggle-container {
   display: none;
 }
-#add-envelope-wrapper.expanded .add-envelope-toggle-container {
-  display: block;
+#add-envelope-wrapper.expanded {
+  padding: 18px 10px 22px 10px;
 }
+
 .toggle-add-envelope-fix {
   position: absolute;
   top: 7px;
@@ -416,9 +418,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 38px;      /* фиксированная высота строки */
   min-height: 38px;
-  margin-bottom: 0;  /* чтобы не прыгал вниз */
+  height: 38px;
+  width: 100%;
+  margin-bottom: 12px;
   box-sizing: border-box;
   position: relative;
 }
@@ -427,16 +430,12 @@ body {
   font-size: 1.12em;
   font-weight: 700;
   margin: 0;
-  padding-top: 4px;   /* или твое значение */
+  padding-top: 0;
 }
 
 .toggle-add-envelope-fix {
-  position: absolute;
-  top: 7px;
-  right: 12px;
-  width: 38px;
-  height: 24px;
-  z-index: 10;
+  position: static;     /* убери absolute! */
+  margin-left: 12px;
 }
 .add-envelope-form .row {
   display: flex;
