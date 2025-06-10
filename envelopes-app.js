@@ -60,7 +60,7 @@ renderInlineDistributionEditor();
   const submitBtn = document.querySelector('#add-envelope-form button[type="submit"]');
   submitBtn.innerHTML = '<span data-lucide="check"></span>';
   this.style.display = 'none';
-  lucide.replace();
+  lucide.createIcons();
 });
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -86,7 +86,7 @@ form.addEventListener("submit", async (e) => {
       document.getElementById('cancel-edit-btn').style.display = 'none';
       const submitBtn = document.querySelector('#add-envelope-form button[type="submit"]');
       submitBtn.innerHTML = '<span data-lucide="check"></span>';
-      lucide.replace();
+      lucide.createIcons();
     } else {
       await db.collection("envelopes").add({
         name,
@@ -184,7 +184,7 @@ function fillEditForm(data, id) {
   const submitBtn = document.querySelector('#add-envelope-form button[type="submit"]');
   submitBtn.innerHTML = '<span data-lucide="save"></span>';
   document.getElementById('cancel-edit-btn').style.display = 'inline-flex';
-  lucide.replace();
+  lucide.createIcons();
 renderInlineDistributionEditor();
 
 }
@@ -333,7 +333,7 @@ envelopeGridContainer.appendChild(block);
 
 }); // <-- это закрытие только forEach
 
-lucide.replace();
+lucide.createIcons();
 
 // --- после forEach, но до конца функции loadEnvelopes ---
 setTimeout(() => {
@@ -346,7 +346,7 @@ setTimeout(() => {
   });
 }, 0);
 
-lucide.replace();
+lucide.createIcons();
 } // <-- это уже конец всей функции loadEnvelopes
 
 // остальные функции не изменялись...
@@ -774,7 +774,7 @@ setTimeout(() => {
   });
 
   updateTotalDisplay();
-  lucide.replace();
+  lucide.createIcons();
 }
 
   // Два круглых svg-кнопки, как в MiniBudget
@@ -812,7 +812,7 @@ function showEnvelopeMenu(btn, id) {
   document.body.appendChild(menu);
 
   // Вызов рендера иконок Lucide
-  lucide.replace();
+ lucide.createIcons();
 
   // Клик вне меню — закрыть
   setTimeout(() => {
