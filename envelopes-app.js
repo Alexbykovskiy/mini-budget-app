@@ -58,9 +58,7 @@ renderInlineDistributionEditor();
   document.getElementById('envelope-percent').style.display = 'none';
   document.getElementById('envelope-percent-label').style.display = 'none';
   const submitBtn = document.querySelector('#add-envelope-form button[type="submit"]');
-  submitBtn.innerHTML = '<span data-lucide="check"></span>';
-  this.style.display = 'none';
-  lucide.createIcons();
+    this.style.display = 'none';
 });
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -85,8 +83,6 @@ form.addEventListener("submit", async (e) => {
       editingEnvelopeId = null;
       document.getElementById('cancel-edit-btn').style.display = 'none';
       const submitBtn = document.querySelector('#add-envelope-form button[type="submit"]');
-      submitBtn.innerHTML = '<span data-lucide="check"></span>';
-      lucide.createIcons();
     } else {
       await db.collection("envelopes").add({
         name,
@@ -182,9 +178,7 @@ function fillEditForm(data, id) {
 
   // Меняем кнопку: ставим "save" вместо "check"
   const submitBtn = document.querySelector('#add-envelope-form button[type="submit"]');
-  submitBtn.innerHTML = '<span data-lucide="save"></span>';
-  document.getElementById('cancel-edit-btn').style.display = 'inline-flex';
-  lucide.createIcons();
+    document.getElementById('cancel-edit-btn').style.display = 'inline-flex';
 renderInlineDistributionEditor();
 
 }
@@ -314,26 +308,38 @@ block.innerHTML = `
     <div class="envelope-divider"></div>
     <div class="envelope-comment">${escapeHTML(data.comment || "Комментарий не указан")}</div>
   </div>
-  <div class="envelope-actions">
-    <button class="round-btn menu small menu-btn" data-id="${doc.id}" title="Меню">
-      <span data-lucide="menu"></span>
-    </button>
-    <button class="round-btn orange small" onclick="addToEnvelope('${doc.id}')" title="Добавить">
-      <span data-lucide="plus"></span>
-    </button>
-    <button class="round-btn orange small" onclick="subtractFromEnvelope('${doc.id}')" title="Вычесть">
-      <span data-lucide="minus"></span>
-    </button>
-    <button class="round-btn orange small" onclick="transferEnvelope('${doc.id}', ${data.current})" title="Перевести">
-      <span data-lucide="move-horizontal"></span>
-    </button>
-  </div>
+ <div class="envelope-actions">
+  <button class="round-btn menu small menu-btn" data-id="${doc.id}" title="Меню">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#23292D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="4" y1="6" x2="20" y2="6"/>
+      <line x1="4" y1="12" x2="20" y2="12"/>
+      <line x1="4" y1="18" x2="20" y2="18"/>
+    </svg>
+  </button>
+  <button class="round-btn orange small" onclick="addToEnvelope('${doc.id}')" title="Добавить">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19"/>
+      <line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
+  </button>
+  <button class="round-btn orange small" onclick="subtractFromEnvelope('${doc.id}')" title="Вычесть">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
+  </button>
+  <button class="round-btn orange small" onclick="transferEnvelope('${doc.id}', ${data.current})" title="Перевести">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="18 8 22 12 18 16"/>
+      <line x1="2" y1="12" x2="22" y2="12"/>
+      <polyline points="6 8 2 12 6 16"/>
+    </svg>
+  </button>
+</div>
 `;
 envelopeGridContainer.appendChild(block);
 
 }); // <-- это закрытие только forEach
 
-lucide.createIcons();
 
 // --- после forEach, но до конца функции loadEnvelopes ---
 setTimeout(() => {
@@ -346,7 +352,6 @@ setTimeout(() => {
   });
 }, 0);
 
-lucide.createIcons();
 } // <-- это уже конец всей функции loadEnvelopes
 
 // остальные функции не изменялись...
@@ -727,15 +732,14 @@ setTimeout(() => {
 
   const cancelBtn = document.createElement("button");
   cancelBtn.className = "round-btn orange";
-  cancelBtn.innerHTML = '<span data-lucide="x"></span>';
+
   cancelBtn.onclick = () => {
     document.body.removeChild(modal);
   };
 
   const saveBtn = document.createElement("button");
   saveBtn.className = "round-btn green";
-  saveBtn.innerHTML = '<span data-lucide="check"></span>';
-  saveBtn.onclick = async () => {
+    saveBtn.onclick = async () => {
   await Promise.all(ranges.map(async (r) => {
     const cb = document.getElementById(`cb-${r.id}`);
     const range = document.getElementById(`range-${r.id}`);
@@ -774,7 +778,6 @@ setTimeout(() => {
   });
 
   updateTotalDisplay();
-  lucide.createIcons();
 }
 
   // Два круглых svg-кнопки, как в MiniBudget
@@ -783,7 +786,6 @@ function showEnvelopeMenu(btn, id) {
   const oldMenu = document.getElementById('envelope-menu-popup');
   if (oldMenu) oldMenu.remove();
 
-  // Серое неоморфное меню-плашка с Lucide-иконками
   const menu = document.createElement('div');
   menu.id = 'envelope-menu-popup';
   menu.style.position = 'absolute';
@@ -799,20 +801,15 @@ function showEnvelopeMenu(btn, id) {
   menu.style.gap = '6px';
   menu.style.zIndex = 100;
 
-  // Меню с Lucide-иконками (точно как в напоминаниях)
   menu.innerHTML = `
     <button class="popup-menu-btn" title="Редактировать">
-      <span data-lucide="pencil"></span>
-    </button>
+         </button>
     <button class="popup-menu-btn" id="envelope-menu-del" title="Удалить">
-      <span data-lucide="trash-2"></span>
-    </button>
+        </button>
   `;
 
   document.body.appendChild(menu);
 
-  // Вызов рендера иконок Lucide
- lucide.createIcons();
 
   // Клик вне меню — закрыть
   setTimeout(() => {

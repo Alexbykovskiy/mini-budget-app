@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Конверты бюджета</title>
 <link rel="stylesheet" href="envelopes-style.css">
-<script src="https://unpkg.com/lucide@0.259.0/dist/umd/lucide.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
@@ -48,10 +47,10 @@
       <!-- Здесь можно добавить блок с процентами по конвертам, если нужно -->
       <div class="form-buttons">
         <button id="cancel-edit-btn" type="button" style="display:none;">
-          <span data-lucide="x"></span>
+         
         </button>
         <button type="submit" class="round-btn orange">
-          <span data-lucide="check"></span>
+         
         </button>
       </div>
     </form>
@@ -70,15 +69,12 @@
 
   <nav class="main-bottom-menu">
     <a href="index.html" class="menu-btn" title="Mini Budget">
-      <span class="menu-icon"><span data-lucide="car"></span></span>
-    </a>
+          </a>
     <a href="envelopes.html" class="menu-btn active" title="Конверты">
-      <span class="menu-icon"><span data-lucide="mail"></span></span>
-    </a>
+        </a>
   </nav>
 
   <script src="envelopes-app.js"></script>
-  <script>lucide.replace();</script>
-
+  
 </body>
 </html>
