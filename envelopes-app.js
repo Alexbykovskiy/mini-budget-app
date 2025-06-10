@@ -585,8 +585,13 @@ async function resetAllEnvelopes() {
   loadEnvelopes();
 }
 
-document.getElementById('envelope-has-goal').addEventListener('change', function() {
-  document.getElementById('envelope-goal').style.display = this.checked ? 'inline-block' : 'none';
+document.getElementById('envelope-has-goal').addEventListener('change', function () {
+  const row = document.querySelector('.goal-row');
+  if (this.checked) {
+    row.classList.add('active');
+  } else {
+    row.classList.remove('active');
+  }
 });
 
 document.getElementById('envelope-distribution').addEventListener('change', function() {

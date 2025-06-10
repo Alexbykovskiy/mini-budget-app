@@ -857,3 +857,25 @@ body * {
   /* opacity и цвета регулируй под себя */
 }
 
+/* Блок с анимацией появления суммы */
+.with-animation {
+  transition: all 0.4s ease;
+  align-items: center;
+}
+
+#envelope-goal {
+  max-width: 0;
+  opacity: 0;
+  transition: all 0.3s ease;
+  transform: scale(0.95);
+  pointer-events: none;
+  margin-left: 8px;
+}
+
+/* Когда активна цель */
+.goal-row.active #envelope-goal {
+  max-width: 120px;
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}

@@ -26,14 +26,15 @@
         <input type="text" id="envelope-name" placeholder="Название" required>
         <input type="text" id="envelope-comment" placeholder="Комментарий">
       </div>
-      <div class="row">
-  <label class="ios-switch ios-switch-green" style="margin-right:8px;">
+      <div class="row goal-row with-animation">
+  <label class="ios-switch ios-switch-green">
     <input type="checkbox" id="envelope-has-goal">
     <span class="slider"></span>
   </label>
-  <span>Цель</span>
-  <input type="number" id="envelope-goal" min="0" step="1" placeholder="Сумма" style="flex:1;min-width:0; text-align:right; display:none;">
+  <span class="goal-label">Цель</span>
+  <input type="number" id="envelope-goal" min="0" step="1" placeholder="Сумма">
 </div>
+
 <div class="row">
   <label class="ios-switch ios-switch-green" style="margin-right:8px;">
     <input type="checkbox" id="envelope-distribution">
