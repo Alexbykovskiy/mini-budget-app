@@ -394,7 +394,7 @@ body {
   width: 360px;
   max-width: 98vw;
   margin: 0 auto 24px auto;
-  border-radius: 24px;
+  border-radius: none;
   background: #e0e0e0;
   box-shadow: 9px 9px 18px #bfc8c8, -9px -9px 18px #ffffff;
   padding: 20px 20px 22px 20px;
