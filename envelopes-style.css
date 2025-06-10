@@ -190,7 +190,7 @@ body {
 .toggle-add-envelope-fix {
   position: absolute;
   top: 7px;
-  right: 12px;
+  right: 0px;
   width: 38px;
   height: 24px;
   z-index: 10;
