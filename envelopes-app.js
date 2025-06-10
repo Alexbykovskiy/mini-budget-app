@@ -802,11 +802,16 @@ function showEnvelopeMenu(btn, id) {
   menu.style.zIndex = 100;
 
   menu.innerHTML = `
-    <button class="popup-menu-btn" title="Редактировать">
-         </button>
-    <button class="popup-menu-btn" id="envelope-menu-del" title="Удалить">
-        </button>
-  `;
+  <button class="popup-menu-btn" id="envelope-menu-edit" title="Редактировать">
+    <img src="https://cdn.jsdelivr.net/npm/@tabler/icons/icons/edit.svg" alt="Редактировать" width="20" height="20">
+  </button>
+  <button class="popup-menu-btn" id="envelope-menu-history" title="История">
+    <img src="https://cdn.jsdelivr.net/npm/@tabler/icons/icons/book.svg" alt="История" width="20" height="20">
+  </button>
+  <button class="popup-menu-btn" id="envelope-menu-del" title="Удалить">
+    <img src="https://cdn.jsdelivr.net/npm/@tabler/icons/icons/trash.svg" alt="Удалить" width="20" height="20">
+  </button>
+`;
 
   document.body.appendChild(menu);
 
@@ -831,9 +836,24 @@ function showEnvelopeMenu(btn, id) {
   });
 
   // Обработчики
-  const [editBtn, delBtn] = menu.querySelectorAll('button');
-  editBtn.onclick = () => { menu.remove(); startEditEnvelope(id); };
-  delBtn.onclick = () => { menu.remove(); deleteEnvelope(id); };
+ const editBtn = document.getElementById('envelope-menu-edit');
+const delBtn = document.getElementById('envelope-menu-del');
+const histBtn = document.getElementById('envelope-menu-history');
+
+editBtn.onclick = () => {
+  menu.remove();
+  startEditEnvelope(id);
+};
+
+histBtn.onclick = () => {
+  menu.remove();
+  showEnvelopeHistory(id);
+};
+
+delBtn.onclick = () => {
+  menu.remove();
+  deleteEnvelope(id);
+};
 }
 
 
