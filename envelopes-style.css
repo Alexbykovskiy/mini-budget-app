@@ -125,8 +125,7 @@ body {
   border-radius: 50%;
   border: none;
   background: #e0e0e0;
-  box-shadow: 2px 2px 8px #d1d7d9, -2px -2px 8px #fff;
-  color: #23292D;
+    color: #23292D;
   cursor: pointer;
   font-size: 1.12em;
   display: flex;
@@ -137,13 +136,11 @@ body {
 }
 .envelope-actions .round-btn:hover {
   background: #f5f7f7;
-  box-shadow: 2px 2px 16px #bababa, -2px -2px 8px #fff;
-}
+  }
 .envelope-actions .round-btn.orange {
   background: #FFA35C;
   color: #fff;
-  box-shadow: 2px 2px 8px #f0cda5, -2px -2px 8px #fff;
-}
+  }
 .envelope-actions .round-btn.menu {
   background: #f5f7f7;
   color: #23292D;
@@ -592,10 +589,7 @@ main.container, .block, ... {
 
 .round-btn:hover {
   filter: brightness(1.08) saturate(1.25);
-  box-shadow:
-    0 8px 32px 0 rgba(255,163,92,0.18),
-    0 2px 8px 0 rgba(255,255,255,0.17) inset;
-}
+ }
 
 .round-btn.orange {
   background: rgba(255,163,92,0.19); /* очень прозрачный оранжевый */
