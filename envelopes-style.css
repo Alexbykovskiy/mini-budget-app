@@ -829,3 +829,35 @@ body,
 body * {
   color: rgba(255,255,255,0.60) !important;
 }
+.block,
+.envelope-card-grid,
+#add-envelope-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.block:after,
+.envelope-card-grid:after,
+#add-envelope-wrapper:after {
+  content: '';
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  top: -3px; left: -3px; right: -3px; bottom: -3px;
+  border-radius: inherit;
+  box-sizing: border-box;
+  border: 3px solid transparent;
+  background:
+    conic-gradient(
+      from 225deg,
+      rgba(255,255,255,1) 0deg,        /* яркий белый угол */
+      rgba(255,255,255,0.17) 40deg,
+      rgba(255,255,255,0.00) 150deg,
+      rgba(255,255,255,0.00) 360deg
+    );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0) padding-box;
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.98;
+}
