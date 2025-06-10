@@ -333,6 +333,8 @@ envelopeGridContainer.appendChild(block);
 
 }); // <-- это закрытие только forEach
 
+lucide.createIcons();
+
 // --- после forEach, но до конца функции loadEnvelopes ---
 setTimeout(() => {
   document.querySelectorAll('.menu-btn').forEach(btn => {
