@@ -856,3 +856,8 @@ body * {
   /* Можно добавить background: linear-gradient(...), если нужен fade по углам */
   /* opacity и цвета регулируй под себя */
 }
+
+.add-envelope-form .goal-row {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
