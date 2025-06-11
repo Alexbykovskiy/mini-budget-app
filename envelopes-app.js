@@ -922,62 +922,7 @@ document.getElementById('envelope-percent').addEventListener('input', function()
   renderInlineDistributionEditor();  // <-- ВАЖНО
 });
 
-document.getElementById('open-history-btn').addEventListener('click', async () => {
-  const modal = document.createElement("div");
-  modal.id = "history-modal";
-  modal.innerHTML = `<h3>История транзакций</h3>`;
 
-  // Шаг 1: получаем все конверты в Map: id -> name
-  const envelopesSnapshot = await db.collection("envelopes").get();
-  const envelopeNames = {};
-  envelopesSnapshot.forEach(doc => {
-    envelopeNames[doc.id] = doc.data().name;
-  });
-
-  // Шаг 2: загружаем все транзакции
-  const snapshot = await db.collection("transactions").orderBy("date", "desc").get();
-  if (snapshot.empty) {
-    modal.innerHTML += "<p style='color:#555;'>Нет данных</p>";
-  } else {
-    snapshot.forEach(doc => {
-      const { amount, envelopeId, type, date, toEnvelopeId, fromEnvelopeId } = doc.data();
-      const d = new Date(date);
-      const dateStr = d.toLocaleDateString();
-      const timeStr = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-      let className = "";
-      let description = "";
-      if (type === "add" || type === "income") {
-        className = "history-add";
-        description = `➕ ${amount.toFixed(2)} € — ${envelopeNames[envelopeId] || "?"}`;
-      } else if (type === "subtract") {
-        className = "history-sub";
-        description = `➖ ${amount.toFixed(2)} € — ${envelopeNames[envelopeId] || "?"}`;
-      } else if (type === "transfer-out") {
-        className = "history-transfer";
-        const toName = envelopeNames[toEnvelopeId] || "?";
-        const fromName = envelopeNames[envelopeId] || "?";
-        description = `➡ ${amount.toFixed(2)} € — ${fromName} → ${toName}`;
-      } else if (type === "transfer-in") {
-        // не отображаем отдельно, т.к. уже учтён в transfer-out
-        return;
-      }
-
-      modal.innerHTML += `
-        <div class="history-entry ${className}">
-          <span>${dateStr} ${timeStr}</span>
-          <span>${description}</span>
-        </div>
-      `;
-    });
-  }
-
-  document.body.appendChild(modal);
-
-  document.getElementById("history-modal-close").addEventListener("click", () => {
-    modal.remove();
-  });
-});
 
 document.getElementById('open-history-btn')?.addEventListener('click', async () => {
   const modal = document.createElement("div");
