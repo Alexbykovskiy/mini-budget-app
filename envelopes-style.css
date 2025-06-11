@@ -856,3 +856,19 @@ body * {
   /* Можно добавить background: linear-gradient(...), если нужен fade по углам */
   /* opacity и цвета регулируй под себя */
 }
+
+#distribute-income {
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 14px;
+  padding: 10px 16px;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.25);
+}
+
+#reset-envelopes {
+  background: rgba(201, 61, 31, 0.35);
+  border-radius: 14px;
+  padding: 10px 16px;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.25);
+}
