@@ -1029,8 +1029,12 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
     color: #23292D;
     cursor: pointer;
   `;
-  closeBtn.onclick = () => modal.remove();
-  modal.prepend(closeBtn);
+  document.body.appendChild(modal);
+modal.prepend(closeBtn); // теперь кнопка в DOM уже внутри окна
+
+closeBtn.onclick = () => {
+  modal.remove(); // удаляет всё модальное окно, а не только кнопку
+};
 
   // Загрузка названий конвертов
   const envelopesSnapshot = await db.collection("envelopes").get();
