@@ -866,6 +866,44 @@ document.getElementById('envelope-percent').addEventListener('input', function()
   renderInlineDistributionEditor();  // <-- ВАЖНО
 });
 
+document.getElementById('open-history-btn').addEventListener('click', async () => {
+  const modal = document.createElement("div");
+  modal.id = "history-modal";
+  modal.innerHTML = `<h3>История транзакций</h3>`;
+
+  const snapshot = await db.collection("transactions").orderBy("date", "desc").get();
+  if (snapshot.empty) {
+    modal.innerHTML += "<p style='color:#555;'>Нет данных</p>";
+  } else {
+    snapshot.forEach(doc => {
+      const { amount, envelopeId, type, date } = doc.data();
+      const d = new Date(date);
+      const dateStr = d.toLocaleDateString();
+      const timeStr = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+      let className = "";
+      if (type === "add" || type === "income") className = "history-add";
+      else if (type === "subtract") className = "history-sub";
+      else if (type === "transfer-out" || type === "transfer-in") className = "history-transfer";
+
+      modal.innerHTML += `
+        <div class="history-entry ${className}">
+          <span>${dateStr} ${timeStr}</span>
+          <span>${type === "transfer-in" ? "⬅" : type === "transfer-out" ? "➡" : ""} ${amount.toFixed(2)}€</span>
+        </div>
+      `;
+    });
+  }
+
+  modal.innerHTML += `<button id="history-modal-close">Закрыть</button>`;
+  document.body.appendChild(modal);
+
+  document.getElementById("history-modal-close").addEventListener("click", () => {
+    modal.remove();
+  });
+});
+
+
 window.addEventListener("DOMContentLoaded", async () => {
   await ensureSystemEnvelopes();
   loadEnvelopes();
