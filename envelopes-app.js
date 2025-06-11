@@ -1070,24 +1070,25 @@ closeBtn.onclick = () => {
 
       const entry = document.createElement("div");
       entry.className = className;
-      entry.style.cssText = `
-        margin-bottom: 8px;
-        padding: 10px 12px;
-        border-radius: 14px;
-        backdrop-filter: blur(6px);
-        font-weight: 500;
-        letter-spacing: 0.1px;
-      `;
-      if (className === "history-add") {
-        entry.style.background = "rgba(34,212,116,0.25)";
-        entry.style.color = "#1a5f43";
-      } else if (className === "history-sub") {
-        entry.style.background = "rgba(201, 61, 31, 0.25)";
-        entry.style.color = "#912e1a";
-      } else if (className === "history-transfer") {
-        entry.style.background = "rgba(255, 204, 0, 0.25)";
-        entry.style.color = "#856500";
-      }
+     entry.style.cssText = `
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  font-size: 14.5px;
+`;
+
+     if (className === "history-add") {
+  entry.style.background = "rgba(43, 130, 66, 0.85)";
+  entry.style.color = "#ffffff";
+} else if (className === "history-sub") {
+  entry.style.background = "rgba(160, 47, 29, 0.85)";
+  entry.style.color = "#ffffff";
+} else if (className === "history-transfer") {
+  entry.style.background = "rgba(168, 121, 0, 0.85)";
+  entry.style.color = "#ffffff";
+}
       entry.innerHTML = `<div style="font-size:13px; color:#555;">${dateStr} ${timeStr}</div><div>${text}</div>`;
       modal.appendChild(entry);
     });
