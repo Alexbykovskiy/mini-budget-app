@@ -962,19 +962,23 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
   const closeBtn = document.createElement("button");
   closeBtn.textContent = "✕ Закрыть";
   closeBtn.style.cssText = `
-  display: block;
-  margin: 20px auto 0 auto;
-  padding: 10px 20px;
-  border-radius: 999px;
-  background: rgba(190, 60, 50, 0.85);
-  color: #fff;
-  border: none;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-  transition: background 0.2s ease;
-`;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(255,255,255,0.28);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 6px 16px;
+    margin-bottom: 12px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    font-weight: 600;
+    color: #23292D;
+    cursor: pointer;
+  `;
   document.body.appendChild(modal);
 modal.prepend(closeBtn); // теперь кнопка в DOM уже внутри окна
 
