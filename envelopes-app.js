@@ -976,7 +976,7 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
   transition: background 0.2s ease;
 `;
   document.body.appendChild(modal);
-modal.appendChild(closeBtn);
+modal.prepend(closeBtn); // теперь кнопка в DOM уже внутри окна
 
 closeBtn.onclick = () => {
   modal.remove(); // удаляет всё модальное окно, а не только кнопку
