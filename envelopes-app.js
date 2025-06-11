@@ -442,17 +442,22 @@ async function transferEnvelope(fromId, maxAmount) {
   const modal = document.createElement("div");
   modal.id = "transfer-modal";
   modal.style.cssText = `
-    position: fixed; top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(255,255,255,0.42);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-radius: 20px;
-    padding: 24px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-    z-index: 9999;
-    width: 320px;
-  `;
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 340px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: rgba(30, 30, 30, 0.92);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  padding: 20px;
+  z-index: 9999;
+  color: #fff;
+  font-size: 14.5px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+`;
 
   modal.innerHTML = `<h3 style="margin-top:0; color:#23292D;">Перевод из "${fromName}"</h3>`;
 
