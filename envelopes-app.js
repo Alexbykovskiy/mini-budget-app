@@ -972,12 +972,124 @@ document.getElementById('open-history-btn').addEventListener('click', async () =
     });
   }
 
-  modal.innerHTML += `<button id="history-modal-close">Закрыть</button>`;
   document.body.appendChild(modal);
 
   document.getElementById("history-modal-close").addEventListener("click", () => {
     modal.remove();
   });
+});
+
+document.getElementById('open-history-btn')?.addEventListener('click', async () => {
+  const modal = document.createElement("div");
+  modal.id = "history-modal";
+  modal.style.cssText = `
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 340px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    padding: 20px;
+    z-index: 9999;
+    color: #fff;
+    font-size: 14.5px;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Edge */
+  `;
+  modal.innerHTML = `<h3 style="margin: 0 0 12px 0; font-size: 1.15em; text-align: center; color:#23292D;">История транзакций</h3>`;
+
+  // Скроем скроллбар
+  modal.innerHTML += `<style>
+    #history-modal::-webkit-scrollbar { display: none; }
+  </style>`;
+
+  // Кнопка "Закрыть" закреплённая сверху
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✕ Закрыть";
+  closeBtn.style.cssText = `
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(255,255,255,0.28);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 6px 16px;
+    margin-bottom: 12px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    font-weight: 600;
+    color: #23292D;
+    cursor: pointer;
+  `;
+  closeBtn.onclick = () => modal.remove();
+  modal.prepend(closeBtn);
+
+  // Загрузка названий конвертов
+  const envelopesSnapshot = await db.collection("envelopes").get();
+  const envelopeNames = {};
+  envelopesSnapshot.forEach(doc => {
+    envelopeNames[doc.id] = doc.data().name;
+  });
+
+  const snapshot = await db.collection("transactions").orderBy("date", "desc").get();
+  if (snapshot.empty) {
+    modal.innerHTML += "<p style='color:#555;'>Нет данных</p>";
+  } else {
+    snapshot.forEach(doc => {
+      const { amount, envelopeId, type, date, toEnvelopeId, fromEnvelopeId } = doc.data();
+      const d = new Date(date);
+      const dateStr = d.toLocaleDateString();
+      const timeStr = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+      let className = "";
+      let text = "";
+      if (type === "add" || type === "income") {
+        className = "history-add";
+        text = `+ ${amount.toFixed(2)} € — ${envelopeNames[envelopeId] || "?"}`;
+      } else if (type === "subtract") {
+        className = "history-sub";
+        text = `– ${amount.toFixed(2)} € — ${envelopeNames[envelopeId] || "?"}`;
+      } else if (type === "transfer-out") {
+        className = "history-transfer";
+        text = `➡ ${amount.toFixed(2)} € — ${envelopeNames[envelopeId]} → ${envelopeNames[toEnvelopeId]}`;
+      } else {
+        return; // Пропускаем transfer-in
+      }
+
+      const entry = document.createElement("div");
+      entry.className = className;
+      entry.style.cssText = `
+        margin-bottom: 8px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        backdrop-filter: blur(6px);
+        font-weight: 500;
+        letter-spacing: 0.1px;
+      `;
+      if (className === "history-add") {
+        entry.style.background = "rgba(34,212,116,0.25)";
+        entry.style.color = "#1a5f43";
+      } else if (className === "history-sub") {
+        entry.style.background = "rgba(201, 61, 31, 0.25)";
+        entry.style.color = "#912e1a";
+      } else if (className === "history-transfer") {
+        entry.style.background = "rgba(255, 204, 0, 0.25)";
+        entry.style.color = "#856500";
+      }
+      entry.innerHTML = `<div style="font-size:13px; color:#555;">${dateStr} ${timeStr}</div><div>${text}</div>`;
+      modal.appendChild(entry);
+    });
+  }
+
+  document.body.appendChild(modal);
 });
 
 

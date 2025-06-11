@@ -1001,3 +1001,29 @@ body * {
   color: #fff;
 }
 
+.history-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: #fff;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  letter-spacing: 0.2px;
+}
+#history-modal {
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+#history-modal::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+
