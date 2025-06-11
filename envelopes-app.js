@@ -446,6 +446,7 @@ async function transferEnvelope(fromId, maxAmount) {
     transform: translate(-50%, -50%);
     background: rgba(255,255,255,0.42);
     backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border-radius: 20px;
     padding: 24px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.2);
@@ -453,18 +454,10 @@ async function transferEnvelope(fromId, maxAmount) {
     width: 320px;
   `;
 
-  modal.innerHTML = `<h3 style="margin-top:0;">Перевод из "${fromName}"</h3>`;
+  modal.innerHTML = `<h3 style="margin-top:0; color:#23292D;">Перевод из "${fromName}"</h3>`;
 
   const select = document.createElement("select");
-  select.style.cssText = `
-    width: 100%;
-    font-size: 16px;
-    padding: 8px 12px;
-    border-radius: 12px;
-    margin-bottom: 16px;
-    border: 1px solid rgba(0,0,0,0.1);
-  `;
-
+  select.className = "transfer-select";
   snapshot.docs.forEach(doc => {
     if (doc.id === fromId) return;
     const option = document.createElement("option");
@@ -475,13 +468,11 @@ async function transferEnvelope(fromId, maxAmount) {
 
   const confirmBtn = document.createElement("button");
   confirmBtn.textContent = "Перевести";
-  confirmBtn.className = "round-btn orange";
-  confirmBtn.style.width = "100%";
+  confirmBtn.className = "transfer-btn confirm";
 
   const cancelBtn = document.createElement("button");
   cancelBtn.textContent = "Отмена";
-  cancelBtn.className = "danger-btn small";
-  cancelBtn.style.cssText = "margin-top: 12px; width: 100%;";
+  cancelBtn.className = "transfer-btn cancel";
 
   modal.appendChild(select);
   modal.appendChild(confirmBtn);
