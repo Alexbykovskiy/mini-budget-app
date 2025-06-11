@@ -935,6 +935,8 @@ body * {
   border-radius: 12px;
   font-size: 14px;
   font-weight: 500;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 .history-add { background: rgba(34, 212, 116, 0.25); color: #1a5f43; }
 .history-sub { background: rgba(201, 61, 31, 0.25); color: #912e1a; }

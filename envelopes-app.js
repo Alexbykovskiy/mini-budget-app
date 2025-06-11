@@ -871,25 +871,46 @@ document.getElementById('open-history-btn').addEventListener('click', async () =
   modal.id = "history-modal";
   modal.innerHTML = `<h3>История транзакций</h3>`;
 
+  // Шаг 1: получаем все конверты в Map: id -> name
+  const envelopesSnapshot = await db.collection("envelopes").get();
+  const envelopeNames = {};
+  envelopesSnapshot.forEach(doc => {
+    envelopeNames[doc.id] = doc.data().name;
+  });
+
+  // Шаг 2: загружаем все транзакции
   const snapshot = await db.collection("transactions").orderBy("date", "desc").get();
   if (snapshot.empty) {
     modal.innerHTML += "<p style='color:#555;'>Нет данных</p>";
   } else {
     snapshot.forEach(doc => {
-      const { amount, envelopeId, type, date } = doc.data();
+      const { amount, envelopeId, type, date, toEnvelopeId, fromEnvelopeId } = doc.data();
       const d = new Date(date);
       const dateStr = d.toLocaleDateString();
       const timeStr = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
       let className = "";
-      if (type === "add" || type === "income") className = "history-add";
-      else if (type === "subtract") className = "history-sub";
-      else if (type === "transfer-out" || type === "transfer-in") className = "history-transfer";
+      let description = "";
+      if (type === "add" || type === "income") {
+        className = "history-add";
+        description = `➕ ${amount.toFixed(2)} € — ${envelopeNames[envelopeId] || "?"}`;
+      } else if (type === "subtract") {
+        className = "history-sub";
+        description = `➖ ${amount.toFixed(2)} € — ${envelopeNames[envelopeId] || "?"}`;
+      } else if (type === "transfer-out") {
+        className = "history-transfer";
+        const toName = envelopeNames[toEnvelopeId] || "?";
+        const fromName = envelopeNames[envelopeId] || "?";
+        description = `➡ ${amount.toFixed(2)} € — ${fromName} → ${toName}`;
+      } else if (type === "transfer-in") {
+        // не отображаем отдельно, т.к. уже учтён в transfer-out
+        return;
+      }
 
       modal.innerHTML += `
         <div class="history-entry ${className}">
           <span>${dateStr} ${timeStr}</span>
-          <span>${type === "transfer-in" ? "⬅" : type === "transfer-out" ? "➡" : ""} ${amount.toFixed(2)}€</span>
+          <span>${description}</span>
         </div>
       `;
     });
@@ -902,7 +923,6 @@ document.getElementById('open-history-btn').addEventListener('click', async () =
     modal.remove();
   });
 });
-
 
 window.addEventListener("DOMContentLoaded", async () => {
   await ensureSystemEnvelopes();
