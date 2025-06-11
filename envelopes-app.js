@@ -429,36 +429,101 @@ async function transferEnvelope(fromId, maxAmount) {
   const amount = prompt("Сколько перевести (€)?");
   const value = parseFloat(amount);
   if (isNaN(value) || value <= 0 || value > maxAmount) return;
-  const toId = prompt("ID конверта, в который перевести:");
-  if (!toId || toId === fromId) return;
-  const fromRef = db.collection("envelopes").doc(fromId);
-  const toRef = db.collection("envelopes").doc(toId);
-  await db.runTransaction(async (t) => {
-  const fromDoc = await t.get(fromRef);
-  const toDoc = await t.get(toRef);
-  if (!fromDoc.exists || !toDoc.exists) throw new Error("Один из конвертов не найден");
-  const fromData = fromDoc.data();
-  const toData = toDoc.data();
-  t.update(fromRef, { current: (fromData.current || 0) - value });
-  t.update(toRef, { current: (toData.current || 0) + value });
-});
-// Две записи: исходящий и входящий трансфер
-await db.collection("transactions").add({
-  envelopeId: fromId,
-  amount: -value,
-  type: "transfer-out",
-  toEnvelopeId: toId,
-  date: Date.now()
-});
-await db.collection("transactions").add({
-  envelopeId: toId,
-  amount: value,
-  type: "transfer-in",
-  fromEnvelopeId: fromId,
-  date: Date.now()
-});
-loadEnvelopes();
 
+  const snapshot = await db.collection("envelopes").orderBy("created", "asc").get();
+  if (snapshot.empty) {
+    alert("Нет доступных конвертов.");
+    return;
+  }
+
+  const fromDoc = snapshot.docs.find(doc => doc.id === fromId);
+  const fromName = fromDoc?.data()?.name || "Текущий";
+
+  const modal = document.createElement("div");
+  modal.id = "transfer-modal";
+  modal.style.cssText = `
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255,255,255,0.42);
+    backdrop-filter: blur(16px);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    z-index: 9999;
+    width: 320px;
+  `;
+
+  modal.innerHTML = `<h3 style="margin-top:0;">Перевод из "${fromName}"</h3>`;
+
+  const select = document.createElement("select");
+  select.style.cssText = `
+    width: 100%;
+    font-size: 16px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(0,0,0,0.1);
+  `;
+
+  snapshot.docs.forEach(doc => {
+    if (doc.id === fromId) return;
+    const option = document.createElement("option");
+    option.value = doc.id;
+    option.textContent = doc.data().name;
+    select.appendChild(option);
+  });
+
+  const confirmBtn = document.createElement("button");
+  confirmBtn.textContent = "Перевести";
+  confirmBtn.className = "round-btn orange";
+  confirmBtn.style.width = "100%";
+
+  const cancelBtn = document.createElement("button");
+  cancelBtn.textContent = "Отмена";
+  cancelBtn.className = "danger-btn small";
+  cancelBtn.style.cssText = "margin-top: 12px; width: 100%;";
+
+  modal.appendChild(select);
+  modal.appendChild(confirmBtn);
+  modal.appendChild(cancelBtn);
+  document.body.appendChild(modal);
+
+  cancelBtn.onclick = () => modal.remove();
+
+  confirmBtn.onclick = async () => {
+    const toId = select.value;
+    if (!toId || toId === fromId) return;
+
+    const fromRef = db.collection("envelopes").doc(fromId);
+    const toRef = db.collection("envelopes").doc(toId);
+    await db.runTransaction(async (t) => {
+      const fromDoc = await t.get(fromRef);
+      const toDoc = await t.get(toRef);
+      if (!fromDoc.exists || !toDoc.exists) throw new Error("Конверт не найден");
+      const fromData = fromDoc.data();
+      const toData = toDoc.data();
+      t.update(fromRef, { current: (fromData.current || 0) - value });
+      t.update(toRef, { current: (toData.current || 0) + value });
+    });
+
+    await db.collection("transactions").add({
+      envelopeId: fromId,
+      amount: -value,
+      type: "transfer-out",
+      toEnvelopeId: toId,
+      date: Date.now()
+    });
+    await db.collection("transactions").add({
+      envelopeId: toId,
+      amount: value,
+      type: "transfer-in",
+      fromEnvelopeId: fromId,
+      date: Date.now()
+    });
+
+    modal.remove();
+    loadEnvelopes();
+  };
 }
 
 async function distributeIncome() {
@@ -923,6 +988,7 @@ document.getElementById('open-history-btn').addEventListener('click', async () =
     modal.remove();
   });
 });
+
 
 window.addEventListener("DOMContentLoaded", async () => {
   await ensureSystemEnvelopes();
