@@ -1058,7 +1058,8 @@ closeBtn.onclick = () => modal.remove();
     });
   }
 
-  
+ });
+
 
 window.addEventListener("DOMContentLoaded", async () => {
   await ensureSystemEnvelopes();
