@@ -1064,3 +1064,34 @@ body * {
   margin-top: 10px;
   gap: 12px;
 }
+
+.pill-buttons-row {
+  display: flex;
+  gap: 12px;
+  margin: 8px 0 4px 0;
+  width: 100%;
+}
+
+.pill-btn {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1), 0 1px 2px rgba(255,255,255,0.15) inset;
+  color: #fff;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.pill-btn.red {
+  background: rgba(201, 61, 31, 0.35);
+}
+
+.pill-btn.yellow {
+  background: rgba(230, 182, 0, 0.35);
+}
