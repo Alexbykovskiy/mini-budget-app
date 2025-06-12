@@ -485,8 +485,7 @@ async function transferEnvelope(fromId, maxAmount) {
   modal.appendChild(select);
   modal.appendChild(confirmBtn);
   modal.appendChild(cancelBtn);
-  document.body.appendChild(modal);
-
+  
   cancelBtn.onclick = () => modal.remove();
 
   confirmBtn.onclick = async () => {
