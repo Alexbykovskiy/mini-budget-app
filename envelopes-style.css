@@ -1035,12 +1035,22 @@ body * {
   filter: brightness(0.97);
 }
 
+
+
 .pill-red {
-  background: linear-gradient(120deg, #c93d1f 80%, #b42b1a 100%);
+  linear-gradient(120deg, #c93d1f 80%, #b42b1a 100%);
   color: #fff;
+
   border: 1.4px solid rgba(255,255,255,0.23);
   box-shadow: 0 4px 12px rgba(201,61,31,0.16);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
+.pill-red:hover {
+  filter: brightness(1.11) saturate(1.14);
+}
+
 
 .pill-yellow {
   background: linear-gradient(120deg,
