@@ -941,7 +941,7 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
     width: 340px;
     max-height: 80vh;
     overflow-y: auto;
-    background: rgba(255, 255, 255, 0.45);
+    background: rgba(10, 10, 10, 0.20);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     border-radius: 20px;
