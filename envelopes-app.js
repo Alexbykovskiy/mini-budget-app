@@ -963,31 +963,41 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
   </style>`;
 
   // Кнопка "Закрыть" закреплённая сверху
-    // Кнопка "Закрыть" закреплённая сверху
-  const content = document.createElement("div");
-  content.style.paddingBottom = "80px";
-  modal.appendChild(content);
+  // Вложенный контейнер, чтобы можно было фиксировать кнопку
+const content = document.createElement("div");
+content.style.paddingBottom = "80px";
+modal.appendChild(content);
 
-  // Кнопка "Закрыть" — ПРИКРЕПЛЕНА К НИЖНЕМУ КРАЮ
-  const closeBtn = document.createElement("button");
-  closeBtn.textContent = "Закрыть";
-  closeBtn.style.cssText = `
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(190, 60, 50, 0.9);
-    color: #fff;
-    font-weight: 600;
-    padding: 10px 24px;
-    border: none;
-    border-radius: 999px;
-    cursor: pointer;
-    z-index: 1000;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-  `;
-  modal.appendChild(closeBtn);
-  closeBtn.onclick = () => modal.remove();
+// Заголовок
+content.innerHTML = `<h3 style="margin: 0 0 12px 0; font-size: 1.15em; text-align: center; color:#23292D;">История транзакций</h3>`;
+
+// Скроем скроллбар (только через CSS, не innerHTML)
+const style = document.createElement("style");
+style.textContent = `
+  #history-modal::-webkit-scrollbar { display: none; }
+`;
+document.head.appendChild(style);
+
+// Кнопка "Закрыть", закреплённая снизу
+const closeBtn = document.createElement("button");
+closeBtn.textContent = "✕ Закрыть";
+closeBtn.style.cssText = `
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(190, 60, 50, 0.9);
+  color: #fff;
+  font-weight: 600;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+`;
+modal.appendChild(closeBtn);
+closeBtn.onclick = () => modal.remove();
 
   // Загрузка названий конвертов
   const envelopesSnapshot = await db.collection("envelopes").get();
@@ -1048,9 +1058,7 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
     });
   }
 
-  document.body.appendChild(modal);
-});
-
+  
 
 window.addEventListener("DOMContentLoaded", async () => {
   await ensureSystemEnvelopes();
