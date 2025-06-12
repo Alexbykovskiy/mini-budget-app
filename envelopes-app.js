@@ -448,7 +448,9 @@ async function transferEnvelope(fromId, maxAmount) {
   width: 340px;
   max-height: 80vh;
   overflow-y: auto;
-  background: rgba(30, 30, 30, 0.92);
+   background: rgba(10, 10, 10, 0.2); /* ← новый полупрозрачный фон */
+  backdrop-filter: blur(18px); /* ← эффект размытия фона */
+  -webkit-backdrop-filter: blur(18px);
   border-radius: 20px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.3);
   padding: 20px;
