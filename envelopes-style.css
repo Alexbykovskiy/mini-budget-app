@@ -1101,3 +1101,14 @@ body * {
   box-shadow: 0 0 0 2.5px rgba(255,163,92,0.13);
   background: rgba(255,255,255,0.32);
 }
+
+/* Для Chrome, Safari, Edge — убирает спиннеры у type="number" */
+#glass-amount-input::-webkit-outer-spin-button,
+#glass-amount-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Для Firefox — убирает стрелки у type="number" */
+#glass-amount-input[type="number"] {
+  -moz-appearance: textfield;
+}
