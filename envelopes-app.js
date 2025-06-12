@@ -954,7 +954,8 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* Edge */
   `;
-  modal.innerHTML = `<h3 style="margin: 0 0 12px 0; font-size: 1.15em; text-align: center; color:#23292D;">История транзакций</h3>`;
+    content.innerHTML = `<h3 style="margin: 0 0 12px 0; font-size: 1.15em; text-align: center; color:#23292D;">История транзакций</h3>`;
+
 
   // Скроем скроллбар
   modal.innerHTML += `<style>
@@ -962,32 +963,31 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
   </style>`;
 
   // Кнопка "Закрыть" закреплённая сверху
+    // Кнопка "Закрыть" закреплённая сверху
+  const content = document.createElement("div");
+  content.style.paddingBottom = "80px";
+  modal.appendChild(content);
+
+  // Кнопка "Закрыть" — ПРИКРЕПЛЕНА К НИЖНЕМУ КРАЮ
   const closeBtn = document.createElement("button");
-  closeBtn.textContent = "✕ Закрыть";
+  closeBtn.textContent = "Закрыть";
   closeBtn.style.cssText = `
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(190, 60, 50, 0.9);
-  color: #fff;
-  padding: 10px 20px;
-  border-radius: 999px;
-  border: none;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-  z-index: 1000;
-`;
-
-
-  document.body.appendChild(modal);
-modal.prepend(closeBtn); // теперь кнопка в DOM уже внутри окна
-
-closeBtn.onclick = () => {
-  modal.remove(); // удаляет всё модальное окно, а не только кнопку
-};
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(190, 60, 50, 0.9);
+    color: #fff;
+    font-weight: 600;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    z-index: 1000;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  `;
+  modal.appendChild(closeBtn);
+  closeBtn.onclick = () => modal.remove();
 
   // Загрузка названий конвертов
   const envelopesSnapshot = await db.collection("envelopes").get();
@@ -1043,7 +1043,8 @@ closeBtn.onclick = () => {
   entry.style.color = "#ffffff";
 }
       entry.innerHTML = `<div style="font-size:13px; color:#555;">${dateStr} ${timeStr}</div><div>${text}</div>`;
-      modal.appendChild(entry);
+        content.appendChild(entry);
+
     });
   }
 
