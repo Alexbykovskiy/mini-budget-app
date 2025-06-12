@@ -448,8 +448,8 @@ async function transferEnvelope(fromId, maxAmount) {
   width: 340px;
   max-height: 80vh;
   overflow-y: auto;
-   background: rgba(10, 10, 10, 0.2); /* ← новый полупрозрачный фон */
-  backdrop-filter: blur(18px); /* ← эффект размытия фона */
+  background: rgba(10, 10, 10, 0.2); /* ← новый полупрозрачный фон */
+  backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   border-radius: 20px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.3);
@@ -459,6 +459,7 @@ async function transferEnvelope(fromId, maxAmount) {
   font-size: 14.5px;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  position: relative; /* ← вот это обязательно */
 `;
 
   modal.innerHTML = `<h3 style="margin-top:0; color:#23292D;">Перевод из "${fromName}"</h3>`;
@@ -964,23 +965,23 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
   const closeBtn = document.createElement("button");
   closeBtn.textContent = "✕ Закрыть";
   closeBtn.style.cssText = `
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    background: rgba(190, 60, 50,0.7);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.2);
-    padding: 6px 16px;
-    margin-bottom: 12px;
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
-    font-weight: 600;
-    color: #23292D;
-    cursor: pointer;
-  `;
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(190, 60, 50, 0.9);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: none;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  z-index: 1000;
+`;
+
+
   document.body.appendChild(modal);
 modal.prepend(closeBtn); // теперь кнопка в DOM уже внутри окна
 
