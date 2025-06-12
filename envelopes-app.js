@@ -448,8 +448,8 @@ async function transferEnvelope(fromId, maxAmount) {
   width: 340px;
   max-height: 80vh;
   overflow-y: auto;
-  background: rgba(10, 10, 10, 0.2); /* ← новый полупрозрачный фон */
-  backdrop-filter: blur(18px);
+   background: rgba(10, 10, 10, 0.2); /* ← новый полупрозрачный фон */
+  backdrop-filter: blur(18px); /* ← эффект размытия фона */
   -webkit-backdrop-filter: blur(18px);
   border-radius: 20px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.3);
@@ -459,7 +459,6 @@ async function transferEnvelope(fromId, maxAmount) {
   font-size: 14.5px;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  position: relative; /* ← вот это обязательно */
 `;
 
   modal.innerHTML = `<h3 style="margin-top:0; color:#23292D;">Перевод из "${fromName}"</h3>`;
@@ -485,7 +484,8 @@ async function transferEnvelope(fromId, maxAmount) {
   modal.appendChild(select);
   modal.appendChild(confirmBtn);
   modal.appendChild(cancelBtn);
-  
+  document.body.appendChild(modal);
+
   cancelBtn.onclick = () => modal.remove();
 
   confirmBtn.onclick = async () => {
@@ -953,8 +953,7 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* Edge */
   `;
-    content.innerHTML = `<h3 style="margin: 0 0 12px 0; font-size: 1.15em; text-align: center; color:#23292D;">История транзакций</h3>`;
-
+  modal.innerHTML = `<h3 style="margin: 0 0 12px 0; font-size: 1.15em; text-align: center; color:#23292D;">История транзакций</h3>`;
 
   // Скроем скроллбар
   modal.innerHTML += `<style>
@@ -962,41 +961,32 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
   </style>`;
 
   // Кнопка "Закрыть" закреплённая сверху
-  // Вложенный контейнер, чтобы можно было фиксировать кнопку
-const content = document.createElement("div");
-content.style.paddingBottom = "80px";
-modal.appendChild(content);
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✕ Закрыть";
+  closeBtn.style.cssText = `
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(190, 60, 50,0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 6px 16px;
+    margin-bottom: 12px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    font-weight: 600;
+    color: #23292D;
+    cursor: pointer;
+  `;
+  document.body.appendChild(modal);
+modal.prepend(closeBtn); // теперь кнопка в DOM уже внутри окна
 
-// Заголовок
-content.innerHTML = `<h3 style="margin: 0 0 12px 0; font-size: 1.15em; text-align: center; color:#23292D;">История транзакций</h3>`;
-
-// Скроем скроллбар (только через CSS, не innerHTML)
-const style = document.createElement("style");
-style.textContent = `
-  #history-modal::-webkit-scrollbar { display: none; }
-`;
-document.head.appendChild(style);
-
-// Кнопка "Закрыть", закреплённая снизу
-const closeBtn = document.createElement("button");
-closeBtn.textContent = "✕ Закрыть";
-closeBtn.style.cssText = `
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(190, 60, 50, 0.9);
-  color: #fff;
-  font-weight: 600;
-  padding: 10px 24px;
-  border: none;
-  border-radius: 999px;
-  cursor: pointer;
-  z-index: 1000;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-`;
-modal.appendChild(closeBtn);
-closeBtn.onclick = () => modal.remove();
+closeBtn.onclick = () => {
+  modal.remove(); // удаляет всё модальное окно, а не только кнопку
+};
 
   // Загрузка названий конвертов
   const envelopesSnapshot = await db.collection("envelopes").get();
@@ -1052,12 +1042,12 @@ closeBtn.onclick = () => modal.remove();
   entry.style.color = "#ffffff";
 }
       entry.innerHTML = `<div style="font-size:13px; color:#555;">${dateStr} ${timeStr}</div><div>${text}</div>`;
-        content.appendChild(entry);
-
+      modal.appendChild(entry);
     });
   }
 
- });
+  document.body.appendChild(modal);
+});
 
 
 window.addEventListener("DOMContentLoaded", async () => {
