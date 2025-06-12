@@ -38,6 +38,65 @@ async function getEnvelopeMonthStats(envelopeId) {
   return { added, spent };
 }
 
+function showAmountModal({title = "Введите сумму", placeholder = "Сумма", confirmText = "OK", cancelText = "Отмена"} = {}) {
+  return new Promise((resolve, reject) => {
+    const modal = document.createElement("div");
+    modal.className = "glass-modal";
+    modal.style.cssText = `
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 340px;
+      max-width: 92vw;
+      background: rgba(10, 10, 10, 0.20);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      padding: 24px 24px 18px 24px;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    `;
+
+    modal.innerHTML = `
+      <h3 style="color:#23292D;text-align:center; font-size:1.13em; font-weight:700; margin:0 0 20px 0;">${title}</h3>
+      <input id="glass-amount-input" type="number" step="0.01" min="0" inputmode="decimal"
+        placeholder="${placeholder}" style="margin:0 auto 16px auto;width:100%;max-width:210px;box-sizing:border-box;">
+      <div style="display:flex;gap:18px;justify-content:center;">
+        <button class="transfer-btn confirm" type="button">${confirmText}</button>
+        <button class="transfer-btn cancel" type="button">${cancelText}</button>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    const input = modal.querySelector("#glass-amount-input");
+    input.focus();
+    input.onkeydown = (e) => {
+      if (e.key === "Enter") confirm();
+      if (e.key === "Escape") cancel();
+    };
+
+    const confirmBtn = modal.querySelector(".transfer-btn.confirm");
+    const cancelBtn = modal.querySelector(".transfer-btn.cancel");
+
+    confirmBtn.onclick = confirm;
+    cancelBtn.onclick = cancel;
+
+    function confirm() {
+      const val = parseFloat(input.value.replace(',', '.'));
+      modal.remove();
+      if (isNaN(val) || val <= 0) resolve(null); // если не введено — вернуть null
+      else resolve(val);
+    }
+    function cancel() {
+      modal.remove();
+      resolve(null); // просто вернуть null
+    }
+  });
+}
+
 
 const form = document.getElementById("add-envelope-form");
 const nameInput = document.getElementById("envelope-name");
@@ -357,8 +416,7 @@ setTimeout(() => {
 // остальные функции не изменялись...
 
 async function subtractFromEnvelope(id) {
-  const amount = prompt("Сколько вычесть (€)?");
-  const value = parseFloat(amount);
+  const value = await showAmountModal({title: "Вычесть из конверта", placeholder: "Сумма"});
   if (isNaN(value) || value <= 0) return;
   const ref = db.collection("envelopes").doc(id);
   await db.runTransaction(async (t) => {
@@ -377,8 +435,7 @@ loadEnvelopes();
 }
 
 async function addToEnvelope(id) {
-  const amount = prompt("Сколько добавить (€)?");
-  const value = parseFloat(amount);
+  const value = await showAmountModal({title: "Добавить в конверт", placeholder: "Сумма"});
   if (isNaN(value) || value <= 0) return;
   const ref = db.collection("envelopes").doc(id);
   await db.runTransaction(async (t) => {
@@ -426,9 +483,8 @@ async function deleteEnvelope(id) {
 
 
 async function transferEnvelope(fromId, maxAmount) {
-  const amount = prompt("Сколько перевести (€)?");
-  const value = parseFloat(amount);
-  if (isNaN(value) || value <= 0 || value > maxAmount) return;
+  const value = await showAmountModal({title: "Сумма для перевода", placeholder: "Сумма"});
+if (isNaN(value) || value <= 0 || value > maxAmount) return;
 
   const snapshot = await db.collection("envelopes").orderBy("created", "asc").get();
   if (snapshot.empty) {
