@@ -1025,5 +1025,33 @@ body * {
 #history-modal::-webkit-scrollbar {
   display: none; /* Chrome/Safari */
 }
+.pill-buttons-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 8px 0 4px 0;
+}
+
+.pill-btn {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #fff;
+}
+
+.pill-btn.red {
+  background: rgba(201, 61, 31, 0.28);
+}
+
+.pill-btn.yellow {
+  background: rgba(230, 182, 0, 0.28);
+}
 
 

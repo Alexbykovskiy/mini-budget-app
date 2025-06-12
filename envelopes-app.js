@@ -1054,7 +1054,9 @@ window.addEventListener("DOMContentLoaded", async () => {
   await ensureSystemEnvelopes();
   loadEnvelopes();
   document.getElementById('reset-envelopes').addEventListener('click', resetAllEnvelopes);
-
+document.getElementById('open-history-pill').addEventListener('click', () => {
+  document.getElementById('open-history-btn')?.click();
+});
   // --- Добавь обработчик для сворачивания/разворачивания "добавить конверт" ---
   const toggleAddEnvelope = document.getElementById("toggle-add-envelope");
   const addEnvelopeWrapper = document.getElementById("add-envelope-wrapper");
