@@ -1054,10 +1054,10 @@ window.addEventListener("DOMContentLoaded", async () => {
   await ensureSystemEnvelopes();
   loadEnvelopes();
   document.getElementById('reset-envelopes').addEventListener('click', resetAllEnvelopes);
-document.getElementById('open-history-pill').addEventListener('click', () => {
-  document.getElementById('open-history-btn')?.click();
-});
-  // --- Добавь обработчик для сворачивания/разворачивания "добавить конверт" ---
+document.getElementById('open-history-pill')?.addEventListener('click', () => {
+  const clickEvent = new Event('click', { bubbles: true });
+  document.getElementById('open-history-btn')?.dispatchEvent(clickEvent);
+});  // --- Добавь обработчик для сворачивания/разворачивания "добавить конверт" ---
   const toggleAddEnvelope = document.getElementById("toggle-add-envelope");
   const addEnvelopeWrapper = document.getElementById("add-envelope-wrapper");
   const addEnvelopeToggleContainer = addEnvelopeWrapper?.querySelector('.add-envelope-toggle-container');
