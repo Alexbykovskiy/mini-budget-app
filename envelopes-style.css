@@ -1056,3 +1056,26 @@ body * {
 .pill-yellow:hover {
   filter: brightness(1.11) saturate(1.14);
 }
+
+.glass-modal {
+  position: fixed !important;
+  overflow: hidden !important;
+}
+.glass-modal:before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 9999;
+  pointer-events: none;
+  border-radius: 20px;
+  background: linear-gradient(
+    120deg,
+    rgba(255,255,255,0.26) 8%,
+    rgba(255,255,255,0.12) 24%,
+    rgba(255,255,255,0.02) 60%,
+    rgba(0,0,0,0.0) 100%
+  );
+  box-shadow:
+    0 2px 18px 0 rgba(255,255,255,0.11) inset,
+    0 0.5px 2px 0 rgba(0,0,0,0.05) inset;
+}

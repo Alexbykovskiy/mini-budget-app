@@ -934,6 +934,7 @@ document.getElementById('envelope-percent').addEventListener('input', function()
 document.getElementById('open-history-btn')?.addEventListener('click', async () => {
   const modal = document.createElement("div");
   modal.id = "history-modal";
+modal.classList.add("glass-modal");
   modal.style.cssText = `
     position: fixed;
     top: 50%; left: 50%;
