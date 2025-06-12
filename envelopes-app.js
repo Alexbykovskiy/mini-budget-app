@@ -434,6 +434,81 @@ loadEnvelopes();
 
 }
 
+// ===== ФУНКЦИЯ ДЛЯ КРАСИВОГО МОДАЛЬНОГО ОКНА ВВОДА СУММЫ =====
+function showAmountModal({title = "Введите сумму", placeholder = "Сумма", confirmText = "OK", cancelText = "Отмена", maxAmount = undefined} = {}) {
+  return new Promise((resolve) => {
+    const modal = document.createElement("div");
+    modal.className = "glass-modal";
+    modal.style.cssText = `
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 340px;
+      max-width: 92vw;
+      background: rgba(10, 10, 10, 0.20);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      padding: 24px 24px 18px 24px;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    `;
+
+    // =============== HTML =================
+    modal.innerHTML = `
+      <h3 style="color:#23292D;text-align:center; font-size:1.13em; font-weight:700; margin:0 0 20px 0;">${title}</h3>
+      <div class="input-with-btn">
+        <input id="glass-amount-input" type="number" step="0.01" min="0" inputmode="decimal" placeholder="${placeholder}">
+        ${typeof maxAmount === "number" ? `<button id="fill-max-btn" type="button" title="Вся сумма" class="round-btn max-btn">все</button>` : ""}
+      </div>
+      <div style="display:flex;gap:18px;justify-content:center;">
+        <button class="transfer-btn cancel" type="button">${cancelText}</button>
+        <button class="transfer-btn confirm" type="button">${confirmText}</button>
+      </div>
+    `;
+    // =============== /HTML =================
+
+    document.body.appendChild(modal);
+
+    const input = modal.querySelector("#glass-amount-input");
+    input.focus();
+    input.onkeydown = (e) => {
+      if (e.key === "Enter") confirm();
+      if (e.key === "Escape") cancel();
+    };
+
+    const confirmBtn = modal.querySelector(".transfer-btn.confirm");
+    const cancelBtn = modal.querySelector(".transfer-btn.cancel");
+
+    confirmBtn.onclick = confirm;
+    cancelBtn.onclick = cancel;
+
+    // ====== КНОПКА "ВСЕ" — только если maxAmount есть ======
+    const fillMaxBtn = modal.querySelector("#fill-max-btn");
+    if (fillMaxBtn && typeof maxAmount === "number") {
+      fillMaxBtn.onclick = () => {
+        input.value = maxAmount;
+        input.focus();
+      };
+    }
+
+    function confirm() {
+      const val = parseFloat(input.value.replace(',', '.'));
+      modal.remove();
+      if (isNaN(val) || val <= 0) resolve(null);
+      else resolve(val);
+    }
+    function cancel() {
+      modal.remove();
+      resolve(null);
+    }
+  });
+}
+
+
 async function addToEnvelope(id) {
   const value = await showAmountModal({title: "Добавить в конверт", placeholder: "Сумма"});
   if (isNaN(value) || value <= 0) return;
@@ -483,8 +558,12 @@ async function deleteEnvelope(id) {
 
 
 async function transferEnvelope(fromId, maxAmount) {
-  const value = await showAmountModal({title: "Сумма для перевода", placeholder: "Сумма"});
-if (isNaN(value) || value <= 0 || value > maxAmount) return;
+  const value = await showAmountModal({
+    title: "Сумма для перевода",
+    placeholder: "Сумма",
+    maxAmount: maxAmount  // <-- передаём сюда сумму из конверта
+  });
+  if (isNaN(value) || value <= 0 || value > maxAmount) return;
 
   const snapshot = await db.collection("envelopes").orderBy("created", "asc").get();
   if (snapshot.empty) {
