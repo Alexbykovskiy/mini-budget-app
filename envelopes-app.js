@@ -626,16 +626,23 @@ async function transferEnvelope(fromId, maxAmount) {
   });
 
   const confirmBtn = document.createElement("button");
-  confirmBtn.textContent = "Перевести";
-  confirmBtn.className = "transfer-btn confirm";
+confirmBtn.textContent = "Перевести";
+confirmBtn.className = "transfer-btn confirm";
 
-  const cancelBtn = document.createElement("button");
-  cancelBtn.textContent = "Отмена";
-  cancelBtn.className = "transfer-btn cancel";
+const cancelBtn = document.createElement("button");
+cancelBtn.textContent = "Отмена";
+cancelBtn.className = "transfer-btn cancel";
 
-  modal.appendChild(select);
-  modal.appendChild(confirmBtn);
-  modal.appendChild(cancelBtn);
+const buttonsRow = document.createElement("div");
+buttonsRow.style.display = "flex";
+buttonsRow.style.justifyContent = "space-between";
+buttonsRow.style.gap = "18px";
+buttonsRow.style.marginTop = "18px";
+buttonsRow.appendChild(cancelBtn);   // Слева
+buttonsRow.appendChild(confirmBtn);  // Справа
+
+modal.appendChild(select);
+modal.appendChild(buttonsRow);
   document.body.appendChild(modal);
 
   cancelBtn.onclick = () => modal.remove();
