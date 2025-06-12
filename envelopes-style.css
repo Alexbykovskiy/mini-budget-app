@@ -1043,14 +1043,16 @@ body * {
 }
 
 .pill-yellow {
-  background: linear-gradient(120deg, #ffd600 60%, #ffb300 100%);
-  color: #b9800c;
-  border: 1.4px solid rgba(255,255,255,0.23);
-  box-shadow: 0 4px 12px rgba(255,214,0,0.14);
+  background: linear-gradient(120deg,
+    rgba(255, 205, 0, 0.14) 0%,
+    rgba(233, 175, 44, 0.23) 100%
+  );
+  color: #ad840b;
+  border: 1.2px solid rgba(255,255,255,0.14);
+  box-shadow: 0 4px 12px rgba(255, 205, 0, 0.09);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
-
-.pill-btn:hover {
-  filter: brightness(1.08) saturate(1.18);
+.pill-yellow:hover {
+  filter: brightness(1.11) saturate(1.14);
 }
-
-
