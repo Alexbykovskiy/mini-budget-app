@@ -62,9 +62,10 @@ function showAmountModal({title = "Введите сумму", placeholder = "С
 
  modal.innerHTML = `
   <h3 style="color:#23292D;text-align:center; font-size:1.13em; font-weight:700; margin:0 0 20px 0;">${title}</h3>
-  <div class="input-row-with-btn">
-    <input id="glass-amount-input" type="number" step="0.01" min="0" inputmode="decimal" placeholder="${placeholder}">
-    ${typeof maxAmount === "number" ? `<button id="fill-max-btn" type="button" title="Вся сумма" class="pill-btn pill-yellow max-btn">все</button>` : ""}
+  <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 16px;">
+    <input id="glass-amount-input" type="number" step="0.01" min="0" inputmode="decimal"
+      placeholder="${placeholder}" style="flex:1 1 0; min-width:0; max-width:170px; text-align:center; font-size:1.13em; padding: 12px 16px;"/>
+    <button id="fill-all-btn" type="button" style="margin-left:8px; border:none; background:rgba(255,163,92,0.70); color:#fff; border-radius:999px; font-weight:600; font-size:1em; padding:10px 22px; cursor:pointer; box-shadow:0 2px 8px 0 rgba(255,163,92,0.11); transition:filter 0.12s;">Все</button>
   </div>
   <div style="display:flex;gap:18px;justify-content:center;">
     <button class="transfer-btn cancel" type="button">${cancelText}</button>
@@ -72,9 +73,21 @@ function showAmountModal({title = "Введите сумму", placeholder = "С
   </div>
 `;
 
+
     document.body.appendChild(modal);
 
     const input = modal.querySelector("#glass-amount-input");
+const fillAllBtn = modal.querySelector("#fill-all-btn");
+if (fillAllBtn) {
+  fillAllBtn.onclick = () => {
+    // Предполагается, что maxAmount передаётся в showAmountModal (добавь его, если ещё нет)
+    if (typeof modal.maxAmount !== "undefined") {
+      input.value = modal.maxAmount;
+    }
+    input.focus();
+  };
+}
+
     input.focus();
     input.onkeydown = (e) => {
       if (e.key === "Enter") confirm();
