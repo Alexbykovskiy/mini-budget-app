@@ -1189,4 +1189,57 @@ body * {
   color: #fff;
   filter: brightness(1.08);
 }
+.input-row-with-btn {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+  max-width: 210px;
+  margin: 0 auto 16px auto;
+}
+
+#glass-amount-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 44px; /* Фиксированная высота, чтобы совпало с кнопкой */
+  font-size: 1.13em;
+  padding: 0 16px;
+}
+
+.pill-btn.max-btn {
+  height: 44px;           /* Такая же высота, как у поля */
+  padding: 0 22px;        /* Длина пилюли, текст по центру */
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 999px;
+  border: none;
+  outline: none;
+  background: linear-gradient(120deg,
+    rgba(255, 205, 0, 0.14) 0%,
+    rgba(233, 175, 44, 0.23) 100%
+  );
+  color: #ad840b;
+  border: 1.2px solid rgba(255,255,255,0.14);
+  box-shadow: 0 4px 12px rgba(255, 205, 0, 0.09);
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  transition: filter 0.16s, background 0.18s, color 0.12s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  margin: 0;
+  min-width: 0;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pill-btn.max-btn:hover {
+  filter: brightness(1.12) saturate(1.1);
+  background: linear-gradient(120deg,
+    rgba(255, 205, 0, 0.20) 0%,
+    rgba(233, 175, 44, 0.29) 100%
+  );
+  color: #fff;
+}
 

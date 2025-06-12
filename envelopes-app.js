@@ -60,10 +60,12 @@ function showAmountModal({title = "Введите сумму", placeholder = "С
       align-items: stretch;
     `;
 
-   modal.innerHTML = `
+ modal.innerHTML = `
   <h3 style="color:#23292D;text-align:center; font-size:1.13em; font-weight:700; margin:0 0 20px 0;">${title}</h3>
-  <input id="glass-amount-input" type="number" step="0.01" min="0" inputmode="decimal"
-    placeholder="${placeholder}" style="margin:0 auto 16px auto;width:100%;max-width:210px;box-sizing:border-box;">
+  <div class="input-row-with-btn">
+    <input id="glass-amount-input" type="number" step="0.01" min="0" inputmode="decimal" placeholder="${placeholder}">
+    ${typeof maxAmount === "number" ? `<button id="fill-max-btn" type="button" title="Вся сумма" class="pill-btn pill-yellow max-btn">все</button>` : ""}
+  </div>
   <div style="display:flex;gap:18px;justify-content:center;">
     <button class="transfer-btn cancel" type="button">${cancelText}</button>
     <button class="transfer-btn confirm" type="button">${confirmText}</button>
