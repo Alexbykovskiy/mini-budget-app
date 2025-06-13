@@ -1309,10 +1309,10 @@ body * {
 .floating-pill {
   position: fixed;
   left: 50%;
-  bottom: 22px;           /* отступ от нижнего края экрана */
+  bottom: 22px;
   transform: translateX(-50%);
   width: 150px;
-  height: 44px;
+  height: 48px;
   background: rgba(255,255,255,0.46);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -1321,14 +1321,48 @@ body * {
   border: 1.2px solid rgba(255,255,255,0.30);
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   color: #23292D;
-  font-size: 1.06em;
+  font-size: 1.08em;
   font-weight: 600;
   letter-spacing: 0.01em;
   z-index: 10010;
-  transition: background 0.15s, box-shadow 0.17s;
   user-select: none;
-  pointer-events: none; /* пока не добавим кнопки, чтобы не мешала */
+  pointer-events: none; /* убери при добавлении функционала */
+  padding: 0 18px;
+  gap: 12px;
+}
+.pill-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  width: 38px;
+  border-radius: 50%;
+  /* Для будущего эффекта наведения/клика можно добавить:
+  cursor: pointer;
+  transition: background 0.15s;
+  */
+}
+.pill-icon svg {
+  display: block;
+  width: 24px;
+  height: 24px;
+  stroke: #23292D;
+  opacity: 0.92;
+}
+.pill-divider {
+  width: 2.5px;
+  height: 32px;
+  border-radius: 3px;
+  margin: 0 8px;
+  background: linear-gradient(120deg,
+    rgba(255,255,255,0.45) 8%,
+    rgba(255,255,255,0.19) 38%,
+    rgba(160, 200, 220, 0.12) 62%,
+    rgba(180,180,180,0.04) 100%
+  );
+  box-shadow: 0 0.5px 2px 0 rgba(255,255,255,0.11) inset;
+  /* Лёгкая стеклянная фаска */
 }
 
