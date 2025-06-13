@@ -1306,3 +1306,29 @@ body * {
   color: #fff;
 }
 
+.floating-pill {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;           /* отступ от нижнего края экрана */
+  transform: translateX(-50%);
+  width: 150px;
+  height: 44px;
+  background: rgba(255,255,255,0.46);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 999px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12), 0 1px 3px rgba(255,255,255,0.20) inset;
+  border: 1.2px solid rgba(255,255,255,0.30);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #23292D;
+  font-size: 1.06em;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  z-index: 10010;
+  transition: background 0.15s, box-shadow 0.17s;
+  user-select: none;
+  pointer-events: none; /* пока не добавим кнопки, чтобы не мешала */
+}
+
