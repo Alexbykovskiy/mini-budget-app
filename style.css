@@ -2217,3 +2217,17 @@ input[type=range]::-moz-range-track {
   border-radius: 999px;
   background: rgba(255,163,92,0.07);
 }
+
+
+#debug-square {
+  position: fixed;
+  left: 50%;
+  bottom: 30px;
+  width: 100px;
+  height: 100px;
+  background: rgba(255,50,50,0.85);
+  border: 3px solid #333;
+  border-radius: 16px;
+  z-index: 999999 !important;
+  box-shadow: 0 8px 36px 0 rgba(0,0,0,0.21);
+}
