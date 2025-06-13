@@ -98,15 +98,17 @@ function showConfirmModal({
       <div style="color:#23292D; text-align:center; font-size:1.04em; margin-bottom:18px;">${message}</div>
       ${confirmationInputHTML}
       <div style="display:flex; gap:22px; justify-content:center;">
-        <button class="transfer-btn cancel" type="button">${cancelText}</button>
-        <button class="transfer-btn confirm" type="button" ${confirmationValue ? 'disabled' : ''}>${confirmText}</button>
-      </div>
+  ${cancelText ? `<button class="transfer-btn cancel" type="button">${cancelText}</button>` : ""}
+  <button class="transfer-btn confirm" type="button" ${confirmationValue ? 'disabled' : ''}>${confirmText}</button>
+</div>
+
       <div id="confirm-error" style="color:#C93D1F;font-size:0.98em;text-align:center;margin-top:10px;min-height:22px;"></div>
     `;
 
     document.body.appendChild(modal);
 
     const cancelBtn = modal.querySelector('.transfer-btn.cancel');
+if (cancelBtn) cancelBtn.onclick = () => { modal.remove(); resolve(false); };
     const confirmBtn = modal.querySelector('.transfer-btn.confirm');
     const codeInput = modal.querySelector('#confirm-code-input');
     const errorMsg = modal.querySelector('#confirm-error');
@@ -1242,7 +1244,7 @@ modal.classList.add("glass-modal");
     width: 340px;
     max-height: 80vh;
     overflow-y: auto;
-    background: rgba(10, 10, 10, 0.20);
+    background: rgba(30,30,40,0.45);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     border-radius: 20px;
