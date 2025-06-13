@@ -1274,7 +1274,7 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
   `;
   modal.appendChild(closeBtn);
 
-  // Прокручиваемый блок истории!
+  // Создаём scrollWrapper для прокрутки истории
   const scrollWrapper = document.createElement("div");
   scrollWrapper.id = "history-scroll-wrapper";
   scrollWrapper.style.cssText = `
@@ -1285,14 +1285,14 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
     flex: 1 1 auto;
   `;
 
-  // Загружаем имена конвертов
+  // Загружаем названия конвертов
   const envelopesSnapshot = await db.collection("envelopes").get();
   const envelopeNames = {};
   envelopesSnapshot.forEach(doc => {
     envelopeNames[doc.id] = doc.data().name;
   });
 
-  // Загружаем историю транзакций В scrollWrapper
+  // Загружаем и рендерим транзакции В scrollWrapper
   const snapshot = await db.collection("transactions").orderBy("date", "desc").get();
   if (snapshot.empty) {
     scrollWrapper.innerHTML += "<p style='color:#555;'>Нет данных</p>";
