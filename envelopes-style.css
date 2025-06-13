@@ -1432,22 +1432,29 @@ body * {
 
 #history-scroll-wrapper {
   scrollbar-width: thin;
-  scrollbar-color: rgba(200,200,200,0.14) transparent; /* для Firefox */
+  scrollbar-color: rgba(200,200,200,0.22) transparent;
 }
 
+/* Webkit-браузеры (Chrome, Safari, Edge) */
 #history-scroll-wrapper::-webkit-scrollbar {
-  width: 8px;
+  width: 9px;
   background: transparent;
 }
 
 #history-scroll-wrapper::-webkit-scrollbar-thumb {
-  background: rgba(200,200,200,0.32);
-  border-radius: 8px;
-  border: 2px solid rgba(0,0,0,0.04);
+  background: rgba(220,220,220,0.32);
+  border-radius: 10px;
   min-height: 24px;
-  transition: background 0.2s;
+  border: 2.5px solid rgba(0,0,0,0.01); /* создаёт воздушную подложку вокруг пилюли */
+  transition: background 0.23s;
+}
+#history-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(220,220,220,0.6);
 }
 
-#history-scroll-wrapper::-webkit-scrollbar-thumb:hover {
-  background: rgba(200,200,200,0.55);
+/* Полностью убираем стрелочки (кнопки) скроллбара */
+#history-scroll-wrapper::-webkit-scrollbar-button {
+  display: none;
+  height: 0;
+  width: 0;
 }
