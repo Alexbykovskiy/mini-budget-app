@@ -1324,7 +1324,7 @@ body * {
   justify-content: center;
   z-index: 10010;
   user-select: none;
-  pointer-events: none; /* убери для кликабельности */
+  pointer-events: auto;  /* Важно: теперь кликабельна */
   padding: 0;
   overflow: visible;
 }
@@ -1363,4 +1363,27 @@ body * {
   box-shadow: 0 2px 7px 0 rgba(255,255,255,0.18) inset;
   opacity: 0.72;
   filter: blur(0.2px);
+}
+
+.pill-half {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-decoration: none;
+  transition: background 0.15s, filter 0.14s;
+  cursor: pointer;
+  outline: none;
+}
+
+.pill-half:active, .pill-half:focus {
+  filter: brightness(0.96);
+  background: rgba(220,220,220,0.19);
+  outline: none;
+}
+
+.pill-half:hover .pill-icon svg {
+  stroke: #FFA35C; /* Подсветка оранжевым при ховере, или убери если не хочешь */
+  transition: stroke 0.13s;
 }
