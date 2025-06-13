@@ -55,11 +55,12 @@ function showConfirmModal({
       transform: translate(-50%, -50%);
       width: 360px;
       max-width: 98vw;
-      background: rgba(255,255,255,0.38);
+      background: rgba(10,10,10,0.20);
+      color: #fff;
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
       border-radius: 20px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.13);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.26);
       padding: 26px 26px 22px 26px;
       z-index: 99999;
       display: flex;
@@ -69,46 +70,43 @@ function showConfirmModal({
 
     let confirmationInputHTML = "";
     if (confirmationValue !== null && confirmationValue !== undefined) {
-     confirmationInputHTML = `
-  <div style="margin-bottom:14px;">
-    <input id="confirm-code-input" type="text" inputmode="decimal"
-      autocomplete="off"
-      placeholder="${confirmationPlaceholder || 'Введите код подтверждения'}"
-      style="
-        width: 100%; box-sizing: border-box;
-        padding: 11px 16px;
-        border-radius: 13px;
-        border: 1.2px solid rgba(255,255,255,0.30);
-        font-size: 1.09em;
-        margin-top: 2px;
-        text-align:center;
-        background: rgba(255,255,255,0.14);
-        color: #fff;
-        backdrop-filter: blur(7px);
-        outline: none;"
-    />
-  </div>
-`;
+      confirmationInputHTML = `
+        <div style="margin-bottom:14px;">
+          <input id="confirm-code-input" type="text" inputmode="decimal"
+            autocomplete="off"
+            placeholder="${confirmationPlaceholder || 'Введите код подтверждения'}"
+            style="
+              width: 100%; box-sizing: border-box;
+              padding: 11px 16px;
+              border-radius: 13px;
+              border: 1.2px solid rgba(255,255,255,0.30);
+              font-size: 1.09em;
+              margin-top: 2px;
+              text-align:center;
+              background: rgba(255,255,255,0.14);
+              color: #fff;
+              backdrop-filter: blur(7px);
+              outline: none;"
+          />
+        </div>
+      `;
     }
 
     modal.innerHTML = `
-      <h3 style="color:#23292D; text-align:center; font-size:1.16em; font-weight:700; margin:0 0 12px 0;">${title}</h3>
-      <div style="color:#23292D; text-align:center; font-size:1.04em; margin-bottom:18px;">${message}</div>
+      <h3 style="color:#fff; text-align:center; font-size:1.16em; font-weight:700; margin:0 0 12px 0;">${title}</h3>
+      <div style="color:#fff; text-align:center; font-size:1.04em; margin-bottom:18px;">${message}</div>
       ${confirmationInputHTML}
       <div style="display:flex; gap:22px; justify-content:center;">
-  ${cancelText ? `<button class="transfer-btn cancel" type="button">${cancelText}</button>` : ""}
-  <button class="transfer-btn confirm" type="button" ${confirmationValue ? 'disabled' : ''}>${confirmText}</button>
-</div>
-
+        ${cancelText ? `<button class="transfer-btn cancel" type="button">${cancelText}</button>` : ""}
+        <button class="transfer-btn confirm" type="button" ${confirmationValue ? 'disabled' : ''}>${confirmText}</button>
+      </div>
       <div id="confirm-error" style="color:#C93D1F;font-size:0.98em;text-align:center;margin-top:10px;min-height:22px;"></div>
     `;
 
     document.body.appendChild(modal);
 
-   const confirmBtn = modal.querySelector('.transfer-btn.confirm');
-const cancelBtn = modal.querySelector('.transfer-btn.cancel');
-if (cancelBtn) cancelBtn.onclick = () => { modal.remove(); resolve(false); };
-confirmBtn.onclick = () => {
+    const cancelBtn = modal.querySelector('.transfer-btn.cancel');
+    const confirmBtn = modal.querySelector('.transfer-btn.confirm');
     const codeInput = modal.querySelector('#confirm-code-input');
     const errorMsg = modal.querySelector('#confirm-error');
 
@@ -134,7 +132,7 @@ confirmBtn.onclick = () => {
       });
     }
 
-    cancelBtn.onclick = () => { modal.remove(); resolve(false); };
+    if (cancelBtn) cancelBtn.onclick = () => { modal.remove(); resolve(false); };
     confirmBtn.onclick = () => {
       if (confirmationValue && (!codeInput || codeInput.value.trim() !== String(confirmationValue))) {
         errorMsg.textContent = "Подтверждение неверное. Введите правильный код.";
@@ -154,7 +152,6 @@ confirmBtn.onclick = () => {
     });
   });
 }
-
 
 function showAmountModal({title = "Введите сумму", placeholder = "Сумма", confirmText = "OK", cancelText = "Отмена"} = {}) {
   return new Promise((resolve, reject) => {
@@ -904,18 +901,16 @@ async function ensureSystemEnvelopes() {
 
 }
 
-// Например, 4-значное число с двумя десятичными (пример: 27.13)
 function generateConfirmCode() {
-  const x = (Math.random() * 99 + 1).toFixed(2);
-  return x;
+  // Случайное число с двумя знаками после запятой (например: 32.17)
+  return (Math.random() * 99 + 1).toFixed(2);
 }
 
 async function resetAllEnvelopes() {
   const confirmCode = generateConfirmCode();
-
   const ok = await showConfirmModal({
     title: "Подтвердите действие",
-    message: `ВНИМАНИЕ: Это удалит все балансы и всю историю транзакций.`,
+    message: "ВНИМАНИЕ: Это удалит все балансы и всю историю транзакций.",
     confirmText: "Да",
     cancelText: "Нет",
     confirmationValue: confirmCode,
@@ -948,7 +943,6 @@ async function resetAllEnvelopes() {
 
   loadEnvelopes();
 }
-
 document.getElementById('envelope-has-goal').addEventListener('change', function() {
   document.getElementById('envelope-goal').style.display = this.checked ? 'inline-block' : 'none';
 });
