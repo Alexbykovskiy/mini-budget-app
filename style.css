@@ -2142,6 +2142,7 @@ input[type=range]::-moz-range-track {
   pointer-events: auto;  /* Важно: теперь кликабельна */
   padding: 0;
   overflow: visible;
+  z-index: 999999 !important;
 }
 .pill-half {
   flex: 1 1 0;
