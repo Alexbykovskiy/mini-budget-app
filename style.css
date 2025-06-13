@@ -2121,6 +2121,7 @@ input[type=range]::-moz-range-track {
   /* gap: 16px; */
 }
 
+
 .floating-pill {
   position: fixed;
   left: 50%;
@@ -2142,7 +2143,6 @@ input[type=range]::-moz-range-track {
   pointer-events: auto;  /* Важно: теперь кликабельна */
   padding: 0;
   overflow: visible;
-  z-index: 999999 !important;
 }
 .pill-half {
   flex: 1 1 0;
@@ -2150,18 +2150,15 @@ input[type=range]::-moz-range-track {
   align-items: center;
   justify-content: center;
   height: 100%;
-  text-decoration: none;
-  transition: background 0.15s, filter 0.14s;
-  cursor: pointer;
-  outline: none;
 }
 .pill-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
+  width: 48px;   /* контейнер чуть больше самой иконки */
   height: 48px;
 }
+
 .pill-icon svg {
   width: 35px !important;
   height: 35px !important;
@@ -2184,4 +2181,39 @@ input[type=range]::-moz-range-track {
   box-shadow: 0 2px 7px 0 rgba(255,255,255,0.18) inset;
   opacity: 0.72;
   filter: blur(0.2px);
+}
+
+.pill-half {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-decoration: none;
+  transition: background 0.15s, filter 0.14s;
+  cursor: pointer;
+  outline: none;
+}
+
+.pill-half:active, .pill-half:focus {
+  filter: brightness(0.96);
+  background: rgba(220,220,220,0.19);
+  outline: none;
+}
+
+.pill-half:hover .pill-icon svg {
+  stroke: #FFA35C; /* Подсветка оранжевым при ховере, или убери если не хочешь */
+  transition: stroke 0.13s;
+}
+
+.pill-half:focus, .pill-half:active {
+  outline: none;
+  box-shadow: none;
+}
+
+.pill-half:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2.5px rgba(255,163,92,0.20);
+  border-radius: 999px;
+  background: rgba(255,163,92,0.07);
 }
