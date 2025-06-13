@@ -685,10 +685,15 @@ modal.appendChild(buttonsRow);
 }
 
 async function distributeIncome() {
-  const amount = prompt("Сколько дохода добавить (€)?");
-  const total = parseFloat(amount);
+  const total = await showAmountModal({
+    title: "Добавить доход",
+    placeholder: "Сумма",
+    confirmText: "Добавить",
+    cancelText: "Отмена"
+  });
   if (isNaN(total) || total <= 0) return;
-
+  // остальной код без изменений
+}
   // Получаем все конверты
   const snapshot = await db.collection("envelopes").orderBy("created", "asc").get();
   if (snapshot.empty) {
