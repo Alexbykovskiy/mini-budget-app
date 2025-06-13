@@ -1429,3 +1429,17 @@ body * {
   color: #e0e0e0 !important;
   opacity: 1;
 }
+
+#history-scroll-wrapper {
+  overflow-y: auto;
+  max-height: 63vh;
+  scrollbar-width: thin;
+}
+#history-scroll-wrapper::-webkit-scrollbar {
+  width: 6px;
+  background: transparent;
+}
+#history-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(80,80,80,0.12);
+  border-radius: 6px;
+}

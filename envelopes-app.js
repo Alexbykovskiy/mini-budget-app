@@ -1229,14 +1229,13 @@ document.getElementById('envelope-percent').addEventListener('input', function()
 document.getElementById('open-history-btn')?.addEventListener('click', async () => {
   const modal = document.createElement("div");
   modal.id = "history-modal";
-modal.classList.add("glass-modal");
+  modal.classList.add("glass-modal");
   modal.style.cssText = `
     position: fixed;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     width: 340px;
     max-height: 80vh;
-    overflow-y: auto;
     background: rgba(30,30,40,0.45);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
@@ -1246,17 +1245,24 @@ modal.classList.add("glass-modal");
     z-index: 9999;
     color: #fff;
     font-size: 14.5px;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* Edge */
+    display: flex;
+    flex-direction: column;
   `;
+
+  // Создаём scroll-wrapper
+  const scrollWrapper = document.createElement("div");
+  scrollWrapper.id = "history-scroll-wrapper";
+  scrollWrapper.style.cssText = `
+    overflow-y: auto;
+    max-height: 63vh;
+    padding-right: 2px;
+    margin-top: 10px;
+    flex: 1 1 auto;
+  `;
+
   modal.innerHTML = `<h3 style="margin: 0 0 12px 0; font-size: 1.15em; text-align: center; color:#23292D;">История транзакций</h3>`;
 
-  // Скроем скроллбар
-  modal.innerHTML += `<style>
-    #history-modal::-webkit-scrollbar { display: none; }
-  </style>`;
-
-  // Кнопка "Закрыть" закреплённая сверху
+  // Кнопка "Закрыть"
   const closeBtn = document.createElement("button");
   closeBtn.textContent = "✕ Закрыть";
   closeBtn.style.cssText = `
@@ -1277,12 +1283,64 @@ modal.classList.add("glass-modal");
     color: #23292D;
     cursor: pointer;
   `;
-  document.body.appendChild(modal);
-modal.prepend(closeBtn); // теперь кнопка в DOM уже внутри окна
+  modal.appendChild(closeBtn);
 
-closeBtn.onclick = () => {
-  modal.remove(); // удаляет всё модальное окно, а не только кнопку
-};
+  // Загружаем содержимое истории ВНУТРЬ scrollWrapper!
+  const envelopesSnapshot = await db.collection("envelopes").get();
+  const envelopeNames = {};
+  envelopesSnapshot.forEach(doc => {
+    envelopeNames[doc.id] = doc.data().name;
+  });
+
+  const snapshot = await db.collection("transactions").orderBy("date", "desc").get();
+  if (snapshot.empty) {
+    scrollWrapper.innerHTML += "<p style='color:#555;'>Нет данных</p>";
+  } else {
+    snapshot.forEach(doc => {
+      const { amount, envelopeId, type, date, toEnvelopeId, fromEnvelopeId } = doc.data();
+      const d = new Date(date);
+      const dateStr = d.toLocaleDateString();
+      const timeStr = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+      let className = "";
+      let text = "";
+      if (type === "add" || type === "income") {
+        className = "history-add";
+        text = `+ ${amount.toFixed(2)} € — ${envelopeNames[envelopeId] || "?"}`;
+      } else if (type === "subtract") {
+        className = "history-sub";
+        text = `– ${amount.toFixed(2)} € — ${envelopeNames[envelopeId] || "?"}`;
+      } else if (type === "transfer-out") {
+        className = "history-transfer";
+        text = `➡ ${amount.toFixed(2)} € — ${envelopeNames[envelopeId]} → ${envelopeNames[toEnvelopeId]}`;
+      } else {
+        return; // Пропускаем transfer-in
+      }
+
+      const entry = document.createElement("div");
+      entry.className = className;
+      entry.style.cssText = `
+        margin-bottom: 8px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        font-weight: 500;
+        letter-spacing: 0.2px;
+        font-size: 14.5px;
+        background: ${className === "history-add" ? "rgba(43, 130, 66, 0.85)" : className === "history-sub" ? "rgba(160, 47, 29, 0.85)" : "rgba(168, 121, 0, 0.85)"};
+        color: #ffffff;
+      `;
+      entry.innerHTML = `<div style="font-size:13px; color:#555;">${dateStr} ${timeStr}</div><div>${text}</div>`;
+      scrollWrapper.appendChild(entry);
+    });
+  }
+
+  modal.appendChild(scrollWrapper);
+  document.body.appendChild(modal);
+
+  closeBtn.onclick = () => {
+    modal.remove();
+  };
+});
 
   // Загрузка названий конвертов
   const envelopesSnapshot = await db.collection("envelopes").get();
