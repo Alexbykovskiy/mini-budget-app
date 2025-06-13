@@ -643,6 +643,7 @@ buttonsRow.appendChild(confirmBtn);  // Справа
 
 modal.appendChild(select);
 modal.appendChild(buttonsRow);
+
   document.body.appendChild(modal);
 
   cancelBtn.onclick = () => modal.remove();
