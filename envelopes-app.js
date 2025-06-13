@@ -902,8 +902,7 @@ async function ensureSystemEnvelopes() {
 }
 
 function generateConfirmCode() {
-  // Случайное число с двумя знаками после запятой (например: 32.17)
-  return (Math.random() * 99 + 1).toFixed(2);
+  return Math.floor(1000 + Math.random() * 9000); // 4-значное число от 1000 до 9999
 }
 
 async function resetAllEnvelopes() {
