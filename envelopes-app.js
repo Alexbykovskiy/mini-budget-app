@@ -692,8 +692,7 @@ async function distributeIncome() {
     cancelText: "Отмена"
   });
   if (isNaN(total) || total <= 0) return;
-  // остальной код без изменений
-}
+
   // Получаем все конверты
   const snapshot = await db.collection("envelopes").orderBy("created", "asc").get();
   if (snapshot.empty) {
@@ -727,13 +726,12 @@ async function distributeIncome() {
       await db.collection("envelopes").doc(doc.id).update({
         current: (data.current || 0) + part
       });
-await db.collection("transactions").add({
-  envelopeId: doc.id,
-  amount: part,
-  type: "income",
-  date: Date.now()
-});
-
+      await db.collection("transactions").add({
+        envelopeId: doc.id,
+        amount: part,
+        type: "income",
+        date: Date.now()
+      });
     }
   }));
 
@@ -743,17 +741,15 @@ await db.collection("transactions").add({
     await db.collection("envelopes").doc(primaryId).update({
       current: primaryCurrent + leftover
     });
-await db.collection("transactions").add({
-  envelopeId: primaryId,
-  amount: leftover,
-  type: "income",
-  date: Date.now()
-});
-
+    await db.collection("transactions").add({
+      envelopeId: primaryId,
+      amount: leftover,
+      type: "income",
+      date: Date.now()
+    });
   }
   loadEnvelopes();
 }
-
 // === ДОБАВЬ вместо ensurePrimaryEnvelopeExists ===
 async function ensureSystemEnvelopes() {
   // 1. Создаём "Общий", если его нет
