@@ -38,6 +38,123 @@ async function getEnvelopeMonthStats(envelopeId) {
   return { added, spent };
 }
 
+function showConfirmModal({
+  title = "Подтвердите действие",
+  message = "",
+  confirmText = "Да",
+  cancelText = "Нет",
+  confirmationValue = null,
+  confirmationPlaceholder = ""
+} = {}) {
+  return new Promise((resolve) => {
+    const modal = document.createElement("div");
+    modal.className = "glass-modal";
+    modal.style.cssText = `
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 360px;
+      max-width: 98vw;
+      background: rgba(255,255,255,0.38);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.13);
+      padding: 26px 26px 22px 26px;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    `;
+
+    let confirmationInputHTML = "";
+    if (confirmationValue !== null && confirmationValue !== undefined) {
+      confirmationInputHTML = `
+        <div style="margin-bottom:14px;">
+          <div style="font-size:0.98em;color:#23292D;margin-bottom:5px;text-align:center;">
+            Для подтверждения введите: <b>${confirmationValue}</b>
+          </div>
+          <input id="confirm-code-input" type="text" inputmode="decimal"
+            autocomplete="off"
+            placeholder="${confirmationPlaceholder || 'Введите код подтверждения'}"
+            style="
+              width: 100%; box-sizing: border-box;
+              padding: 11px 16px;
+              border-radius: 13px;
+              border: 1.2px solid rgba(255,255,255,0.30);
+              font-size: 1.09em;
+              margin-top: 2px;
+              text-align:center;
+              background: rgba(255,255,255,0.22);
+              backdrop-filter: blur(7px);
+              outline: none;"
+          />
+        </div>
+      `;
+    }
+
+    modal.innerHTML = `
+      <h3 style="color:#23292D; text-align:center; font-size:1.16em; font-weight:700; margin:0 0 12px 0;">${title}</h3>
+      <div style="color:#23292D; text-align:center; font-size:1.04em; margin-bottom:18px;">${message}</div>
+      ${confirmationInputHTML}
+      <div style="display:flex; gap:22px; justify-content:center;">
+        <button class="transfer-btn cancel" type="button">${cancelText}</button>
+        <button class="transfer-btn confirm" type="button" ${confirmationValue ? 'disabled' : ''}>${confirmText}</button>
+      </div>
+      <div id="confirm-error" style="color:#C93D1F;font-size:0.98em;text-align:center;margin-top:10px;min-height:22px;"></div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const cancelBtn = modal.querySelector('.transfer-btn.cancel');
+    const confirmBtn = modal.querySelector('.transfer-btn.confirm');
+    const codeInput = modal.querySelector('#confirm-code-input');
+    const errorMsg = modal.querySelector('#confirm-error');
+
+    let codeOk = !confirmationValue;
+
+    if (codeInput) {
+      codeInput.focus();
+      codeInput.addEventListener("input", () => {
+        if (codeInput.value.trim() === String(confirmationValue)) {
+          codeOk = true;
+          confirmBtn.disabled = false;
+          errorMsg.textContent = "";
+        } else {
+          codeOk = false;
+          confirmBtn.disabled = true;
+          errorMsg.textContent = "";
+        }
+      });
+      codeInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && codeOk) {
+          confirmBtn.click();
+        }
+      });
+    }
+
+    cancelBtn.onclick = () => { modal.remove(); resolve(false); };
+    confirmBtn.onclick = () => {
+      if (confirmationValue && (!codeInput || codeInput.value.trim() !== String(confirmationValue))) {
+        errorMsg.textContent = "Подтверждение неверное. Введите правильный код.";
+        if (codeInput) codeInput.focus();
+        return;
+      }
+      modal.remove();
+      resolve(true);
+    };
+
+    window.addEventListener("keydown", function handler(e) {
+      if (e.key === "Escape") {
+        modal.remove();
+        window.removeEventListener("keydown", handler);
+        resolve(false);
+      }
+    });
+  });
+}
+
+
 function showAmountModal({title = "Введите сумму", placeholder = "Сумма", confirmText = "OK", cancelText = "Отмена"} = {}) {
   return new Promise((resolve, reject) => {
     const modal = document.createElement("div");
@@ -785,8 +902,25 @@ async function ensureSystemEnvelopes() {
   }
 
 }
+
+// Например, 4-значное число с двумя десятичными (пример: 27.13)
+function generateConfirmCode() {
+  const x = (Math.random() * 99 + 1).toFixed(2);
+  return x;
+}
+
 async function resetAllEnvelopes() {
-  if (!confirm("ВНИМАНИЕ: Это удалит все балансы и всю историю транзакций. Продолжить?")) return;
+  const confirmCode = generateConfirmCode();
+
+  const ok = await showConfirmModal({
+    title: "Подтвердите действие",
+    message: `ВНИМАНИЕ: Это удалит все балансы и всю историю транзакций.<br><br>Для подтверждения введите: <b>${confirmCode}</b>`,
+    confirmText: "Да",
+    cancelText: "Нет",
+    confirmationValue: confirmCode,
+    confirmationPlaceholder: `Введите ${confirmCode} для подтверждения`
+  });
+  if (!ok) return;
 
   // 1. Обнуляем все балансы envelope'ов
   const envelopesSnapshot = await db.collection('envelopes').get();
@@ -797,7 +931,6 @@ async function resetAllEnvelopes() {
   await batch.commit();
 
   // 2. Удаляем ВСЕ транзакции
-  // Firestore не поддерживает прямое удаление коллекции, поэтому поштучно или батчами
   const transactionsSnapshot = await db.collection('transactions').get();
   const batch2 = db.batch();
   transactionsSnapshot.forEach(doc => {
@@ -805,7 +938,13 @@ async function resetAllEnvelopes() {
   });
   await batch2.commit();
 
-  alert("Все балансы и история транзакций полностью сброшены!");
+  await showConfirmModal({
+    title: "Готово!",
+    message: "Все балансы и история транзакций полностью сброшены!",
+    confirmText: "OK",
+    cancelText: ""
+  });
+
   loadEnvelopes();
 }
 
