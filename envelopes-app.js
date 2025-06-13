@@ -910,8 +910,8 @@ async function resetAllEnvelopes() {
   const ok = await showConfirmModal({
     title: "Подтвердите действие",
     message: "ВНИМАНИЕ: Это удалит все балансы и всю историю транзакций.",
-    confirmText: "Да",
-    cancelText: "Нет",
+    confirmText: "Подтвердить",
+    cancelText: "Отменить",
     confirmationValue: confirmCode,
     confirmationPlaceholder: `Введите ${confirmCode} для подтверждения`
   });
