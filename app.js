@@ -1,4 +1,4 @@
-
+let db; // <--- вот это вставь первой строкой
 
 window.addEventListener("load", () => {
   db = firebase.firestore();
