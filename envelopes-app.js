@@ -69,28 +69,26 @@ function showConfirmModal({
 
     let confirmationInputHTML = "";
     if (confirmationValue !== null && confirmationValue !== undefined) {
-      confirmationInputHTML = `
-        <div style="margin-bottom:14px;">
-          <div style="font-size:0.98em;color:#23292D;margin-bottom:5px;text-align:center;">
-            Для подтверждения введите: <b>${confirmationValue}</b>
-          </div>
-          <input id="confirm-code-input" type="text" inputmode="decimal"
-            autocomplete="off"
-            placeholder="${confirmationPlaceholder || 'Введите код подтверждения'}"
-            style="
-              width: 100%; box-sizing: border-box;
-              padding: 11px 16px;
-              border-radius: 13px;
-              border: 1.2px solid rgba(255,255,255,0.30);
-              font-size: 1.09em;
-              margin-top: 2px;
-              text-align:center;
-              background: rgba(255,255,255,0.22);
-              backdrop-filter: blur(7px);
-              outline: none;"
-          />
-        </div>
-      `;
+     confirmationInputHTML = `
+  <div style="margin-bottom:14px;">
+    <input id="confirm-code-input" type="text" inputmode="decimal"
+      autocomplete="off"
+      placeholder="${confirmationPlaceholder || 'Введите код подтверждения'}"
+      style="
+        width: 100%; box-sizing: border-box;
+        padding: 11px 16px;
+        border-radius: 13px;
+        border: 1.2px solid rgba(255,255,255,0.30);
+        font-size: 1.09em;
+        margin-top: 2px;
+        text-align:center;
+        background: rgba(255,255,255,0.14);
+        color: #fff;
+        backdrop-filter: blur(7px);
+        outline: none;"
+    />
+  </div>
+`;
     }
 
     modal.innerHTML = `
@@ -107,9 +105,10 @@ function showConfirmModal({
 
     document.body.appendChild(modal);
 
-    const cancelBtn = modal.querySelector('.transfer-btn.cancel');
+   const confirmBtn = modal.querySelector('.transfer-btn.confirm');
+const cancelBtn = modal.querySelector('.transfer-btn.cancel');
 if (cancelBtn) cancelBtn.onclick = () => { modal.remove(); resolve(false); };
-    const confirmBtn = modal.querySelector('.transfer-btn.confirm');
+confirmBtn.onclick = () => {
     const codeInput = modal.querySelector('#confirm-code-input');
     const errorMsg = modal.querySelector('#confirm-error');
 
@@ -916,7 +915,7 @@ async function resetAllEnvelopes() {
 
   const ok = await showConfirmModal({
     title: "Подтвердите действие",
-    message: `ВНИМАНИЕ: Это удалит все балансы и всю историю транзакций.<br><br>Для подтверждения введите: <b>${confirmCode}</b>`,
+    message: `ВНИМАНИЕ: Это удалит все балансы и всю историю транзакций.`,
     confirmText: "Да",
     cancelText: "Нет",
     confirmationValue: confirmCode,
