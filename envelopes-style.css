@@ -1387,3 +1387,15 @@ body * {
   stroke: #FFA35C; /* Подсветка оранжевым при ховере, или убери если не хочешь */
   transition: stroke 0.13s;
 }
+
+.pill-half:focus, .pill-half:active {
+  outline: none;
+  box-shadow: none;
+}
+
+.pill-half:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2.5px rgba(255,163,92,0.20);
+  border-radius: 999px;
+  background: rgba(255,163,92,0.07);
+}
