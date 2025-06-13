@@ -1341,68 +1341,7 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
   closeBtn.onclick = () => modal.remove();
 });
 
-  // Загрузка названий конвертов
-  const envelopesSnapshot = await db.collection("envelopes").get();
-  const envelopeNames = {};
-  envelopesSnapshot.forEach(doc => {
-    envelopeNames[doc.id] = doc.data().name;
-  });
-
-  const snapshot = await db.collection("transactions").orderBy("date", "desc").get();
-  if (snapshot.empty) {
-    modal.innerHTML += "<p style='color:#555;'>Нет данных</p>";
-  } else {
-    snapshot.forEach(doc => {
-      const { amount, envelopeId, type, date, toEnvelopeId, fromEnvelopeId } = doc.data();
-      const d = new Date(date);
-      const dateStr = d.toLocaleDateString();
-      const timeStr = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-      let className = "";
-      let text = "";
-      if (type === "add" || type === "income") {
-        className = "history-add";
-        text = `+ ${amount.toFixed(2)} € — ${envelopeNames[envelopeId] || "?"}`;
-      } else if (type === "subtract") {
-        className = "history-sub";
-        text = `– ${amount.toFixed(2)} € — ${envelopeNames[envelopeId] || "?"}`;
-      } else if (type === "transfer-out") {
-        className = "history-transfer";
-        text = `➡ ${amount.toFixed(2)} € — ${envelopeNames[envelopeId]} → ${envelopeNames[toEnvelopeId]}`;
-      } else {
-        return; // Пропускаем transfer-in
-      }
-
-      const entry = document.createElement("div");
-      entry.className = className;
-     entry.style.cssText = `
-  margin-bottom: 8px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  font-weight: 500;
-  letter-spacing: 0.2px;
-  font-size: 14.5px;
-`;
-
-     if (className === "history-add") {
-  entry.style.background = "rgba(43, 130, 66, 0.85)";
-  entry.style.color = "#ffffff";
-} else if (className === "history-sub") {
-  entry.style.background = "rgba(160, 47, 29, 0.85)";
-  entry.style.color = "#ffffff";
-} else if (className === "history-transfer") {
-  entry.style.background = "rgba(168, 121, 0, 0.85)";
-  entry.style.color = "#ffffff";
-}
-      entry.innerHTML = `<div style="font-size:13px; color:#555;">${dateStr} ${timeStr}</div><div>${text}</div>`;
-      modal.appendChild(entry);
-    });
-  }
-
-  document.body.appendChild(modal);
-});
-
-
+   
 window.addEventListener("DOMContentLoaded", async () => {
   await ensureSystemEnvelopes();
   loadEnvelopes();
