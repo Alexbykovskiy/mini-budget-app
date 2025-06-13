@@ -1401,4 +1401,27 @@ body * {
   border-radius: 999px;
   background: rgba(255,163,92,0.07);
 }
+.income-pill {
+  display: block;
+  width: 360px;
+  max-width: 98vw;
+  margin: 0 auto 16px auto;
+  border-radius: 999px;
+  background: linear-gradient(120deg, rgba(255,163,92,0.44), rgba(255,163,92,0.82));
+  color: #fff !important;
+  font-size: 1.25em;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 16px 0;
+  box-shadow: 0 6px 22px 0 rgba(255,163,92,0.12), 0 1.5px 6px 0 rgba(0,0,0,0.09);
+  backdrop-filter: blur(10px) brightness(1.15) contrast(1.13);
+  -webkit-backdrop-filter: blur(10px) brightness(1.15) contrast(1.13);
+  border: 1.5px solid rgba(255,255,255,0.28);
+  cursor: pointer;
+  text-align: center;
+  transition: filter 0.15s, background 0.17s, color 0.13s;
+}
+.income-pill:hover {
+  filter: brightness(1.07) saturate(1.12);
+}
 
