@@ -1339,13 +1339,15 @@ body * {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 38px;
-  width: 38px;
+  width: 48px;   /* контейнер чуть больше самой иконки */
+  height: 48px;
 }
+
 .pill-icon svg {
-  display: block;
-  width: 27px;
-  height: 27px;
+  width: 35px !important;
+  height: 35px !important;
+  min-width: 35px;
+  min-height: 35px;
   stroke: #23292D;
   opacity: 0.95;
 }
