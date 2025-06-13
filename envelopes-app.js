@@ -41,8 +41,8 @@ async function getEnvelopeMonthStats(envelopeId) {
 function showConfirmModal({
   title = "Подтвердите действие",
   message = "",
-  confirmText = "Да",
-  cancelText = "Нет",
+  confirmText = "Подтвердить",
+  cancelText = "Отменить",
   confirmationValue = null,
   confirmationPlaceholder = ""
 } = {}) {
