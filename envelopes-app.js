@@ -1249,17 +1249,6 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
     flex-direction: column;
   `;
 
-  // Создаём scroll-wrapper
-  const scrollWrapper = document.createElement("div");
-  scrollWrapper.id = "history-scroll-wrapper";
-  scrollWrapper.style.cssText = `
-    overflow-y: auto;
-    max-height: 63vh;
-    padding-right: 2px;
-    margin-top: 10px;
-    flex: 1 1 auto;
-  `;
-
   modal.innerHTML = `<h3 style="margin: 0 0 12px 0; font-size: 1.15em; text-align: center; color:#23292D;">История транзакций</h3>`;
 
   // Кнопка "Закрыть"
@@ -1285,19 +1274,31 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
   `;
   modal.appendChild(closeBtn);
 
-  // Загружаем содержимое истории ВНУТРЬ scrollWrapper!
+  // Прокручиваемый блок истории!
+  const scrollWrapper = document.createElement("div");
+  scrollWrapper.id = "history-scroll-wrapper";
+  scrollWrapper.style.cssText = `
+    overflow-y: auto;
+    max-height: 63vh;
+    padding-right: 2px;
+    margin-top: 10px;
+    flex: 1 1 auto;
+  `;
+
+  // Загружаем имена конвертов
   const envelopesSnapshot = await db.collection("envelopes").get();
   const envelopeNames = {};
   envelopesSnapshot.forEach(doc => {
     envelopeNames[doc.id] = doc.data().name;
   });
 
+  // Загружаем историю транзакций В scrollWrapper
   const snapshot = await db.collection("transactions").orderBy("date", "desc").get();
   if (snapshot.empty) {
     scrollWrapper.innerHTML += "<p style='color:#555;'>Нет данных</p>";
   } else {
     snapshot.forEach(doc => {
-      const { amount, envelopeId, type, date, toEnvelopeId, fromEnvelopeId } = doc.data();
+      const { amount, envelopeId, type, date, toEnvelopeId } = doc.data();
       const d = new Date(date);
       const dateStr = d.toLocaleDateString();
       const timeStr = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -1314,7 +1315,7 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
         className = "history-transfer";
         text = `➡ ${amount.toFixed(2)} € — ${envelopeNames[envelopeId]} → ${envelopeNames[toEnvelopeId]}`;
       } else {
-        return; // Пропускаем transfer-in
+        return; // пропустить другие типы
       }
 
       const entry = document.createElement("div");
@@ -1337,9 +1338,7 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
   modal.appendChild(scrollWrapper);
   document.body.appendChild(modal);
 
-  closeBtn.onclick = () => {
-    modal.remove();
-  };
+  closeBtn.onclick = () => modal.remove();
 });
 
   // Загрузка названий конвертов
