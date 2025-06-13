@@ -1458,3 +1458,37 @@ body * {
   height: 0;
   width: 0;
 }
+
+#history-scroll-wrapper {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(220,220,220,0.18) transparent;
+}
+
+/* Для Chrome, Edge, Safari (Webkit) */
+#history-scroll-wrapper::-webkit-scrollbar {
+  width: 8px;
+  background: transparent;
+}
+
+#history-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(220,220,220,0.30);
+  border-radius: 10px;
+  min-height: 24px;
+  border: 2.5px solid rgba(0,0,0,0.01); /* чтобы было пространство вокруг */
+  transition: background 0.2s;
+}
+
+#history-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(220,220,220,0.45);
+}
+
+#history-scroll-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Убираем маленькие стрелочки */
+#history-scroll-wrapper::-webkit-scrollbar-button {
+  display: none;
+  height: 0;
+  width: 0;
+}
