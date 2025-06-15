@@ -533,8 +533,13 @@ envelopeGridContainer.appendChild(block);
 
 // --- после forEach, но до конца функции loadEnvelopes ---
 setTimeout(() => {
-  document.querySelectorAll('.menu-btn').forEach(btn => {
+  const btns = document.querySelectorAll('.menu-btn');
+  console.log("=== [DEBUG] Сколько кнопок меню найдено:", btns.length, btns);
+
+  btns.forEach(btn => {
+    btn.onclick = null;
     btn.addEventListener('click', (e) => {
+      console.log("=== [DEBUG] Клик по кнопке меню!", btn, btn.getAttribute('data-id'));
       e.stopPropagation();
       const id = btn.getAttribute('data-id');
       showEnvelopeMenu(btn, id);
