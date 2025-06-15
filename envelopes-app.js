@@ -532,20 +532,8 @@ envelopeGridContainer.appendChild(block);
 
 
 // --- после forEach, но до конца функции loadEnvelopes ---
-setTimeout(() => {
-  const btns = document.querySelectorAll('.envelope-actions .menu-btn');
-  console.log("=== [DEBUG] Кнопок меню на карточках найдено:", btns.length, btns);
 
-  btns.forEach(btn => {
-    btn.onclick = null;
-    btn.addEventListener('click', (e) => {
-      console.log("=== [DEBUG] Клик по кнопке меню!", btn, btn.getAttribute('data-id'));
-      e.stopPropagation();
-      const id = btn.getAttribute('data-id');
-      showEnvelopeMenu(btn, id);
-    });
-  });
-}, 0);
+
 } // <-- это уже конец всей функции loadEnvelopes
 
 // остальные функции не изменялись...
@@ -1523,6 +1511,18 @@ window.addEventListener("DOMContentLoaded", async () => {
       addEnvelopeToggleContainer.style.display = isOn ? "block" : "none";
     });
     // По умолчанию свернуто
-    addEnvelopeToggleContainer.style.display = "none";
+      addEnvelopeToggleContainer.style.display = "none";
   }
+
+  // <--- ВОТ СЮДА! --->
+  document.getElementById('envelope-list').addEventListener('click', function(e) {
+    const btn = e.target.closest('.menu-btn');
+    if (btn && btn.closest('.envelope-actions')) {
+      console.log("=== [DEBUG] Клик по кнопке меню!", btn, btn.getAttribute('data-id'));
+      e.stopPropagation();
+      const id = btn.getAttribute('data-id');
+      showEnvelopeMenu(btn, id);
+    }
+  });
+
 });
