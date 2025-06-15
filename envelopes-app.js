@@ -1141,21 +1141,29 @@ function showEnvelopeMenu(btn, id) {
   menu.id = 'envelope-menu-popup';
   menu.className = 'envelope-menu-popup glass-pill-menu';
 
+  // Вариант с 4 кнопками: меню + история + редактировать + удалить
   menu.innerHTML = `
+    <button class="menu-icon-btn menu-btn-self" title="Меню">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#23292D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="4" y1="6" x2="20" y2="6"/>
+        <line x1="4" y1="12" x2="20" y2="12"/>
+        <line x1="4" y1="18" x2="20" y2="18"/>
+      </svg>
+    </button>
     <button class="menu-icon-btn menu-btn-history" title="История">
-      <svg width="22" height="22" fill="none" stroke="#23292D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="20" height="20" fill="none" stroke="#23292D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="8"/>
         <polyline points="11 6 11 11 15 13"/>
       </svg>
     </button>
     <button class="menu-icon-btn menu-btn-edit" title="Редактировать">
-      <svg width="22" height="22" fill="none" stroke="#23292D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="20" height="20" fill="none" stroke="#23292D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M14.5 4.5a2.1 2.1 0 1 1 3 3L7 18l-3 1 1-3L14.5 4.5Z"/>
         <path d="M10 16h7"/>
       </svg>
     </button>
     <button class="menu-icon-btn menu-btn-delete" title="Удалить">
-      <svg width="22" height="22" fill="none" stroke="#23292D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="20" height="20" fill="none" stroke="#23292D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="3 6 17 6"/>
         <path d="M15 6v9a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3-2v2"/>
         <line x1="8" y1="9" x2="8" y2="15"/>
@@ -1165,12 +1173,12 @@ function showEnvelopeMenu(btn, id) {
   `;
 
   // Обработчики
-  const [historyBtn, editBtn, delBtn] = menu.querySelectorAll('button');
+  const [selfBtn, historyBtn, editBtn, delBtn] = menu.querySelectorAll('button');
+  selfBtn.onclick = () => menu.remove(); // Повторное нажатие на меню — закрыть пилюлю
   historyBtn.onclick = () => { menu.remove(); openEnvelopeHistory(id); };
   editBtn.onclick    = () => { menu.remove(); startEditEnvelope(id); };
   delBtn.onclick     = () => { menu.remove(); deleteEnvelope(id); };
 
-  // Клик вне меню — закрыть
   setTimeout(() => {
     document.addEventListener('mousedown', function handler(ev) {
       if (!menu.contains(ev.target)) {
@@ -1180,22 +1188,16 @@ function showEnvelopeMenu(btn, id) {
     });
   }, 50);
 
-  // --- Новое позиционирование ---
+  // Позиционирование — меню поверх кнопки меню, чуть левее, с выравниванием по центру
   const card = btn.closest('.envelope-card-grid');
   card.style.position = 'relative';
 
-  // Добавляем меню внутрь карточки
   card.appendChild(menu);
 
-  // Позиция: левее кнопки меню, вертикально по центру
-  const btnCenterY = btn.offsetTop + btn.offsetHeight / 2;
-  menu.style.left = `${btn.offsetLeft - menu.offsetWidth - 10}px`;
-  menu.style.top = `${btnCenterY - menu.offsetHeight / 2}px`;
-
-  // Если не влезает слева, показываем справа от кнопки
-  if (btn.offsetLeft < menu.offsetWidth + 20) {
-    menu.style.left = `${btn.offsetLeft + btn.offsetWidth + 10}px`;
-  }
+  // Позиция: по центру кнопки меню, смещено влево
+  menu.style.position = 'absolute';
+  menu.style.left = `${btn.offsetLeft - menu.offsetWidth + btn.offsetWidth}px`;
+  menu.style.top = `${btn.offsetTop + btn.offsetHeight/2 - menu.offsetHeight/2}px`;
 
   // Прячем "Удалить" для спец-конвертов
   db.collection("envelopes").doc(id).get().then(doc => {
@@ -1205,7 +1207,6 @@ function showEnvelopeMenu(btn, id) {
     }
   });
 }
-
 async function openEnvelopeHistory(envelopeId) {
   // 1. Получить имя конверта для заголовка
   const envelopeDoc = await db.collection("envelopes").doc(envelopeId).get();
