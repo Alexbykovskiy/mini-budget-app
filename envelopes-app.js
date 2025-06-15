@@ -1142,14 +1142,12 @@ function showEnvelopeMenu(btn, id) {
 
   // Координаты — объяви СНАЧАЛА!
   const rect = btn.getBoundingClientRect();
-  const width = 30 * 4 + 14 * 3 + 20; // 4 кнопки, 3 gap, запас
-  const height = 40;
+const width = 30 * 4 + 14 * 3; // 4 кнопки по 30 + 3 gap по 14 = 148  const height = 40;
   menu.style.position = 'absolute';
   menu.style.width = width + "px";
   menu.style.height = height + "px";
   menu.style.top = `${rect.top + window.scrollY - height / 2 + rect.height / 2}px`;
-  menu.style.left = `${rect.left + window.scrollX - width - 14}px`;
-  menu.style.display = "flex";
+menu.style.left = `${rect.left + window.scrollX - (width - 30) / 2}px`;  menu.style.display = "flex";
   menu.style.flexDirection = "row";
   menu.style.alignItems = "center";
   menu.style.justifyContent = "space-between";
