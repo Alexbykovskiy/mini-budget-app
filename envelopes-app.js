@@ -1137,8 +1137,7 @@ setTimeout(() => {
   updateTotalDisplay();
 }
 
-  // Два круглых svg-кнопки, как в MiniBudget
-function showEnvelopeMenu(btn, id) {
+ function showEnvelopeMenu(btn, id) {
   // Убрать старое меню, если есть
   const oldMenu = document.getElementById('envelope-menu-popup');
   if (oldMenu) oldMenu.remove();
@@ -1148,11 +1147,10 @@ function showEnvelopeMenu(btn, id) {
   menu.id = 'envelope-menu-popup';
   menu.className = "envelope-menu-popup glass-pill-menu";
 
-  // Геометрия: пилюля появляется слева от кнопки (по центру по вертикали)
+  // Геометрия: пилюля появляется слева от кнопки (по центру по высоте)
   const rect = btn.getBoundingClientRect();
   const width = 172;
   const height = 56;
-  // Ставим левее кнопки, центр по высоте
   menu.style.top = `${rect.top + window.scrollY - height / 2 + rect.height / 2}px`;
   menu.style.left = `${rect.left + window.scrollX - width - 14}px`;
 
@@ -1206,6 +1204,7 @@ function showEnvelopeMenu(btn, id) {
     }
   });
 }
+
 
 async function openEnvelopeHistory(envelopeId) {
   // 1. Получить имя конверта для заголовка
