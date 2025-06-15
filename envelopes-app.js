@@ -1141,37 +1141,63 @@ setTimeout(() => {
 }
 
  function showEnvelopeMenu(btn, id) {
-console.log('showEnvelopeMenu вызвана для id:', id);
   // Убрать старое меню, если есть
   const oldMenu = document.getElementById('envelope-menu-popup');
   if (oldMenu) oldMenu.remove();
 
-  // Создаём элемент меню-пилюли
   const menu = document.createElement('div');
   menu.id = 'envelope-menu-popup';
-  menu.className = "envelope-menu-popup glass-pill-menu";
 
-  // Геометрия: пилюля появляется слева от кнопки (по центру по высоте)
+  // Прямо ВСЕ стили тут:
+  menu.style.position = 'absolute';
+  menu.style.width = '172px';
+  menu.style.height = '56px';
+  menu.style.background = 'rgba(255,255,255,0.42)';
+  menu.style.backdropFilter = 'blur(16px)';
+  menu.style.webkitBackdropFilter = 'blur(16px)';
+  menu.style.borderRadius = '999px';
+  menu.style.boxShadow = '0 8px 24px rgba(0,0,0,0.09), 0 1.5px 6px 0 rgba(0,0,0,0.07)';
+  menu.style.display = 'flex';
+  menu.style.flexDirection = 'row';
+  menu.style.alignItems = 'center';
+  menu.style.justifyContent = 'space-between';
+  menu.style.padding = '0 16px';
+  menu.style.zIndex = '10000'; // супер высокий, чтобы не было перекрытий
+  menu.style.border = '1.5px solid rgba(255,255,255,0.25)';
+  menu.style.gap = '14px';
+  menu.style.transition = 'box-shadow 0.14s';
+  menu.style.opacity = '1';
+  menu.style.transform = 'scale(1) translateY(0)';
+
+  // Координаты
   const rect = btn.getBoundingClientRect();
   const width = 172;
   const height = 56;
   menu.style.top = `${rect.top + window.scrollY - height / 2 + rect.height / 2}px`;
   menu.style.left = `${rect.left + window.scrollX - width - 14}px`;
 
-  // Вставляем 3 SVG-кнопки, каждая со своим классом
   menu.innerHTML = `
-    <button class="round-btn menu-icon-btn menu-btn-history" title="История">
+    <button style="
+      width:44px;height:44px;min-width:44px;min-height:44px;border-radius:50%;border:none;margin:0;padding:0;
+      display:flex;align-items:center;justify-content:center;background:rgba(255,210,80,0.15);cursor:pointer;"
+      title="История">
       <svg width="26" height="26" fill="none" stroke="#AD840B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="13" cy="13" r="10"/><polyline points="13 8 13 13 17 15"/>
       </svg>
     </button>
-    <button class="round-btn menu-icon-btn menu-btn-edit" title="Редактировать">
+    <button style="
+      width:44px;height:44px;min-width:44px;min-height:44px;border-radius:50%;border:none;margin:0;padding:0;
+      display:flex;align-items:center;justify-content:center;background:rgba(40,200,120,0.11);cursor:pointer;"
+      title="Редактировать">
       <svg width="26" height="26" fill="none" stroke="#186663" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M17.5 6.5a2.1 2.1 0 1 1 3 3L8 22l-4 1 1-4 12.5-12.5Z"/>
         <path d="M12 20h9"/>
       </svg>
     </button>
-    <button class="round-btn menu-icon-btn menu-btn-delete" title="Удалить">
+    <button style="
+      width:44px;height:44px;min-width:44px;min-height:44px;border-radius:50%;border:none;margin:0;padding:0;
+      display:flex;align-items:center;justify-content:center;background:rgba(201,61,31,0.12);cursor:pointer;"
+      title="Удалить">
       <svg width="26" height="26" fill="none" stroke="#C93D1F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="4 7 20 7"/>
         <path d="M8 7v-2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -1184,13 +1210,12 @@ console.log('showEnvelopeMenu вызвана для id:', id);
 
   document.body.appendChild(menu);
 
-  // Привязываем обработчики кнопок
+  // Обработчики
   const [historyBtn, editBtn, delBtn] = menu.querySelectorAll('button');
   historyBtn.onclick = () => { menu.remove(); openEnvelopeHistory(id); };
   editBtn.onclick    = () => { menu.remove(); startEditEnvelope(id); };
   delBtn.onclick     = () => { menu.remove(); deleteEnvelope(id); };
 
-  // Клик вне меню — закрыть
   setTimeout(() => {
     document.addEventListener('mousedown', function handler(ev) {
       if (!menu.contains(ev.target) && ev.target !== btn) {
@@ -1200,7 +1225,6 @@ console.log('showEnvelopeMenu вызвана для id:', id);
     });
   }, 50);
 
-  // Не показывать "Удалить" для Общего/МиниBudget
   db.collection("envelopes").doc(id).get().then(doc => {
     const data = doc.data();
     if (data.isPrimary || data.isMiniBudget) {
