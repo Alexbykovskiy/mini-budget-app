@@ -1143,30 +1143,50 @@ function showEnvelopeMenu(btn, id) {
   const oldMenu = document.getElementById('envelope-menu-popup');
   if (oldMenu) oldMenu.remove();
 
+  // Создаём элемент меню-пилюли
   const menu = document.createElement('div');
   menu.id = 'envelope-menu-popup';
-  menu.style.position = 'absolute';
-  const rect = btn.getBoundingClientRect();
-  menu.style.top = `${rect.top + window.scrollY + 4}px`;
-  menu.style.left = `${rect.right + window.scrollX + 12}px`;
-  menu.style.background = '#e0e0e0';
-  menu.style.boxShadow = '4px 4px 12px #bebebe, -4px -4px 12px #ffffff';
-  menu.style.borderRadius = '12px';
-  menu.style.display = 'flex';
-  menu.style.flexDirection = 'row';
-  menu.style.padding = '6px';
-  menu.style.gap = '6px';
-  menu.style.zIndex = 100;
+  menu.className = "envelope-menu-popup glass-pill-menu";
 
+  // Геометрия: пилюля появляется слева от кнопки (по центру по вертикали)
+  const rect = btn.getBoundingClientRect();
+  const width = 172;
+  const height = 56;
+  // Ставим левее кнопки, центр по высоте
+  menu.style.top = `${rect.top + window.scrollY - height / 2 + rect.height / 2}px`;
+  menu.style.left = `${rect.left + window.scrollX - width - 14}px`;
+
+  // Вставляем 3 SVG-кнопки, каждая со своим классом
   menu.innerHTML = `
-    <button class="popup-menu-btn" title="Редактировать">
-         </button>
-    <button class="popup-menu-btn" id="envelope-menu-del" title="Удалить">
-        </button>
+    <button class="round-btn menu-icon-btn menu-btn-history" title="История">
+      <svg width="26" height="26" fill="none" stroke="#AD840B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="13" cy="13" r="10"/><polyline points="13 8 13 13 17 15"/>
+      </svg>
+    </button>
+    <button class="round-btn menu-icon-btn menu-btn-edit" title="Редактировать">
+      <svg width="26" height="26" fill="none" stroke="#186663" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17.5 6.5a2.1 2.1 0 1 1 3 3L8 22l-4 1 1-4 12.5-12.5Z"/>
+        <path d="M12 20h9"/>
+      </svg>
+    </button>
+    <button class="round-btn menu-icon-btn menu-btn-delete" title="Удалить">
+      <svg width="26" height="26" fill="none" stroke="#C93D1F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="4 7 20 7"/>
+        <path d="M8 7v-2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+        <rect x="5" y="7" width="14" height="12" rx="2"/>
+        <line x1="10" y1="11" x2="10" y2="17"/>
+        <line x1="14" y1="11" x2="14" y2="17"/>
+      </svg>
+    </button>
   `;
 
   document.body.appendChild(menu);
 
+  // Привязываем обработчики кнопок
+  const [historyBtn, editBtn, delBtn] = menu.querySelectorAll('button');
+  historyBtn.onclick = () => { menu.remove(); openEnvelopeHistory(id); };
+  editBtn.onclick    = () => { menu.remove(); startEditEnvelope(id); };
+  delBtn.onclick     = () => { menu.remove(); deleteEnvelope(id); };
 
   // Клик вне меню — закрыть
   setTimeout(() => {
@@ -1178,29 +1198,143 @@ function showEnvelopeMenu(btn, id) {
     });
   }, 50);
 
-  // Скрыть кнопку удаления для "Общий" и "MiniBudget"
+  // Не показывать "Удалить" для Общего/МиниBudget
   db.collection("envelopes").doc(id).get().then(doc => {
     const data = doc.data();
     if (data.isPrimary || data.isMiniBudget) {
-      const delBtn = document.getElementById('envelope-menu-del');
-      if (delBtn) delBtn.style.display = 'none';
-    }
-  });
-
-  // Обработчики
-  const [editBtn, delBtn] = menu.querySelectorAll('button');
-  editBtn.onclick = () => { menu.remove(); startEditEnvelope(id); };
-  delBtn.onclick = () => { menu.remove(); deleteEnvelope(id); };
-}
-
-
- function startEditEnvelope(id) {
-  db.collection("envelopes").doc(id).get().then(doc => {
-    if (doc.exists) {
-      fillEditForm(doc.data(), id);
+      delBtn.style.display = 'none';
     }
   });
 }
+
+async function openEnvelopeHistory(envelopeId) {
+  // 1. Получить имя конверта для заголовка
+  const envelopeDoc = await db.collection("envelopes").doc(envelopeId).get();
+  const envelopeName = envelopeDoc.exists ? envelopeDoc.data().name : "Конверт";
+
+  // 2. Создать модальное окно
+  const modal = document.createElement("div");
+  modal.id = "history-modal";
+  modal.classList.add("glass-modal");
+  modal.style.cssText = `
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 340px;
+    max-height: 80vh;
+    background: rgba(255,255,255,0.45);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    padding: 20px;
+    z-index: 9999;
+    color: #23292D;
+    font-size: 14.5px;
+    display: flex;
+    flex-direction: column;
+  `;
+
+  // 3. Заголовок
+  modal.innerHTML = `
+    <h3 style="margin: 0 0 12px 0; font-size: 1.15em; text-align: center; color:#23292D;">История: ${escapeHTML(envelopeName)}</h3>
+  `;
+
+  // 4. Кнопка "Закрыть"
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✕ Закрыть";
+  closeBtn.style.cssText = `
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(190, 60, 50,0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 6px 16px;
+    margin-bottom: 12px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    font-weight: 600;
+    color: #23292D;
+    cursor: pointer;
+  `;
+  closeBtn.onclick = () => modal.remove();
+  modal.appendChild(closeBtn);
+
+  // 5. Обёртка для скролла
+  const scrollWrapper = document.createElement("div");
+  scrollWrapper.id = "history-scroll-wrapper";
+  scrollWrapper.style.cssText = `
+    overflow-y: auto;
+    max-height: 63vh;
+    padding-right: 2px;
+    margin-top: 10px;
+    flex: 1 1 auto;
+  `;
+
+  // 6. Загрузка транзакций только для этого envelopeId
+  const snapshot = await db.collection("transactions")
+    .where("envelopeId", "==", envelopeId)
+    .orderBy("date", "desc")
+    .get();
+
+  if (snapshot.empty) {
+    scrollWrapper.innerHTML += "<p style='color:#555;'>Нет данных</p>";
+  } else {
+    snapshot.forEach(doc => {
+      const { amount, type, date, toEnvelopeId, fromEnvelopeId } = doc.data();
+      const d = new Date(date);
+      const dateStr = d.toLocaleDateString();
+      const timeStr = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+      // Цвета по типу операции
+      let className = "";
+      let text = "";
+      if (type === "add" || type === "income") {
+        className = "history-add";
+        text = `+ ${amount.toFixed(2)} €`;
+      } else if (type === "subtract") {
+        className = "history-sub";
+        text = `– ${Math.abs(amount).toFixed(2)} €`;
+      } else if (type === "transfer-out") {
+        className = "history-transfer";
+        text = `➡ ${Math.abs(amount).toFixed(2)} € →`;
+        if (toEnvelopeId) text += " в другой конверт";
+      } else if (type === "transfer-in") {
+        className = "history-transfer";
+        text = `⬅ ${amount.toFixed(2)} € ←`;
+        if (fromEnvelopeId) text += " из другого конверта";
+      } else {
+        return;
+      }
+
+      // Вставка блока-строки
+      const entry = document.createElement("div");
+      entry.className = className;
+      entry.style.cssText = `
+        margin-bottom: 8px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        font-weight: 500;
+        letter-spacing: 0.2px;
+        font-size: 14.5px;
+        background: ${className === "history-add" ? "rgba(43, 130, 66, 0.85)" : className === "history-sub" ? "rgba(160, 47, 29, 0.85)" : "rgba(168, 121, 0, 0.85)"};
+        color: #fff;
+      `;
+      entry.innerHTML = `<div style="font-size:13px; color:#c9c9c9;">${dateStr} ${timeStr}</div><div>${text}</div>`;
+      scrollWrapper.appendChild(entry);
+    });
+  }
+
+  // 7. Добавить всё в модалку и вывести на экран
+  modal.appendChild(scrollWrapper);
+  document.body.appendChild(modal);
+}
+
+
 // Цель: показать поле при активации чекбокса
 document.getElementById('envelope-has-goal').addEventListener('change', function() {
   document.getElementById('envelope-goal').style.display = this.checked ? 'inline-block' : 'none';
