@@ -1139,13 +1139,7 @@ function showEnvelopeMenu(btn, id) {
 
   const menu = document.createElement('div');
   menu.id = 'envelope-menu-popup';
-  menu.className = 'envelope-menu-popup glass-pill-menu'; // Важно!
-
-  const rect = btn.getBoundingClientRect();
-  const width = 172;
-  const height = 56;
-  menu.style.top = `${rect.top + window.scrollY + rect.height/2 - height/2}px`;
-  menu.style.left = `${rect.left + window.scrollX - width - 6}px`;
+  menu.className = 'envelope-menu-popup glass-pill-menu';
 
   menu.innerHTML = `
     <button class="menu-icon-btn menu-btn-history" title="История">
@@ -1170,27 +1164,38 @@ function showEnvelopeMenu(btn, id) {
     </button>
   `;
 
-  // Обработчики...
+  // Обработчики
   const [historyBtn, editBtn, delBtn] = menu.querySelectorAll('button');
-  historyBtn.onclick = () => { menu.remove(); openEnvelopeHistory(id); btn.style.visibility = "visible"; };
-  editBtn.onclick    = () => { menu.remove(); startEditEnvelope(id); btn.style.visibility = "visible"; };
-  delBtn.onclick     = () => { menu.remove(); deleteEnvelope(id); btn.style.visibility = "visible"; };
+  historyBtn.onclick = () => { menu.remove(); openEnvelopeHistory(id); };
+  editBtn.onclick    = () => { menu.remove(); startEditEnvelope(id); };
+  delBtn.onclick     = () => { menu.remove(); deleteEnvelope(id); };
 
   // Клик вне меню — закрыть
   setTimeout(() => {
     document.addEventListener('mousedown', function handler(ev) {
       if (!menu.contains(ev.target)) {
         menu.remove();
-        btn.style.visibility = "visible";
         document.removeEventListener('mousedown', handler);
       }
     });
   }, 50);
 
-  // Спрятать оригинальную кнопку
-  btn.style.visibility = "hidden";
+  // --- Новое позиционирование ---
+  const card = btn.closest('.envelope-card-grid');
+  card.style.position = 'relative';
 
-  document.body.appendChild(menu);
+  // Добавляем меню внутрь карточки
+  card.appendChild(menu);
+
+  // Позиция: левее кнопки меню, вертикально по центру
+  const btnCenterY = btn.offsetTop + btn.offsetHeight / 2;
+  menu.style.left = `${btn.offsetLeft - menu.offsetWidth - 10}px`;
+  menu.style.top = `${btnCenterY - menu.offsetHeight / 2}px`;
+
+  // Если не влезает слева, показываем справа от кнопки
+  if (btn.offsetLeft < menu.offsetWidth + 20) {
+    menu.style.left = `${btn.offsetLeft + btn.offsetWidth + 10}px`;
+  }
 
   // Прячем "Удалить" для спец-конвертов
   db.collection("envelopes").doc(id).get().then(doc => {
