@@ -1138,6 +1138,7 @@ setTimeout(() => {
 }
 
  function showEnvelopeMenu(btn, id) {
+console.log('showEnvelopeMenu вызвана для id:', id);
   // Убрать старое меню, если есть
   const oldMenu = document.getElementById('envelope-menu-popup');
   if (oldMenu) oldMenu.remove();
