@@ -113,11 +113,11 @@ body {
 
 .envelope-actions {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
   gap: 8px;
   height: auto;
-  justify-content: flex-start;
 }
 .envelope-actions .round-btn {
   width: 30px;
@@ -1665,5 +1665,5 @@ body * {
 .menu-icon-btn svg {
   width: 20px !important;
   height: 20px !important;
-}
+}у
 

@@ -1141,15 +1141,8 @@ function showEnvelopeMenu(btn, id) {
   menu.id = 'envelope-menu-popup';
   menu.className = 'envelope-menu-popup glass-pill-menu';
 
-  // Вариант с 4 кнопками: меню + история + редактировать + удалить
+  // Три кнопки: история, редактировать, удалить
   menu.innerHTML = `
-    <button class="menu-icon-btn menu-btn-self" title="Меню">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#23292D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="4" y1="6" x2="20" y2="6"/>
-        <line x1="4" y1="12" x2="20" y2="12"/>
-        <line x1="4" y1="18" x2="20" y2="18"/>
-      </svg>
-    </button>
     <button class="menu-icon-btn menu-btn-history" title="История">
       <svg width="20" height="20" fill="none" stroke="#23292D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="8"/>
@@ -1173,31 +1166,26 @@ function showEnvelopeMenu(btn, id) {
   `;
 
   // Обработчики
-  const [selfBtn, historyBtn, editBtn, delBtn] = menu.querySelectorAll('button');
-  selfBtn.onclick = () => menu.remove(); // Повторное нажатие на меню — закрыть пилюлю
+  const [historyBtn, editBtn, delBtn] = menu.querySelectorAll('button');
   historyBtn.onclick = () => { menu.remove(); openEnvelopeHistory(id); };
   editBtn.onclick    = () => { menu.remove(); startEditEnvelope(id); };
   delBtn.onclick     = () => { menu.remove(); deleteEnvelope(id); };
 
   setTimeout(() => {
     document.addEventListener('mousedown', function handler(ev) {
-      if (!menu.contains(ev.target)) {
+      if (!menu.contains(ev.target) && ev.target !== btn) {
         menu.remove();
         document.removeEventListener('mousedown', handler);
       }
     });
   }, 50);
 
-  // Позиционирование — меню поверх кнопки меню, чуть левее, с выравниванием по центру
-  const card = btn.closest('.envelope-card-grid');
-  card.style.position = 'relative';
+  // Позиционируем пилюлю строго слева от кнопки меню
+  const actions = btn.parentNode;
+  actions.insertBefore(menu, btn);
 
-  card.appendChild(menu);
-
-  // Позиция: по центру кнопки меню, смещено влево
-  menu.style.position = 'absolute';
-  menu.style.left = `${btn.offsetLeft - menu.offsetWidth + btn.offsetWidth}px`;
-  menu.style.top = `${btn.offsetTop + btn.offsetHeight/2 - menu.offsetHeight/2}px`;
+  // Вертикальное выравнивание (обеспечено flex)
+  menu.style.position = 'static'; // благодаря flex-позиционированию внутри .envelope-actions
 
   // Прячем "Удалить" для спец-конвертов
   db.collection("envelopes").doc(id).get().then(doc => {
@@ -1207,6 +1195,7 @@ function showEnvelopeMenu(btn, id) {
     }
   });
 }
+
 async function openEnvelopeHistory(envelopeId) {
   // 1. Получить имя конверта для заголовка
   const envelopeDoc = await db.collection("envelopes").doc(envelopeId).get();
