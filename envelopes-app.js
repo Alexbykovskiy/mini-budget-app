@@ -1050,8 +1050,10 @@ ranges.forEach(r => {
 });
 
 setTimeout(() => {
-  document.querySelectorAll('.menu-btn').forEach(btn => {
-    btn.onclick = null; // сбросить старый обработчик на всякий случай
+  const menuBtns = document.querySelectorAll('.menu-btn');
+  console.log("Назначаем обработчик на кнопки:", menuBtns);
+  menuBtns.forEach(btn => {
+    btn.onclick = null;
     btn.addEventListener('click', (e) => {
       console.log("Клик по кнопке меню!", btn, btn.getAttribute('data-id'));
       e.stopPropagation();
@@ -1060,7 +1062,6 @@ setTimeout(() => {
     });
   });
 }, 0);
-
   function calculateTotalPercent() {
     return ranges.reduce((acc, r) => acc + parseFloat(document.getElementById(`range-${r.id}`).value || 0), 0);
   }
