@@ -1051,7 +1051,9 @@ ranges.forEach(r => {
 
 setTimeout(() => {
   document.querySelectorAll('.menu-btn').forEach(btn => {
+    btn.onclick = null; // сбросить старый обработчик на всякий случай
     btn.addEventListener('click', (e) => {
+      console.log("Клик по кнопке меню!", btn, btn.getAttribute('data-id'));
       e.stopPropagation();
       const id = btn.getAttribute('data-id');
       showEnvelopeMenu(btn, id);
