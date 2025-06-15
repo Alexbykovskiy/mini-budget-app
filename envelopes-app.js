@@ -1132,7 +1132,7 @@ setTimeout(() => {
   updateTotalDisplay();
 }
 
- function showEnvelopeMenu(btn, id) {
+function showEnvelopeMenu(btn, id) {
   // Убрать старое меню, если есть
   const oldMenu = document.getElementById('envelope-menu-popup');
   if (oldMenu) oldMenu.remove();
@@ -1140,83 +1140,84 @@ setTimeout(() => {
   const menu = document.createElement('div');
   menu.id = 'envelope-menu-popup';
 
-  // Прямо ВСЕ стили тут:
-  menu.style.position = 'absolute';
-  menu.style.width = '172px';
-  menu.style.height = '56px';
-  menu.style.background = 'rgba(255,255,255,0.42)';
-  menu.style.backdropFilter = 'blur(16px)';
-  menu.style.webkitBackdropFilter = 'blur(16px)';
-  menu.style.borderRadius = '999px';
-  menu.style.boxShadow = '0 8px 24px rgba(0,0,0,0.09), 0 1.5px 6px 0 rgba(0,0,0,0.07)';
-  menu.style.display = 'flex';
-  menu.style.flexDirection = 'row';
-  menu.style.alignItems = 'center';
-  menu.style.justifyContent = 'space-between';
-  menu.style.padding = '0 16px';
-  menu.style.zIndex = '10000'; // супер высокий, чтобы не было перекрытий
-  menu.style.border = '1.5px solid rgba(255,255,255,0.25)';
-  menu.style.gap = '14px';
-  menu.style.transition = 'box-shadow 0.14s';
-  menu.style.opacity = '1';
-  menu.style.transform = 'scale(1) translateY(0)';
-
-  // Координаты
+  // Координаты — объяви СНАЧАЛА!
   const rect = btn.getBoundingClientRect();
-  const width = 172;
-  const height = 56;
+  const width = 30 * 4 + 14 * 3 + 20; // 4 кнопки, 3 gap, запас
+  const height = 40;
+  menu.style.position = 'absolute';
+  menu.style.width = width + "px";
+  menu.style.height = height + "px";
   menu.style.top = `${rect.top + window.scrollY - height / 2 + rect.height / 2}px`;
   menu.style.left = `${rect.left + window.scrollX - width - 14}px`;
+  menu.style.display = "flex";
+  menu.style.flexDirection = "row";
+  menu.style.alignItems = "center";
+  menu.style.justifyContent = "space-between";
+  menu.style.gap = "14px";
+  menu.style.background = "rgba(255,255,255,0.42)";
+  menu.style.backdropFilter = "blur(16px)";
+  menu.style.borderRadius = "999px";
+  menu.style.zIndex = "10000";
+  menu.style.border = "1.5px solid rgba(255,255,255,0.25)";
+  menu.style.boxShadow = "0 8px 24px rgba(0,0,0,0.09), 0 1.5px 6px 0 rgba(0,0,0,0.07)";
+
+  // Спрятать оригинальную кнопку
+  btn.style.visibility = "hidden";
 
   menu.innerHTML = `
-    <button style="
-      width:44px;height:44px;min-width:44px;min-height:44px;border-radius:50%;border:none;margin:0;padding:0;
-      display:flex;align-items:center;justify-content:center;background:rgba(255,210,80,0.15);cursor:pointer;"
-      title="История">
-      <svg width="26" height="26" fill="none" stroke="#AD840B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="13" cy="13" r="10"/><polyline points="13 8 13 13 17 15"/>
+    <button style="width:30px;height:30px;min-width:30px;min-height:30px;border-radius:50%;border:none;margin:0;padding:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.34);cursor:pointer;" title="Меню">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#23292D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="4" y1="6" x2="20" y2="6"/>
+        <line x1="4" y1="12" x2="20" y2="12"/>
+        <line x1="4" y1="18" x2="20" y2="18"/>
       </svg>
     </button>
-    <button style="
-      width:44px;height:44px;min-width:44px;min-height:44px;border-radius:50%;border:none;margin:0;padding:0;
-      display:flex;align-items:center;justify-content:center;background:rgba(40,200,120,0.11);cursor:pointer;"
-      title="Редактировать">
-      <svg width="26" height="26" fill="none" stroke="#186663" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M17.5 6.5a2.1 2.1 0 1 1 3 3L8 22l-4 1 1-4 12.5-12.5Z"/>
-        <path d="M12 20h9"/>
+    <button style="width:30px;height:30px;min-width:30px;min-height:30px;border-radius:50%;border:none;margin:0;padding:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.34);cursor:pointer;" title="История">
+      <svg width="20" height="20" fill="none" stroke="#23292D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="10" cy="10" r="8"/>
+        <polyline points="10 5 10 10 14 12"/>
       </svg>
     </button>
-    <button style="
-      width:44px;height:44px;min-width:44px;min-height:44px;border-radius:50%;border:none;margin:0;padding:0;
-      display:flex;align-items:center;justify-content:center;background:rgba(201,61,31,0.12);cursor:pointer;"
-      title="Удалить">
-      <svg width="26" height="26" fill="none" stroke="#C93D1F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="4 7 20 7"/>
-        <path d="M8 7v-2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-        <rect x="5" y="7" width="14" height="12" rx="2"/>
-        <line x1="10" y1="11" x2="10" y2="17"/>
-        <line x1="14" y1="11" x2="14" y2="17"/>
+    <button style="width:30px;height:30px;min-width:30px;min-height:30px;border-radius:50%;border:none;margin:0;padding:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.34);cursor:pointer;" title="Редактировать">
+      <svg width="20" height="20" fill="none" stroke="#23292D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.5 4.5a2.1 2.1 0 1 1 3 3L7 18l-3 1 1-3L14.5 4.5Z"/>
+        <path d="M10 16h7"/>
+      </svg>
+    </button>
+    <button style="width:30px;height:30px;min-width:30px;min-height:30px;border-radius:50%;border:none;margin:0;padding:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.34);cursor:pointer;" title="Удалить">
+      <svg width="20" height="20" fill="none" stroke="#23292D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 17 6"/>
+        <path d="M15 6v9a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3-2v2"/>
+        <line x1="8" y1="9" x2="8" y2="15"/>
+        <line x1="12" y1="9" x2="12" y2="15"/>
       </svg>
     </button>
   `;
 
-  document.body.appendChild(menu);
-
   // Обработчики
-  const [historyBtn, editBtn, delBtn] = menu.querySelectorAll('button');
-  historyBtn.onclick = () => { menu.remove(); openEnvelopeHistory(id); };
-  editBtn.onclick    = () => { menu.remove(); startEditEnvelope(id); };
-  delBtn.onclick     = () => { menu.remove(); deleteEnvelope(id); };
+  const [menuBtn, historyBtn, editBtn, delBtn] = menu.querySelectorAll('button');
+  menuBtn.onclick = () => {
+    menu.remove();
+    btn.style.visibility = "visible";
+  };
+  historyBtn.onclick = () => { menu.remove(); btn.style.visibility = "visible"; openEnvelopeHistory(id); };
+  editBtn.onclick    = () => { menu.remove(); btn.style.visibility = "visible"; startEditEnvelope(id); };
+  delBtn.onclick     = () => { menu.remove(); btn.style.visibility = "visible"; deleteEnvelope(id); };
 
+  // Клик вне меню — закрыть
   setTimeout(() => {
     document.addEventListener('mousedown', function handler(ev) {
-      if (!menu.contains(ev.target) && ev.target !== btn) {
+      if (!menu.contains(ev.target)) {
         menu.remove();
+        btn.style.visibility = "visible";
         document.removeEventListener('mousedown', handler);
       }
     });
   }, 50);
 
+  document.body.appendChild(menu);
+
+  // Прячем "Удалить" для специальных конвертов
   db.collection("envelopes").doc(id).get().then(doc => {
     const data = doc.data();
     if (data.isPrimary || data.isMiniBudget) {
@@ -1224,7 +1225,6 @@ setTimeout(() => {
     }
   });
 }
-
 
 async function openEnvelopeHistory(envelopeId) {
   // 1. Получить имя конверта для заголовка
