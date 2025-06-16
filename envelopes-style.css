@@ -949,15 +949,29 @@ body * {
 }
 
 .transfer-btn.confirm {
-  background: rgba(255,163,92,0.24);
+  background: linear-gradient(120deg, #186663 75%, #249D7B 100%);
   color: #fff;
-  border: 1px solid rgba(255,255,255,0.3);
+  border: 1.5px solid rgba(255,255,255,0.24);
+  box-shadow: 0 4px 12px rgba(24,102,99,0.12);
+  filter: none;
+}
+
+.transfer-btn.confirm:hover {
+  background: linear-gradient(120deg, #249D7B 75%, #186663 100%);
+  filter: brightness(1.09) saturate(1.12);
 }
 
 .transfer-btn.cancel {
-  background: rgba(190, 60, 50, 0.18);
+  background: linear-gradient(120deg, #C93D1F 80%, #B42B1A 100%);
   color: #fff;
-  border: 1px solid rgba(255,255,255,0.25);
+  border: 1.5px solid rgba(255,255,255,0.20);
+  box-shadow: 0 4px 12px rgba(201,61,31,0.12);
+  filter: none;
+}
+
+.transfer-btn.cancel:hover {
+  background: linear-gradient(120deg, #B42B1A 80%, #C93D1F 100%);
+  filter: brightness(1.09) saturate(1.12);
 }
 
 /* Стиль селекта */
