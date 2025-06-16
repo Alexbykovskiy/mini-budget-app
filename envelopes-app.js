@@ -164,8 +164,8 @@ function showConfirmModal({
   });
 }
 
-function showAmountModal({title = "Введите сумму", placeholder = "Сумма", confirmText = "OK", cancelText = "Отмена"} = {}) {
-  return new Promise((resolve, reject) => {
+function showAmountModal({title = "Введите сумму", placeholder = "Сумма", confirmText = "OK", cancelText = "Отмена", maxAmount = undefined} = {}) {
+  return new Promise((resolve) => {
     const modal = document.createElement("div");
     modal.className = "glass-modal";
     modal.style.cssText = `
@@ -186,50 +186,42 @@ function showAmountModal({title = "Введите сумму", placeholder = "С
       align-items: stretch;
     `;
 
- modal.innerHTML = `
-  <h3 style="color:#23292D;text-align:center; font-size:1.13em; font-weight:700; margin:0 0 20px 0;">${title}</h3>
-  <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 16px;">
-    <input id="glass-amount-input" type="number" step="0.01" min="0" inputmode="decimal"
-      placeholder="${placeholder}" style="flex:1 1 0; min-width:0; max-width:170px; text-align:center; font-size:1.13em; padding: 12px 16px;"/>
-    <button id="fill-all-btn" type="button" style="margin-left:8px; border:none; background:rgba(255,163,92,0.70); color:#fff; border-radius:999px; font-weight:600; font-size:1em; padding:10px 22px; cursor:pointer; box-shadow:0 2px 8px 0 rgba(255,163,92,0.11); transition:filter 0.12s;">Все</button>
-  </div>
- <div style="display:flex; justify-content:space-between; align-items:center; width:100%; padding:0 4px; margin-top: 12px;">
-  <button class="transfer-btn cancel" type="button" title="${cancelText}">
-    <svg width="32" height="32" viewBox="0 0 24 24">
-      <line x1="6" y1="6" x2="18" y2="18"/>
-      <line x1="18" y1="6" x2="6" y2="18"/>
-    </svg>
-  </button>
-  <button class="transfer-btn confirm" type="button" title="${confirmText}">
-    <svg width="32" height="32" viewBox="0 0 24 24">
-      <polyline points="5 13 10.5 18 19 7"/>
-    </svg>
-  </button>
-</div>
-
-
-`;
-
+    modal.innerHTML = `
+      <h3 style="color:#23292D;text-align:center; font-size:1.13em; font-weight:700; margin:0 0 20px 0;">${title}</h3>
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 16px;">
+        <input id="glass-amount-input" type="number" step="0.01" min="0" inputmode="decimal"
+          placeholder="${placeholder}" style="flex:1 1 0; min-width:0; max-width:170px; text-align:center; font-size:1.13em; padding: 12px 16px;"/>
+        ${typeof maxAmount === "number" ? `
+          <button id="fill-max-btn" type="button" style="margin-left:8px; border:none; background:rgba(255,163,92,0.70); color:#fff; border-radius:999px; font-weight:600; font-size:1em; padding:10px 22px; cursor:pointer; box-shadow:0 2px 8px 0 rgba(255,163,92,0.11); transition:filter 0.12s;">Все</button>
+        ` : ""}
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; width:100%; padding:0 4px; margin-top: 12px;">
+        <button class="transfer-btn cancel" type="button" title="${cancelText}">
+          <svg width="32" height="32" viewBox="0 0 24 24">
+            <line x1="6" y1="6" x2="18" y2="18"/>
+            <line x1="18" y1="6" x2="6" y2="18"/>
+          </svg>
+        </button>
+        <button class="transfer-btn confirm" type="button" title="${confirmText}">
+          <svg width="32" height="32" viewBox="0 0 24 24">
+            <polyline points="5 13 10.5 18 19 7"/>
+          </svg>
+        </button>
+      </div>
+    `;
 
     document.body.appendChild(modal);
 
     const input = modal.querySelector("#glass-amount-input");
-const fillAllBtn = modal.querySelector("#fill-all-btn");
-if (fillAllBtn) {
-  fillAllBtn.onclick = () => {
-    // Предполагается, что maxAmount передаётся в showAmountModal (добавь его, если ещё нет)
-    if (typeof modal.maxAmount !== "undefined") {
-      input.value = modal.maxAmount;
-    }
-    input.focus();
-  };
-}
+    if (input) input.focus();
 
-    input.focus();
-    input.onkeydown = (e) => {
-      if (e.key === "Enter") confirm();
-      if (e.key === "Escape") cancel();
-    };
+    const fillMaxBtn = modal.querySelector("#fill-max-btn");
+    if (fillMaxBtn && typeof maxAmount === "number") {
+      fillMaxBtn.onclick = () => {
+        input.value = maxAmount;
+        input.focus();
+      };
+    }
 
     const confirmBtn = modal.querySelector(".transfer-btn.confirm");
     const cancelBtn = modal.querySelector(".transfer-btn.cancel");
@@ -237,20 +229,23 @@ if (fillAllBtn) {
     confirmBtn.onclick = confirm;
     cancelBtn.onclick = cancel;
 
+    input.onkeydown = (e) => {
+      if (e.key === "Enter") confirm();
+      if (e.key === "Escape") cancel();
+    };
+
     function confirm() {
       const val = parseFloat(input.value.replace(',', '.'));
       modal.remove();
-      if (isNaN(val) || val <= 0) resolve(null); // если не введено — вернуть null
+      if (isNaN(val) || val <= 0) resolve(null);
       else resolve(val);
     }
     function cancel() {
       modal.remove();
-      resolve(null); // просто вернуть null
+      resolve(null);
     }
   });
 }
-
-
 const form = document.getElementById("add-envelope-form");
 const nameInput = document.getElementById("envelope-name");
 const goalInput = document.getElementById("envelope-goal");
