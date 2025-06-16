@@ -1549,12 +1549,12 @@ body * {
   display: block;
   pointer-events: none;
 }
-.menu-btn-history { background: rgba(255, 210, 80,0.15); }
-.menu-btn-edit { background: rgba(40,200,120,0.11); }
-.menu-btn-delete { background: rgba(201,61,31,0.12); }
-.menu-btn-history:hover { filter: brightness(1.13) saturate(1.14); box-shadow: 0 3px 14px rgba(255,210,80,0.13);}
-.menu-btn-edit:hover    { filter: brightness(1.16) saturate(1.22); box-shadow: 0 3px 12px rgba(40,200,120,0.12);}
-.menu-btn-delete:hover  { filter: brightness(1.09) saturate(1.23); box-shadow: 0 3px 12px rgba(201,61,31,0.17);}
+.menu-btn-history { background: rgba(255, 210, 80,1); }
+.menu-btn-edit { background: rgba(40,200,120,1); }
+.menu-btn-delete { background: rgba(201,61,31,1); }
+.menu-btn-history:hover { filter: brightness(1.13) saturate(1.14); box-shadow: 0 3px 14px rgba(255,210,80,1);}
+.menu-btn-edit:hover    { filter: brightness(1.16) saturate(1.22); box-shadow: 0 3px 12px rgba(40,200,120,1);}
+.menu-btn-delete:hover  { filter: brightness(1.09) saturate(1.23); box-shadow: 0 3px 12px rgba(201,61,31,1);}
 
 /* Фокус (доступность) */
 .menu-icon-btn:focus {
@@ -1585,9 +1585,9 @@ body * {
   transform: scale(0.97) translateY(8px);
   animation: pillMenuAppear 0.16s cubic-bezier(.61,-0.01,.64,1.01) forwards;
 }
-@keyframes pillMenuAppear {
-  from { opacity: 0; transform: scale(0.97) translateY(12px);}
-  to   { opacity: 1; transform: scale(1) translateY(0);}
+@keyframes pillMenuFromRight {
+  from { opacity: 0; transform: scale(0.97) translateX(22px);}
+  to   { opacity: 1; transform: scale(1) translateX(0);}
 }
 .menu-icon-btn {
   width: 44px !important;
@@ -1611,12 +1611,12 @@ body * {
   display: block;
   pointer-events: none;
 }
-.menu-btn-history { background: rgba(255, 210, 80,0.15); }
-.menu-btn-edit { background: rgba(40,200,120,0.11); }
-.menu-btn-delete { background: rgba(201,61,31,0.12); }
-.menu-btn-history:hover { filter: brightness(1.13) saturate(1.14); box-shadow: 0 3px 14px rgba(255,210,80,0.13);}
-.menu-btn-edit:hover    { filter: brightness(1.16) saturate(1.22); box-shadow: 0 3px 12px rgba(40,200,120,0.12);}
-.menu-btn-delete:hover  { filter: brightness(1.09) saturate(1.23); box-shadow: 0 3px 12px rgba(201,61,31,0.17);}
+.menu-btn-history { background: rgba(255, 210, 80,1); }
+.menu-btn-edit { background: rgba(40,200,120,1); }
+.menu-btn-delete { background: rgba(201,61,31,1); }
+.menu-btn-history:hover { filter: brightness(1.13) saturate(1.14); box-shadow: 0 3px 14px rgba(255,210,80,1);}
+.menu-btn-edit:hover    { filter: brightness(1.16) saturate(1.22); box-shadow: 0 3px 12px rgba(40,200,120,1);}
+.menu-btn-delete:hover  { filter: brightness(1.09) saturate(1.23); box-shadow: 0 3px 12px rgba(201,61,31,1);}
 
 
 .envelope-menu-popup.glass-pill-menu {
