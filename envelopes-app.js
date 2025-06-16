@@ -1401,25 +1401,11 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
     </div>
 
     <div style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
-     <div style="flex:1 1 0; display:flex; gap:7px;">
-  <div style="position:relative; width: 112px; max-width: 46%;">
-    <input id="filter-date-from" type="date" class="transfer-select"
-      style="width:100%; min-width: 80px; max-width: 112px; padding-right:23px; font-size:13px;"/>
-    <svg width="15" height="15" viewBox="0 0 24 24" style="position:absolute;right:7px;top:50%;transform:translateY(-50%);opacity:.63;pointer-events:none;">
-      <rect x="3.5" y="7" width="17" height="13" rx="3" fill="none" stroke="#fff" stroke-width="2"/>
-      <rect x="7" y="2.5" width="2" height="5" rx="1" fill="#fff"/>
-      <rect x="15" y="2.5" width="2" height="5" rx="1" fill="#fff"/>
-    </svg>
-  </div>
-  <div style="position:relative; width: 112px; max-width: 46%;">
-    <input id="filter-date-to" type="date" class="transfer-select"
-      style="width:100%; min-width: 80px; max-width: 112px; padding-right:23px; font-size:13px;"/>
-    <svg width="15" height="15" viewBox="0 0 24 24" style="position:absolute;right:7px;top:50%;transform:translateY(-50%);opacity:.63;pointer-events:none;">
-      <rect x="3.5" y="7" width="17" height="13" rx="3" fill="none" stroke="#fff" stroke-width="2"/>
-      <rect x="7" y="2.5" width="2" height="5" rx="1" fill="#fff"/>
-      <rect x="15" y="2.5" width="2" height="5" rx="1" fill="#fff"/>
-    </svg>
-  </div>
+    <div style="flex:1 1 0; display:flex; gap:18px;">
+  <input id="filter-date-from" type="date" class="transfer-select"
+    style="width:100px; min-width:72px; max-width:110px; font-size:13px;"/>
+  <input id="filter-date-to" type="date" class="transfer-select"
+    style="width:100px; min-width:72px; max-width:110px; font-size:13px;"/>
 </div>
 
     </div>
