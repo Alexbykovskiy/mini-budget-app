@@ -1551,13 +1551,18 @@ body * {
   height: 20px !important;
 }
 /* Максимально плотные (почти непрозрачные) кнопки */
-.menu-btn-history { background: rgba(255, 210, 80, 0.93); }
-.menu-btn-edit    { background: rgba(40,200,120,0.93); }
-.menu-btn-delete  { background: rgba(201,61,31,0.92); }
+/* Цвет кнопок — светло-серый */
+.menu-btn-history { background: rgba(230, 230, 230, 0.92); }
+.menu-btn-edit    { background: rgba(230, 230, 230, 0.92); }
+.menu-btn-delete  { background: rgba(230, 230, 230, 0.92); }
 
-.menu-btn-history:hover { filter: brightness(1.13) saturate(1.14); box-shadow: 0 3px 14px rgba(255,210,80,0.93);}
-.menu-btn-edit:hover    { filter: brightness(1.16) saturate(1.22); box-shadow: 0 3px 12px rgba(40,200,120,0.93);}
-.menu-btn-delete:hover  { filter: brightness(1.09) saturate(1.23); box-shadow: 0 3px 12px rgba(201,61,31,0.92); }
+/* Hover — белое свечение */
+.menu-btn-history:hover,
+.menu-btn-edit:hover,
+.menu-btn-delete:hover {
+  filter: brightness(1.11) saturate(1.03);
+  box-shadow: 0 0 0 7px rgba(255,255,255,0.53);
+}
 
 /* Фокус (доступность) */
 .menu-icon-btn:focus {
