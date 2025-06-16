@@ -574,32 +574,6 @@ loadEnvelopes();
 
 }
 
-// ===== ФУНКЦИЯ ДЛЯ КРАСИВОГО МОДАЛЬНОГО ОКНА ВВОДА СУММЫ =====
-modal.innerHTML = `
-  <h3 style="color:#23292D;text-align:center; font-size:1.13em; font-weight:700; margin:0 0 20px 0;">${title}</h3>
-  <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 16px;">
-    <input id="glass-amount-input" type="number" step="0.01" min="0" inputmode="decimal"
-      placeholder="${placeholder}" style="flex:1 1 0; min-width:0; max-width:170px; text-align:center; font-size:1.13em; padding: 12px 16px;"/>
-    ${typeof maxAmount === "number" ? `
-      <button id="fill-max-btn" type="button" style="margin-left:8px; border:none; background:rgba(255,163,92,0.70); color:#fff; border-radius:999px; font-weight:600; font-size:1em; padding:10px 22px; cursor:pointer; box-shadow:0 2px 8px 0 rgba(255,163,92,0.11); transition:filter 0.12s;">Все</button>
-    ` : ""}
-  </div>
-  <div style="display:flex; justify-content:space-between; align-items:center; width:100%; padding:0 4px; margin-top: 12px;">
-    <button class="transfer-btn cancel" type="button" title="${cancelText}">
-      <svg width="32" height="32" viewBox="0 0 24 24">
-        <line x1="6" y1="6" x2="18" y2="18"/>
-        <line x1="18" y1="6" x2="6" y2="18"/>
-      </svg>
-    </button>
-    <button class="transfer-btn confirm" type="button" title="${confirmText}">
-      <svg width="32" height="32" viewBox="0 0 24 24">
-        <polyline points="5 13 10.5 18 19 7"/>
-      </svg>
-    </button>
-  </div>
-`;
-
-
     document.body.appendChild(modal);
 
     const input = modal.querySelector("#glass-amount-input");
