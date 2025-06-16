@@ -1179,7 +1179,10 @@ function showEnvelopeMenu(btn, id) {
   }, 50);
 
   // Вставить пилюлю меню слева от кнопки меню:
-  btn.parentNode.insertBefore(menu, btn);
+ btn.parentNode.insertBefore(menu, btn);
+
+menu.style.marginTop = '-20px';     // вверх
+menu.style.marginRight = '20px';    // влево
 
   // Прячем "Удалить" для спец-конвертов
   db.collection("envelopes").doc(id).get().then(doc => {
