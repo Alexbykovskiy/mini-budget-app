@@ -949,31 +949,68 @@ body * {
 }
 
 .transfer-btn.confirm {
-  background: linear-gradient(120deg, #186663 75%, #249D7B 100%);
+  /* Стеклянный, тёплый авокадо-оливковый градиент */
+  background: linear-gradient(120deg, #C3DF7D 60%, #A1BF65 100%);
   color: #fff;
-  border: 1.5px solid rgba(255,255,255,0.24);
-  box-shadow: 0 4px 12px rgba(24,102,99,0.12);
+  border: 1.5px solid rgba(255,255,255,0.22);
+  box-shadow:
+    0 4px 18px 0 rgba(163,192,89,0.16),
+    0 2px 8px 0 rgba(160,180,80,0.14) inset;
+  backdrop-filter: blur(7px) brightness(1.16) saturate(1.12);
+  -webkit-backdrop-filter: blur(7px) brightness(1.16) saturate(1.12);
   filter: none;
+  position: relative;
+  overflow: hidden;
 }
-
+.transfer-btn.confirm:after {
+  /* Легкое белое стеклянное сияние сверху */
+  content: '';
+  position: absolute;
+  left: 18%;
+  top: 12%;
+  width: 62%;
+  height: 37%;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.00) 100%);
+  pointer-events: none;
+  filter: blur(2px);
+  border-radius: 50%;
+}
 .transfer-btn.confirm:hover {
-  background: linear-gradient(120deg, #249D7B 75%, #186663 100%);
-  filter: brightness(1.09) saturate(1.12);
+  filter: brightness(1.07) saturate(1.11);
+  box-shadow: 0 6px 26px 0 rgba(170,220,60,0.16), 0 2px 10px 0 rgba(130,180,60,0.15) inset;
 }
 
 .transfer-btn.cancel {
-  background: linear-gradient(120deg, #C93D1F 80%, #B42B1A 100%);
+  /* Тёплый стеклянно-красный */
+  background: linear-gradient(120deg, #EF4747 70%, #C43D1D 100%);
   color: #fff;
   border: 1.5px solid rgba(255,255,255,0.20);
-  box-shadow: 0 4px 12px rgba(201,61,31,0.12);
+  box-shadow:
+    0 4px 18px 0 rgba(220,70,70,0.17),
+    0 2px 8px 0 rgba(200,44,44,0.15) inset;
+  backdrop-filter: blur(7px) brightness(1.09) saturate(1.13);
+  -webkit-backdrop-filter: blur(7px) brightness(1.09) saturate(1.13);
   filter: none;
+  position: relative;
+  overflow: hidden;
 }
-
+.transfer-btn.cancel:after {
+  /* Белое стеклянное сияние сверху */
+  content: '';
+  position: absolute;
+  left: 18%;
+  top: 12%;
+  width: 62%;
+  height: 37%;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.23) 0%, rgba(255,255,255,0.00) 100%);
+  pointer-events: none;
+  filter: blur(2px);
+  border-radius: 50%;
+}
 .transfer-btn.cancel:hover {
-  background: linear-gradient(120deg, #B42B1A 80%, #C93D1F 100%);
-  filter: brightness(1.09) saturate(1.12);
+  filter: brightness(1.08) saturate(1.10);
+  box-shadow: 0 6px 24px 0 rgba(239,71,71,0.18), 0 2px 10px 0 rgba(200,44,44,0.15) inset;
 }
-
 /* Стиль селекта */
 .transfer-select {
   width: 100%;
