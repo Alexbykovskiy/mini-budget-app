@@ -1667,3 +1667,6 @@ body * {
   height: 20px !important;
 }у
 
+.envelope-menu-popup.glass-pill-menu {
+  margin-right: 20px; /* или 8px, или сколько тебе нужно */
+}
