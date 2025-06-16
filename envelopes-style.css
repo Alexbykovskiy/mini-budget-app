@@ -1520,11 +1520,11 @@ body * {
   transform: scale(0.97) translateY(8px);
   animation: pillMenuAppear 0.16s cubic-bezier(.61,-0.01,.64,1.01) forwards;
 }
-@keyframes pillMenuAppear {
-  from { opacity: 0; transform: scale(0.97) translateY(12px);}
-  to   { opacity: 1; transform: scale(1) translateY(0);}
+@keyframes pillMenuBounceIn {
+  0%   { opacity: 0; transform: scale(0.7) translateY(12px);}
+  70%  { opacity: 1; transform: scale(1.05) translateY(-4px);}
+  100% { opacity: 1; transform: scale(1) translateY(0);}
 }
-
 /* Кнопки-иконки внутри меню */
 .menu-icon-btn {
   width: 44px !important;
