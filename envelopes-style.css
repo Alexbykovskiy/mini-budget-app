@@ -1597,3 +1597,8 @@ body * {
   box-shadow: 0 0 0 2.5px rgba(255,163,92,0.12);
 }
 
+.input-error {
+  border-color: #C93D1F !important;
+  box-shadow: 0 0 0 2.5px rgba(201,61,31,0.13) !important;
+}
+

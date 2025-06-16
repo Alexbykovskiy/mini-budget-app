@@ -186,15 +186,16 @@ function showAmountModal({title = "Введите сумму", placeholder = "С
       align-items: stretch;
     `;
 
-    modal.innerHTML = `
-      <h3 style="color:#23292D;text-align:center; font-size:1.13em; font-weight:700; margin:0 0 20px 0;">${title}</h3>
-      <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 16px;">
-        <input id="glass-amount-input" type="number" step="0.01" min="0" inputmode="decimal"
-          placeholder="${placeholder}" style="flex:1 1 0; min-width:0; max-width:170px; text-align:center; font-size:1.13em; padding: 12px 16px;"/>
-        ${typeof maxAmount === "number" ? `
-          <button id="fill-max-btn" type="button" style="margin-left:8px; border:none; background:rgba(255,163,92,0.70); color:#fff; border-radius:999px; font-weight:600; font-size:1em; padding:10px 22px; cursor:pointer; box-shadow:0 2px 8px 0 rgba(255,163,92,0.11); transition:filter 0.12s;">Все</button>
-        ` : ""}
-      </div>
+   modal.innerHTML = `
+  <h3 style="color:#23292D;text-align:center; font-size:1.13em; font-weight:700; margin:0 0 20px 0;">${title}</h3>
+  <div class="input-row-with-btn">
+    <input id="glass-amount-input" type="number" step="0.01" min="0" inputmode="decimal"
+      placeholder="${placeholder}" />
+    ${typeof maxAmount === "number" ? `
+      <button id="fill-max-btn" class="pill-btn max-btn" type="button">Все</button>
+    ` : ""}
+  </div>
+
       <div style="display:flex; justify-content:space-between; align-items:center; width:100%; padding:0 4px; margin-top: 12px;">
         <button class="transfer-btn cancel" type="button" title="${cancelText}">
           <svg width="32" height="32" viewBox="0 0 24 24">
@@ -631,93 +632,94 @@ async function deleteEnvelope(id) {
 
 
 async function transferEnvelope(fromId, maxAmount) {
-  const value = await showAmountModal({
-    title: "Сумма для перевода",
-    placeholder: "Сумма",
-    maxAmount: maxAmount  // <-- передаём сюда сумму из конверта
-  });
-  if (isNaN(value) || value <= 0 || value > maxAmount) return;
-
+  // Получаем все конверты
   const snapshot = await db.collection("envelopes").orderBy("created", "asc").get();
-  if (snapshot.empty) {
-    alert("Нет доступных конвертов.");
+  const envelopes = snapshot.docs.filter(doc => doc.id !== fromId);
+  if (!envelopes.length) {
+    alert("Нет других конвертов для перевода.");
     return;
   }
-
   const fromDoc = snapshot.docs.find(doc => doc.id === fromId);
   const fromName = fromDoc?.data()?.name || "Текущий";
 
+  // --- Создаём модалку ---
   const modal = document.createElement("div");
-  modal.id = "transfer-modal";
+  modal.className = "glass-modal";
   modal.style.cssText = `
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 340px;
-  max-height: 80vh;
-  overflow-y: auto;
-   background: rgba(10, 10, 10, 0.2); /* ← новый полупрозрачный фон */
-  backdrop-filter: blur(18px); /* ← эффект размытия фона */
-  -webkit-backdrop-filter: blur(18px);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-  padding: 20px;
-  z-index: 9999;
-  color: #fff;
-  font-size: 14.5px;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-`;
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 340px; max-width: 98vw;
+    background: rgba(10, 10, 10, 0.22);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+    padding: 24px 22px 18px 22px;
+    z-index: 99999;
+    display: flex; flex-direction: column; align-items: stretch;
+  `;
 
-  modal.innerHTML = `<h3 style="margin-top:0; color:#23292D;">Перевод из "${fromName}"</h3>`;
-
-  const select = document.createElement("select");
-  select.className = "transfer-select";
-  snapshot.docs.forEach(doc => {
-    if (doc.id === fromId) return;
-    const option = document.createElement("option");
-    option.value = doc.id;
-    option.textContent = doc.data().name;
-    select.appendChild(option);
-  });
-
-  const confirmBtn = document.createElement("button");
-confirmBtn.innerHTML = `
-  <svg width="32" height="32" viewBox="0 0 24 24">
-    <polyline points="5 13 10.5 18 19 7"/>
-  </svg>
-`;
-confirmBtn.className = "transfer-btn confirm";
-confirmBtn.title = "Применить";
-
-cancelBtn.innerHTML = `
-  <svg width="32" height="32" viewBox="0 0 24 24">
-    <line x1="6" y1="6" x2="18" y2="18"/>
-    <line x1="18" y1="6" x2="6" y2="18"/>
-  </svg>
-`;
-cancelBtn.className = "transfer-btn cancel";
-cancelBtn.title = "Отмена";
-
-const buttonsRow = document.createElement("div");
-buttonsRow.style.display = "flex";
-buttonsRow.style.justifyContent = "space-between";
-buttonsRow.style.gap = "18px";
-buttonsRow.style.marginTop = "18px";
-buttonsRow.appendChild(cancelBtn);   // Слева
-buttonsRow.appendChild(confirmBtn);  // Справа
-
-modal.appendChild(select);
-modal.appendChild(buttonsRow);
+  // --- Вставляем HTML ---
+  modal.innerHTML = `
+    <h3 style="color:#23292D; text-align:center; font-size:1.13em; font-weight:700; margin:0 0 18px 0;">Перевод из "${fromName}"</h3>
+    <div class="input-row-with-btn">
+      <input id="glass-amount-input" type="number" step="0.01" min="0" inputmode="decimal"
+        placeholder="Сумма для перевода" style=""/>
+      <button id="fill-max-btn" class="pill-btn max-btn" type="button">Все</button>
+    </div>
+    <select id="envelope-select" class="transfer-select" style="margin-bottom: 16px;">
+      <option value="">— выбрать конверт —</option>
+      ${envelopes.map(doc => `<option value="${doc.id}">${doc.data().name}</option>`).join('')}
+    </select>
+    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; padding:0 4px; margin-top: 10px;">
+      <button class="transfer-btn cancel" type="button" title="Отмена">
+        <svg width="32" height="32" viewBox="0 0 24 24">
+          <line x1="6" y1="6" x2="18" y2="18"/>
+          <line x1="18" y1="6" x2="6" y2="18"/>
+        </svg>
+      </button>
+      <button class="transfer-btn confirm" type="button" title="Перевести">
+        <svg width="32" height="32" viewBox="0 0 24 24">
+          <polyline points="5 13 10.5 18 19 7"/>
+        </svg>
+      </button>
+    </div>
+  `;
 
   document.body.appendChild(modal);
 
-  cancelBtn.onclick = () => modal.remove();
+  // --- Логика для кнопок и инпутов ---
+  const input = modal.querySelector("#glass-amount-input");
+  const fillMaxBtn = modal.querySelector("#fill-max-btn");
+  const select = modal.querySelector("#envelope-select");
+  const confirmBtn = modal.querySelector(".transfer-btn.confirm");
+  const cancelBtn = modal.querySelector(".transfer-btn.cancel");
 
+  // “Все” — подставить максимум
+  fillMaxBtn.onclick = () => {
+    input.value = maxAmount;
+    input.focus();
+  };
+
+  // Подтвердить перевод
   confirmBtn.onclick = async () => {
+    const value = parseFloat(input.value.replace(",", "."));
     const toId = select.value;
-    if (!toId || toId === fromId) return;
+    if (isNaN(value) || value <= 0 || value > maxAmount) {
+      input.focus();
+      input.select();
+      input.classList.add("input-error");
+      setTimeout(() => input.classList.remove("input-error"), 400);
+      return;
+    }
+    if (!toId) {
+      select.focus();
+      select.classList.add("input-error");
+      setTimeout(() => select.classList.remove("input-error"), 400);
+      return;
+    }
 
+    // Перевод
     const fromRef = db.collection("envelopes").doc(fromId);
     const toRef = db.collection("envelopes").doc(toId);
     await db.runTransaction(async (t) => {
@@ -748,7 +750,22 @@ modal.appendChild(buttonsRow);
     modal.remove();
     loadEnvelopes();
   };
+
+  // Закрыть модалку
+  cancelBtn.onclick = () => modal.remove();
+
+  // enter / escape в поле
+  input.onkeydown = (e) => {
+    if (e.key === "Enter") confirmBtn.click();
+    if (e.key === "Escape") cancelBtn.click();
+  };
+  select.onkeydown = (e) => {
+    if (e.key === "Enter") confirmBtn.click();
+    if (e.key === "Escape") cancelBtn.click();
+  };
+  input.focus();
 }
+
 
 async function distributeIncome() {
   const total = await showAmountModal({
