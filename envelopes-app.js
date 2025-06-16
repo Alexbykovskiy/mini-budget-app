@@ -671,11 +671,18 @@ async function editEnvelope(id, oldName, oldGoal, oldComment, oldPercent, oldInc
 async function deleteEnvelope(id) {
   const ref = db.collection("envelopes").doc(id);
   const snap = await ref.get();
- if (snap.exists && (snap.data().isPrimary || snap.data().isMiniBudget)) {
-  alert("Нельзя удалить этот конверт.");
-  return;
-}
-  if (!confirm("Удалить этот конверт?")) return;
+  if (snap.exists && (snap.data().isPrimary || snap.data().isMiniBudget)) {
+    alert("Нельзя удалить этот конверт.");
+    return;
+  }
+  // Модальное окно
+  const ok = await showConfirmModal({
+    title: "Удалить конверт?",
+    message: "Вы действительно хотите удалить этот конверт? Это действие необратимо.",
+    confirmText: "Да",
+    cancelText: "Нет"
+  });
+  if (!ok) return;
   await ref.delete();
   loadEnvelopes();
 }
