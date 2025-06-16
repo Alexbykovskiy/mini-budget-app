@@ -96,7 +96,7 @@ function showConfirmModal({
       <h3 style="color:#fff; text-align:center; font-size:1.16em; font-weight:700; margin:0 0 12px 0;">${title}</h3>
       <div style="color:#fff; text-align:center; font-size:1.04em; margin-bottom:18px;">${message}</div>
       ${confirmationInputHTML}
-      <div style="display:flex; gap:22px; justify-content:center;">
+      <div style="display:flex; justify-content:space-between; align-items:center; width:100%; padding:0 4px; margin-top: 12px;">
   ${cancelText ? `<button class="transfer-btn cancel" type="button" title="${cancelText}">
     <svg width="32" height="32" viewBox="0 0 24 24">
       <line x1="6" y1="6" x2="18" y2="18"/>
@@ -109,6 +109,7 @@ function showConfirmModal({
     </svg>
   </button>
 </div>
+
 
       <div id="confirm-error" style="color:#C93D1F;font-size:0.98em;text-align:center;margin-top:10px;min-height:22px;"></div>
     `;
@@ -192,7 +193,7 @@ function showAmountModal({title = "Введите сумму", placeholder = "С
       placeholder="${placeholder}" style="flex:1 1 0; min-width:0; max-width:170px; text-align:center; font-size:1.13em; padding: 12px 16px;"/>
     <button id="fill-all-btn" type="button" style="margin-left:8px; border:none; background:rgba(255,163,92,0.70); color:#fff; border-radius:999px; font-weight:600; font-size:1em; padding:10px 22px; cursor:pointer; box-shadow:0 2px 8px 0 rgba(255,163,92,0.11); transition:filter 0.12s;">Все</button>
   </div>
-  <div style="display:flex;gap:18px;justify-content:center;">
+ <div style="display:flex; justify-content:space-between; align-items:center; width:100%; padding:0 4px; margin-top: 12px;">
   <button class="transfer-btn cancel" type="button" title="${cancelText}">
     <svg width="32" height="32" viewBox="0 0 24 24">
       <line x1="6" y1="6" x2="18" y2="18"/>
@@ -205,6 +206,7 @@ function showAmountModal({title = "Введите сумму", placeholder = "С
     </svg>
   </button>
 </div>
+
 
 `;
 
@@ -1112,12 +1114,14 @@ setTimeout(() => {
     }
   }
 
-  const buttonRow = document.createElement("div");
   buttonRow.className = "row end";
-  buttonRow.style.marginTop = "16px";
-  buttonRow.style.display = "flex";
-  buttonRow.style.justifyContent = "center";
-  buttonRow.style.gap = "32px";
+buttonRow.style.marginTop = "12px";
+buttonRow.style.display = "flex";
+buttonRow.style.justifyContent = "space-between";
+buttonRow.style.alignItems = "center";
+buttonRow.style.width = "100%";
+buttonRow.style.padding = "0 4px";
+buttonRow.style.gap = "0";
 
  const cancelBtn = document.createElement("button");
 cancelBtn.className = "transfer-btn cancel";

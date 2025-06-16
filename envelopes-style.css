@@ -949,10 +949,10 @@ body * {
 }
 
 .transfer-btn.confirm, .transfer-btn.cancel {
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  color: #fff;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #fff !important;
   width: 48px;
   height: 48px;
   min-width: 48px;
@@ -962,7 +962,7 @@ body * {
   align-items: center;
   justify-content: center;
   transition: filter 0.14s, box-shadow 0.15s;
-  font-size: 0; /* чтобы текст не влиял на размер */
+  font-size: 0;
   cursor: pointer;
   outline: none;
   padding: 0;
@@ -972,18 +972,18 @@ body * {
 .transfer-btn.cancel svg {
   width: 32px;
   height: 32px;
-  stroke: #fff;
-  stroke-width: 2.3;
+  stroke: #fff !important;
   fill: none;
+  stroke-width: 2.7;
   display: block;
   pointer-events: none;
-  transition: filter 0.14s, box-shadow 0.15s;
+  opacity: 1 !important;
+  filter: none !important;
 }
 
-/* Hover — мягкое белое свечение */
 .transfer-btn.confirm:hover svg,
 .transfer-btn.cancel:hover svg {
-  filter: drop-shadow(0 0 6px rgba(255,255,255,0.38));
+  filter: drop-shadow(0 0 7px rgba(255,255,255,0.49));
 }
 
 
