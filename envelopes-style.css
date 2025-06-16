@@ -1549,12 +1549,12 @@ body * {
   display: block;
   pointer-events: none;
 }
-.menu-btn-history { background: rgba(255, 210, 80,1); }
-.menu-btn-edit { background: rgba(40,200,120,1); }
-.menu-btn-delete { background: rgba(201,61,31,1); }
-.menu-btn-history:hover { filter: brightness(1.13) saturate(1.14); box-shadow: 0 3px 14px rgba(255,210,80,1);}
-.menu-btn-edit:hover    { filter: brightness(1.16) saturate(1.22); box-shadow: 0 3px 12px rgba(40,200,120,1);}
-.menu-btn-delete:hover  { filter: brightness(1.09) saturate(1.23); box-shadow: 0 3px 12px rgba(201,61,31,1);}
+.menu-btn-history { background: rgba(255, 210, 80,0.90); }
+.menu-btn-edit { background: rgba(40,200,120,0.90); }
+.menu-btn-delete { background: rgba(201,61,31,0.90); }
+.menu-btn-history:hover { filter: brightness(1.13) saturate(1.14); box-shadow: 0 3px 14px rgba(255,210,80,0.90);}
+.menu-btn-edit:hover    { filter: brightness(1.16) saturate(1.22); box-shadow: 0 3px 12px rgba(40,200,120,0.90);}
+.menu-btn-delete:hover  { filter: brightness(1.09) saturate(1.23); box-shadow: 0 3px 12px rgba(201,61,31,0.90);}
 
 /* Фокус (доступность) */
 .menu-icon-btn:focus {
@@ -1611,12 +1611,12 @@ body * {
   display: block;
   pointer-events: none;
 }
-.menu-btn-history { background: rgba(255, 210, 80,1); }
-.menu-btn-edit { background: rgba(40,200,120,1); }
-.menu-btn-delete { background: rgba(201,61,31,1); }
-.menu-btn-history:hover { filter: brightness(1.13) saturate(1.14); box-shadow: 0 3px 14px rgba(255,210,80,1);}
-.menu-btn-edit:hover    { filter: brightness(1.16) saturate(1.22); box-shadow: 0 3px 12px rgba(40,200,120,1);}
-.menu-btn-delete:hover  { filter: brightness(1.09) saturate(1.23); box-shadow: 0 3px 12px rgba(201,61,31,1);}
+.menu-btn-history { background: rgba(255, 210, 80,0.90); }
+.menu-btn-edit { background: rgba(40,200,120,0.90); }
+.menu-btn-delete { background: rgba(201,61,31,0.90); }
+.menu-btn-history:hover { filter: brightness(1.13) saturate(1.14); box-shadow: 0 3px 14px rgba(255,210,80,0.90);}
+.menu-btn-edit:hover    { filter: brightness(1.16) saturate(1.22); box-shadow: 0 3px 12px rgba(40,200,120,0.90);}
+.menu-btn-delete:hover  { filter: brightness(1.09) saturate(1.23); box-shadow: 0 3px 12px rgba(201,61,31,0.90);}
 
 
 .envelope-menu-popup.glass-pill-menu {
