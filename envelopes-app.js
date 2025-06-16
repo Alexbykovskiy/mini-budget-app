@@ -1133,7 +1133,6 @@ setTimeout(() => {
 }
 
 function showEnvelopeMenu(btn, id) {
-  // Убрать старое меню, если есть
   const oldMenu = document.getElementById('envelope-menu-popup');
   if (oldMenu) oldMenu.remove();
 
@@ -1165,7 +1164,6 @@ function showEnvelopeMenu(btn, id) {
     </button>
   `;
 
-  // Обработчики
   const [historyBtn, editBtn, delBtn] = menu.querySelectorAll('button');
   historyBtn.onclick = () => { menu.remove(); openEnvelopeHistory(id); };
   editBtn.onclick    = () => { menu.remove(); startEditEnvelope(id); };
@@ -1180,12 +1178,8 @@ function showEnvelopeMenu(btn, id) {
     });
   }, 50);
 
-  // Позиционируем пилюлю строго слева от кнопки меню
-  const actions = btn.parentNode;
-  actions.insertBefore(menu, btn);
-
-  // Вертикальное выравнивание (обеспечено flex)
-  menu.style.position = 'static'; // благодаря flex-позиционированию внутри .envelope-actions
+  // Вставить пилюлю меню слева от кнопки меню:
+  btn.parentNode.insertBefore(menu, btn);
 
   // Прячем "Удалить" для спец-конвертов
   db.collection("envelopes").doc(id).get().then(doc => {
