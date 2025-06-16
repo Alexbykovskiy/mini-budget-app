@@ -1361,73 +1361,145 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
     flex-direction: column;
   `;
 
-  modal.innerHTML = `<h3 style="margin: 0 0 12px 0; font-size: 1.15em; text-align: center; color:#23292D;">История транзакций</h3>`;
-
-  // Кнопка "Закрыть"
-  const closeBtn = document.createElement("button");
-  closeBtn.textContent = "✕ Закрыть";
-  closeBtn.style.cssText = `
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    background: rgba(190, 60, 50,0.7);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.2);
-    padding: 6px 16px;
-    margin-bottom: 12px;
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
-    font-weight: 600;
-    color: #23292D;
-    cursor: pointer;
-  `;
-  modal.appendChild(closeBtn);
-
-  // Создаём scrollWrapper для прокрутки истории
-  const scrollWrapper = document.createElement("div");
-  scrollWrapper.id = "history-scroll-wrapper";
-  scrollWrapper.style.cssText = `
-    overflow-y: auto;
-    max-height: 63vh;
-    padding-right: 2px;
-    margin-top: 10px;
-    flex: 1 1 auto;
+  // ==== ФИЛЬТРЫ ====
+  modal.innerHTML = `
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:2px;">
+      <h3 style="margin:0;font-size:1.15em; font-weight:700; color:#23292D;">История транзакций</h3>
+      <button id="close-history-modal" style="background:rgba(190,60,50,0.75);color:#fff;font-weight:600;border:none;border-radius:999px;padding:5px 16px;cursor:pointer;">✕</button>
+    </div>
+    <div id="history-filters" style="display:flex; flex-wrap:wrap; align-items:center; gap:11px 14px; margin-bottom: 7px; font-size: 1em;">
+      <div id="filter-type-boxes" style="display:flex; gap:9px;">
+        <label style="display:flex; align-items:center; gap:3px;">
+          <input type="checkbox" value="income" id="filter-income" style="accent-color:#2dd474;width:16px;height:16px;margin:0;"> Приход
+        </label>
+        <label style="display:flex; align-items:center; gap:3px;">
+          <input type="checkbox" value="subtract" id="filter-subtract" style="accent-color:#c93d1f;width:16px;height:16px;margin:0;"> Уход
+        </label>
+        <label style="display:flex; align-items:center; gap:3px;">
+          <input type="checkbox" value="transfer" id="filter-transfer" style="accent-color:#e1a700;width:16px;height:16px;margin:0;"> Перевод
+        </label>
+      </div>
+      <select id="filter-envelope" class="transfer-select" style="width:120px;min-width:100px;">
+        <option value="all">Все конверты</option>
+      </select>
+      <input id="filter-date-from" type="date" style="border-radius:8px; padding:5px 10px; font-size: 0.97em; width: 118px;" placeholder="c"/>
+      <input id="filter-date-to" type="date" style="border-radius:8px; padding:5px 10px; font-size: 0.97em; width: 118px;" placeholder="по"/>
+      <span id="reset-history-filters" style="color: #BBB; text-decoration: underline; cursor: pointer; font-size: 0.99em; margin-left:auto;">Сбросить фильтры</span>
+    </div>
   `;
 
-  // Загружаем названия конвертов
+  // ==== КНОПКА ЗАКРЫТЬ ====
+  modal.querySelector('#close-history-modal').onclick = () => modal.remove();
+
+  // ==== Динамически наполняем список конвертов ====
   const envelopesSnapshot = await db.collection("envelopes").get();
   const envelopeNames = {};
   envelopesSnapshot.forEach(doc => {
     envelopeNames[doc.id] = doc.data().name;
   });
+  const filterEnvelope = modal.querySelector('#filter-envelope');
+  Object.entries(envelopeNames).forEach(([id, name]) => {
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = name;
+    filterEnvelope.appendChild(opt);
+  });
 
-  // Загружаем и рендерим транзакции В scrollWrapper
-  const snapshot = await db.collection("transactions").orderBy("date", "desc").get();
-  if (snapshot.empty) {
-    scrollWrapper.innerHTML += "<p style='color:#555;'>Нет данных</p>";
-  } else {
+  // ==== SCROLL WRAPPER для истории ====
+  const scrollWrapper = document.createElement("div");
+  scrollWrapper.id = "history-scroll-wrapper";
+  scrollWrapper.style.cssText = `
+    overflow-y: auto;
+    max-height: 60vh;
+    margin-top: 4px;
+    flex: 1 1 auto;
+  `;
+  modal.appendChild(scrollWrapper);
+
+  // ==== Рендер истории по фильтрам ====
+  async function renderHistoryList() {
+    scrollWrapper.innerHTML = '';
+    // Собираем значения фильтров
+    const types = [];
+    if (modal.querySelector('#filter-income').checked) types.push("income");
+    if (modal.querySelector('#filter-subtract').checked) types.push("subtract");
+    if (modal.querySelector('#filter-transfer').checked) types.push("transfer");
+    const envelopeId = filterEnvelope.value;
+    const fromDate = modal.querySelector('#filter-date-from').value;
+    const toDate = modal.querySelector('#filter-date-to').value;
+
+    // Загружаем все транзакции
+    let txs = [];
+    const snapshot = await db.collection("transactions").orderBy("date", "desc").get();
     snapshot.forEach(doc => {
-      const { amount, envelopeId, type, date, toEnvelopeId } = doc.data();
+      const tx = doc.data();
+      tx.id = doc.id;
+      txs.push(tx);
+    });
+
+    // ==== Фильтрация ====
+    txs = txs.filter(tx => {
+      // Типы
+      if (types.length) {
+        if (
+          (types.includes("income") && (tx.type === "add" || tx.type === "income")) ||
+          (types.includes("subtract") && tx.type === "subtract") ||
+          (types.includes("transfer") && (tx.type === "transfer-out" || tx.type === "transfer-in"))
+        ) {
+          // ok
+        } else {
+          return false;
+        }
+      }
+      // Envelope
+      if (envelopeId !== "all") {
+        // Для переводов — отображать если хоть один из полей совпадает
+        if (tx.envelopeId !== envelopeId && tx.toEnvelopeId !== envelopeId && tx.fromEnvelopeId !== envelopeId)
+          return false;
+      }
+      // Дата
+      if (fromDate) {
+        const d = new Date(tx.date);
+        const fromD = new Date(fromDate + "T00:00:00");
+        if (d < fromD) return false;
+      }
+      if (toDate) {
+        const d = new Date(tx.date);
+        const toD = new Date(toDate + "T23:59:59");
+        if (d > toD) return false;
+      }
+      return true;
+    });
+
+    if (!txs.length) {
+      scrollWrapper.innerHTML = "<p style='color:#555;margin-top:18px;text-align:center;'>Нет данных</p>";
+      return;
+    }
+
+    // ==== Рендерим строки ====
+    txs.forEach(tx => {
+      const { amount, envelopeId, type, date, toEnvelopeId, fromEnvelopeId } = tx;
       const d = new Date(date);
       const dateStr = d.toLocaleDateString();
       const timeStr = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
       let className = "";
       let text = "";
+
       if (type === "add" || type === "income") {
         className = "history-add";
         text = `+ ${amount.toFixed(2)} € — ${envelopeNames[envelopeId] || "?"}`;
       } else if (type === "subtract") {
         className = "history-sub";
-        text = `– ${amount.toFixed(2)} € — ${envelopeNames[envelopeId] || "?"}`;
+        text = `– ${Math.abs(amount).toFixed(2)} € — ${envelopeNames[envelopeId] || "?"}`;
       } else if (type === "transfer-out") {
         className = "history-transfer";
-        text = `➡ ${amount.toFixed(2)} € — ${envelopeNames[envelopeId]} → ${envelopeNames[toEnvelopeId]}`;
+        text = `➡ ${Math.abs(amount).toFixed(2)} € — ${envelopeNames[envelopeId] || "?"} → ${envelopeNames[toEnvelopeId] || "?"}`;
+      } else if (type === "transfer-in") {
+        className = "history-transfer";
+        text = `⬅ ${amount.toFixed(2)} € — ${envelopeNames[fromEnvelopeId] || "?"} → ${envelopeNames[envelopeId] || "?"}`;
       } else {
-        return; // пропустить другие типы
+        return;
       }
 
       const entry = document.createElement("div");
@@ -1440,18 +1512,37 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
         letter-spacing: 0.2px;
         font-size: 14.5px;
         background: ${className === "history-add" ? "rgba(43, 130, 66, 0.85)" : className === "history-sub" ? "rgba(160, 47, 29, 0.85)" : "rgba(168, 121, 0, 0.85)"};
-        color: #ffffff;
+        color: #fff;
       `;
-      entry.innerHTML = `<div style="font-size:13px; color:#555;">${dateStr} ${timeStr}</div><div>${text}</div>`;
+      entry.innerHTML = `<div style="font-size:13px; color:#c9c9c9;">${dateStr} ${timeStr}</div><div>${text}</div>`;
       scrollWrapper.appendChild(entry);
     });
   }
 
-  modal.appendChild(scrollWrapper);
-  document.body.appendChild(modal);
+  // ==== Вешаем фильтры ====
+  [
+    '#filter-income', '#filter-subtract', '#filter-transfer',
+    '#filter-envelope', '#filter-date-from', '#filter-date-to'
+  ].forEach(sel => {
+    modal.querySelector(sel).onchange = renderHistoryList;
+  });
+  modal.querySelector('#reset-history-filters').onclick = () => {
+    modal.querySelector('#filter-income').checked = false;
+    modal.querySelector('#filter-subtract').checked = false;
+    modal.querySelector('#filter-transfer').checked = false;
+    modal.querySelector('#filter-envelope').value = "all";
+    modal.querySelector('#filter-date-from').value = "";
+    modal.querySelector('#filter-date-to').value = "";
+    renderHistoryList();
+  };
 
-  closeBtn.onclick = () => modal.remove();
+  // ==== Сразу покажи всю историю ====
+  renderHistoryList();
+
+  // ==== Показать модалку ====
+  document.body.appendChild(modal);
 });
+
 
    
 window.addEventListener("DOMContentLoaded", async () => {
