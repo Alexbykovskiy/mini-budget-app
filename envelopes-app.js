@@ -1361,37 +1361,87 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
     flex-direction: column;
   `;
 
-  // ==== ФИЛЬТРЫ ====
+  // ===== ВЕРХНИЙ БЛОК: заголовок и крестик =====
   modal.innerHTML = `
-    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:2px;">
-      <h3 style="margin:0;font-size:1.15em; font-weight:700; color:#23292D;">История транзакций</h3>
-      <button id="close-history-modal" style="background:rgba(190,60,50,0.75);color:#fff;font-weight:600;border:none;border-radius:999px;padding:5px 16px;cursor:pointer;">✕</button>
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+      <h3 style="margin:0;font-size:1.14em; font-weight:700; color:#23292D;">История транзакций</h3>
+      <button id="close-history-modal" style="
+        background:rgba(255,255,255,0.78);
+        color:#23292D;
+        border:none;
+        border-radius:50%;
+        width:38px;height:38px;
+        display:flex;align-items:center;justify-content:center;
+        font-size:24px;
+        font-weight:900;
+        box-shadow: 0 2px 10px 0 rgba(0,0,0,0.11);
+        cursor:pointer;
+        transition:filter 0.12s, background 0.14s;
+        ">
+        <svg width="22" height="22" viewBox="0 0 22 22"><line x1="5" y1="5" x2="17" y2="17" stroke="#23292D" stroke-width="2.7" stroke-linecap="round"/><line x1="17" y1="5" x2="5" y2="17" stroke="#23292D" stroke-width="2.7" stroke-linecap="round"/></svg>
+      </button>
     </div>
-    <div id="history-filters" style="display:flex; flex-wrap:wrap; align-items:center; gap:11px 14px; margin-bottom: 7px; font-size: 1em;">
-      <div id="filter-type-boxes" style="display:flex; gap:9px;">
-        <label style="display:flex; align-items:center; gap:3px;">
-          <input type="checkbox" value="income" id="filter-income" style="accent-color:#2dd474;width:16px;height:16px;margin:0;"> Приход
-        </label>
-        <label style="display:flex; align-items:center; gap:3px;">
-          <input type="checkbox" value="subtract" id="filter-subtract" style="accent-color:#c93d1f;width:16px;height:16px;margin:0;"> Уход
-        </label>
-        <label style="display:flex; align-items:center; gap:3px;">
-          <input type="checkbox" value="transfer" id="filter-transfer" style="accent-color:#e1a700;width:16px;height:16px;margin:0;"> Перевод
-        </label>
-      </div>
-      <select id="filter-envelope" class="transfer-select" style="width:120px;min-width:100px;">
+
+    <div style="display:flex; gap:8px; align-items:center; margin-bottom:7px;">
+      <select id="filter-envelope" class="transfer-select" style="max-width:122px;flex:1 1 0;">
         <option value="all">Все конверты</option>
       </select>
-      <input id="filter-date-from" type="date" style="border-radius:8px; padding:5px 10px; font-size: 0.97em; width: 118px;" placeholder="c"/>
-      <input id="filter-date-to" type="date" style="border-radius:8px; padding:5px 10px; font-size: 0.97em; width: 118px;" placeholder="по"/>
-      <span id="reset-history-filters" style="color: #BBB; text-decoration: underline; cursor: pointer; font-size: 0.99em; margin-left:auto;">Сбросить фильтры</span>
+      <label style="display:flex;align-items:center;gap:5px;user-select:none;">
+        <input type="checkbox" value="income" id="filter-income" style="accent-color:#2dd474;width:15px;height:15px;margin:0;">
+        <span style="font-size:0.99em;">Приход</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:5px;user-select:none;">
+        <input type="checkbox" value="subtract" id="filter-subtract" style="accent-color:#c93d1f;width:15px;height:15px;margin:0;">
+        <span style="font-size:0.99em;">Уход</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:5px;user-select:none;">
+        <input type="checkbox" value="transfer" id="filter-transfer" style="accent-color:#e1a700;width:15px;height:15px;margin:0;">
+        <span style="font-size:0.99em;">Перевод</span>
+      </label>
+    </div>
+
+    <div style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
+      <div style="flex:1 1 0; display:flex; gap:10px;">
+        <div style="position:relative;flex:1;">
+          <input id="filter-date-from" type="date" class="transfer-select" style="width:100%; padding-right:32px;"/>
+          <svg width="17" height="17" viewBox="0 0 24 24" style="position:absolute;right:9px;top:50%;transform:translateY(-50%);opacity:.63;pointer-events:none;">
+            <rect x="3.5" y="7" width="17" height="13" rx="3" fill="none" stroke="#fff" stroke-width="2"/>
+            <rect x="7" y="2.5" width="2" height="5" rx="1" fill="#fff"/>
+            <rect x="15" y="2.5" width="2" height="5" rx="1" fill="#fff"/>
+          </svg>
+        </div>
+        <div style="position:relative;flex:1;">
+          <input id="filter-date-to" type="date" class="transfer-select" style="width:100%; padding-right:32px;"/>
+          <svg width="17" height="17" viewBox="0 0 24 24" style="position:absolute;right:9px;top:50%;transform:translateY(-50%);opacity:.63;pointer-events:none;">
+            <rect x="3.5" y="7" width="17" height="13" rx="3" fill="none" stroke="#fff" stroke-width="2"/>
+            <rect x="7" y="2.5" width="2" height="5" rx="1" fill="#fff"/>
+            <rect x="15" y="2.5" width="2" height="5" rx="1" fill="#fff"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:center;margin-bottom:10px;">
+      <button id="reset-history-filters" style="
+        background:rgba(80,80,85,0.22);
+        color:#fff;
+        border:none;
+        border-radius:999px;
+        font-weight:600;
+        font-size:1em;
+        letter-spacing:0.01em;
+        padding:8px 28px;
+        cursor:pointer;
+        transition:filter 0.15s,background 0.17s;">
+        Сбросить фильтры
+      </button>
     </div>
   `;
 
-  // ==== КНОПКА ЗАКРЫТЬ ====
+  // ===== Логика закрытия =====
   modal.querySelector('#close-history-modal').onclick = () => modal.remove();
 
-  // ==== Динамически наполняем список конвертов ====
+  // ===== Динамически наполняем список конвертов =====
   const envelopesSnapshot = await db.collection("envelopes").get();
   const envelopeNames = {};
   envelopesSnapshot.forEach(doc => {
@@ -1405,7 +1455,7 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
     filterEnvelope.appendChild(opt);
   });
 
-  // ==== SCROLL WRAPPER для истории ====
+  // ===== Scroll wrapper =====
   const scrollWrapper = document.createElement("div");
   scrollWrapper.id = "history-scroll-wrapper";
   scrollWrapper.style.cssText = `
@@ -1416,10 +1466,10 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
   `;
   modal.appendChild(scrollWrapper);
 
-  // ==== Рендер истории по фильтрам ====
+  // ===== Рендер истории =====
   async function renderHistoryList() {
     scrollWrapper.innerHTML = '';
-    // Собираем значения фильтров
+    // Фильтры
     const types = [];
     if (modal.querySelector('#filter-income').checked) types.push("income");
     if (modal.querySelector('#filter-subtract').checked) types.push("subtract");
@@ -1428,7 +1478,6 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
     const fromDate = modal.querySelector('#filter-date-from').value;
     const toDate = modal.querySelector('#filter-date-to').value;
 
-    // Загружаем все транзакции
     let txs = [];
     const snapshot = await db.collection("transactions").orderBy("date", "desc").get();
     snapshot.forEach(doc => {
@@ -1437,9 +1486,7 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
       txs.push(tx);
     });
 
-    // ==== Фильтрация ====
     txs = txs.filter(tx => {
-      // Типы
       if (types.length) {
         if (
           (types.includes("income") && (tx.type === "add" || tx.type === "income")) ||
@@ -1451,13 +1498,10 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
           return false;
         }
       }
-      // Envelope
       if (envelopeId !== "all") {
-        // Для переводов — отображать если хоть один из полей совпадает
         if (tx.envelopeId !== envelopeId && tx.toEnvelopeId !== envelopeId && tx.fromEnvelopeId !== envelopeId)
           return false;
       }
-      // Дата
       if (fromDate) {
         const d = new Date(tx.date);
         const fromD = new Date(fromDate + "T00:00:00");
@@ -1476,7 +1520,6 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
       return;
     }
 
-    // ==== Рендерим строки ====
     txs.forEach(tx => {
       const { amount, envelopeId, type, date, toEnvelopeId, fromEnvelopeId } = tx;
       const d = new Date(date);
@@ -1519,7 +1562,7 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
     });
   }
 
-  // ==== Вешаем фильтры ====
+  // ===== События на фильтрах и сброс =====
   [
     '#filter-income', '#filter-subtract', '#filter-transfer',
     '#filter-envelope', '#filter-date-from', '#filter-date-to'
@@ -1536,10 +1579,10 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
     renderHistoryList();
   };
 
-  // ==== Сразу покажи всю историю ====
+  // ===== Первый запуск =====
   renderHistoryList();
 
-  // ==== Показать модалку ====
+  // ===== Показать =====
   document.body.appendChild(modal);
 });
 
