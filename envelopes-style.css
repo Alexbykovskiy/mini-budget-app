@@ -948,69 +948,45 @@ body * {
   transition: background 0.2s, color 0.2s;
 }
 
-.transfer-btn.confirm {
-  /* Стеклянный, тёплый авокадо-оливковый градиент */
-  background: linear-gradient(120deg, #C3DF7D 60%, #A1BF65 100%);
+.transfer-btn.confirm, .transfer-btn.cancel {
+  background: transparent;
+  border: none;
+  box-shadow: none;
   color: #fff;
-  border: 1.5px solid rgba(255,255,255,0.22);
-  box-shadow:
-    0 4px 18px 0 rgba(163,192,89,0.16),
-    0 2px 8px 0 rgba(160,180,80,0.14) inset;
-  backdrop-filter: blur(7px) brightness(1.16) saturate(1.12);
-  -webkit-backdrop-filter: blur(7px) brightness(1.16) saturate(1.12);
-  filter: none;
-  position: relative;
-  overflow: hidden;
-}
-.transfer-btn.confirm:after {
-  /* Легкое белое стеклянное сияние сверху */
-  content: '';
-  position: absolute;
-  left: 18%;
-  top: 12%;
-  width: 62%;
-  height: 37%;
-  background: radial-gradient(ellipse at center, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.00) 100%);
-  pointer-events: none;
-  filter: blur(2px);
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
   border-radius: 50%;
-}
-.transfer-btn.confirm:hover {
-  filter: brightness(1.07) saturate(1.11);
-  box-shadow: 0 6px 26px 0 rgba(170,220,60,0.16), 0 2px 10px 0 rgba(130,180,60,0.15) inset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: filter 0.14s, box-shadow 0.15s;
+  font-size: 0; /* чтобы текст не влиял на размер */
+  cursor: pointer;
+  outline: none;
+  padding: 0;
 }
 
-.transfer-btn.cancel {
-  /* Тёплый стеклянно-красный */
-  background: linear-gradient(120deg, #EF4747 70%, #C43D1D 100%);
-  color: #fff;
-  border: 1.5px solid rgba(255,255,255,0.20);
-  box-shadow:
-    0 4px 18px 0 rgba(220,70,70,0.17),
-    0 2px 8px 0 rgba(200,44,44,0.15) inset;
-  backdrop-filter: blur(7px) brightness(1.09) saturate(1.13);
-  -webkit-backdrop-filter: blur(7px) brightness(1.09) saturate(1.13);
-  filter: none;
-  position: relative;
-  overflow: hidden;
-}
-.transfer-btn.cancel:after {
-  /* Белое стеклянное сияние сверху */
-  content: '';
-  position: absolute;
-  left: 18%;
-  top: 12%;
-  width: 62%;
-  height: 37%;
-  background: radial-gradient(ellipse at center, rgba(255,255,255,0.23) 0%, rgba(255,255,255,0.00) 100%);
+.transfer-btn.confirm svg,
+.transfer-btn.cancel svg {
+  width: 32px;
+  height: 32px;
+  stroke: #fff;
+  stroke-width: 2.3;
+  fill: none;
+  display: block;
   pointer-events: none;
-  filter: blur(2px);
-  border-radius: 50%;
+  transition: filter 0.14s, box-shadow 0.15s;
 }
-.transfer-btn.cancel:hover {
-  filter: brightness(1.08) saturate(1.10);
-  box-shadow: 0 6px 24px 0 rgba(239,71,71,0.18), 0 2px 10px 0 rgba(200,44,44,0.15) inset;
+
+/* Hover — мягкое белое свечение */
+.transfer-btn.confirm:hover svg,
+.transfer-btn.cancel:hover svg {
+  filter: drop-shadow(0 0 6px rgba(255,255,255,0.38));
 }
+
+
 /* Стиль селекта */
 .transfer-select {
   width: 100%;

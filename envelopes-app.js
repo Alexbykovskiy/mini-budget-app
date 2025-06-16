@@ -97,9 +97,19 @@ function showConfirmModal({
       <div style="color:#fff; text-align:center; font-size:1.04em; margin-bottom:18px;">${message}</div>
       ${confirmationInputHTML}
       <div style="display:flex; gap:22px; justify-content:center;">
-        ${cancelText ? `<button class="transfer-btn cancel" type="button">${cancelText}</button>` : ""}
-        <button class="transfer-btn confirm" type="button" ${confirmationValue ? 'disabled' : ''}>${confirmText}</button>
-      </div>
+  ${cancelText ? `<button class="transfer-btn cancel" type="button" title="${cancelText}">
+    <svg width="32" height="32" viewBox="0 0 24 24">
+      <line x1="6" y1="6" x2="18" y2="18"/>
+      <line x1="18" y1="6" x2="6" y2="18"/>
+    </svg>
+  </button>` : ""}
+  <button class="transfer-btn confirm" type="button" ${confirmationValue ? 'disabled' : ''} title="${confirmText}">
+    <svg width="32" height="32" viewBox="0 0 24 24">
+      <polyline points="5 13 10.5 18 19 7"/>
+    </svg>
+  </button>
+</div>
+
       <div id="confirm-error" style="color:#C93D1F;font-size:0.98em;text-align:center;margin-top:10px;min-height:22px;"></div>
     `;
 
@@ -183,9 +193,19 @@ function showAmountModal({title = "Введите сумму", placeholder = "С
     <button id="fill-all-btn" type="button" style="margin-left:8px; border:none; background:rgba(255,163,92,0.70); color:#fff; border-radius:999px; font-weight:600; font-size:1em; padding:10px 22px; cursor:pointer; box-shadow:0 2px 8px 0 rgba(255,163,92,0.11); transition:filter 0.12s;">Все</button>
   </div>
   <div style="display:flex;gap:18px;justify-content:center;">
-    <button class="transfer-btn cancel" type="button">${cancelText}</button>
-    <button class="transfer-btn confirm" type="button">${confirmText}</button>
-  </div>
+  <button class="transfer-btn cancel" type="button" title="${cancelText}">
+    <svg width="32" height="32" viewBox="0 0 24 24">
+      <line x1="6" y1="6" x2="18" y2="18"/>
+      <line x1="18" y1="6" x2="6" y2="18"/>
+    </svg>
+  </button>
+  <button class="transfer-btn confirm" type="button" title="${confirmText}">
+    <svg width="32" height="32" viewBox="0 0 24 24">
+      <polyline points="5 13 10.5 18 19 7"/>
+    </svg>
+  </button>
+</div>
+
 `;
 
 
@@ -740,12 +760,22 @@ async function transferEnvelope(fromId, maxAmount) {
   });
 
   const confirmBtn = document.createElement("button");
-confirmBtn.textContent = "Перевести";
+confirmBtn.innerHTML = `
+  <svg width="32" height="32" viewBox="0 0 24 24">
+    <polyline points="5 13 10.5 18 19 7"/>
+  </svg>
+`;
 confirmBtn.className = "transfer-btn confirm";
+confirmBtn.title = "Применить";
 
-const cancelBtn = document.createElement("button");
-cancelBtn.textContent = "Отмена";
+cancelBtn.innerHTML = `
+  <svg width="32" height="32" viewBox="0 0 24 24">
+    <line x1="6" y1="6" x2="18" y2="18"/>
+    <line x1="18" y1="6" x2="6" y2="18"/>
+  </svg>
+`;
 cancelBtn.className = "transfer-btn cancel";
+cancelBtn.title = "Отмена";
 
 const buttonsRow = document.createElement("div");
 buttonsRow.style.display = "flex";
@@ -1089,16 +1119,28 @@ setTimeout(() => {
   buttonRow.style.justifyContent = "center";
   buttonRow.style.gap = "32px";
 
-  const cancelBtn = document.createElement("button");
-  cancelBtn.className = "round-btn orange";
+ const cancelBtn = document.createElement("button");
+cancelBtn.className = "transfer-btn cancel";
+cancelBtn.title = "Отмена";
+cancelBtn.innerHTML = `
+  <svg width="32" height="32" viewBox="0 0 24 24">
+    <line x1="6" y1="6" x2="18" y2="18"/>
+    <line x1="18" y1="6" x2="6" y2="18"/>
+  </svg>
+`;
+cancelBtn.onclick = () => {
+  document.body.removeChild(modal);
+};
 
-  cancelBtn.onclick = () => {
-    document.body.removeChild(modal);
-  };
-
-  const saveBtn = document.createElement("button");
-  saveBtn.className = "round-btn green";
-    saveBtn.onclick = async () => {
+const saveBtn = document.createElement("button");
+saveBtn.className = "transfer-btn confirm";
+saveBtn.title = "Сохранить";
+saveBtn.innerHTML = `
+  <svg width="32" height="32" viewBox="0 0 24 24">
+    <polyline points="5 13 10.5 18 19 7"/>
+  </svg>
+`;
+saveBtn.onclick = async () => {
   await Promise.all(ranges.map(async (r) => {
     const cb = document.getElementById(`cb-${r.id}`);
     const range = document.getElementById(`range-${r.id}`);
@@ -1113,11 +1155,10 @@ setTimeout(() => {
   loadEnvelopes();
 };
 
+buttonRow.appendChild(cancelBtn);
+buttonRow.appendChild(saveBtn);
+container.appendChild(buttonRow);
 
-
-  buttonRow.appendChild(cancelBtn);
-  buttonRow.appendChild(saveBtn);
-  container.appendChild(buttonRow);
 
   modal.appendChild(container);
   document.body.appendChild(modal);
