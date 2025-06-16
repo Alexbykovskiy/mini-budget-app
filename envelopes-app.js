@@ -574,44 +574,7 @@ loadEnvelopes();
 
 }
 
-    document.body.appendChild(modal);
-
-    const input = modal.querySelector("#glass-amount-input");
-    input.focus();
-    input.onkeydown = (e) => {
-      if (e.key === "Enter") confirm();
-      if (e.key === "Escape") cancel();
-    };
-
-    const confirmBtn = modal.querySelector(".transfer-btn.confirm");
-    const cancelBtn = modal.querySelector(".transfer-btn.cancel");
-
-    confirmBtn.onclick = confirm;
-    cancelBtn.onclick = cancel;
-
-    // ====== КНОПКА "ВСЕ" — только если maxAmount есть ======
-    const fillMaxBtn = modal.querySelector("#fill-max-btn");
-    if (fillMaxBtn && typeof maxAmount === "number") {
-      fillMaxBtn.onclick = () => {
-        input.value = maxAmount;
-        input.focus();
-      };
-    }
-
-    function confirm() {
-      const val = parseFloat(input.value.replace(',', '.'));
-      modal.remove();
-      if (isNaN(val) || val <= 0) resolve(null);
-      else resolve(val);
-    }
-    function cancel() {
-      modal.remove();
-      resolve(null);
-    }
-  });
-}
-
-
+  
 async function addToEnvelope(id) {
   const value = await showAmountModal({title: "Добавить в конверт", placeholder: "Сумма"});
   if (isNaN(value) || value <= 0) return;
