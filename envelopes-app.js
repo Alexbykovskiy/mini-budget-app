@@ -662,15 +662,18 @@ async function transferEnvelope(fromId, maxAmount) {
   // --- Вставляем HTML ---
   modal.innerHTML = `
     <h3 style="color:#23292D; text-align:center; font-size:1.13em; font-weight:700; margin:0 0 18px 0;">Перевод из "${fromName}"</h3>
-    <div class="input-row-with-btn">
-      <input id="glass-amount-input" type="number" step="0.01" min="0" inputmode="decimal"
-        placeholder="Сумма для перевода" style=""/>
-      <button id="fill-max-btn" class="pill-btn max-btn" type="button">Все</button>
-    </div>
-    <select id="envelope-select" class="transfer-select" style="margin-bottom: 16px;">
-      <option value="">— выбрать конверт —</option>
-      ${envelopes.map(doc => `<option value="${doc.id}">${doc.data().name}</option>`).join('')}
-    </select>
+    <div style="display:flex; gap:10px; margin-bottom: 16px; width:100%;">
+  <input id="glass-amount-input" type="number"
+    class="transfer-select"
+    style="flex:1 1 0; min-width:0; max-width:210px; text-align:center; font-size:1.13em;"
+    step="0.01" min="0" inputmode="decimal" placeholder="Сумма для перевода" />
+  <button id="fill-max-btn" class="pill-btn max-btn" type="button" style="height:44px;">Все</button>
+</div>
+<select id="envelope-select" class="transfer-select" style="width:100%;margin-bottom: 16px;">
+  <option value="">— выбрать конверт —</option>
+  ${envelopes.map(doc => `<option value="${doc.id}">${doc.data().name}</option>`).join('')}
+</select>
+
     <div style="display:flex; justify-content:space-between; align-items:center; width:100%; padding:0 4px; margin-top: 10px;">
       <button class="transfer-btn cancel" type="button" title="Отмена">
         <svg width="32" height="32" viewBox="0 0 24 24">
