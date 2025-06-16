@@ -599,26 +599,6 @@ modal.innerHTML = `
   </div>
 `;
 
-    // =============== HTML =================
-  modal.innerHTML = `
-  ... (форма и поля) ...
-  <div style="display:flex; justify-content:space-between; align-items:center; width:100%; padding:0 4px; margin-top: 12px;">
-    <button class="transfer-btn cancel" type="button" title="${cancelText}">
-      <svg width="32" height="32" viewBox="0 0 24 24">
-        <line x1="6" y1="6" x2="18" y2="18"/>
-        <line x1="18" y1="6" x2="6" y2="18"/>
-      </svg>
-    </button>
-    <button class="transfer-btn confirm" type="button" title="${confirmText}">
-      <svg width="32" height="32" viewBox="0 0 24 24">
-        <polyline points="5 13 10.5 18 19 7"/>
-      </svg>
-    </button>
-  </div>
-`;
-
-
-    // =============== /HTML =================
 
     document.body.appendChild(modal);
 
