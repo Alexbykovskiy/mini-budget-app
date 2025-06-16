@@ -1034,6 +1034,7 @@ setTimeout(() => {
     }
   }
 
+const buttonRow = document.createElement("div");
   buttonRow.className = "row end";
 buttonRow.style.marginTop = "12px";
 buttonRow.style.display = "flex";
