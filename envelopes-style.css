@@ -1668,5 +1668,6 @@ body * {
 }у
 
 .envelope-menu-popup.glass-pill-menu {
-  margin-right: 20px; /* или 8px, или сколько тебе нужно */
+  margin-right: 20px;    /* ← для отступа влево, если нужно */
+  margin-bottom: 20px;   /* ↑ сдвигает выше относительно baseline кнопок */
 }
