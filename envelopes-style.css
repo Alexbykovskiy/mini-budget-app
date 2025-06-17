@@ -1698,3 +1698,21 @@ body * {
   height: 28px !important;
 }
 
+.envelope-dashboard {
+  width: 100vw;
+  max-width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding-left: max(env(safe-area-inset-left), 0px);
+  padding-right: max(env(safe-area-inset-right), 0px);
+}
+
+.envelope-dashboard-header,
+.envelope-dashboard-header span {
+  color: #23292D !important;
+}
+
+@media (max-width: 600px) {
+  .envelope-summary-grid { grid-template-columns: repeat(2, 1fr); }
+  .envelope-dashboard { width: 100vw; max-width: 100vw; margin-left: 0; margin-right: 0; }
+}
