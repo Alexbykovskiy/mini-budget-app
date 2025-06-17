@@ -99,13 +99,6 @@ body {
   transition: box-shadow 0.2s;
 }
 
-.envelope-summary-grid .envelope-summary-card,
-.envelope-summary-grid .envelope-summary-title,
-.envelope-summary-grid .envelope-summary-balance,
-.envelope-summary-grid .envelope-summary-progress {
-  color: #23292D !important;
-  opacity: 1 !important;
-  background: none !important;
 
 /* Неоморфные поля и кнопки */
 .envelope-main {
