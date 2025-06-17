@@ -1362,8 +1362,7 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
   `;
 
   // ===== ВЕРХНИЙ БЛОК: заголовок и крестик =====
-  modal.innerHTML = `
-    modal.innerHTML = `
+modal.innerHTML = `
   <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
     <h3 style="margin:0;font-size:1.14em; font-weight:700; color:#fff;">История транзакций</h3>
     <button id="close-history-modal" style="
@@ -1385,7 +1384,6 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
       </svg>
     </button>
   </div>
-
 
     <div style="display:flex; gap:8px; align-items:center; margin-bottom:7px;">
       <select id="filter-envelope" class="transfer-select" style="max-width:122px;flex:1 1 0;">
