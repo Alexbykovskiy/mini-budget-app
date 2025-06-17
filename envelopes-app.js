@@ -1315,11 +1315,17 @@ async function openEnvelopeHistory(envelopeId) {
 
 // ===== Модалка истории с фильтрами для ОДНОГО конверта =====
 async function openFilteredEnvelopeHistory(envelopeId) {
-  // 1. Получить имя конверта для заголовка
+  // Получить имя конверта и список конвертов для подписями
   const envelopeDoc = await db.collection("envelopes").doc(envelopeId).get();
   const envelopeName = envelopeDoc.exists ? envelopeDoc.data().name : "Конверт";
 
-  // 2. Создать модальное окно (по шаблону общей истории, но без выбора конверта)
+  const envelopesSnapshot = await db.collection("envelopes").get();
+  const envelopeNames = {};
+  envelopesSnapshot.forEach(doc => {
+    envelopeNames[doc.id] = doc.data().name;
+  });
+
+  // Модалка
   const modal = document.createElement("div");
   modal.id = "history-modal";
   modal.classList.add("glass-modal");
@@ -1342,10 +1348,10 @@ async function openFilteredEnvelopeHistory(envelopeId) {
     flex-direction: column;
   `;
 
-  // 3. Верхний блок: заголовок, кнопка закрытия
+  // HTML для модалки (как в основной истории, только без селектора конверта)
   modal.innerHTML = `
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-      <h3 style="margin:0;font-size:1.14em; font-weight:700; color:#23292D;">История: ${escapeHTML(envelopeName)}</h3>
+      <h3 style="margin:0;font-size:1.14em; font-weight:700; color:#fff;">История: ${escapeHTML(envelopeName)}</h3>
       <button id="close-history-modal" style="
         background:rgba(30,30,40,0.20);
         color:#fff;
@@ -1364,9 +1370,9 @@ async function openFilteredEnvelopeHistory(envelopeId) {
           <line x1="17" y1="5" x2="5" y2="17" stroke="#fff" stroke-width="2.7" stroke-linecap="round"/>
         </svg>
       </button>
+    </div>
 
     <div style="display:flex; gap:8px; align-items:center; margin-bottom:7px;">
-      <!-- Нет селектора конверта! -->
       <label style="display:flex;align-items:center;gap:5px;user-select:none;">
         <input type="checkbox" value="income" id="filter-income" style="accent-color:#2dd474;width:15px;height:15px;margin:0;">
         <span style="font-size:0.99em;">Приход</span>
@@ -1391,7 +1397,7 @@ async function openFilteredEnvelopeHistory(envelopeId) {
     <div style="display:flex;justify-content:center;margin-bottom:10px;">
       <button id="reset-history-filters" style="
         background:rgba(80,80,85,0.22);
-        color:#23292D;
+        color:#fff;
         border:none;
         border-radius:999px;
         font-weight:600;
@@ -1404,10 +1410,10 @@ async function openFilteredEnvelopeHistory(envelopeId) {
     </div>
   `;
 
-  // Кнопка закрытия
+  // Логика закрытия
   modal.querySelector('#close-history-modal').onclick = () => modal.remove();
 
-  // Scroll-wrapper для истории
+  // Scroll wrapper для истории
   const scrollWrapper = document.createElement("div");
   scrollWrapper.id = "history-scroll-wrapper";
   scrollWrapper.style.cssText = `
@@ -1418,7 +1424,7 @@ async function openFilteredEnvelopeHistory(envelopeId) {
   `;
   modal.appendChild(scrollWrapper);
 
-  // Функция рендера истории по фильтрам
+  // ===== Функция рендера =====
   async function renderHistoryList() {
     scrollWrapper.innerHTML = '';
     const types = [];
@@ -1428,7 +1434,7 @@ async function openFilteredEnvelopeHistory(envelopeId) {
     const fromDate = modal.querySelector('#filter-date-from').value;
     const toDate = modal.querySelector('#filter-date-to').value;
 
-    // Только операции по этому envelopeId
+    // Операции только по этому envelopeId
     let txs = [];
     const snapshot = await db.collection("transactions")
       .where("envelopeId", "==", envelopeId)
@@ -1444,7 +1450,7 @@ async function openFilteredEnvelopeHistory(envelopeId) {
         if (
           (types.includes("income") && (tx.type === "add" || tx.type === "income")) ||
           (types.includes("subtract") && tx.type === "subtract") ||
-          (types.includes("transfer") && (tx.type === "transfer-out" || tx.type === "transfer-in"))
+          (types.includes("transfer") && tx.type === "transfer-out")
         ) {
           // ok
         } else {
@@ -1469,22 +1475,27 @@ async function openFilteredEnvelopeHistory(envelopeId) {
       return;
     }
 
-        txs.forEach(tx => {
-      const { amount, envelopeId, type, date, toEnvelopeId, fromEnvelopeId } = tx;
-      // Только один тип для перевода
+    txs.forEach(tx => {
+      const { amount, type, date, toEnvelopeId } = tx;
+      const d = new Date(date);
+      const dateStr = d.toLocaleDateString();
+      const timeStr = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+      let className = "";
+      let text = "";
+
       if (type === "add" || type === "income") {
         className = "history-add";
-        text = `+ ${amount.toFixed(2)} € — ${envelopeNames[envelopeId] || "?"}`;
+        text = `+ ${amount.toFixed(2)} €`;
       } else if (type === "subtract") {
         className = "history-sub";
-        text = `– ${Math.abs(amount).toFixed(2)} € — ${envelopeNames[envelopeId] || "?"}`;
+        text = `– ${Math.abs(amount).toFixed(2)} €`;
       } else if (type === "transfer-out") {
         className = "history-transfer";
-        text = `➡ ${Math.abs(amount).toFixed(2)} € — ${envelopeNames[envelopeId] || "?"} → ${envelopeNames[toEnvelopeId] || "?"}`;
+        text = `➡ ${Math.abs(amount).toFixed(2)} € → ${envelopeNames[toEnvelopeId] || "другой конверт"}`;
       } else {
-        return; // всё! не отображаем transfer-in
+        return;
       }
-
 
       const entry = document.createElement("div");
       entry.className = className;
@@ -1503,7 +1514,7 @@ async function openFilteredEnvelopeHistory(envelopeId) {
     });
   }
 
-  // Обработчики фильтров
+  // События на фильтрах
   [
     '#filter-income', '#filter-subtract', '#filter-transfer',
     '#filter-date-from', '#filter-date-to'
