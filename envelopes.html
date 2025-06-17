@@ -9,6 +9,17 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
+<div class="envelope-dashboard">
+  <div class="envelope-dashboard-header">
+    <span id="dashboard-total">Всего: 0.00 €</span>
+    <span id="dashboard-date">17 июня 2025</span>
+    <!-- <span id="dashboard-custom">Осталось до зарплаты: 5 дней</span> -->
+  </div>
+  <div class="envelope-summary-grid" id="envelope-summary-grid">
+    <!-- Сюда JS-ом вставляются мини-карточки -->
+  </div>
+</div>
+
   <div class="background-fixed"></div>
   <main class="container">
     <div class="block collapsed animated-section delay-2" id="add-envelope-wrapper">

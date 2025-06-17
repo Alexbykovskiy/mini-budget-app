@@ -417,6 +417,7 @@ if (primary) ordered.push(primary);
 if (miniBudget) ordered.push(miniBudget);
 ordered.push(...others);
 
+renderEnvelopeDashboard(ordered);
 
  function calculateRemainingPercent() {
   // Суммируем percent для всех конвертов, кроме isPrimary
@@ -430,6 +431,7 @@ ordered.push(...others);
 const remaining = 100 - calculateRemainingPercent();
 
 
+
 ordered.forEach(async doc => {
   const data = doc.data();
   const percent = Math.min(100, Math.round(data.percent || 0));
@@ -439,6 +441,7 @@ ordered.forEach(async doc => {
 
  const block = document.createElement("div");
 block.className = "envelope-card-grid";
+block.setAttribute('data-id', doc.id);
   const name = data.name || "";
   let titleFontSize = "2em";
   if (name.length > 18) titleFontSize = "1.4em";
@@ -554,6 +557,35 @@ envelopeGridContainer.appendChild(block);
 
 
 } // <-- это уже конец всей функции loadEnvelopes
+
+function renderEnvelopeDashboard(envelopes) {
+  const grid = document.getElementById('envelope-summary-grid');
+  if (!grid) return;
+  grid.innerHTML = "";
+  let total = 0;
+  envelopes.forEach(doc => {
+    const data = doc.data();
+    total += data.current || 0;
+    let percent = 0, goal = data.goal || 0;
+    if (goal > 0) percent = Math.round((data.current / goal) * 100);
+
+    let statusClass = "";
+    if (goal > 0 && data.current >= goal) statusClass = "success";
+    else if (data.current < 0) statusClass = "danger";
+
+    // Вставляем data-id для перехода
+    grid.innerHTML += `
+      <div class="envelope-summary-card ${statusClass}" data-id="${doc.id}">
+        <div class="envelope-summary-title">${escapeHTML(data.name)}</div>
+        <div class="envelope-summary-balance">${(data.current || 0).toFixed(2)} €</div>
+        ${goal > 0 ? `<div class="envelope-summary-progress">${percent}%</div>` : ""}
+      </div>
+    `;
+  });
+  document.getElementById('dashboard-total').textContent = "Всего: " + total.toFixed(2) + " €";
+  document.getElementById('dashboard-date').textContent = new Date().toLocaleDateString("ru-RU", {day:"2-digit",month:"long",year:"numeric"});
+}
+
 
 // остальные функции не изменялись...
 
@@ -1622,3 +1654,11 @@ async function startEditEnvelope(id) {
   // Скроллим к форме (по желанию)
   document.getElementById('add-envelope-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+
+document.getElementById('envelope-summary-grid').addEventListener('click', function(e) {
+  const card = e.target.closest('.envelope-summary-card');
+  if (card && card.dataset.id) {
+    const target = document.querySelector(`.envelope-card-grid[data-id="${card.dataset.id}"]`);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+});
