@@ -1597,3 +1597,27 @@ window.addEventListener("DOMContentLoaded", async () => {
   });
 
 });
+
+async function startEditEnvelope(id) {
+  // Получаем данные конверта
+  const doc = await db.collection("envelopes").doc(id).get();
+  if (!doc.exists) return;
+  const data = doc.data();
+
+  // Открыть форму (если она закрыта)
+  const toggle = document.getElementById('toggle-add-envelope');
+  if (toggle && !toggle.checked) {
+    toggle.checked = true;
+    const wrapper = document.getElementById("add-envelope-wrapper");
+    const container = wrapper?.querySelector('.add-envelope-toggle-container');
+    wrapper?.classList.remove("collapsed");
+    wrapper?.classList.add("expanded");
+    if (container) container.style.display = "block";
+  }
+
+  // Заполнить форму значениями
+  fillEditForm(data, id);
+
+  // Скроллим к форме (по желанию)
+  document.getElementById('add-envelope-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
