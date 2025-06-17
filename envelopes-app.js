@@ -1401,11 +1401,11 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
     </div>
 
     <div style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
-    <div style="flex:1 1 0; display:flex; gap:18px;">
+   <div style="display:flex; gap:16px; justify-content:center; margin:0 0 8px 0;">
   <input id="filter-date-from" type="date" class="transfer-select"
-    style="width:100px; min-width:72px; max-width:110px; font-size:13px;"/>
+    style="width:150px; min-width:110px; max-width:150px; font-size:14px;"/>
   <input id="filter-date-to" type="date" class="transfer-select"
-    style="width:100px; min-width:72px; max-width:110px; font-size:13px;"/>
+    style="width:150px; min-width:110px; max-width:150px; font-size:14px;"/>
 </div>
 
     </div>
