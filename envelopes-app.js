@@ -266,7 +266,8 @@ renderInlineDistributionEditor();
   document.getElementById('envelope-percent').style.display = 'none';
   document.getElementById('envelope-percent-label').style.display = 'none';
   const submitBtn = document.querySelector('#add-envelope-form button[type="submit"]');
-    this.style.display = 'none';
+   
+
 });
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
