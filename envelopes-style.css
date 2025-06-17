@@ -7,6 +7,69 @@ body {
   max-width: 360px;
 }
 
+.envelope-dashboard {
+  margin-bottom: 22px;
+  padding: 8px 0 0 0;
+}
+.envelope-dashboard-header {
+  font-size: 1.03em;
+  color: #23292D;
+  font-weight: 600;
+  margin-bottom: 11px;
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  align-items: center;
+}
+.envelope-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 11px;
+  width: 100%;
+}
+.envelope-summary-card {
+  background: rgba(230,230,230,0.81);
+  border-radius: 17px;
+  min-height: 84px;
+  min-width: 0; /* нужно для растяжки */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 9px 10px 8px 12px;
+  box-shadow: 0 1.5px 7px 0 rgba(0,0,0,0.08);
+  border: 1.2px solid rgba(255,255,255,0.16);
+  transition: background 0.13s, border 0.12s;
+  position: relative;
+}
+.envelope-summary-card.success {
+  background: rgba(43, 170, 110, 0.19);
+  border-color: #29c05a;
+}
+.envelope-summary-card.warning {
+  background: rgba(255, 163, 92, 0.19);
+  border-color: #FFA35C;
+}
+.envelope-summary-card.danger {
+  background: rgba(201, 61, 31, 0.13);
+  border-color: #c93d1f;
+}
+.envelope-summary-title {
+  font-size: 0.97em;
+  color: #23292D;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+.envelope-summary-balance {
+  font-size: 1.18em;
+  color: #23292D;
+  font-weight: 800;
+  margin-bottom: 2px;
+}
+.envelope-summary-progress {
+  font-size: 0.95em;
+  color: #aaa;
+}
+
 
 
 .envelope-grid-container {
@@ -1634,65 +1697,3 @@ body * {
   height: 28px !important;
 }
 
-.envelope-dashboard {
-  margin-bottom: 22px;
-  padding: 8px 0 0 0;
-}
-.envelope-dashboard-header {
-  font-size: 1.03em;
-  color: #23292D;
-  font-weight: 600;
-  margin-bottom: 11px;
-  display: flex;
-  gap: 20px;
-  justify-content: space-between;
-  align-items: center;
-}
-.envelope-summary-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 11px;
-  width: 100%;
-}
-.envelope-summary-card {
-  background: rgba(230,230,230,0.81);
-  border-radius: 17px;
-  min-height: 84px;
-  min-width: 0; /* нужно для растяжки */
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 9px 10px 8px 12px;
-  box-shadow: 0 1.5px 7px 0 rgba(0,0,0,0.08);
-  border: 1.2px solid rgba(255,255,255,0.16);
-  transition: background 0.13s, border 0.12s;
-  position: relative;
-}
-.envelope-summary-card.success {
-  background: rgba(43, 170, 110, 0.19);
-  border-color: #29c05a;
-}
-.envelope-summary-card.warning {
-  background: rgba(255, 163, 92, 0.19);
-  border-color: #FFA35C;
-}
-.envelope-summary-card.danger {
-  background: rgba(201, 61, 31, 0.13);
-  border-color: #c93d1f;
-}
-.envelope-summary-title {
-  font-size: 0.97em;
-  color: #23292D;
-  font-weight: 600;
-  margin-bottom: 3px;
-}
-.envelope-summary-balance {
-  font-size: 1.18em;
-  color: #23292D;
-  font-weight: 800;
-  margin-bottom: 2px;
-}
-.envelope-summary-progress {
-  font-size: 0.95em;
-  color: #aaa;
-}
