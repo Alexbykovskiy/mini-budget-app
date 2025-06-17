@@ -289,7 +289,7 @@ form.addEventListener("submit", async (e) => {
         percent
       });
       editingEnvelopeId = null;
-      document.getElementById('cancel-edit-btn').style.display = 'none';
+    
       const submitBtn = document.querySelector('#add-envelope-form button[type="submit"]');
     } else {
       await db.collection("envelopes").add({
