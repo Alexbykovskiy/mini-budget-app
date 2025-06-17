@@ -1363,24 +1363,29 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
 
   // ===== ВЕРХНИЙ БЛОК: заголовок и крестик =====
   modal.innerHTML = `
-    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-      <h3 style="margin:0;font-size:1.14em; font-weight:700; color:#23292D;">История транзакций</h3>
-      <button id="close-history-modal" style="
-        background:rgba(255,255,255,0.78);
-        color:#23292D;
-        border:none;
-        border-radius:50%;
-        width:38px;height:38px;
-        display:flex;align-items:center;justify-content:center;
-        font-size:24px;
-        font-weight:900;
-        box-shadow: 0 2px 10px 0 rgba(0,0,0,0.11);
-        cursor:pointer;
-        transition:filter 0.12s, background 0.14s;
-        ">
-        <svg width="22" height="22" viewBox="0 0 22 22"><line x1="5" y1="5" x2="17" y2="17" stroke="#23292D" stroke-width="2.7" stroke-linecap="round"/><line x1="17" y1="5" x2="5" y2="17" stroke="#23292D" stroke-width="2.7" stroke-linecap="round"/></svg>
-      </button>
-    </div>
+    modal.innerHTML = `
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+    <h3 style="margin:0;font-size:1.14em; font-weight:700; color:#fff;">История транзакций</h3>
+    <button id="close-history-modal" style="
+      background:rgba(30,30,40,0.88);
+      color:#fff;
+      border:none;
+      border-radius:50%;
+      width:38px;height:38px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:24px;
+      font-weight:900;
+      box-shadow: 0 2px 10px 0 rgba(0,0,0,0.11);
+      cursor:pointer;
+      transition:filter 0.12s, background 0.14s;
+      ">
+      <svg width="22" height="22" viewBox="0 0 22 22">
+        <line x1="5" y1="5" x2="17" y2="17" stroke="#fff" stroke-width="2.7" stroke-linecap="round"/>
+        <line x1="17" y1="5" x2="5" y2="17" stroke="#fff" stroke-width="2.7" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
 
     <div style="display:flex; gap:8px; align-items:center; margin-bottom:7px;">
       <select id="filter-envelope" class="transfer-select" style="max-width:122px;flex:1 1 0;">
