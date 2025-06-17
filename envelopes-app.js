@@ -1366,7 +1366,7 @@ modal.innerHTML = `
   <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
     <h3 style="margin:0;font-size:1.14em; font-weight:700; color:#fff;">История транзакций</h3>
     <button id="close-history-modal" style="
-      background:rgba(30,30,40,0.30);
+      background:rgba(30,30,40,0.20);
       color:#fff;
       border:none;
       border-radius:50%;
