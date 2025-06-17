@@ -1517,10 +1517,8 @@ modal.innerHTML = `
       } else if (type === "transfer-out") {
         className = "history-transfer";
         text = `➡ ${Math.abs(amount).toFixed(2)} € — ${envelopeNames[envelopeId] || "?"} → ${envelopeNames[toEnvelopeId] || "?"}`;
-      } else if (type === "transfer-in") {
-        className = "history-transfer";
-        text = `⬅ ${amount.toFixed(2)} € — ${envelopeNames[fromEnvelopeId] || "?"} → ${envelopeNames[envelopeId] || "?"}`;
       } else {
+        // всё остальное, включая transfer-in, не показываем!
         return;
       }
 
