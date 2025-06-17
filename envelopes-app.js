@@ -1403,9 +1403,9 @@ document.getElementById('open-history-btn')?.addEventListener('click', async () 
     <div style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
    <div style="display:flex; gap:16px; justify-content:center; margin:0 0 8px 0;">
   <input id="filter-date-from" type="date" class="transfer-select"
-    style="width:140px; min-width:110px; max-width:140px; font-size:14px;"/>
+    style="width:135px; min-width:110px; max-width:135px; font-size:14px;"/>
   <input id="filter-date-to" type="date" class="transfer-select"
-    style="width:140px; min-width:110px; max-width:140px; font-size:14px;"/>
+    style="width:135px; min-width:110px; max-width:135px; font-size:14px;"/>
 </div>
 
     </div>
