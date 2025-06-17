@@ -1264,25 +1264,21 @@ async function openEnvelopeHistory(envelopeId) {
       // Цвета по типу операции
       let className = "";
       let text = "";
+
       if (type === "add" || type === "income") {
         className = "history-add";
-        text = `+ ${amount.toFixed(2)} €`;
+        text = `+ ${amount.toFixed(2)} € — ${envelopeNames[envelopeId] || "?"}`;
       } else if (type === "subtract") {
         className = "history-sub";
-        text = `– ${Math.abs(amount).toFixed(2)} €`;
+        text = `– ${Math.abs(amount).toFixed(2)} € — ${envelopeNames[envelopeId] || "?"}`;
       } else if (type === "transfer-out") {
         className = "history-transfer";
-        text = `➡ ${Math.abs(amount).toFixed(2)} € →`;
-        if (toEnvelopeId) text += " в другой конверт";
-      } else if (type === "transfer-in") {
-        className = "history-transfer";
-        text = `⬅ ${amount.toFixed(2)} € ←`;
-        if (fromEnvelopeId) text += " из другого конверта";
+        text = `➡ ${Math.abs(amount).toFixed(2)} € — ${envelopeNames[envelopeId] || "?"} → ${envelopeNames[toEnvelopeId] || "?"}`;
       } else {
+        // всё остальное, включая transfer-in, не показываем!
         return;
       }
 
-      // Вставка блока-строки
       const entry = document.createElement("div");
       entry.className = className;
       entry.style.cssText = `
