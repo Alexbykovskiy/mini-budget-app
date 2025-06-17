@@ -1602,27 +1602,72 @@ body * {
   box-shadow: 0 0 0 2.5px rgba(201,61,31,0.13) !important;
 }
 
-.pill-btn.pill-dark {
+.pill-btn.confirm-dark {
   background: rgba(30,30,40,0.20) !important;
   color: #fff !important;
-  border-radius: 999px !important;
-  padding: 9px 22px 9px 22px !important;
-  font-size: 15px !important;
-  font-weight: 600 !important;
+  border-radius: 50% !important;
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   box-shadow: 0 1.5px 6px 0 rgba(0,0,0,0.07) inset, 0 1.5px 6px 0 rgba(0,0,0,0.09);
-  letter-spacing: 0.01em;
+  font-size: 0;
   transition: filter 0.16s, background 0.18s, color 0.12s;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  font-family: inherit;
-  min-width: 120px;
-  margin: 0 0 0 0;
+  border: none !important;
   outline: none;
+  cursor: pointer;
+  margin: 0;
 }
-.pill-btn.pill-dark:active,
-.pill-btn.pill-dark:hover {
-  filter: brightness(0.95);
+.pill-btn.confirm-dark:active,
+.pill-btn.confirm-dark:hover {
+  filter: brightness(0.97);
   background: rgba(30,30,40,0.33) !important;
 }
+.pill-btn.confirm-dark svg {
+  stroke: #fff !important;
+  width: 28px !important;
+  height: 28px !important;
+}
 
+.round-btn.orange {
+  background: rgba(30,30,40,0.20) !important;
+  color: #fff !important;
+  border-radius: 50% !important;
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 1.5px 6px 0 rgba(0,0,0,0.07) inset, 0 1.5px 6px 0 rgba(0,0,0,0.09);
+  font-size: 0 !important;
+  transition: filter 0.16s, background 0.18s, color 0.12s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: none !important;
+  outline: none !important;
+  cursor: pointer;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: relative !important;
+  overflow: hidden !important;
+  z-index: 2;
+}
+.round-btn.orange:hover,
+.round-btn.orange:active {
+  filter: brightness(0.97);
+  background: rgba(30,30,40,0.33) !important;
+}
+.round-btn.orange svg {
+  stroke: #fff !important;
+  width: 28px !important;
+  height: 28px !important;
+}
+.round-btn.orange:after { display: none !important; content: none !important; }
 
