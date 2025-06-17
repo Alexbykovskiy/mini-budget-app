@@ -1697,3 +1697,12 @@ body * {
   height: 28px !important;
 }
 
+.envelope-summary-card,
+.envelope-summary-card .envelope-summary-title,
+.envelope-summary-card .envelope-summary-balance,
+.envelope-summary-card .envelope-summary-progress {
+  color: #23292D !important;
+  background: none !important;
+  opacity: 1 !important;
+}
+
