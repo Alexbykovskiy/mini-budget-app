@@ -1347,21 +1347,23 @@ async function openFilteredEnvelopeHistory(envelopeId) {
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
       <h3 style="margin:0;font-size:1.14em; font-weight:700; color:#23292D;">История: ${escapeHTML(envelopeName)}</h3>
       <button id="close-history-modal" style="
-        background:rgba(190,60,50,0.20);
-        color:#23292D;
+        background:rgba(30,30,40,0.20);
+        color:#fff;
         border:none;
         border-radius:50%;
         width:38px;height:38px;
         display:flex;align-items:center;justify-content:center;
         font-size:24px;
         font-weight:900;
-        cursor:pointer;">
+        box-shadow: 0 2px 10px 0 rgba(0,0,0,0.11);
+        cursor:pointer;
+        transition:filter 0.12s, background 0.14s;
+      ">
         <svg width="22" height="22" viewBox="0 0 22 22">
-          <line x1="5" y1="5" x2="17" y2="17" stroke="#23292D" stroke-width="2.7" stroke-linecap="round"/>
-          <line x1="17" y1="5" x2="5" y2="17" stroke="#23292D" stroke-width="2.7" stroke-linecap="round"/>
+          <line x1="5" y1="5" x2="17" y2="17" stroke="#fff" stroke-width="2.7" stroke-linecap="round"/>
+          <line x1="17" y1="5" x2="5" y2="17" stroke="#fff" stroke-width="2.7" stroke-linecap="round"/>
         </svg>
       </button>
-    </div>
 
     <div style="display:flex; gap:8px; align-items:center; margin-bottom:7px;">
       <!-- Нет селектора конверта! -->
@@ -1467,30 +1469,22 @@ async function openFilteredEnvelopeHistory(envelopeId) {
       return;
     }
 
-    txs.forEach(tx => {
-      const { amount, type, date, toEnvelopeId, fromEnvelopeId } = tx;
-      const d = new Date(date);
-      const dateStr = d.toLocaleDateString();
-      const timeStr = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-      let className = "";
-      let text = "";
+        txs.forEach(tx => {
+      const { amount, envelopeId, type, date, toEnvelopeId, fromEnvelopeId } = tx;
+      // Только один тип для перевода
       if (type === "add" || type === "income") {
         className = "history-add";
-        text = `+ ${amount.toFixed(2)} €`;
+        text = `+ ${amount.toFixed(2)} € — ${envelopeNames[envelopeId] || "?"}`;
       } else if (type === "subtract") {
         className = "history-sub";
-        text = `– ${Math.abs(amount).toFixed(2)} €`;
+        text = `– ${Math.abs(amount).toFixed(2)} € — ${envelopeNames[envelopeId] || "?"}`;
       } else if (type === "transfer-out") {
         className = "history-transfer";
-        text = `➡ ${Math.abs(amount).toFixed(2)} € →`;
-        if (toEnvelopeId) text += " в другой конверт";
-      } else if (type === "transfer-in") {
-        className = "history-transfer";
-        text = `⬅ ${amount.toFixed(2)} € ←`;
-        if (fromEnvelopeId) text += " из другого конверта";
+        text = `➡ ${Math.abs(amount).toFixed(2)} € — ${envelopeNames[envelopeId] || "?"} → ${envelopeNames[toEnvelopeId] || "?"}`;
       } else {
-        return;
+        return; // всё! не отображаем transfer-in
       }
+
 
       const entry = document.createElement("div");
       entry.className = className;
