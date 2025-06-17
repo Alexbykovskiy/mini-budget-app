@@ -1158,7 +1158,7 @@ function showEnvelopeMenu(btn, id) {
   `;
 
   const [historyBtn, editBtn, delBtn] = menu.querySelectorAll('button');
-  historyBtn.onclick = () => { menu.remove(); openEnvelopeHistory(id); };
+ historyBtn.onclick = () => { menu.remove(); openFilteredEnvelopeHistory(id); };
   editBtn.onclick    = () => { menu.remove(); startEditEnvelope(id); };
   delBtn.onclick     = () => { menu.remove(); deleteEnvelope(id); };
 
@@ -1313,6 +1313,222 @@ async function openEnvelopeHistory(envelopeId) {
   document.body.appendChild(modal);
 }
 
+// ===== Модалка истории с фильтрами для ОДНОГО конверта =====
+async function openFilteredEnvelopeHistory(envelopeId) {
+  // 1. Получить имя конверта для заголовка
+  const envelopeDoc = await db.collection("envelopes").doc(envelopeId).get();
+  const envelopeName = envelopeDoc.exists ? envelopeDoc.data().name : "Конверт";
+
+  // 2. Создать модальное окно (по шаблону общей истории, но без выбора конверта)
+  const modal = document.createElement("div");
+  modal.id = "history-modal";
+  modal.classList.add("glass-modal");
+  modal.style.cssText = `
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 340px;
+    max-height: 80vh;
+    background: rgba(255,255,255,0.45);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    padding: 20px;
+    z-index: 9999;
+    color: #23292D;
+    font-size: 14.5px;
+    display: flex;
+    flex-direction: column;
+  `;
+
+  // 3. Верхний блок: заголовок, кнопка закрытия
+  modal.innerHTML = `
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+      <h3 style="margin:0;font-size:1.14em; font-weight:700; color:#23292D;">История: ${escapeHTML(envelopeName)}</h3>
+      <button id="close-history-modal" style="
+        background:rgba(190,60,50,0.20);
+        color:#23292D;
+        border:none;
+        border-radius:50%;
+        width:38px;height:38px;
+        display:flex;align-items:center;justify-content:center;
+        font-size:24px;
+        font-weight:900;
+        cursor:pointer;">
+        <svg width="22" height="22" viewBox="0 0 22 22">
+          <line x1="5" y1="5" x2="17" y2="17" stroke="#23292D" stroke-width="2.7" stroke-linecap="round"/>
+          <line x1="17" y1="5" x2="5" y2="17" stroke="#23292D" stroke-width="2.7" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div style="display:flex; gap:8px; align-items:center; margin-bottom:7px;">
+      <!-- Нет селектора конверта! -->
+      <label style="display:flex;align-items:center;gap:5px;user-select:none;">
+        <input type="checkbox" value="income" id="filter-income" style="accent-color:#2dd474;width:15px;height:15px;margin:0;">
+        <span style="font-size:0.99em;">Приход</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:5px;user-select:none;">
+        <input type="checkbox" value="subtract" id="filter-subtract" style="accent-color:#c93d1f;width:15px;height:15px;margin:0;">
+        <span style="font-size:0.99em;">Уход</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:5px;user-select:none;">
+        <input type="checkbox" value="transfer" id="filter-transfer" style="accent-color:#e1a700;width:15px;height:15px;margin:0;">
+        <span style="font-size:0.99em;">Перевод</span>
+      </label>
+    </div>
+
+    <div style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
+      <input id="filter-date-from" type="date" class="transfer-select"
+        style="width:135px; min-width:110px; max-width:135px; font-size:14px;"/>
+      <input id="filter-date-to" type="date" class="transfer-select"
+        style="width:135px; min-width:110px; max-width:135px; font-size:14px;"/>
+    </div>
+
+    <div style="display:flex;justify-content:center;margin-bottom:10px;">
+      <button id="reset-history-filters" style="
+        background:rgba(80,80,85,0.22);
+        color:#23292D;
+        border:none;
+        border-radius:999px;
+        font-weight:600;
+        font-size:1em;
+        letter-spacing:0.01em;
+        padding:8px 28px;
+        cursor:pointer;">
+        Сбросить фильтры
+      </button>
+    </div>
+  `;
+
+  // Кнопка закрытия
+  modal.querySelector('#close-history-modal').onclick = () => modal.remove();
+
+  // Scroll-wrapper для истории
+  const scrollWrapper = document.createElement("div");
+  scrollWrapper.id = "history-scroll-wrapper";
+  scrollWrapper.style.cssText = `
+    overflow-y: auto;
+    max-height: 60vh;
+    margin-top: 4px;
+    flex: 1 1 auto;
+  `;
+  modal.appendChild(scrollWrapper);
+
+  // Функция рендера истории по фильтрам
+  async function renderHistoryList() {
+    scrollWrapper.innerHTML = '';
+    const types = [];
+    if (modal.querySelector('#filter-income').checked) types.push("income");
+    if (modal.querySelector('#filter-subtract').checked) types.push("subtract");
+    if (modal.querySelector('#filter-transfer').checked) types.push("transfer");
+    const fromDate = modal.querySelector('#filter-date-from').value;
+    const toDate = modal.querySelector('#filter-date-to').value;
+
+    // Только операции по этому envelopeId
+    let txs = [];
+    const snapshot = await db.collection("transactions")
+      .where("envelopeId", "==", envelopeId)
+      .orderBy("date", "desc").get();
+    snapshot.forEach(doc => {
+      const tx = doc.data();
+      tx.id = doc.id;
+      txs.push(tx);
+    });
+
+    txs = txs.filter(tx => {
+      if (types.length) {
+        if (
+          (types.includes("income") && (tx.type === "add" || tx.type === "income")) ||
+          (types.includes("subtract") && tx.type === "subtract") ||
+          (types.includes("transfer") && (tx.type === "transfer-out" || tx.type === "transfer-in"))
+        ) {
+          // ok
+        } else {
+          return false;
+        }
+      }
+      if (fromDate) {
+        const d = new Date(tx.date);
+        const fromD = new Date(fromDate + "T00:00:00");
+        if (d < fromD) return false;
+      }
+      if (toDate) {
+        const d = new Date(tx.date);
+        const toD = new Date(toDate + "T23:59:59");
+        if (d > toD) return false;
+      }
+      return true;
+    });
+
+    if (!txs.length) {
+      scrollWrapper.innerHTML = "<p style='color:#555;margin-top:18px;text-align:center;'>Нет данных</p>";
+      return;
+    }
+
+    txs.forEach(tx => {
+      const { amount, type, date, toEnvelopeId, fromEnvelopeId } = tx;
+      const d = new Date(date);
+      const dateStr = d.toLocaleDateString();
+      const timeStr = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      let className = "";
+      let text = "";
+      if (type === "add" || type === "income") {
+        className = "history-add";
+        text = `+ ${amount.toFixed(2)} €`;
+      } else if (type === "subtract") {
+        className = "history-sub";
+        text = `– ${Math.abs(amount).toFixed(2)} €`;
+      } else if (type === "transfer-out") {
+        className = "history-transfer";
+        text = `➡ ${Math.abs(amount).toFixed(2)} € →`;
+        if (toEnvelopeId) text += " в другой конверт";
+      } else if (type === "transfer-in") {
+        className = "history-transfer";
+        text = `⬅ ${amount.toFixed(2)} € ←`;
+        if (fromEnvelopeId) text += " из другого конверта";
+      } else {
+        return;
+      }
+
+      const entry = document.createElement("div");
+      entry.className = className;
+      entry.style.cssText = `
+        margin-bottom: 8px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        font-weight: 500;
+        letter-spacing: 0.2px;
+        font-size: 14.5px;
+        background: ${className === "history-add" ? "rgba(43, 130, 66, 0.85)" : className === "history-sub" ? "rgba(160, 47, 29, 0.85)" : "rgba(168, 121, 0, 0.85)"};
+        color: #fff;
+      `;
+      entry.innerHTML = `<div style="font-size:13px; color:#c9c9c9;">${dateStr} ${timeStr}</div><div>${text}</div>`;
+      scrollWrapper.appendChild(entry);
+    });
+  }
+
+  // Обработчики фильтров
+  [
+    '#filter-income', '#filter-subtract', '#filter-transfer',
+    '#filter-date-from', '#filter-date-to'
+  ].forEach(sel => {
+    modal.querySelector(sel).onchange = renderHistoryList;
+  });
+  modal.querySelector('#reset-history-filters').onclick = () => {
+    modal.querySelector('#filter-income').checked = false;
+    modal.querySelector('#filter-subtract').checked = false;
+    modal.querySelector('#filter-transfer').checked = false;
+    modal.querySelector('#filter-date-from').value = "";
+    modal.querySelector('#filter-date-to').value = "";
+    renderHistoryList();
+  };
+
+  // Первый запуск
+  renderHistoryList();
+  document.body.appendChild(modal);
+}
 
 // Цель: показать поле при активации чекбокса
 document.getElementById('envelope-has-goal').addEventListener('change', function() {
