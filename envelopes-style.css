@@ -7,6 +7,33 @@ body {
   max-width: 360px;
 }
 
+.dashboard-pill {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto 15px auto;
+  padding: 13px 36px 13px 36px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.48);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 2px 14px 0 rgba(0,0,0,0.09);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  font-size: 1.14em;
+  font-weight: 600;
+  color: #23292D;
+  letter-spacing: 0.02em;
+  position: relative;
+  z-index: 3;
+}
+.dashboard-pill span {
+  color: #23292D !important;
+  font-size: 1em;
+  font-weight: 600;
+}
+
 .envelope-dashboard {
   margin-bottom: 22px;
   padding: 8px 0 0 0;
