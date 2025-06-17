@@ -9,16 +9,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
-<div class="envelope-dashboard">
-  <div class="envelope-dashboard-header">
-    <span id="dashboard-total">Всего: 0.00 €</span>
-    <span id="dashboard-date">17 июня 2025</span>
-    <!-- <span id="dashboard-custom">Осталось до зарплаты: 5 дней</span> -->
-  </div>
-  <div class="envelope-summary-grid" id="envelope-summary-grid">
-    <!-- Сюда JS-ом вставляются мини-карточки -->
-  </div>
-</div>
 
   <div class="background-fixed"></div>
   <main class="container">
@@ -30,6 +20,18 @@
     <span class="slider"></span>
   </label>
 </div>
+
+<div class="envelope-dashboard">
+  <div class="envelope-dashboard-header">
+    <span id="dashboard-total">Всего: 0.00 €</span>
+    <span id="dashboard-date">17 июня 2025</span>
+    <!-- <span id="dashboard-custom">Осталось до зарплаты: 5 дней</span> -->
+  </div>
+  <div class="envelope-summary-grid" id="envelope-summary-grid">
+    <!-- Сюда JS-ом вставляются мини-карточки -->
+  </div>
+</div>
+
 
   <div class="add-envelope-toggle-container" style="margin-top:16px;">
     <form id="add-envelope-form" class="add-envelope-form">
