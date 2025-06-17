@@ -1329,14 +1329,14 @@ async function openFilteredEnvelopeHistory(envelopeId) {
     transform: translate(-50%, -50%);
     width: 340px;
     max-height: 80vh;
-    background: rgba(255,255,255,0.45);
+    background: rgba(30,30,40,0.45);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     border-radius: 20px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.2);
     padding: 20px;
     z-index: 9999;
-    color: #23292D;
+    color: #fff;
     font-size: 14.5px;
     display: flex;
     flex-direction: column;
