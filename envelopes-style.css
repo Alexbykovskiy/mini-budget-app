@@ -1664,16 +1664,20 @@ body * {
 }
 
 .summary-card {
-  width: 100%;
-  min-width: 0;
-  aspect-ratio: 1 / 1;
+  width: 76px;            /* например, 76 × 57 = 4:3 */
+  min-width: 76px;
+  max-width: 76px;
+  height: 57px;
+  min-height: 57px;
+  max-height: 57px;
+  aspect-ratio: 4 / 3;    /* на всякий случай, если поддерживается */
   border-radius: 14px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-size: 0.84em;
-  font-weight: 600;
+   font-size: 0.8em;       /* было 0.84em — стало чуть меньше */
+  font-weight: 300;       /* тонкий */
   text-align: center;
   padding: 5px 2px 5px 2px;
   color: #23292D;
@@ -1693,6 +1697,14 @@ body * {
 .summary-card.green {
   background: rgba(43, 130, 66, 0.32);
   color: #fff;
+}
+.summary-card > div {
+  font-size: 0.95em;
+  font-weight: 300;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
 .envelope-summary-widget {
