@@ -1706,3 +1706,45 @@ body * {
   gap: 16px;
   position: relative;
 }
+
+.envelope-summary-widget {
+  width: 100%;
+  max-width: 340px; /* теперь 340! */
+  margin: 0 auto 32px auto;
+  padding: 20px 12px 16px 12px;
+  background: rgba(0,0,0,0.54); /* или твой цвет */
+  border-radius: 24px;
+  backdrop-filter: blur(22px) saturate(1.18);
+  -webkit-backdrop-filter: blur(22px) saturate(1.18);
+  box-shadow: 0 8px 38px 0 rgba(0,0,0,0.22);
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  position: relative;
+}
+.envelope-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 в ряд */
+  gap: 8px;
+  width: 100%;
+}
+
+.envelope-summary-card {
+  background: rgba(255,255,255,0.11);
+  border-radius: 15px;
+  min-width: 0;
+  min-height: 68px;
+  max-width: 64px;
+  padding: 9px 5px 7px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.09);
+  /* Дополнительные стили по желанию */
+}
+
+/* На мобилках — 2–3 в ряд */
+@media (max-width: 500px) {
+  .envelope-summary-widget { max-width: 98vw; }
+  .envelope-summary-grid { grid-template-columns: repeat(2, 1fr); }
+}
