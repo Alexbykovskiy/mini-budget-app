@@ -1582,6 +1582,24 @@ modal.innerHTML = `
   document.body.appendChild(modal);
 });
 
+// --- Параллакс-эффект для фона ---
+function updateParallax() {
+  const scrollY = window.scrollY || window.pageYOffset;
+  // Сила параллакса
+  const parallaxY = scrollY * 0.22;
+  // Эффект scale (масштаб чуть больше при скролле)
+  const maxScroll = 260; // где fade/scale максимально выражен
+  const scale = 1 + Math.min(scrollY / maxScroll, 1) * 0.035; // 1 ... 1.035
+
+  const bg = document.querySelector('.background-fixed');
+  if (bg) {
+    bg.style.transform = `translateY(${parallaxY}px) scale(${scale})`;
+  }
+}
+window.addEventListener('scroll', updateParallax, {passive: true});
+window.addEventListener('resize', updateParallax);
+document.addEventListener('DOMContentLoaded', updateParallax);
+
 
    
 window.addEventListener("DOMContentLoaded", async () => {
