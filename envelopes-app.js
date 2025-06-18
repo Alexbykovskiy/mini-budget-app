@@ -442,6 +442,14 @@ ordered.forEach(async doc => {
  const block = document.createElement("div");
 block.className = "envelope-card-grid";
 block.setAttribute('data-id', doc.id);
+// === УСТАНОВКА КЛАССА ПО СТАТУСУ ИЗ ВЕРХНЕЙ КАРТОЧКИ ===
+const miniCard = document.querySelector(`.envelope-summary-card[data-id="${doc.id}"]`);
+if (miniCard) {
+  const status = miniCard.dataset.status;
+  if (status === "success") block.classList.add("success");
+  if (status === "danger") block.classList.add("danger");
+}
+
   const name = data.name || "";
   let titleFontSize = "2em";
   if (name.length > 18) titleFontSize = "1.4em";
@@ -597,12 +605,12 @@ if (parentCard) {
   if (statusClass) parentCard.classList.add(statusClass);
 }
     grid.innerHTML += `
-      <div class="envelope-summary-card ${statusClass}" data-id="${doc.id}">
-        <div class="envelope-summary-title">${escapeHTML(data.name)}</div>
-        <div class="envelope-summary-balance">${(data.current || 0).toFixed(2)} €</div>
-        ${goal > 0 ? `<div class="envelope-summary-progress">${percent}%</div>` : ""}
-      </div>
-    `;
+  <div class="envelope-summary-card ${statusClass}" data-id="${doc.id}" data-status="${statusClass}">
+    <div class="envelope-summary-title">${escapeHTML(data.name)}</div>
+    <div class="envelope-summary-balance">${(data.current || 0).toFixed(2)} €</div>
+    ${goal > 0 ? `<div class="envelope-summary-progress">${percent}%</div>` : ""}
+  </div>
+`;
   });
 
   document.getElementById('dashboard-total').textContent =
