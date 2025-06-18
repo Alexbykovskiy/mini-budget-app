@@ -1582,24 +1582,58 @@ modal.innerHTML = `
   document.body.appendChild(modal);
 });
 
-// --- Параллакс-эффект для фона ---
-function updateParallax() {
-  const scrollY = window.scrollY || window.pageYOffset;
-  // Сила параллакса
-  const parallaxY = scrollY * 0.22;
-  // Эффект scale (масштаб чуть больше при скролле)
-  const maxScroll = 260; // где fade/scale максимально выражен
-  const scale = 1 + Math.min(scrollY / maxScroll, 1) * 0.035; // 1 ... 1.035
+// --- Параллакс и tilt для 3 слоёв --- //
+function updateParallaxAndTilt(scrollY=window.scrollY||window.pageYOffset, tiltX=0, tiltY=0) {
+  // Смещение по скроллу и наклону — без scale!
+  const maxScroll = 260;
+  const bgParallaxY = scrollY * 0.22;
+  const contentParallaxY = scrollY * 0.12;
+  const menuParallaxY = scrollY * 0.04;
 
+  // tiltX/Y — из акселерометра
+  const maxTilt = 22;
+  tiltX = Math.max(Math.min(tiltX, maxTilt), -maxTilt);
+  tiltY = Math.max(Math.min(tiltY, maxTilt), -maxTilt);
+
+  // Фон — самый глубокий
+  const bgTiltX = tiltX * 1.9,   bgTiltY = tiltY * 1.6;
+  // Контент — меньше
+  const ctTiltX = tiltX * 1.0,   ctTiltY = tiltY * 0.7;
+  // Меню — совсем чуть-чуть
+  const mnTiltX = tiltX * 0.4,   mnTiltY = tiltY * 0.18;
+
+  // Слой 1: Фон
   const bg = document.querySelector('.background-fixed');
   if (bg) {
-    bg.style.transform = `translateY(${parallaxY}px) scale(${scale})`;
+    bg.style.transform = `translate(${bgTiltX}px, ${bgTiltY + bgParallaxY}px)`;
+    bg.style.transition = "transform 0.18s cubic-bezier(.51,1.13,.65,1)";
+  }
+  // Слой 2: Контент (весь)
+  const ct = document.getElementById('app-main-content') || document.querySelector('main.container');
+  if (ct) {
+    ct.style.transform = `translate(${ctTiltX}px, ${ctTiltY + contentParallaxY}px)`;
+    ct.style.transition = "transform 0.23s cubic-bezier(.51,1.13,.65,1)";
+  }
+  // Слой 3: Меню (и/или модалки)
+  const mn = document.querySelector('.main-bottom-menu');
+  if (mn) {
+    mn.style.transform = `translate(${mnTiltX}px, ${mnTiltY + menuParallaxY}px)`;
+    mn.style.transition = "transform 0.23s cubic-bezier(.51,1.13,.65,1)";
   }
 }
-window.addEventListener('scroll', updateParallax, {passive: true});
-window.addEventListener('resize', updateParallax);
-document.addEventListener('DOMContentLoaded', updateParallax);
 
+// Обновляем при скролле и resize
+window.addEventListener('scroll', () => updateParallaxAndTilt(), {passive: true});
+window.addEventListener('resize', () => updateParallaxAndTilt());
+document.addEventListener('DOMContentLoaded', () => updateParallaxAndTilt());
+
+// --- Акселерометр (мобильные устройства) --- //
+let lastTiltX = 0, lastTiltY = 0;
+window.addEventListener('deviceorientation', function(event) {
+  lastTiltX = event.gamma || 0; // влево/вправо
+  lastTiltY = event.beta  || 0; // вверх/вниз
+  updateParallaxAndTilt(window.scrollY, lastTiltX, lastTiltY);
+}, true);
 
    
 window.addEventListener("DOMContentLoaded", async () => {

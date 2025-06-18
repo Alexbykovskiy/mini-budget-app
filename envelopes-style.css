@@ -1797,3 +1797,23 @@ body * {
   .envelope-summary-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
+.background-fixed {
+  z-index: 0;
+  /* ...остальное как раньше... */
+}
+#app-main-content, main, body > *:not(.background-fixed):not(.main-bottom-menu) {
+  position: relative;
+  z-index: 1;
+}
+.main-bottom-menu {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 2000;
+  /* ...стили меню... */
+}
+/* Для модалок еще выше (если нужно): */
+.glass-modal {
+  z-index: 3000;
+}
+
+
