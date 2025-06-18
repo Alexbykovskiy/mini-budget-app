@@ -562,7 +562,21 @@ function renderEnvelopeDashboard(envelopes) {
   const grid = document.getElementById('envelope-summary-grid');
   if (!grid) return;
   grid.innerHTML = "";
+
   let total = 0;
+  let hasDanger = false;
+  let hasSuccess = false;
+
+  // 1. Сначала проход — определяем наличие success/danger
+  envelopes.forEach(doc => {
+    const data = doc.data();
+    if (!data.isPrimary) {
+      if (data.goal > 0 && data.current >= data.goal) hasSuccess = true;
+      if (data.current < 0) hasDanger = true;
+    }
+  });
+
+  // 2. Второй проход — рендерим карточки
   envelopes.forEach(doc => {
     const data = doc.data();
     total += data.current || 0;
@@ -570,10 +584,15 @@ function renderEnvelopeDashboard(envelopes) {
     if (goal > 0) percent = Math.round((data.current / goal) * 100);
 
     let statusClass = "";
-    if (goal > 0 && data.current >= goal) statusClass = "success";
-    else if (data.current < 0) statusClass = "danger";
 
-    // Вставляем data-id для перехода
+    if (data.isPrimary) {
+      if (hasDanger) statusClass = "danger";
+      else if (hasSuccess) statusClass = "success";
+    } else {
+      if (goal > 0 && data.current >= goal) statusClass = "success";
+      else if (data.current < 0) statusClass = "danger";
+    }
+
     grid.innerHTML += `
       <div class="envelope-summary-card ${statusClass}" data-id="${doc.id}">
         <div class="envelope-summary-title">${escapeHTML(data.name)}</div>
@@ -582,10 +601,16 @@ function renderEnvelopeDashboard(envelopes) {
       </div>
     `;
   });
-  document.getElementById('dashboard-total').textContent = "Всего: " + total.toFixed(2) + " €";
-  document.getElementById('dashboard-date').textContent = new Date().toLocaleDateString("ru-RU", {day:"2-digit",month:"long",year:"numeric"});
-}
 
+  document.getElementById('dashboard-total').textContent =
+    "Всего: " + total.toFixed(2) + " €";
+  document.getElementById('dashboard-date').textContent =
+    new Date().toLocaleDateString("ru-RU", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric"
+    });
+}
 
 // остальные функции не изменялись...
 
