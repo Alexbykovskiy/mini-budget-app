@@ -442,8 +442,10 @@ ordered.forEach(async doc => {
   const isPrimary = data.isPrimary === true;
 
 
+
  const block = document.createElement("div");
 block.className = "envelope-card-grid";
+block.setAttribute("data-id", doc.id);
   const name = data.name || "";
   let titleFontSize = "2em";
   if (name.length > 18) titleFontSize = "1.4em";
@@ -562,11 +564,23 @@ else {
 if (summaryContainer) {
   const card = document.createElement("div");
   card.className = `summary-card ${cardColor}`;
+  card.dataset.id = doc.id;
   card.innerHTML = `
     <div>${escapeHTML(data.name)}</div>
     <div style="font-weight: 800; font-size: 1.2em;">${data.current.toFixed(2)} €</div>
     ${data.goal > 0 ? `<div style="font-size: 0.85em;">${Math.min(Math.round((data.current / data.goal) * 100), 999)}%</div>` : ""}
   `;
+  card.addEventListener("click", () => {
+    // Найти конверт по data-id
+    const target = document.querySelector(`.envelope-card-grid[data-id='${doc.id}']`);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      target.style.boxShadow = "0 0 0 4px rgba(255,163,92,0.55)";
+      setTimeout(() => {
+        target.style.boxShadow = "";
+      }, 900);
+    }
+  });
   summaryContainer.appendChild(card);
 }
 envelopeGridContainer.appendChild(block);
