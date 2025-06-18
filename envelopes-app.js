@@ -589,6 +589,12 @@ envelopeGridContainer.appendChild(block);
 
 
 // --- после forEach, но до конца функции loadEnvelopes ---
+let totalBalance = 0;
+await Promise.all(ordered.map(async doc => {
+  const data = doc.data();
+  // ...весь твой код внутри forEach (создание block, карточки, вычисления и т.д.)...
+  totalBalance += data.current || 0;
+}));
 if (summaryHeader) {
   const now = new Date();
   const dateStr = now.toLocaleDateString("ru-RU", {
@@ -599,7 +605,6 @@ if (summaryHeader) {
     <span>${dateStr}</span>
   `;
 }
-
 } // <-- это уже конец всей функции loadEnvelopes
 
 // остальные функции не изменялись...
