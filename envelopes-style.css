@@ -81,10 +81,8 @@ body {
   word-break: break-word;
 }
 .envelope-summary-balance {
-  font-size: 1.18em;
-  color: #23292D;
-  font-weight: 800;
-  margin-bottom: 2px;
+  font-size: 0.83em; /* Примерно 70% от изначального 1.18em */
+  font-weight: 700;
 }
 .envelope-summary-progress {
   font-size: 0.95em;

@@ -584,15 +584,18 @@ function renderEnvelopeDashboard(envelopes) {
     if (goal > 0) percent = Math.round((data.current / goal) * 100);
 
     let statusClass = "";
+if (goal > 0 && data.current >= goal) {
+  statusClass = "success";
+} else if (data.current < 0) {
+  statusClass = "danger";
+}
 
-    if (data.isPrimary) {
-      if (hasDanger) statusClass = "danger";
-      else if (hasSuccess) statusClass = "success";
-    } else {
-      if (goal > 0 && data.current >= goal) statusClass = "success";
-      else if (data.current < 0) statusClass = "danger";
-    }
-
+// Присваиваем класс также и элементу основного блока, если он уже существует:
+const parentCard = document.querySelector(`.envelope-card-grid[data-id="${doc.id}"]`);
+if (parentCard) {
+  parentCard.classList.remove("success", "danger");
+  if (statusClass) parentCard.classList.add(statusClass);
+}
     grid.innerHTML += `
       <div class="envelope-summary-card ${statusClass}" data-id="${doc.id}">
         <div class="envelope-summary-title">${escapeHTML(data.name)}</div>
