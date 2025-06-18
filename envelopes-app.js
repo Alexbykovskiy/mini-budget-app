@@ -401,6 +401,11 @@ async function loadEnvelopes() {
     return;
   }
   list.innerHTML = "";
+const summaryContainer = document.getElementById("envelope-summary-cards");
+const summaryHeader = document.getElementById("envelope-summary-header");
+if (summaryContainer) summaryContainer.innerHTML = "";
+if (summaryHeader) summaryHeader.innerHTML = "";
+let totalBalance = 0;
 const envelopeGridContainer = document.createElement("div");
 envelopeGridContainer.className = "envelope-grid-container";
 list.appendChild(envelopeGridContainer); // <-- ЭТУ строку ОСТАВЬ!
@@ -545,13 +550,41 @@ block.innerHTML = `
   </button>
 </div>
 `;
+totalBalance += data.current || 0;
+
+let cardColor = ""; // по умолчанию — стеклянная
+if (data.goal > 0 && data.current >= data.goal) cardColor = "green";
+else {
+  const { added, spent } = await getEnvelopeMonthStats(doc.id);
+  if (spent > added) cardColor = "red";
+}
+
+if (summaryContainer) {
+  const card = document.createElement("div");
+  card.className = `summary-card ${cardColor}`;
+  card.innerHTML = `
+    <div>${escapeHTML(data.name)}</div>
+    <div style="font-weight: 800; font-size: 1.2em;">${data.current.toFixed(2)} €</div>
+    ${data.goal > 0 ? `<div style="font-size: 0.85em;">${Math.min(Math.round((data.current / data.goal) * 100), 999)}%</div>` : ""}
+  `;
+  summaryContainer.appendChild(card);
+}
 envelopeGridContainer.appendChild(block);
 
 }); // <-- это закрытие только forEach
 
 
 // --- после forEach, но до конца функции loadEnvelopes ---
-
+if (summaryHeader) {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("ru-RU", {
+    day: "numeric", month: "long", year: "numeric"
+  });
+  summaryHeader.innerHTML = `
+    <span>Всего: ${totalBalance.toFixed(2)} €</span>
+    <span>${dateStr}</span>
+  `;
+}
 
 } // <-- это уже конец всей функции loadEnvelopes
 
