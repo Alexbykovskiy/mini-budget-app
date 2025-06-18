@@ -439,9 +439,9 @@ ordered.forEach(async doc => {
   const isPrimary = data.isPrimary === true;
 
 
- const block = document.createElement("div");
-block.className = "envelope-card-grid";
-block.setAttribute('data-id', doc.id);
+ const card = document.createElement("div");
+let envStatus = window.envelopeStatusMap?.get(doc.id);
+card.className = "envelope-card-grid" + (envStatus ? ` ${envStatus}` : "");
 // === УСТАНОВКА КЛАССА ПО СТАТУСУ ИЗ ВЕРХНЕЙ КАРТОЧКИ ===
 const miniCard = document.querySelector(`.envelope-summary-card[data-id="${doc.id}"]`);
 if (miniCard) {
@@ -592,8 +592,12 @@ function renderEnvelopeDashboard(envelopes) {
     if (goal > 0) percent = Math.round((data.current / goal) * 100);
 
     let statusClass = "";
+window.envelopeStatusMap = window.envelopeStatusMap || new Map();
 if (goal > 0 && data.current >= goal) {
   statusClass = "success";
+if (statusClass) {
+  window.envelopeStatusMap.set(doc.id, statusClass);
+}
 } else if (data.current < 0) {
   statusClass = "danger";
 }

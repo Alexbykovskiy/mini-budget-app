@@ -1733,3 +1733,11 @@ body * {
   height: 28px !important;
 }
 
+.envelope-card-grid.success {
+  background: rgba(43, 170, 110, 0.19);
+  border: 1.5px solid #29c05a;
+}
+.envelope-card-grid.danger {
+  background: rgba(201, 61, 31, 0.13);
+  border: 1.5px solid #c93d1f;
+}
