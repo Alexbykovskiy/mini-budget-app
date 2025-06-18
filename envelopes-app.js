@@ -417,7 +417,6 @@ if (primary) ordered.push(primary);
 if (miniBudget) ordered.push(miniBudget);
 ordered.push(...others);
 
-renderEnvelopeDashboard(ordered);
 
  function calculateRemainingPercent() {
   // Суммируем percent для всех конвертов, кроме isPrimary
@@ -431,7 +430,6 @@ renderEnvelopeDashboard(ordered);
 const remaining = 100 - calculateRemainingPercent();
 
 
-
 ordered.forEach(async doc => {
   const data = doc.data();
   const percent = Math.min(100, Math.round(data.percent || 0));
@@ -439,17 +437,8 @@ ordered.forEach(async doc => {
   const isPrimary = data.isPrimary === true;
 
 
- const card = document.createElement("div");
-let envStatus = window.envelopeStatusMap?.get(doc.id);
-card.className = "envelope-card-grid" + (envStatus ? ` ${envStatus}` : "");
-// === УСТАНОВКА КЛАССА ПО СТАТУСУ ИЗ ВЕРХНЕЙ КАРТОЧКИ ===
-const miniCard = document.querySelector(`.envelope-summary-card[data-id="${doc.id}"]`);
-if (miniCard) {
-  const status = miniCard.dataset.status;
-  if (status === "success") block.classList.add("success");
-  if (status === "danger") block.classList.add("danger");
-}
-
+ const block = document.createElement("div");
+block.className = "envelope-card-grid";
   const name = data.name || "";
   let titleFontSize = "2em";
   if (name.length > 18) titleFontSize = "1.4em";
@@ -565,67 +554,6 @@ envelopeGridContainer.appendChild(block);
 
 
 } // <-- это уже конец всей функции loadEnvelopes
-
-function renderEnvelopeDashboard(envelopes) {
-  const grid = document.getElementById('envelope-summary-grid');
-  if (!grid) return;
-  grid.innerHTML = "";
-
-  let total = 0;
-  let hasDanger = false;
-  let hasSuccess = false;
-
-  // 1. Сначала проход — определяем наличие success/danger
-  envelopes.forEach(doc => {
-    const data = doc.data();
-    if (!data.isPrimary) {
-      if (data.goal > 0 && data.current >= data.goal) hasSuccess = true;
-      if (data.current < 0) hasDanger = true;
-    }
-  });
-
-  // 2. Второй проход — рендерим карточки
-  envelopes.forEach(doc => {
-    const data = doc.data();
-    total += data.current || 0;
-    let percent = 0, goal = data.goal || 0;
-    if (goal > 0) percent = Math.round((data.current / goal) * 100);
-
-    let statusClass = "";
-window.envelopeStatusMap = window.envelopeStatusMap || new Map();
-if (goal > 0 && data.current >= goal) {
-  statusClass = "success";
-if (statusClass) {
-  window.envelopeStatusMap.set(doc.id, statusClass);
-}
-} else if (data.current < 0) {
-  statusClass = "danger";
-}
-
-// Присваиваем класс также и элементу основного блока, если он уже существует:
-const parentCard = document.querySelector(`.envelope-card-grid[data-id="${doc.id}"]`);
-if (parentCard) {
-  parentCard.classList.remove("success", "danger");
-  if (statusClass) parentCard.classList.add(statusClass);
-}
-    grid.innerHTML += `
-  <div class="envelope-summary-card ${statusClass}" data-id="${doc.id}" data-status="${statusClass}">
-    <div class="envelope-summary-title">${escapeHTML(data.name)}</div>
-    <div class="envelope-summary-balance">${(data.current || 0).toFixed(2)} €</div>
-    ${goal > 0 ? `<div class="envelope-summary-progress">${percent}%</div>` : ""}
-  </div>
-`;
-  });
-
-  document.getElementById('dashboard-total').textContent =
-    "Всего: " + total.toFixed(2) + " €";
-  document.getElementById('dashboard-date').textContent =
-    new Date().toLocaleDateString("ru-RU", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric"
-    });
-}
 
 // остальные функции не изменялись...
 
@@ -1694,11 +1622,3 @@ async function startEditEnvelope(id) {
   // Скроллим к форме (по желанию)
   document.getElementById('add-envelope-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-
-document.getElementById('envelope-summary-grid').addEventListener('click', function(e) {
-  const card = e.target.closest('.envelope-summary-card');
-  if (card && card.dataset.id) {
-    const target = document.querySelector(`.envelope-card-grid[data-id="${card.dataset.id}"]`);
-    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-});

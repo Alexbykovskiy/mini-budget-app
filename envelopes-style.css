@@ -7,88 +7,6 @@ body {
   max-width: 360px;
 }
 
-.dashboard-pill {
-  background: rgba(255, 255, 255, 0.42);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.08), 0 1.5px 6px 0 rgba(0, 0, 0, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-}
-.dashboard-pill span {
-  color: #23292D !important;
-  font-size: 1em;
-  font-weight: 600;
-}
-
-.envelope-dashboard {
-  margin-bottom: 22px;
-  padding: 8px 0 0 0;
-}
-.envelope-dashboard-header {
-  font-size: 1.03em;
-  color: #23292D;
-  font-weight: 600;
-  margin-bottom: 11px;
-  display: flex;
-  gap: 20px;
-  justify-content: space-between;
-  align-items: center;
-}
-.envelope-summary-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 11px;
-  width: 100%;
-}
-.envelope-summary-card {
-  position: relative;
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.42) 0%,      /* светлый угол — левый верх */
-    rgba(255, 255, 255, 0.14) 100%     /* затемнение к правому нижнему */
-  );
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1.2px solid rgba(255, 255, 255, 0.22);
-  border-radius: 17px;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 9px 10px 8px 12px;
-  transition: background 0.13s, border 0.12s;
-  overflow: hidden;
-}
-
-
-.envelope-summary-card.success {
-  background: rgba(43, 170, 110, 0.19);
-  border-color: #29c05a;
-}
-.envelope-summary-card.warning {
-  background: rgba(255, 163, 92, 0.19);
-  border-color: #FFA35C;
-}
-.envelope-summary-card.danger {
-  background: rgba(201, 61, 31, 0.13);
-  border-color: #c93d1f;
-}
-.envelope-summary-title {
-  font-size: 0.60em; /* В 2 раза меньше */
-  font-weight: 600;
-  line-height: 1.2em;
-  white-space: normal;
-  word-break: break-word;
-}
-.envelope-summary-balance {
-  font-size: 0.83em; /* Примерно 70% от изначального 1.18em */
-  font-weight: 700;
-}
-.envelope-summary-progress {
-  font-size: 0.95em;
-  color: #aaa;
-}
-
 
 
 .envelope-grid-container {
@@ -117,23 +35,6 @@ body {
   margin-bottom: 0;
   transition: box-shadow 0.2s;
 }
-
-.envelope-summary-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
-  border-radius: inherit;
-  background: radial-gradient(
-    circle at top left,
-    rgba(255,255,255,0.35) 0%,
-    rgba(255,255,255,0.12) 40%,
-    rgba(255,255,255,0.0) 70%
-  );
-  z-index: 1;
-}
-
 
 /* Неоморфные поля и кнопки */
 .envelope-main {
@@ -1733,11 +1634,3 @@ body * {
   height: 28px !important;
 }
 
-.envelope-card-grid.success {
-  background: rgba(43, 170, 110, 0.19);
-  border: 1.5px solid #29c05a;
-}
-.envelope-card-grid.danger {
-  background: rgba(201, 61, 31, 0.13);
-  border: 1.5px solid #c93d1f;
-}
