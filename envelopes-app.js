@@ -410,7 +410,7 @@ envelopeGridContainer.className = "envelope-grid-container";
 list.appendChild(envelopeGridContainer);
 
 let totalBalance = 0; // <-- объявление только ОДИН раз!
-await Promise.all(ordered.map(async doc => {
+await Promise.all(snapshot.docs.map(async doc => {
   const data = doc.data();
   const percent = Math.min(100, Math.round(data.percent || 0));
   const isMiniBudget = data.isMiniBudget === true;
