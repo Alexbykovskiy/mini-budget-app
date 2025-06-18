@@ -1635,6 +1635,41 @@ window.addEventListener('deviceorientation', function(event) {
   updateParallaxAndTilt(window.scrollY, lastTiltX, lastTiltY);
 }, true);
 
+// --- Запросить разрешение на акселерометр для iOS --- //
+function askForMotionPermission() {
+  if (
+    typeof DeviceOrientationEvent !== 'undefined' &&
+    typeof DeviceOrientationEvent.requestPermission === 'function'
+  ) {
+    // Показываем свою кнопку
+    const btn = document.createElement('button');
+    btn.textContent = 'Включить параллакс (iOS)';
+    btn.style.cssText = `
+      position:fixed;top:12px;left:50%;transform:translateX(-50%);
+      z-index:9999;padding:13px 30px;font-size:16px;
+      background:#ffa35c;color:#fff;border-radius:22px;border:none;
+      box-shadow:0 4px 24px rgba(0,0,0,0.13);
+      backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      font-weight:600;letter-spacing:0.02em;
+    `;
+    btn.onclick = function () {
+      DeviceOrientationEvent.requestPermission()
+        .then(response => {
+          if (response === 'granted') {
+            window.dispatchEvent(new Event('deviceorientation'));
+            btn.remove();
+          } else {
+            alert('Доступ к акселерометру не разрешён.');
+          }
+        })
+        .catch(console.error);
+    };
+    document.body.appendChild(btn);
+  }
+}
+document.addEventListener('DOMContentLoaded', askForMotionPermission);
+
+
    
 window.addEventListener("DOMContentLoaded", async () => {
   await ensureSystemEnvelopes();
