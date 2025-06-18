@@ -1595,12 +1595,9 @@ function updateParallaxAndTilt(scrollY=window.scrollY||window.pageYOffset, tiltX
   tiltX = Math.max(Math.min(tiltX, maxTilt), -maxTilt);
   tiltY = Math.max(Math.min(tiltY, maxTilt), -maxTilt);
 
-  // Фон — самый глубокий
-  const bgTiltX = tiltX * 1.9,   bgTiltY = tiltY * 1.6;
-  // Контент — меньше
-  const ctTiltX = tiltX * 1.0,   ctTiltY = tiltY * 0.7;
-  // Меню — совсем чуть-чуть
-  const mnTiltX = tiltX * 0.4,   mnTiltY = tiltY * 0.18;
+  const bgTiltX = tiltX * 1.9,   bgTiltY = tiltY * 1.9;
+const ctTiltX = tiltX * 1.0,   ctTiltY = tiltY * 1.0;
+const mnTiltX = tiltX * 0.4,   mnTiltY = tiltY * 0.4;
 
   // Слой 1: Фон
   const bg = document.querySelector('.background-fixed');

@@ -1816,4 +1816,39 @@ body * {
   z-index: 3000;
 }
 
+/* Глобально для всей страницы: */
+html, body {
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;     /* Чтобы НИКОГДА не было горизонтального скролла */
+  box-sizing: border-box; /* Всегда! */
+}
+
+/* Отключаем фон у body (фон только у background-fixed): */
+body {
+  background: none !important;
+}
+
+/* Контент по центру, но не шире 360px: */
+main, .block, #add-envelope-wrapper, .envelope-card-grid,
+.envelope-summary-widget, .summary-header-pill, .summary-grid {
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Слой-фон на всю ширину и высоту: */
+.background-fixed {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: 0;
+  background: url('envelopes-background.jpg') center center / cover no-repeat;
+  pointer-events: none;
+  will-change: transform;
+}
+
 
