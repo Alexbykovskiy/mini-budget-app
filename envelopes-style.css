@@ -1,3 +1,7 @@
+html, body, *, *:before, *:after {
+  box-sizing: border-box;
+}
+
 body {
   font-family: 'Segoe UI', sans-serif;
   background: #e0e0e0;
