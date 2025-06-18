@@ -74,7 +74,7 @@ body {
   border-color: #c93d1f;
 }
 .envelope-summary-title {
-  font-size: 0.48em; /* В 2 раза меньше */
+  font-size: 0.60em; /* В 2 раза меньше */
   font-weight: 600;
   line-height: 1.2em;
   white-space: normal;
