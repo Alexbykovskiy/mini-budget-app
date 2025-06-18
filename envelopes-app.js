@@ -416,117 +416,116 @@ await Promise.all(snapshot.docs.map(async doc => {
   const isMiniBudget = data.isMiniBudget === true;
   const isPrimary = data.isPrimary === true;
 
-
-
-
-
-
-
   const name = data.name || "";
-let titleFontSize = "2em";
-if (name.length > 18) titleFontSize = "1.4em";
-if (name.length > 28) titleFontSize = "1.05em";
+  let titleFontSize = "2em";
+  if (name.length > 18) titleFontSize = "1.4em";
+  if (name.length > 28) titleFontSize = "1.05em";
 
-// Получить сумму за месяц
-const monthStats = await getEnvelopeMonthStats(doc.id);
-const addedThisMonth = monthStats.added;
-const spentThisMonth = monthStats.spent;
+  // Получить сумму за месяц
+  const monthStats = await getEnvelopeMonthStats(doc.id);
+  const addedThisMonth = monthStats.added;
+  const spentThisMonth = monthStats.spent;
 
-let goalDisplay;
-let goalForCalc;
-if (data.isPrimary) {
-  goalDisplay = '∞';
-  goalForCalc = null;
-} else if (data.goal > 0) {
-  goalDisplay = data.goal.toFixed(0);
-  goalForCalc = data.goal;
-} else {
-  goalDisplay = '∞';
-  goalForCalc = null;
-}
-const progress = (goalForCalc && goalForCalc > 0)
-  ? Math.min(addedThisMonth / goalForCalc, 1)
-  : 0;
-const progressPercent = (goalForCalc && goalForCalc > 0)
-  ? Math.round(addedThisMonth / goalForCalc * 100)
-  : 0;
+  let goalDisplay;
+  let goalForCalc;
+  if (data.isPrimary) {
+    goalDisplay = '∞';
+    goalForCalc = null;
+  } else if (data.goal > 0) {
+    goalDisplay = data.goal.toFixed(0);
+    goalForCalc = data.goal;
+  } else {
+    goalDisplay = '∞';
+    goalForCalc = null;
+  }
+  const progress = (goalForCalc && goalForCalc > 0)
+    ? Math.min(addedThisMonth / goalForCalc, 1)
+    : 0;
+  const progressPercent = (goalForCalc && goalForCalc > 0)
+    ? Math.round(addedThisMonth / goalForCalc * 100)
+    : 0;
 
-block.innerHTML = `
-  <div class="envelope-main">
-    <div class="envelope-header" style="font-size:${titleFontSize}; color:#23292D; font-weight:700;">
-      ${escapeHTML(name)}
-    </div>
-    <div class="envelope-row" style="display:flex;align-items:center;gap:20px;">
-      <div class="envelope-progress-info">
-        <div class="envelope-balance">
-          <span class="env-balance-main">${data.current.toFixed(2)}</span>
-          <span class="env-balance-sep">/</span>
-          <span class="env-balance-goal">${goalDisplay}</span>
+  // --- ВСТАВЬ ЭТО СЮДА ---
+  const block = document.createElement("div");
+  block.className = "envelope-card-grid";
+  block.setAttribute("data-id", doc.id);
+  // --- ДО block.innerHTML = ... ---
+
+  block.innerHTML = `
+    <div class="envelope-main">
+      <div class="envelope-header" style="font-size:${titleFontSize}; color:#23292D; font-weight:700;">
+        ${escapeHTML(name)}
+      </div>
+      <div class="envelope-row" style="display:flex;align-items:center;gap:20px;">
+        <div class="envelope-progress-info">
+          <div class="envelope-balance">
+            <span class="env-balance-main">${data.current.toFixed(2)}</span>
+            <span class="env-balance-sep">/</span>
+            <span class="env-balance-goal">${goalDisplay}</span>
+          </div>
+          <div class="envelope-distribution">
+            <span style="color:#999;font-size:13px;">Распределение:</span>
+            <span style="color:#186663;font-weight:600;font-size:14px;">${percent}%</span>
+          </div>
         </div>
-        <div class="envelope-distribution">
-          <span style="color:#999;font-size:13px;">Распределение:</span>
-          <span style="color:#186663;font-weight:600;font-size:14px;">${Math.min(100, Math.round(data.percent || 0))}%</span>
+        <div class="envelope-progress-ring">
+          ${
+            goalForCalc && goalForCalc > 0
+              ? `<svg width="60" height="60">
+                    <circle cx="30" cy="30" r="26" stroke="#EEE" stroke-width="8" fill="none"/>
+                    <circle
+                      cx="30" cy="30" r="26"
+                      stroke="#FFA35C"
+                      stroke-width="8"
+                      fill="none"
+                      stroke-linecap="round"
+                      stroke-dasharray="${2 * Math.PI * 26}"
+                      stroke-dashoffset="${2 * Math.PI * 26 * (1 - progress)}"
+                      style="transition:stroke-dashoffset 0.4s;"
+                    />
+                    <text x="30" y="36" text-anchor="middle" font-size="18" fill="#FFA35C" font-weight="bold">${progressPercent}%</text>
+                 </svg>`
+              : `<div class="infinity-ring">∞</div>`
+          }
         </div>
       </div>
-      <div class="envelope-progress-ring">
-        ${
-          goalForCalc && goalForCalc > 0
-            ? `<svg width="60" height="60">
-                  <circle cx="30" cy="30" r="26" stroke="#EEE" stroke-width="8" fill="none"/>
-                  <circle
-                    cx="30" cy="30" r="26"
-                    stroke="#FFA35C"
-                    stroke-width="8"
-                    fill="none"
-                    stroke-linecap="round"
-                    stroke-dasharray="${2 * Math.PI * 26}"
-                    stroke-dashoffset="${2 * Math.PI * 26 * (1 - progress)}"
-                    style="transition:stroke-dashoffset 0.4s;"
-                  />
-                  <text x="30" y="36" text-anchor="middle" font-size="18" fill="#FFA35C" font-weight="bold">${progressPercent}%</text>
-               </svg>`
-            : `<div class="infinity-ring">∞</div>`
-        }
+      <div class="envelope-stats" style="margin: 8px 0 4px 0;">
+        <div>Добавлено в этом месяце: <b>${addedThisMonth.toFixed(2)}</b></div>
+        <div>Потрачено в этом месяце: <b>${spentThisMonth.toFixed(2)}</b></div>
       </div>
+      <div class="envelope-divider"></div>
+      <div class="envelope-comment">${escapeHTML(data.comment || "Комментарий не указан")}</div>
     </div>
-    <div class="envelope-stats" style="margin: 8px 0 4px 0;">
-      <div>Добавлено в этом месяце: <b>${addedThisMonth.toFixed(2)}</b></div>
-      <div>Потрачено в этом месяце: <b>${spentThisMonth.toFixed(2)}</b></div>
+    <div class="envelope-actions">
+      <button class="round-btn menu small menu-btn" data-id="${doc.id}" title="Меню">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#23292D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+      </button>
+      <button class="round-btn orange small" onclick="addToEnvelope('${doc.id}')" title="Добавить">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </button>
+      <button class="round-btn orange small" onclick="subtractFromEnvelope('${doc.id}')" title="Вычесть">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </button>
+      <button class="round-btn orange small" onclick="transferEnvelope('${doc.id}', ${data.current})" title="Перевести">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="18 8 22 12 18 16"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <polyline points="6 8 2 12 6 16"/>
+        </svg>
+      </button>
     </div>
-    <div class="envelope-divider"></div>
-    <div class="envelope-comment">${escapeHTML(data.comment || "Комментарий не указан")}</div>
-  </div>
-  <div class="envelope-actions">
-    <button class="round-btn menu small menu-btn" data-id="${doc.id}" title="Меню">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#23292D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="4" y1="6" x2="20" y2="6"/>
-        <line x1="4" y1="12" x2="20" y2="12"/>
-        <line x1="4" y1="18" x2="20" y2="18"/>
-      </svg>
-    </button>
-    <button class="round-btn orange small" onclick="addToEnvelope('${doc.id}')" title="Добавить">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="12" y1="5" x2="12" y2="19"/>
-        <line x1="5" y1="12" x2="19" y2="12"/>
-      </svg>
-    </button>
-    <button class="round-btn orange small" onclick="subtractFromEnvelope('${doc.id}')" title="Вычесть">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="5" y1="12" x2="19" y2="12"/>
-      </svg>
-    </button>
-    <button class="round-btn orange small" onclick="transferEnvelope('${doc.id}', ${data.current})" title="Перевести">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="18 8 22 12 18 16"/>
-        <line x1="2" y1="12" x2="22" y2="12"/>
-        <polyline points="6 8 2 12 6 16"/>
-      </svg>
-    </button>
-  </div>
-`;
+  `;
 
-envelopeGridContainer.appendChild(block);
-
+  envelopeGridContainer.appendChild(block);
 
   totalBalance += data.current || 0;
 
