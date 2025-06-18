@@ -1745,6 +1745,9 @@ body * {
   align-items: center;
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.09);
 box-sizing: border-box;
+font-size: 0.83em;   /* 20% меньше стандартного (1em) */
+  font-weight: 400;    /* "тонкий" (обычный). Если хочешь совсем тонкий — поставь 300 */
+  letter-spacing: 0.01em;
 
   /* Дополнительные стили по желанию */
 }
