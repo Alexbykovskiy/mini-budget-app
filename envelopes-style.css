@@ -1713,7 +1713,7 @@ body * {
 
 .envelope-summary-widget {
   width: 100%;
-  max-width: 340px; /* теперь 340! */
+  max-width: 360px; /* теперь 360! */
   margin: 0 auto 32px auto;
   padding: 20px 12px 16px 12px;
   background: rgba(0,0,0,0.54); /* или твой цвет */
