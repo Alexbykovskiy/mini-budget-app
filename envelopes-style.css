@@ -717,12 +717,6 @@ main.container, .block, ... {
   opacity: 0.9;
 }
 
-.envelope-distribution,
-.envelope-distribution span {
-  color: #23292D !important;
-  font-size: 14px;
-  font-weight: 600;
-}
 
 .env-balance-sep {
   color: #23292D !important;
