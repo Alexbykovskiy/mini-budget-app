@@ -464,7 +464,7 @@ await Promise.all(snapshot.docs.map(async doc => {
             <span class="env-balance-goal">${goalDisplay}</span>
           </div>
           <div class="envelope-distribution">
-            <span style="color:#999;font-size:13px;">Распределение:</span>
+            <span style="color:#999;font-size:13px;">Процент:</span>
             <span style="color:#186663;font-weight:600;font-size:14px;">${percent}%</span>
           </div>
         </div>
