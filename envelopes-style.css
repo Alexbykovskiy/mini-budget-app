@@ -2032,7 +2032,7 @@ textarea,
 .envelope-distribution span:last-child,
 .envelope-transfer-note {
   color: #aab2bb !important;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 400;
   text-shadow: none;
 }
