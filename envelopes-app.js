@@ -566,8 +566,11 @@ if (summaryHeader) {
     day: "numeric", month: "long", year: "numeric"
   });
   summaryHeader.innerHTML = `
-    <span>Всего: ${totalBalance.toFixed(2)} €</span>
-    <span>${dateStr}</span>
+    <div style="display:flex; flex-direction:column; align-items:flex-start; width:100%;">
+      <span class="summary-total-label">Всего</span>
+      <span class="summary-total-amount">${totalBalance.toFixed(2)} €</span>
+    </div>
+    <span class="summary-date">${dateStr}</span>
   `;
 }
 
