@@ -1690,10 +1690,25 @@ async function startEditEnvelope(id) {
 const transferSwitch = document.getElementById("transfer-switch");
 const transferSelect = document.getElementById("transfer-target-select");
 
+function updateTransferNote() {
+  if (!commentInput) return;
+  let value = commentInput.value.replace(/\n?Перенос в «[^»]+» в конце месяца\./, "");
+  if (transferSwitch.checked && transferSelect.value) {
+    const targetOption = transferSelect.options[transferSelect.selectedIndex];
+    const targetName = targetOption ? targetOption.textContent : "";
+    value = value.trim() + `\nПеренос в «${targetName}» в конце месяца.`;
+  }
+  commentInput.value = value.trim();
+}
+
+transferSwitch.addEventListener("change", updateTransferNote);
+transferSelect.addEventListener("change", updateTransferNote);
+
 transferSelect.style.display = transferSwitch.checked ? "block" : "none";
 transferSwitch.addEventListener("change", () => {
   transferSelect.style.display = transferSwitch.checked ? "block" : "none";
 });
+
 async function transferBalancesAtMonthStart() {
   const snapshot = await db.collection("envelopes").get();
   const batch = db.batch();
