@@ -1918,7 +1918,6 @@ textarea {
 .block,
 .envelope-card-grid,
 #add-envelope-wrapper,
-.summary-card,
 .floating-pill,
 .glass-modal,
 input[type="text"],
@@ -1936,10 +1935,16 @@ textarea,
 .block:after,
 .envelope-card-grid:after,
 #add-envelope-wrapper:after,
-.summary-card:after,
 .floating-pill:after,
 .glass-modal:after,
 .income-square-btn:after {
   border-radius: 30px !important;
 }
 
+
+.summary-card {
+  border-radius: 24px !important;
+}
+.summary-card:after {
+  border-radius: 24px !important;
+}
