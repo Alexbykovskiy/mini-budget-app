@@ -1247,39 +1247,19 @@ linear-gradient(135deg, rgba(255,255,255,0.50) 15%, rgba(255,255,255,0.00) 90%) 
 }
 
 .pill-btn.max-btn {
-  height: 44px;           /* Такая же высота, как у поля */
-  padding: 0 22px;        /* Длина пилюли, текст по центру */
-  font-size: 15px;
+  background: rgba(30,30,40,0.20) !important;
+  color: #fff !important;
+  border-radius: 999px !important;
+  box-shadow: 0 1.5px 6px 0 rgba(0,0,0,0.09) inset;
   font-weight: 600;
-  border-radius: 999px;
-  border: none;
-  outline: none;
-  background: linear-gradient(120deg,
-    rgba(255, 205, 0, 0.14) 0%,
-    rgba(233, 175, 44, 0.23) 100%
-  );
-  color: #ad840b;
-  border: 1.2px solid rgba(255,255,255,0.14);
-  box-shadow: 0 4px 12px rgba(255, 205, 0, 0.09);
-  cursor: pointer;
-  letter-spacing: 0.01em;
-  transition: filter 0.16s, background 0.18s, color 0.12s;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  margin: 0;
-  min-width: 0;
-  align-self: stretch;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border: none !important;
+  transition: filter 0.15s, background 0.18s, color 0.12s;
 }
+
 .pill-btn.max-btn:hover {
-  filter: brightness(1.12) saturate(1.1);
-  background: linear-gradient(120deg,
-    rgba(255, 205, 0, 0.20) 0%,
-    rgba(233, 175, 44, 0.29) 100%
-  );
-  color: #fff;
+  background: rgba(30,30,40,0.33) !important;
+  color: #fff !important;
+  filter: brightness(1.06);
 }
 
 .input-row-with-btn {
