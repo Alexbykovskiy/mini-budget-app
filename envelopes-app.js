@@ -1663,10 +1663,10 @@ async function startEditEnvelope(id) {
 const transferSwitch = document.getElementById("transfer-switch");
 const transferSelect = document.getElementById("transfer-target-select");
 
+transferSelect.style.display = transferSwitch.checked ? "block" : "none";
 transferSwitch.addEventListener("change", () => {
   transferSelect.style.display = transferSwitch.checked ? "block" : "none";
 });
-
 async function transferBalancesAtMonthStart() {
   const snapshot = await db.collection("envelopes").get();
   const batch = db.batch();
