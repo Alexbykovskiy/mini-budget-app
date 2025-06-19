@@ -2009,7 +2009,7 @@ textarea,
 .envelope-distribution span,
 .envelope-distribution span:last-child,
 .envelope-transfer-note {
-  color: #aab2bb !important;
+  color: rgba(170, 178, 187, 0.5) !important;
   font-size: 12px;
   font-weight: 400;
   text-shadow: none;
