@@ -523,8 +523,7 @@ main.container, .block, ... {
   -webkit-backdrop-filter: blur(16px);      /* для Safari */
   box-shadow: 0 8px 24px 0 rgba(0,0,0,0.08), 0 1.5px 6px 0 rgba(0,0,0,0.07);
   border-radius: 24px;
-  border: 1px solid rgba(255,255,255,0.28);
-}
+ }
 
 .round-btn.orange {
   background: linear-gradient(
