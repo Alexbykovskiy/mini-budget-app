@@ -1685,6 +1685,16 @@ async function startEditEnvelope(id) {
   document.getElementById('add-envelope-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+const commentInput = document.getElementById("envelope-comment");
+
+// Функция для автодобавления/удаления строки "Перенос в ..."
+function updateTransferNote() {
+  if (!commentInput) return;
+  let value = commentInput.value.replace(/\n?Перенос в «[^»]+» в конце месяца\./, '');
+  if (transferSwitch.checked && transferSelect.value) {
+    const targetOption = transferSelect.options[transferSelect.selectedIndex];
+    const targetName = targetOption ? targetOption.textContent :
+
 
 const transferSwitch = document.getElementById("transfer-switch");
 const transferSelect = document.getElementById("transfer-target-select");
