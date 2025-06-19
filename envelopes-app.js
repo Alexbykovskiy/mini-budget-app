@@ -473,7 +473,7 @@ document.getElementById("transfer-target-select").style.display = data.transferE
     percentInput.style.display = percentLabel.style.display = 'none';
 
     // Сообщение при клике
-    distRow.addEventListener('click', function showDistInfo(e) {
+   distRow.addEventListener('click', function showDistInfo(e) {
   if (distributionCheckbox.disabled) {
     let tip = document.getElementById('distribution-switch-tip');
     if (tip) tip.remove();
@@ -481,16 +481,16 @@ document.getElementById("transfer-target-select").style.display = data.transferE
     tip.id = 'distribution-switch-tip';
     tip.textContent = 'В "Общий" идут только нераспределённые проценты.';
     tip.style.position = 'absolute';
-    tip.style.top = '16px';                          // ближе к ios toast
+    tip.style.top = '16px';
     tip.style.left = '50%';
     tip.style.transform = 'translateX(-50%)';
-    tip.style.background = 'rgba(30,33,41,0.97)';
+    tip.style.background = '#23292D';    // Плотный цвет, без прозрачности!
     tip.style.color = '#fff';
     tip.style.fontSize = '13.5px';
     tip.style.padding = '13px 16px';
     tip.style.borderRadius = '16px';
-    tip.style.border = '1.3px solid rgba(255,255,255,0.16)';
-    tip.style.boxShadow = '0 6px 22px 0 rgba(0,0,0,0.18), 0 0.5px 0.5px 0 rgba(255,255,255,0.11) inset';
+    tip.style.border = '1.3px solid #363B44';  // Тёмная полупрозрачная обводка для "стеклянности"
+    tip.style.boxShadow = '0 6px 22px 0 rgba(0,0,0,0.18)';
     tip.style.textAlign = 'center';
     tip.style.zIndex = '9999';
     tip.style.pointerEvents = 'none';
