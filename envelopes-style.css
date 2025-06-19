@@ -1887,3 +1887,13 @@ input[type="range"] {
 .infinity-ring {
   color: rgba(255,255,255,0.60) !important;
 }
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select,
+textarea {
+  border-radius: 999px !important;
+  /* остальные стили не трогаем */
+}
+
