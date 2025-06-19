@@ -725,9 +725,9 @@ main.container, .block, ... {
 }
 
 .env-balance-main {
-  color: #23292D !important;
+  color: rgba(255,255,255,0.85) !important;
   font-size: 2.3em;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: -1px;
   line-height: 1.15em;
   opacity: 0.95;
