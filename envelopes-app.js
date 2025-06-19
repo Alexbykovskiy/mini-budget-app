@@ -393,28 +393,50 @@ async function renderInlineDistributionEditor() {
 
 let editingEnvelopeId = null;
 
-async function fillTransferTargetSelect() {
+async function fillTransferTargetSelect(editingEnvelopeId = null) {
   const select = document.getElementById("transfer-target-select");
   if (!select) return;
   const prev = select.value;
   select.innerHTML = '<option value="">— Выбери конверт —</option>';
 
   const snapshot = await db.collection("envelopes").orderBy("created", "asc").get();
+
+  // Соберём id всех конвертов, у которых уже включён автоперенос
+  const lockedIds = [];
   snapshot.forEach(doc => {
     const data = doc.data();
-    // Не добавляем MiniBudget — если надо, допиши фильтр
-    const option = document.createElement("option");
-option.value = doc.id;
-option.textContent = data.name || "(без названия)";
-select.appendChild(option);
+    if (data.transferEnabled && data.transferTarget) lockedIds.push(doc.id);
+  });
+
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    // Не даём выбрать самого себя
+    if (editingEnvelopeId && doc.id === editingEnvelopeId) return;
+
+    // Не даём выбрать те, у кого уже активирован автоперенос — либо вообще не показывать, либо сделать disabled с подписью
+    if (lockedIds.includes(doc.id)) {
+      // ВАРИАНТ 1: исключить вовсе (раскомментируй следующую строку)
+      // return;
+
+      // ВАРИАНТ 2: добавить disabled-опцию с пометкой
+      const option = document.createElement("option");
+      option.value = doc.id;
+      option.disabled = true;
+      option.textContent = (data.name || "(без названия)") + " — нельзя выбрать, пока у этого конверта активен перенос";
+      select.appendChild(option);
+      return;
     }
+
+    // Обычные, доступные для выбора конверты
+    const option = document.createElement("option");
+    option.value = doc.id;
+    option.textContent = data.name || "(без названия)";
+    select.appendChild(option);
   });
 
   // Сохрани прежний выбор, если редактируешь
   if (prev) select.value = prev;
 }
-
-
 function fillEditForm(data, id) {
   document.getElementById('envelope-name').value = data.name || "";
   document.getElementById('envelope-comment').value = data.comment || "";
@@ -437,8 +459,7 @@ document.getElementById("transfer-target-select").style.display = data.transferE
   const submitBtn = document.querySelector('#add-envelope-form button[type="submit"]');
     document.getElementById('cancel-edit-btn').style.display = 'inline-flex';
 renderInlineDistributionEditor();
-fillTransferTargetSelect();
-
+fillTransferTargetSelect(id);
 }
 
 
