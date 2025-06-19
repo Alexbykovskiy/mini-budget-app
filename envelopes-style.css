@@ -1897,3 +1897,34 @@ textarea {
   /* остальные стили не трогаем */
 }
 
+/* Светлый текст во всех инпутах-пилюлях в модальных окнах */
+.glass-modal input[type="text"],
+.glass-modal input[type="number"],
+.glass-modal input[type="date"],
+.glass-modal select,
+.glass-modal textarea {
+  color: #fff !important;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.glass-modal input::placeholder,
+.glass-modal textarea::placeholder {
+  color: rgba(255,255,255,0.68) !important;
+  opacity: 1 !important;
+}
+
+.glass-modal input[type="text"],
+.glass-modal input[type="number"],
+.glass-modal input[type="date"],
+.glass-modal select {
+  background: rgba(0,0,0,0.54) !important;
+  border: none;
+  color: #fff !important;
+  border-radius: 999px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  box-shadow: none;
+  outline: none;
+}
+
