@@ -1733,8 +1733,6 @@ function updateTransferNote() {
   commentInput.value = value.trim();
 }
 
-transferSwitch.addEventListener("change", updateTransferNote);
-transferSelect.addEventListener("change", updateTransferNote);
 
 transferSelect.style.display = transferSwitch.checked ? "block" : "none";
 transferSwitch.addEventListener("change", () => {
