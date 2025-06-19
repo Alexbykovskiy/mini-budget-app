@@ -299,7 +299,7 @@ form.addEventListener("submit", async (e) => {
 }
     
       const submitBtn = document.querySelector('#add-envelope-form button[type="submit"]');
-    } else {
+        } else {
       await db.collection("envelopes").add({
         name,
         goal,
@@ -307,9 +307,14 @@ form.addEventListener("submit", async (e) => {
         current: 0,
         created: Date.now(),
         includeInDistribution: distribution,
-        percent
+        percent,
+        transferEnabled: document.getElementById("transfer-switch").checked,
+        transferTarget: document.getElementById("transfer-switch").checked
+          ? document.getElementById("transfer-target-select").value
+          : null,
       });
     }
+
     form.reset();
     document.getElementById('envelope-goal').style.display = 'none';
     document.getElementById('envelope-percent').style.display = 'none';
@@ -1684,11 +1689,3 @@ async function transferBalancesAtMonthStart() {
   console.log("✅ Остатки перенесены.");
 }
 
-const transferSwitch = document.getElementById("transfer-switch");
-const transferSelect = document.getElementById("transfer-target-select");
-
-if (transferSwitch && transferSelect) {
-  transferSwitch.addEventListener("change", () => {
-    transferSelect.style.display = transferSwitch.checked ? "block" : "none";
-  });
-}
