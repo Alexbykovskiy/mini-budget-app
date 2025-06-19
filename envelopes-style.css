@@ -1948,3 +1948,57 @@ textarea,
 .summary-card:after {
   border-radius: 24px !important;
 }
+
+.ios-switch input:checked + .slider,
+.ios-switch-green input:checked + .slider {
+  background: linear-gradient(120deg, #FFA35C 80%, #FFC691 100%);
+  box-shadow: 0 2px 10px 0 rgba(255,163,92,0.18), 0 1.5px 6px 0 rgba(255,163,92,0.13) inset;
+}
+
+.ios-switch input:checked + .slider:before,
+.ios-switch-green input:checked + .slider:before {
+  transform: translateX(14px);
+  background: #fff;
+}
+
+/* Селект-пилюля для формы добавления/редактирования */
+.envelope-select {
+  border: none;
+  background: rgba(40, 40, 45, 0.20);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 15px;
+  padding: 9px 20px;
+  box-shadow: 0 1.5px 7px 0 rgba(30,40,60,0.11);
+  outline: none;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  min-width: 120px;
+  transition: background 0.16s, color 0.16s;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  position: relative;
+}
+
+.envelope-select:focus {
+  background: rgba(60, 60, 70, 0.28);
+}
+
+/* Красивая стрелка справа внутри select */
+.envelope-select {
+  background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 20px 20px;
+  padding-right: 38px; /* место под иконку */
+}
+
+/* Стили опций внутри select */
+.envelope-select option {
+  background: #23292D;
+  color: #fff;
+  border-radius: 0;
+  font-size: 15px;
+}
