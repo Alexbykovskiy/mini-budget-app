@@ -294,28 +294,40 @@ body {
   position: relative;
 }
 
-.ios-switch {
+.ios-switch,
+.ios-switch-green {
   display: inline-block;
   position: relative;
   width: 38px;
   height: 24px;
   vertical-align: middle;
 }
-.ios-switch input[type="checkbox"] {
+
+/* Прячем чекбокс */
+.ios-switch input[type="checkbox"],
+.ios-switch-green input[type="checkbox"] {
   opacity: 0;
   width: 0;
   height: 0;
 }
-.ios-switch .slider {
+
+/* Базовый вид слайдера (выключен) */
+.ios-switch .slider,
+.ios-switch-green .slider {
   position: absolute;
   cursor: pointer;
-  top: 0; left: 0;
-  right: 0; bottom: 0;
-  background: #ccc;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(40, 43, 49, 0.54);   /* тёмно-серый, полупрозрачный */
   border-radius: 99px;
   transition: .2s;
+  box-shadow:
+    0 3px 7px 0 rgba(0,0,0,0.22) inset,         /* тень снизу */
+    0 -5px 16px 0 rgba(255,255,255,0.19) inset; /* свет сверху — “вдавленность” */
 }
-.ios-switch .slider:before {
+
+/* Кружок-ползунок */
+.ios-switch .slider:before,
+.ios-switch-green .slider:before {
   position: absolute;
   content: "";
   height: 16px;
@@ -324,19 +336,31 @@ body {
   background: #fff;
   border-radius: 50%;
   transition: .2s;
-  box-shadow: 1px 1px 4px #bbb;
+  box-shadow: 1px 1px 4px #aaa;
 }
-.ios-switch input:checked + .slider {
+
+/* ВКЛЮЧЁННЫЙ — терракотовый */
+.ios-switch input:checked + .slider,
+.ios-switch-green input:checked + .slider {
   background: #FFA35C;
+  box-shadow: 0 2px 7px 0 rgba(255,163,92,0.16) inset, 0 -1px 4px 0 rgba(255,255,255,0.10) inset;
 }
-.ios-switch input:checked + .slider:before {
+
+/* Сдвигаем кружок вправо */
+.ios-switch input:checked + .slider:before,
+.ios-switch-green input:checked + .slider:before {
   transform: translateX(14px);
 }
-.ios-switch-green .slider {
-  background: #ccc;
-}
+
+/* Для зелёных — оставь тот же стиль, или можешь закомментить */
 .ios-switch-green input:checked + .slider {
-  background: #186663;
+  background: #FFA35C;  /* теперь одинаково, терракотовый */
+}
+
+/* Ховер-эффект по желанию */
+.ios-switch .slider:hover,
+.ios-switch-green .slider:hover {
+  filter: brightness(1.05) saturate(1.1);
 }
 
 .add-envelope-form .row {
