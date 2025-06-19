@@ -1875,3 +1875,45 @@ linear-gradient(135deg, rgba(255,255,255,0.50) 15%, rgba(255,255,255,0.00) 90%) 
   mask-composite: exclude;
 }
 
+/* Универсально для современных браузеров */
+input[type="range"] {
+  accent-color: #FFA35C; /* Работает в Chrome, Edge, Safari, Firefox */
+}
+
+/* Chrome, Safari — круглый бегунок */
+input[type="range"]::-webkit-slider-thumb {
+  background: #FFA35C;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(255,163,92,0.10);
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  background: #FFA35C;
+}
+
+/* Firefox — бегунок */
+input[type="range"]::-moz-range-thumb {
+  background: #FFA35C;
+  border: 2px solid #fff;
+}
+input[type="range"]::-moz-range-track {
+  background: #FFA35C;
+}
+
+/* IE/Edge Legacy */
+input[type="range"]::-ms-fill-lower {
+  background: #FFA35C;
+}
+input[type="range"]::-ms-thumb {
+  background: #FFA35C;
+  border: 2px solid #fff;
+}
+
+/* Общие скругления */
+input[type="range"],
+input[type="range"]::-webkit-slider-runnable-track,
+input[type="range"]::-webkit-slider-thumb {
+  border-radius: 16px;
+}
+
+
