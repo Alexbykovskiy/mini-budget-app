@@ -281,49 +281,45 @@ form.addEventListener("submit", async (e) => {
   if (!name) return;
 
   try {
-    if (editingEnvelopeId) {
-  await db.collection("envelopes").doc(editingEnvelopeId).update({
-    name,
-    comment,
-    hasGoal,
-    goal,
-    isPrimary,
-    isMiniBudget,
-    distribution,
-    percent,
-    transferEnabled: document.getElementById("transfer-switch").checked,
-    transferTarget: document.getElementById("transfer-switch").checked
-      ? document.getElementById("transfer-target-select").value
-      : null,
-  });
-}
-    
-      const submitBtn = document.querySelector('#add-envelope-form button[type="submit"]');
-        } else {
-      await db.collection("envelopes").add({
-        name,
-        goal,
-        comment,
-        current: 0,
-        created: Date.now(),
-        includeInDistribution: distribution,
-        percent,
-        transferEnabled: document.getElementById("transfer-switch").checked,
-        transferTarget: document.getElementById("transfer-switch").checked
-          ? document.getElementById("transfer-target-select").value
-          : null,
-      });
-    }
-
-    form.reset();
-    document.getElementById('envelope-goal').style.display = 'none';
-    document.getElementById('envelope-percent').style.display = 'none';
-    document.getElementById('envelope-percent-label').style.display = 'none';
-    loadEnvelopes();
-  } catch (err) {
-    alert("Ошибка при добавлении: " + err.message);
+  if (editingEnvelopeId) {
+    await db.collection("envelopes").doc(editingEnvelopeId).update({
+      name,
+      comment,
+      hasGoal,
+      goal,
+      isPrimary,
+      isMiniBudget,
+      distribution,
+      percent,
+      transferEnabled: document.getElementById("transfer-switch").checked,
+      transferTarget: document.getElementById("transfer-switch").checked
+        ? document.getElementById("transfer-target-select").value
+        : null,
+    });
+  } else {
+    await db.collection("envelopes").add({
+      name,
+      goal,
+      comment,
+      current: 0,
+      created: Date.now(),
+      includeInDistribution: distribution,
+      percent,
+      transferEnabled: document.getElementById("transfer-switch").checked,
+      transferTarget: document.getElementById("transfer-switch").checked
+        ? document.getElementById("transfer-target-select").value
+        : null,
+    });
   }
-});
+  form.reset();
+  document.getElementById('envelope-goal').style.display = 'none';
+  document.getElementById('envelope-percent').style.display = 'none';
+  document.getElementById('envelope-percent-label').style.display = 'none';
+  loadEnvelopes();
+} catch (err) {
+  alert("Ошибка при добавлении: " + err.message);
+}
+
 
 async function renderInlineDistributionEditor() {
   const container = document.getElementById('inline-distribution-editor');
