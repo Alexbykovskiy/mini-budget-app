@@ -1928,3 +1928,9 @@ textarea {
   outline: none;
 }
 
+.glass-modal {
+  width: 340px !important;
+  max-width: 95vw !important;
+  min-width: 240px !important;
+  box-sizing: border-box;
+}
