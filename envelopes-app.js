@@ -319,7 +319,7 @@ form.addEventListener("submit", async (e) => {
 } catch (err) {
   alert("Ошибка при добавлении: " + err.message);
 }
-
+});
 
 async function renderInlineDistributionEditor() {
   const container = document.getElementById('inline-distribution-editor');
