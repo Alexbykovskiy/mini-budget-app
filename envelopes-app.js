@@ -292,35 +292,33 @@ form.addEventListener("submit", async (e) => {
 
   try {
   if (editingEnvelopeId) {
-    await db.collection("envelopes").doc(editingEnvelopeId).update({
-      name,
-      comment,
-      hasGoal,
-      goal,
-      isPrimary,
-      isMiniBudget,
-      distribution,
-      percent,
-      transferEnabled: document.getElementById("transfer-switch").checked,
-      transferTarget: document.getElementById("transfer-switch").checked
-        ? document.getElementById("transfer-target-select").value
-        : null,
-    });
-  } else {
-    await db.collection("envelopes").add({
-      name,
-      goal,
-      comment,
-      current: 0,
-      created: Date.now(),
-      includeInDistribution: distribution,
-      percent,
-      transferEnabled: document.getElementById("transfer-switch").checked,
-      transferTarget: document.getElementById("transfer-switch").checked
-        ? document.getElementById("transfer-target-select").value
-        : null,
-    });
-  }
+  await db.collection("envelopes").doc(editingEnvelopeId).update({
+    name,
+    comment,
+    hasGoal,
+    goal,
+    distribution,
+    percent,
+    transferEnabled: document.getElementById("transfer-switch").checked,
+    transferTarget: document.getElementById("transfer-switch").checked
+      ? document.getElementById("transfer-target-select").value
+      : null,
+  });
+} else {
+  await db.collection("envelopes").add({
+    name,
+    goal,
+    comment,
+    current: 0,
+    created: Date.now(),
+    includeInDistribution: distribution,
+    percent,
+    transferEnabled: document.getElementById("transfer-switch").checked,
+    transferTarget: document.getElementById("transfer-switch").checked
+      ? document.getElementById("transfer-target-select").value
+      : null,
+  });
+}
 async function getEnvelopeNameById(id) {
   if (!id) return "";
   const doc = await db.collection("envelopes").doc(id).get();
