@@ -740,13 +740,6 @@ main.container, .block, ... {
   font-size: 1em;
 }
 
-.envelope-distribution span:first-child {
-  color: #23292D !important;
-  font-size: 14px;
-  font-weight: 400;
-  opacity: 0.74;
-  letter-spacing: 0.01em;
-}
 .distribution-warning {
   color: #FFA35C !important;
   font-weight: 700;
