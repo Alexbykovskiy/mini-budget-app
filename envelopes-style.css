@@ -829,6 +829,22 @@ body * {
   overflow: hidden;
 }
 
+.block:after,
+.envelope-card-grid:after,
+#add-envelope-wrapper:after {
+  content: '';
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  inset: 0;
+  border-radius: inherit;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  /* Имитируем рамку с помощью box-shadow с градиентом: */
+   /* Можно добавить background: linear-gradient(...), если нужен fade по углам */
+  /* opacity и цвета регулируй под себя */
+}
 
 #distribute-income {
   background: rgba(255, 255, 255, 0.35);
