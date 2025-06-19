@@ -468,46 +468,47 @@ document.getElementById("transfer-target-select").style.display = data.transferE
 
   // Проверим: кто-нибудь переносит остатки в этот конверт?
   db.collection("envelopes").get().then(snapshot => {
-    let found = false, fromName = "";
-    snapshot.forEach(doc => {
-      const d = doc.data();
-      if (d.transferEnabled && d.transferTarget === id) {
-        found = true;
-        fromName = d.name || "(без названия)";
-      }
-    });
-    if (found) {
-      transferSwitch.disabled = true;
-      transferSelect.disabled = true;
-      if (switchLabel) {
-        switchLabel.classList.add('ios-switch-disabled');
-        switchLabel.onclick = function(e) {
-          // Показываем всплывашку поверх формы (toast)
-          let tip = document.getElementById('transfer-switch-tip');
-          if (tip) tip.remove();
-          tip = document.createElement('div');
-          tip.id = 'transfer-switch-tip';
-          tip.textContent = `Перенос невозможен. Этот конверт выбран как цель автопереноса из «${fromName}».`;
-          tip.style.position = 'absolute';
-          tip.style.top = '34px';
-          tip.style.left = '0';
-          tip.style.right = '0';
-          tip.style.background = 'rgba(30,33,41,0.97)';
-          tip.style.color = '#fff';
-          tip.style.fontSize = '13.5px';
-          tip.style.padding = '12px 15px';
-          tip.style.borderRadius = '16px';
-          tip.style.boxShadow = '0 4px 22px rgba(0,0,0,0.13)';
-          tip.style.textAlign = 'center';
-          tip.style.zIndex = '9999';
-          tip.style.pointerEvents = 'none';
-          switchLabel.parentElement.appendChild(tip);
-          setTimeout(() => tip.remove(), 2150);
-          e.preventDefault();
-        };
-      }
+  let sources = [];
+  snapshot.forEach(doc => {
+    const d = doc.data();
+    if (d.transferEnabled && d.transferTarget === id) {
+      sources.push(d.name || "(без названия)");
     }
   });
+  if (sources.length) {
+    transferSwitch.disabled = true;
+    transferSelect.disabled = true;
+    if (switchLabel) {
+      switchLabel.classList.add('ios-switch-disabled');
+      switchLabel.onclick = function(e) {
+        // Показываем всплывашку поверх формы (toast)
+        let tip = document.getElementById('transfer-switch-tip');
+        if (tip) tip.remove();
+        tip = document.createElement('div');
+        tip.id = 'transfer-switch-tip';
+        tip.textContent =
+          `Перенос невозможен. Этот конверт выбран как цель автопереноса из: ${sources.join(', ')}.`;
+        tip.style.position = 'absolute';
+        tip.style.top = '34px';
+        tip.style.left = '0';
+        tip.style.right = '0';
+        tip.style.background = 'rgba(30,33,41,0.97)';
+        tip.style.color = '#fff';
+        tip.style.fontSize = '13.5px';
+        tip.style.padding = '12px 15px';
+        tip.style.borderRadius = '16px';
+        tip.style.boxShadow = '0 4px 22px rgba(0,0,0,0.13)';
+        tip.style.textAlign = 'center';
+        tip.style.zIndex = '9999';
+        tip.style.pointerEvents = 'none';
+        switchLabel.parentElement.appendChild(tip);
+        setTimeout(() => tip.remove(), 2600);
+        e.preventDefault();
+      };
+    }
+  }
+});
+
   // --- [END] Disable transfer switch if this envelope is a transfer target ---
 
   // Меняем кнопку: ставим "save" вместо "check"
