@@ -857,8 +857,7 @@ body * {
   /* Вот тут вся магия: */
   border: 1.5px solid transparent; /* толщина “обводки” */
   background: 
-    linear-gradient(135deg, #fff 18%, rgba(255,255,255,0.00) 90%) border-box;
-  /* Только градиентная рамка! */
+linear-gradient(135deg, rgba(255,255,255,0.50) 15%, rgba(255,255,255,0.00) 90%) border-box;  /* Только градиентная рамка! */
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box, 
     linear-gradient(#fff 0 0) border-box;
