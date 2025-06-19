@@ -2013,28 +2013,32 @@ textarea,
   background: none;
 }
 
-.envelope-distribution,
-.envelope-distribution span,
-.envelope-distribution span:last-child {
-  color: #fff !important;
+.envelope-distribution {
   font-size: 14px;
   font-weight: 600;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.11);
 }
 
+.envelope-distribution span {
+  color: #aab2bb !important; /* Светло-серый для текста "Процент:" */
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.envelope-distribution span:last-child {
+  color: #fff !important;   /* Ярко-белый для значения процента */
+  font-size: 14px;
+  font-weight: 700;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.09);
+}
+
+/* Перенос — как процент (ярко) */
 .envelope-transfer-note {
   margin-top: 3px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   color: #fff !important;
   opacity: 0.90;
   letter-spacing: 0.01em;
   background: none;
   text-shadow: 0 2px 6px rgba(0,0,0,0.13);
-}
-
-.envelope-select option:disabled {
-  color: #eee !important;
-  background: #23292D !important;
-  opacity: 0.72 !important;
 }
