@@ -716,7 +716,7 @@ main.container, .block, ... {
   box-sizing: border-box;
 
   /* Вот тут вся магия: */
-  border: 1px solid transparent; /* толщина “обводки” */
+  border: 2px solid transparent; /* толщина “обводки” */
   background: 
    background: linear-gradient(135deg, rgba(255,255,255,0.22) 14%, rgba(255,255,255,0.00) 90%) border-box;
 
@@ -890,7 +890,7 @@ body * {
   box-sizing: border-box;
 
   /* Вот тут вся магия: */
-  border: 1px solid transparent; /* толщина “обводки” */
+  border: 2px solid transparent; /* толщина “обводки” */
   background: 
    background: linear-gradient(135deg, rgba(255,255,255,0.22) 14%, rgba(255,255,255,0.00) 90%) border-box;
 
