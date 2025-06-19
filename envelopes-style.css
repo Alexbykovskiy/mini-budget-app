@@ -1914,3 +1914,32 @@ textarea {
   filter: brightness(1.11);
   outline: none;
 }
+
+.block,
+.envelope-card-grid,
+#add-envelope-wrapper,
+.summary-card,
+.floating-pill,
+.glass-modal,
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select,
+textarea,
+.pill-btn,
+.income-square-btn,
+.max-btn
+{
+  border-radius: 30px !important;
+}
+
+.block:after,
+.envelope-card-grid:after,
+#add-envelope-wrapper:after,
+.summary-card:after,
+.floating-pill:after,
+.glass-modal:after,
+.income-square-btn:after {
+  border-radius: 30px !important;
+}
+
