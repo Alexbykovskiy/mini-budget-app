@@ -1809,45 +1809,6 @@ linear-gradient(135deg, rgba(255,255,255,0.50) 15%, rgba(255,255,255,0.00) 90%) 
   white-space: nowrap;
 }
 
-.income-square-btn {
-  width: 76px;
-  height: 76px;
-  min-width: 76px;
-  min-height: 76px;
-  border-radius: 30px;
-  background: rgba(0,0,0,0.5); /* полупрозрачный чёрный */
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8px 24px 0 rgba(0,0,0,0.08);
-  cursor: pointer;
-  transition: filter 0.16s, background 0.18s;
-  outline: none;
-  margin: 0 auto 22px auto;
-  padding: 0;
-}
-
-.income-square-btn svg {
-  display: block;
-  stroke: #fff;
-  width: 38px;
-  height: 38px;
-  pointer-events: none;
-  opacity: 0.94;
-}
-
-.income-square-btn:active,
-.income-square-btn:focus {
-  filter: brightness(1.11);
-  outline: none;
-}
-
-.income-square-btn:hover svg {
-  stroke: #FFA35C;
-  opacity: 1;
-}
-
 .summary-card {
   position: relative; /* чтобы :after работал поверх */
   z-index: 1;
@@ -1933,4 +1894,43 @@ textarea {
   max-width: 95vw !important;
   min-width: 240px !important;
   box-sizing: border-box;
+}
+
+.income-square-btn {
+  width: 76px !important;
+  height: 76px !important;
+  min-width: 76px;
+  min-height: 76px;
+  border-radius: 30px !important;
+  background: rgba(0,0,0,0.50) !important;
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 8px 24px 0 rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: filter 0.16s, background 0.18s;
+  outline: none;
+  margin: 0 auto 24px auto;
+  padding: 0;
+  position: relative;
+  z-index: 2;
+}
+.income-square-btn svg {
+  display: block;
+  stroke: #fff;
+  width: 38px;
+  height: 38px;
+  pointer-events: none;
+  opacity: 0.94;
+  transition: stroke 0.16s, opacity 0.16s;
+}
+.income-square-btn:hover svg {
+  stroke: #FFA35C;
+  opacity: 1;
+}
+.income-square-btn:active,
+.income-square-btn:focus {
+  filter: brightness(1.11);
+  outline: none;
 }
