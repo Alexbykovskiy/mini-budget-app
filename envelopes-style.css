@@ -867,17 +867,29 @@ body * {
 #add-envelope-wrapper:after {
   content: '';
   position: absolute;
-  z-index: 3;
-  pointer-events: none;
   inset: 0;
   border-radius: inherit;
+  pointer-events: none;
+  z-index: 10;
+  /* Вот тут вся магия: */
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  /* Имитируем рамку с помощью box-shadow с градиентом: */
-   /* opacity и цвета регулируй под себя */
-}
 
+  /* Основная прозрачная обводка — градиент! */
+  border: 2px solid transparent;
+  background:
+    linear-gradient(135deg, 
+      rgba(255,255,255,0.75) 0%,    /* Ярко-белый слева-сверху */
+      rgba(255,255,255,0.0) 90%     /* Прозрачный справа-снизу */
+    );
+  /* Вот тут “вычитаем” градиент в саму обводку */
+  -webkit-mask:
+    linear-gradient(135deg, #fff 0 90%, transparent 100%);
+  mask:
+    linear-gradient(135deg, #fff 0 90%, transparent 100%);
+  /* Всё — фон закроет внутренность блока, а рамка будет с градиентом */
+}
 #distribute-income {
   background: rgba(255, 255, 255, 0.35);
   border-radius: 14px;
