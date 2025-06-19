@@ -2038,3 +2038,42 @@ textarea,
   cursor: not-allowed;
   opacity: 0.68;
 }
+
+.add-envelope-form input[type="text"],
+.add-envelope-form input[type="number"] {
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.14) 0px,    /* тень сверху */
+    rgba(255,255,255,0.17) 18px,
+    rgba(255,255,255,0.18) 100%
+  );
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+  border-radius: 13px;
+  border: 1.2px solid rgba(255,255,255,0.26);
+  padding: 10px 15px;
+  font-size: 15px;
+  color: #23292D;
+  box-shadow:
+    0 2.5px 0px 0 rgba(0,0,0,0.12) inset,      /* полоска-тень под верхом */
+    0 3px 8px 0 rgba(0,0,0,0.08) inset,
+    0 1.5px 8px 0 rgba(0,0,0,0.05);
+  transition: box-shadow 0.18s, border-color 0.16s, background 0.13s;
+  outline: none;
+}
+
+.ios-switch-disabled input[type="checkbox"] {
+  accent-color: #bbb !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+}
+.ios-switch-disabled label,
+.ios-switch-disabled span,
+.ios-switch-disabled {
+  color: #bbb !important;
+  cursor: not-allowed !important;
+  opacity: 0.7;
+}
+
+
+

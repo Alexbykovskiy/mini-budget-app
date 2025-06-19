@@ -459,6 +459,53 @@ document.getElementById("transfer-target-select").value = data.transferTarget ||
 document.getElementById("transfer-target-select").style.display = data.transferEnabled ? "block" : "none";
 
   editingEnvelopeId = id;
+
+  // Если это "Общий" (isPrimary), то делаем чекбокс распределения неактивным и серым
+  const distributionCheckbox = document.getElementById('envelope-distribution');
+  const percentInput = document.getElementById('envelope-percent');
+  const percentLabel = document.getElementById('envelope-percent-label');
+  const distRow = distributionCheckbox.closest('.envelope-form-row') || distributionCheckbox.parentNode;
+
+  if (data.isPrimary) {
+    distributionCheckbox.checked = false;
+    distributionCheckbox.disabled = true;
+    if (distRow) distRow.classList.add('ios-switch-disabled');
+    percentInput.style.display = percentLabel.style.display = 'none';
+
+    // Сообщение при клике
+    distRow.addEventListener('click', function showDistInfo(e) {
+      // Только если действительно disabled
+      if (distributionCheckbox.disabled) {
+        // Не показываем несколько раз
+        let tip = document.getElementById('distribution-switch-tip');
+        if (tip) tip.remove();
+        tip = document.createElement('div');
+        tip.id = 'distribution-switch-tip';
+        tip.textContent = 'В "Общий" всегда идут нераспределённые проценты.';
+        tip.style.position = 'absolute';
+        tip.style.top = '32px';
+        tip.style.left = '0';
+        tip.style.right = '0';
+        tip.style.background = 'rgba(30,33,41,0.96)';
+        tip.style.color = '#fff';
+        tip.style.fontSize = '13.5px';
+        tip.style.padding = '11px 15px';
+        tip.style.borderRadius = '14px';
+        tip.style.boxShadow = '0 4px 22px rgba(0,0,0,0.10)';
+        tip.style.textAlign = 'center';
+        tip.style.zIndex = '9999';
+        tip.style.pointerEvents = 'none';
+        distRow.appendChild(tip);
+        setTimeout(() => tip.remove(), 2150);
+        e.preventDefault();
+      }
+    });
+  } else {
+    distributionCheckbox.disabled = false;
+    if (distRow) distRow.classList.remove('ios-switch-disabled');
+  }
+
+
 // --- [START] Disable transfer switch if this envelope is a transfer target ---
   const transferSwitch = document.getElementById("transfer-switch");
   const transferSelect = document.getElementById("transfer-target-select");
