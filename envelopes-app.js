@@ -605,7 +605,7 @@ await Promise.all(snapshot.docs.map(async doc => {
           ${
             goalForCalc && goalForCalc > 0
               ? `<svg width="60" height="60">
-                    <circle cx="30" cy="30" r="26" stroke="#EEE" stroke-width="8" fill="none"/>
+                    <circle cx="30" cy="30" r="26" stroke="#FFA35C" stroke-width="8" fill="none"/>
                     <circle
                       cx="30" cy="30" r="26"
                       stroke="#FFA35C"

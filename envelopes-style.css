@@ -81,6 +81,18 @@ body {
   overflow: visible;
   margin-left: 2px;
 }
+.envelope-ring-percent {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: #FFA35C;          /* фирменный оранжевый */
+  font-size: 15px;
+  font-weight: 400;        /* тонко */
+  letter-spacing: 0.01em;
+  user-select: none;
+  pointer-events: none;
+}
 .envelope-stats {
   font-size: 0.95em;
   color: #444;
