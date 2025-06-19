@@ -58,15 +58,16 @@
 :0; display:none;">
 </div>
 
-<label class="toggle-option">
-  <input type="checkbox" id="transfer-switch">
-  <span class="toggle-label">Переносить остаток 1 числа в:</span>
-</label>
-
-<select id="transfer-target-select" style="margin-top: 4px; display: none;">
-  <option value="">— Выбери конверт —</option>
-</select>
-
+<div class="row">
+  <label class="ios-switch ios-switch-green" style="margin-right:8px;">
+    <input type="checkbox" id="transfer-switch">
+    <span class="slider"></span>
+  </label>
+  <span>Переносить в</span>
+  <select id="transfer-target-select" class="envelope-select" style="display:none; flex:1;">
+    <option value="">— Выбери конверт —</option>
+  </select>
+</div>
       <div id="inline-distribution-editor" style="display:none; margin: 0 0 8px 0;"></div>
      <!-- Здесь можно добавить блок с процентами по конвертам, если нужно -->
 

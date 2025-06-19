@@ -1683,3 +1683,12 @@ async function transferBalancesAtMonthStart() {
   await batch.commit();
   console.log("✅ Остатки перенесены.");
 }
+
+const transferSwitch = document.getElementById("transfer-switch");
+const transferSelect = document.getElementById("transfer-target-select");
+
+if (transferSwitch && transferSelect) {
+  transferSwitch.addEventListener("change", () => {
+    transferSelect.style.display = transferSwitch.checked ? "block" : "none";
+  });
+}
