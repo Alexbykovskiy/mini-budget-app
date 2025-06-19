@@ -422,7 +422,7 @@ async function fillTransferTargetSelect(editingEnvelopeId = null) {
       const option = document.createElement("option");
       option.value = doc.id;
       option.disabled = true;
-      option.textContent = (data.name || "(без названия)") + " — нельзя выбрать, пока у этого конверта активен перенос";
+      option.textContent = data.name || "(без названия)";
       select.appendChild(option);
       return;
     }
