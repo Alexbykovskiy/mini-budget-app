@@ -454,6 +454,61 @@ document.getElementById("transfer-target-select").value = data.transferTarget ||
 document.getElementById("transfer-target-select").style.display = data.transferEnabled ? "block" : "none";
 
   editingEnvelopeId = id;
+// --- [START] Disable transfer switch if this envelope is a transfer target ---
+  const transferSwitch = document.getElementById("transfer-switch");
+  const transferSelect = document.getElementById("transfer-target-select");
+  const switchLabel = transferSwitch.closest('.ios-switch');
+  // Очистить серый класс и события (если были)
+  if (switchLabel) {
+    switchLabel.classList.remove('ios-switch-disabled');
+    switchLabel.onclick = null;
+  }
+  transferSwitch.disabled = false;
+  transferSelect.disabled = false;
+
+  // Проверим: кто-нибудь переносит остатки в этот конверт?
+  db.collection("envelopes").get().then(snapshot => {
+    let found = false, fromName = "";
+    snapshot.forEach(doc => {
+      const d = doc.data();
+      if (d.transferEnabled && d.transferTarget === id) {
+        found = true;
+        fromName = d.name || "(без названия)";
+      }
+    });
+    if (found) {
+      transferSwitch.disabled = true;
+      transferSelect.disabled = true;
+      if (switchLabel) {
+        switchLabel.classList.add('ios-switch-disabled');
+        switchLabel.onclick = function(e) {
+          // Показываем всплывашку поверх формы (toast)
+          let tip = document.getElementById('transfer-switch-tip');
+          if (tip) tip.remove();
+          tip = document.createElement('div');
+          tip.id = 'transfer-switch-tip';
+          tip.textContent = `Перенос невозможен. Этот конверт выбран как цель автопереноса из «${fromName}».`;
+          tip.style.position = 'absolute';
+          tip.style.top = '34px';
+          tip.style.left = '0';
+          tip.style.right = '0';
+          tip.style.background = 'rgba(30,33,41,0.97)';
+          tip.style.color = '#fff';
+          tip.style.fontSize = '13.5px';
+          tip.style.padding = '12px 15px';
+          tip.style.borderRadius = '16px';
+          tip.style.boxShadow = '0 4px 22px rgba(0,0,0,0.13)';
+          tip.style.textAlign = 'center';
+          tip.style.zIndex = '9999';
+          tip.style.pointerEvents = 'none';
+          switchLabel.parentElement.appendChild(tip);
+          setTimeout(() => tip.remove(), 2150);
+          e.preventDefault();
+        };
+      }
+    }
+  });
+  // --- [END] Disable transfer switch if this envelope is a transfer target ---
 
   // Меняем кнопку: ставим "save" вместо "check"
   const submitBtn = document.querySelector('#add-envelope-form button[type="submit"]');

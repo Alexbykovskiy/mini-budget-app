@@ -2014,3 +2014,15 @@ textarea,
   font-weight: 400;
   text-shadow: none;
 }
+.ios-switch-disabled .slider {
+  background: #bbb !important;
+  box-shadow: none !important;
+  opacity: 0.68;
+}
+.ios-switch input:disabled + .slider:before {
+  background: #e0e0e0 !important;
+}
+.ios-switch input:disabled + .slider {
+  cursor: not-allowed;
+  opacity: 0.68;
+}
