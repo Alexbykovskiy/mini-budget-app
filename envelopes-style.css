@@ -1878,3 +1878,12 @@ linear-gradient(135deg, rgba(255,255,255,0.50) 15%, rgba(255,255,255,0.00) 90%) 
 input[type="range"] {
   accent-color: #FFA35C;
 }
+
+.env-balance-main,
+.env-balance-sep,
+.env-balance-goal,
+.envelope-distribution,
+.envelope-distribution span,
+.infinity-ring {
+  color: rgba(255,255,255,0.60) !important;
+}
