@@ -28,7 +28,7 @@ body {
   max-width: 360px !important;
   min-height: 180px;
   background: #e0e0e0;
-  border-radius: 24px;
+  border-radius: 30px;
   box-shadow: 9px 9px 18px #bfc8c8, -9px -9px 18px #ffffff;
   padding: 18px 20px 22px 20px;
   box-sizing: border-box;
@@ -104,7 +104,7 @@ body {
   background: rgba(255,255,255,0.14);   /* Стеклянный, сильно прозрачный */
   backdrop-filter: blur(7px);
   -webkit-backdrop-filter: blur(7px);
-  border-radius: 13px;
+  border-radius: 30px;
   padding: 7px 10px;
   min-height: 32px;
   max-height: 52px;
@@ -226,7 +226,7 @@ body {
 .add-envelope-form input[type="number"] {
   background: #e0e0e0;
   box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
-  border-radius: 14px;
+  border-radius: 30px;
   padding: 10px 14px;
   border: none;
   font-size: 16px;
@@ -265,7 +265,7 @@ body {
   color: #fff;
   width: 48px;
   height: 48px;
-  border-radius: 50%;
+  border-radius: 30px;
   font-size: 1.8em;
   display: flex;
   align-items: center;
@@ -285,7 +285,7 @@ body {
   width: 360px;
   max-width: 98vw;
   margin: 0 auto 24px auto;
-  border-radius: 24px;
+  border-radius: 30px;
   background: #e0e0e0;
   box-shadow: 9px 9px 18px #bfc8c8, -9px -9px 18px #ffffff;
  padding: 18px 20px 22px 20px;
@@ -403,7 +403,7 @@ body {
 .add-envelope-form input[type="number"] {
   background: #e0e0e0;
   box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
-  border-radius: 14px;
+  border-radius: 30px;
   padding: 10px 14px;
   border: none;
   font-size: 16px;
@@ -413,7 +413,7 @@ body {
 .add-envelope-form input[type="text"], .add-envelope-form input[type="number"] {
   background: #e0e0e0;
   box-shadow: inset 2px 2px 6px #bebebe, inset -2px -2px 6px #ffffff;
-  border-radius: 14px;
+  border-radius: 30px;
   padding: 8px 10px;
   border: none;
   font-size: 14px;
