@@ -2026,3 +2026,13 @@ textarea,
   background: none;
   opacity: 0.98;
 }
+
+.envelope-distribution,
+.envelope-distribution span,
+.envelope-distribution span:last-child,
+.envelope-transfer-note {
+  color: #aab2bb !important;
+  font-size: 14px;
+  font-weight: 600;
+  text-shadow: none;
+}
