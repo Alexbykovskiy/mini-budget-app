@@ -536,8 +536,8 @@ await Promise.all(snapshot.docs.map(async doc => {
           <span class="env-balance-goal">${goalDisplay}</span>
         </div>
         <div class="envelope-distribution">
-          <span style="font-size:13px;">Процент:</span>
-          <span style="font-weight:600;font-size:14px;">${percent}%</span>
+          <span style="font-size:12px;">Процент:</span>
+          <span style="font-weight:400;font-size:12px;">${percent}%</span>
         </div>
         ${
           data.transferEnabled && data.transferTarget
