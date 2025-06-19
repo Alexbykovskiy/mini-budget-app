@@ -379,6 +379,29 @@ async function renderInlineDistributionEditor() {
 
 let editingEnvelopeId = null;
 
+async function fillTransferTargetSelect() {
+  const select = document.getElementById("transfer-target-select");
+  if (!select) return;
+  const prev = select.value;
+  select.innerHTML = '<option value="">— Выбери конверт —</option>';
+
+  const snapshot = await db.collection("envelopes").orderBy("created", "asc").get();
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    // Не добавляем MiniBudget — если надо, допиши фильтр
+    if (!data.isMiniBudget) {
+      const option = document.createElement("option");
+      option.value = doc.id;
+      option.textContent = data.name || "(без названия)";
+      select.appendChild(option);
+    }
+  });
+
+  // Сохрани прежний выбор, если редактируешь
+  if (prev) select.value = prev;
+}
+
+
 function fillEditForm(data, id) {
   document.getElementById('envelope-name').value = data.name || "";
   document.getElementById('envelope-comment').value = data.comment || "";
@@ -401,6 +424,7 @@ document.getElementById("transfer-target-select").style.display = data.transferE
   const submitBtn = document.querySelector('#add-envelope-form button[type="submit"]');
     document.getElementById('cancel-edit-btn').style.display = 'inline-flex';
 renderInlineDistributionEditor();
+fillTransferTargetSelect();
 
 }
 
@@ -411,6 +435,8 @@ async function loadEnvelopes() {
   if (snapshot.empty) {
     list.innerHTML = "<p style='color:#bbb'>Нет ни одного конверта</p>";
     return;
+await fillTransferTargetSelect();
+
   }
   list.innerHTML = "";
 const summaryContainer = document.getElementById("envelope-summary-cards");
@@ -1601,6 +1627,8 @@ modal.innerHTML = `
    
 window.addEventListener("DOMContentLoaded", async () => {
   await ensureSystemEnvelopes();
+await fillTransferTargetSelect();
+
   loadEnvelopes();
   document.getElementById('reset-envelopes').addEventListener('click', resetAllEnvelopes);
 
@@ -1649,12 +1677,14 @@ async function startEditEnvelope(id) {
     if (container) container.style.display = "block";
   }
 
+
   // Заполнить форму значениями
   fillEditForm(data, id);
 
   // Скроллим к форме (по желанию)
   document.getElementById('add-envelope-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+
 
 const transferSwitch = document.getElementById("transfer-switch");
 const transferSelect = document.getElementById("transfer-target-select");
