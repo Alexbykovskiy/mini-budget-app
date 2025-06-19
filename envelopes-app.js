@@ -474,32 +474,33 @@ document.getElementById("transfer-target-select").style.display = data.transferE
 
     // Сообщение при клике
     distRow.addEventListener('click', function showDistInfo(e) {
-      // Только если действительно disabled
-      if (distributionCheckbox.disabled) {
-        // Не показываем несколько раз
-        let tip = document.getElementById('distribution-switch-tip');
-        if (tip) tip.remove();
-        tip = document.createElement('div');
-        tip.id = 'distribution-switch-tip';
-        tip.textContent = 'В "Общий" всегда идут нераспределённые проценты.';
-        tip.style.position = 'absolute';
-        tip.style.top = '32px';
-        tip.style.left = '0';
-        tip.style.right = '0';
-        tip.style.background = 'rgba(30,33,41,0.96)';
-        tip.style.color = '#fff';
-        tip.style.fontSize = '13.5px';
-        tip.style.padding = '11px 15px';
-        tip.style.borderRadius = '14px';
-        tip.style.boxShadow = '0 4px 22px rgba(0,0,0,0.10)';
-        tip.style.textAlign = 'center';
-        tip.style.zIndex = '9999';
-        tip.style.pointerEvents = 'none';
-        distRow.appendChild(tip);
-        setTimeout(() => tip.remove(), 2150);
-        e.preventDefault();
-      }
-    });
+  if (distributionCheckbox.disabled) {
+    let tip = document.getElementById('distribution-switch-tip');
+    if (tip) tip.remove();
+    tip = document.createElement('div');
+    tip.id = 'distribution-switch-tip';
+    tip.textContent = 'В "Общий" идут только нераспределённые проценты.';
+    tip.style.position = 'absolute';
+    tip.style.top = '16px';                          // ближе к ios toast
+    tip.style.left = '50%';
+    tip.style.transform = 'translateX(-50%)';
+    tip.style.background = 'rgba(30,33,41,0.97)';
+    tip.style.color = '#fff';
+    tip.style.fontSize = '13.5px';
+    tip.style.padding = '13px 16px';
+    tip.style.borderRadius = '16px';
+    tip.style.border = '1.3px solid rgba(255,255,255,0.16)';
+    tip.style.boxShadow = '0 6px 22px 0 rgba(0,0,0,0.18), 0 0.5px 0.5px 0 rgba(255,255,255,0.11) inset';
+    tip.style.textAlign = 'center';
+    tip.style.zIndex = '9999';
+    tip.style.pointerEvents = 'none';
+    tip.style.opacity = '1';
+    distRow.appendChild(tip);
+    setTimeout(() => tip.remove(), 2200);
+    e.preventDefault();
+  }
+});
+
   } else {
     distributionCheckbox.disabled = false;
     if (distRow) distRow.classList.remove('ios-switch-disabled');

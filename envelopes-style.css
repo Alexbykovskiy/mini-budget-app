@@ -2075,5 +2075,41 @@ textarea,
   opacity: 0.7;
 }
 
+/* Chrome, Safari, Edge, Opera */
+.add-envelope-form input[type="number"]::-webkit-outer-spin-button,
+.add-envelope-form input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.add-envelope-form input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Edge (дополнительно) */
+.add-envelope-form input[type="number"]::-ms-input {
+  appearance: textfield;
+}
+.toast-tip, #transfer-switch-tip, #distribution-switch-tip {
+  position: absolute;
+  top: 16px;       /* отступ сверху */
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(30,33,41,0.97);        /* почти чёрный, непрозрачный */
+  color: #fff;
+  font-size: 13.5px;
+  padding: 13px 16px;
+  border-radius: 16px;
+  border: 1.3px solid rgba(255,255,255,0.16);   /* светлая тонкая граница! */
+  box-shadow:
+    0 6px 22px 0 rgba(0,0,0,0.18),
+    0 0.5px 0.5px 0 rgba(255,255,255,0.11) inset;
+  text-align: center;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 1;
+}
+
 
 
