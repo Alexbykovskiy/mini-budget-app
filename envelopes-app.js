@@ -403,11 +403,10 @@ async function fillTransferTargetSelect() {
   snapshot.forEach(doc => {
     const data = doc.data();
     // Не добавляем MiniBudget — если надо, допиши фильтр
-    if (!data.isMiniBudget) {
-      const option = document.createElement("option");
-      option.value = doc.id;
-      option.textContent = data.name || "(без названия)";
-      select.appendChild(option);
+    const option = document.createElement("option");
+option.value = doc.id;
+option.textContent = data.name || "(без названия)";
+select.appendChild(option);
     }
   });
 
