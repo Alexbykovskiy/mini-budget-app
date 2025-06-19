@@ -1994,22 +1994,13 @@ textarea,
   font-size: 15px;
 }
 
-.envelope-transfer-note {
-  margin-top: 3px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #23292D !important;
-  opacity: 0.80;
-  letter-spacing: 0.01em;
-  background: none;
-}
 
 .envelope-distribution span,
 .envelope-distribution span:last-child,
 .envelope-transfer-note {
   color: #aab2bb !important;    /* Точно такой же, как "добавлено в этом месяце" */
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 400;
   text-shadow: none;
 }
 
@@ -2020,8 +2011,8 @@ textarea,
 
 .envelope-transfer-note {
   margin-top: 3px;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 400;
   letter-spacing: 0.01em;
   background: none;
   opacity: 0.98;
@@ -2032,7 +2023,7 @@ textarea,
 .envelope-distribution span:last-child,
 .envelope-transfer-note {
   color: #aab2bb !important;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 400;
   text-shadow: none;
 }
