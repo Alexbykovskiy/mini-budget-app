@@ -270,14 +270,19 @@ if (incomeButton) {
 document.getElementById('cancel-edit-btn').addEventListener('click', function() {
   editingEnvelopeId = null;
   form.reset();
-renderInlineDistributionEditor();
+
+  // Скрыть поле выбора конверта для автопереноса
+  const transferSwitch = document.getElementById("transfer-switch");
+  const transferSelect = document.getElementById("transfer-target-select");
+  transferSwitch.checked = false;
+  transferSelect.style.display = "none";
+
+  renderInlineDistributionEditor();
 
   document.getElementById('envelope-goal').style.display = 'none';
   document.getElementById('envelope-percent').style.display = 'none';
   document.getElementById('envelope-percent-label').style.display = 'none';
   const submitBtn = document.querySelector('#add-envelope-form button[type="submit"]');
-   
-
 });
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
