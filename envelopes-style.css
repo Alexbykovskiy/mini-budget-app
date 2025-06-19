@@ -2002,3 +2002,13 @@ textarea,
   border-radius: 0;
   font-size: 15px;
 }
+
+.envelope-transfer-note {
+  margin-top: 3px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #23292D !important;
+  opacity: 0.80;
+  letter-spacing: 0.01em;
+  background: none;
+}

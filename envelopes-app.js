@@ -21,6 +21,14 @@ function escapeHTML(str) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
+// Получить название конверта по id (асинхронно)
+async function getEnvelopeNameById(id) {
+  if (!id) return "";
+  const doc = await db.collection("envelopes").doc(id).get();
+  if (doc.exists) return doc.data().name || "";
+  return "";
+}
+
 async function getEnvelopeMonthStats(envelopeId) {
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
@@ -241,6 +249,8 @@ function showAmountModal({title = "Введите сумму", placeholder = "С
       if (isNaN(val) || val <= 0) resolve(null);
       else resolve(val);
     }
+
+
     function cancel() {
       modal.remove();
       resolve(null);
@@ -311,6 +321,12 @@ form.addEventListener("submit", async (e) => {
         : null,
     });
   }
+async function getEnvelopeNameById(id) {
+  if (!id) return "";
+  const doc = await db.collection("envelopes").doc(id).get();
+  if (doc.exists) return doc.data().name || "";
+  return "";
+}
   form.reset();
   document.getElementById('envelope-goal').style.display = 'none';
   document.getElementById('envelope-percent').style.display = 'none';
@@ -490,23 +506,28 @@ await Promise.all(snapshot.docs.map(async doc => {
   // --- ДО block.innerHTML = ... ---
 
   block.innerHTML = `
-    <div class="envelope-main">
-      <div class="envelope-header" style="font-size:${titleFontSize}; color:#23292D; font-weight:700;">
-        ${escapeHTML(name)}
+  <div class="envelope-main">
+    <div class="envelope-header" style="font-size:${titleFontSize}; color:#23292D; font-weight:700;">
+      ${escapeHTML(name)}
+    </div>
+    <div class="envelope-row" style="display:flex;align-items:center;gap:20px;">
+      <div class="envelope-progress-info">
+        <div class="envelope-balance">
+          <span class="env-balance-main">${data.current.toFixed(2)}</span>
+          <span class="env-balance-sep">/</span>
+          <span class="env-balance-goal">${goalDisplay}</span>
+        </div>
+        <div class="envelope-distribution">
+          <span style="font-size:13px;">Процент:</span>
+          <span style="font-weight:600;font-size:14px;">${percent}%</span>
+        </div>
+        ${
+          data.transferEnabled && data.transferTarget
+            ? `<div class="envelope-transfer-note">${"Загрузка..."}</div>`
+            : ""
+        }
       </div>
-      <div class="envelope-row" style="display:flex;align-items:center;gap:20px;">
-       <div class="envelope-progress-info">
-  <div class="envelope-balance">
-    <span class="env-balance-main">${data.current.toFixed(2)}</span>
-    <span class="env-balance-sep">/</span>
-    <span class="env-balance-goal">${goalDisplay}</span>
-  </div>
-  <div class="envelope-distribution">
-    <span style="font-size:13px;">Процент:</span>
-    <span style="font-weight:600;font-size:14px;">${percent}%</span>
-  </div>
-</div>
-<div class="envelope-progress-ring">
+      <div class="envelope-progress-ring">
           ${
             goalForCalc && goalForCalc > 0
               ? `<svg width="60" height="60">
@@ -564,6 +585,17 @@ await Promise.all(snapshot.docs.map(async doc => {
   `;
 
   envelopeGridContainer.appendChild(block);
+
+  // После block.innerHTML и envelopeGridContainer.appendChild(block):
+
+  if (data.transferEnabled && data.transferTarget) {
+    const noteDiv = block.querySelector('.envelope-transfer-note');
+    if (noteDiv) {
+      const targetName = await getEnvelopeNameById(data.transferTarget);
+      noteDiv.textContent = `Перенос в «${targetName}» в конце месяца.`;
+    }
+  }
+
 
   totalBalance += data.current || 0;
 
