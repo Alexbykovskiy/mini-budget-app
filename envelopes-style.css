@@ -705,17 +705,32 @@ main.container, .block, ... {
 .block:after,
 .envelope-card-grid:after,
 #add-envelope-wrapper:after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  border-radius: inherit;
+  border-radius: 24px;
   pointer-events: none;
   z-index: 10;
+  padding: 0;
+  margin: 0;
   box-sizing: border-box;
-  border: 2px solid transparent;
+
+  /* Вот тут вся магия: */
+  border: 2px solid transparent; /* толщина “обводки” */
   background: 
-    linear-gradient(135deg, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.00) 88%) border-box;
+    linear-gradient(135deg, #fff 18%, rgba(255,255,255,0.00) 90%) border-box;
+  /* Только градиентная рамка! */
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0) border-box;
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0) border-box;
+  mask-composite: exclude;
+  /* ↑ маска оставляет только рамку, внутренняя часть прозрачная */
 }
+
 
 .infinity-ring {
   color: #23292D !important;
@@ -863,18 +878,31 @@ body * {
 .block:after,
 .envelope-card-grid:after,
 #add-envelope-wrapper:after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  border-radius: inherit;
+  border-radius: 24px;
   pointer-events: none;
   z-index: 10;
+  padding: 0;
+  margin: 0;
   box-sizing: border-box;
-  border: 2px solid transparent;
-  background: 
-    linear-gradient(135deg, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.00) 88%) border-box;
-}
 
+  /* Вот тут вся магия: */
+  border: 2px solid transparent; /* толщина “обводки” */
+  background: 
+    linear-gradient(135deg, #fff 18%, rgba(255,255,255,0.00) 90%) border-box;
+  /* Только градиентная рамка! */
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0) border-box;
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0) border-box;
+  mask-composite: exclude;
+  /* ↑ маска оставляет только рамку, внутренняя часть прозрачная */
+}
 #distribute-income {
   background: rgba(255, 255, 255, 0.35);
   border-radius: 14px;
