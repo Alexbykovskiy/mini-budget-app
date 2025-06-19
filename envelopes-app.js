@@ -543,7 +543,7 @@ await Promise.all(snapshot.docs.map(async doc => {
     card.dataset.id = doc.id;
     card.innerHTML = `
       <div>${escapeHTML(data.name)}</div>
-      <div style="font-weight: 800; font-size: 1.2em;">${data.current.toFixed(2)} €</div>
+<div style="font-weight: 800; font-size: 1.2em;">${Math.floor(data.current)} €</div>
       ${data.goal > 0 ? `<div style="font-size: 0.85em;">${Math.min(Math.round((data.current / data.goal) * 100), 999)}%</div>` : ""}
     `;
     card.addEventListener("click", () => {
