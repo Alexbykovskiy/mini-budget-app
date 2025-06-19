@@ -1638,21 +1638,20 @@ body * {
 }
 
 .summary-header-pill {
-  margin: 0 auto 12px auto;
-  max-width: 360px;
-  padding: 10px 16px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.45);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  font-weight: 700;
-  font-size: 1em;
-  color: #23292D;
+  background: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 0 8px 0 !important;
+  font-size: 1.12em !important;
+  font-weight: 600 !important;
+  color: #fff !important;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  border: 1px solid rgba(255,255,255,0.25);
+  border: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .summary-grid {
@@ -1664,13 +1663,13 @@ body * {
 }
 
 .summary-card {
-  width: 76px;            /* например, 76 × 57 = 4:3 */
+  width: 76px;           
   min-width: 76px;
   max-width: 76px;
   height: 76px;
   min-height: 76px;
   max-height: 76px;
-  aspect-ratio: 1 / 1;    /* на всякий случай, если поддерживается */
+  aspect-ratio: 1 / 1;   
   border-radius: 14px;
   display: flex;
   flex-direction: column;
