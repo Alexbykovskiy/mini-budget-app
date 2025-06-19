@@ -1848,3 +1848,30 @@ linear-gradient(135deg, rgba(255,255,255,0.50) 15%, rgba(255,255,255,0.00) 90%) 
   opacity: 1;
 }
 
+.summary-card {
+  position: relative; /* чтобы :after работал поверх */
+  z-index: 1;
+}
+
+/* Градиентная фаска для превьюшек */
+.summary-card:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 14px; /* как у .summary-card */
+  pointer-events: none;
+  z-index: 10;
+  box-sizing: border-box;
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.50) 15%, rgba(255,255,255,0.00) 90%) border-box;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0) border-box;
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0) border-box;
+  mask-composite: exclude;
+}
+
