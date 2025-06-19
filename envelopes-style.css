@@ -716,9 +716,10 @@ main.container, .block, ... {
   box-sizing: border-box;
 
   /* Вот тут вся магия: */
-  border: 2px solid transparent; /* толщина “обводки” */
+  border: 1px solid transparent; /* толщина “обводки” */
   background: 
-    linear-gradient(135deg, #fff 18%, rgba(255,255,255,0.00) 90%) border-box;
+   background: linear-gradient(135deg, rgba(255,255,255,0.22) 14%, rgba(255,255,255,0.00) 90%) border-box;
+
   /* Только градиентная рамка! */
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box, 
