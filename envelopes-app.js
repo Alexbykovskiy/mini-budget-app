@@ -592,7 +592,7 @@ await Promise.all(snapshot.docs.map(async doc => {
           <span class="env-balance-goal">${goalDisplay}</span>
         </div>
         <div class="envelope-distribution">
-          <span style="font-size:12px;">Процент:</span>
+          <span style="font-size:12px;">Распределение:</span>
           <span style="font-weight:400;font-size:12px;">${percent}%</span>
         </div>
         ${
@@ -766,7 +766,7 @@ async function editEnvelope(id, oldName, oldGoal, oldComment, oldPercent, oldInc
   const newName = prompt("Новое название:", oldName);
   const newGoal = prompt("Новая цель (€):", oldGoal);
   const newComment = prompt("Комментарий:", oldComment);
-  const newPercent = prompt("Процент (%):", oldPercent);
+  const newPercent = prompt("Распределение (%):", oldPercent);
   const includeInDistribution = confirm("Включить в автораспределение?");
   const name = newName?.trim();
   const goal = parseFloat(newGoal);
