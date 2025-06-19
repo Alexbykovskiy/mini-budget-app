@@ -282,14 +282,21 @@ form.addEventListener("submit", async (e) => {
 
   try {
     if (editingEnvelopeId) {
-      await db.collection("envelopes").doc(editingEnvelopeId).update({
-        name,
-        goal,
-        comment,
-        includeInDistribution: distribution,
-        percent
-      });
-      editingEnvelopeId = null;
+  await db.collection("envelopes").doc(editingEnvelopeId).update({
+    name,
+    comment,
+    hasGoal,
+    goal,
+    isPrimary,
+    isMiniBudget,
+    distribution,
+    percent,
+    transferEnabled: document.getElementById("transfer-switch").checked,
+    transferTarget: document.getElementById("transfer-switch").checked
+      ? document.getElementById("transfer-target-select").value
+      : null,
+  });
+}
     
       const submitBtn = document.querySelector('#add-envelope-form button[type="submit"]');
     } else {
@@ -383,6 +390,10 @@ function fillEditForm(data, id) {
   document.getElementById('envelope-percent').disabled = !document.getElementById('envelope-distribution').checked;
   document.getElementById('envelope-percent').value = data.percent || 0;
   document.getElementById('envelope-percent-label').textContent = (data.percent || 0) + "%";
+document.getElementById("transfer-switch").checked = !!data.transferEnabled;
+document.getElementById("transfer-target-select").value = data.transferTarget || "";
+document.getElementById("transfer-target-select").style.display = data.transferEnabled ? "block" : "none";
+
   editingEnvelopeId = id;
 
   // Меняем кнопку: ставим "save" вместо "check"
@@ -1642,4 +1653,33 @@ async function startEditEnvelope(id) {
 
   // Скроллим к форме (по желанию)
   document.getElementById('add-envelope-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+const transferSwitch = document.getElementById("transfer-switch");
+const transferSelect = document.getElementById("transfer-target-select");
+
+transferSwitch.addEventListener("change", () => {
+  transferSelect.style.display = transferSwitch.checked ? "block" : "none";
+});
+
+async function transferBalancesAtMonthStart() {
+  const snapshot = await db.collection("envelopes").get();
+  const batch = db.batch();
+
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    if (data.transferEnabled && data.transferTarget && data.current > 0) {
+      const amount = data.current;
+      const fromRef = doc.ref;
+      const toRef = db.collection("envelopes").doc(data.transferTarget);
+
+      batch.update(fromRef, { current: 0 });
+      batch.update(toRef, {
+        current: firebase.firestore.FieldValue.increment(amount)
+      });
+    }
+  });
+
+  await batch.commit();
+  console.log("✅ Остатки перенесены.");
 }
