@@ -495,18 +495,18 @@ await Promise.all(snapshot.docs.map(async doc => {
         ${escapeHTML(name)}
       </div>
       <div class="envelope-row" style="display:flex;align-items:center;gap:20px;">
-        <div class="envelope-progress-info">
-          <div class="envelope-balance">
-            <span class="env-balance-main">${data.current.toFixed(2)}</span>
-            <span class="env-balance-sep">/</span>
-            <span class="env-balance-goal">${goalDisplay}</span>
-          </div>
-          <div class="envelope-distribution">
-  <span style="font-size:13px;">Процент:</span>
-  <span style="font-weight:600;font-size:14px;">${percent}%</span>
+       <div class="envelope-progress-info">
+  <div class="envelope-balance">
+    <span class="env-balance-main">${data.current.toFixed(2)}</span>
+    <span class="env-balance-sep">/</span>
+    <span class="env-balance-goal">${goalDisplay}</span>
+  </div>
+  <div class="envelope-distribution">
+    <span style="font-size:13px;">Процент:</span>
+    <span style="font-weight:600;font-size:14px;">${percent}%</span>
+  </div>
 </div>
-        </div>
-        <div class="envelope-progress-ring">
+<div class="envelope-progress-ring">
           ${
             goalForCalc && goalForCalc > 0
               ? `<svg width="60" height="60">
