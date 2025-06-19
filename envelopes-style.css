@@ -686,6 +686,7 @@ main.container, .block, ... {
 }
 
 /* Светлая фаска: верх+право, ШИРЕ и ЯРЧЕ */
+/* 
 .block:before,
 .envelope-card-grid:before,
 #add-envelope-wrapper:before {
@@ -702,6 +703,8 @@ main.container, .block, ... {
       rgba(255,255,255,0.00) 68%
     );
 }
+
+*/ 
 
 /* Тёмная фаска: низ+лево, ШИРЕ */
 .block:after,
