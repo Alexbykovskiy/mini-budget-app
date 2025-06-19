@@ -549,6 +549,23 @@ await Promise.all(snapshot.docs.map(async doc => {
   const isMiniBudget = data.isMiniBudget === true;
   const isPrimary = data.isPrimary === true;
 
+let displayPercent = percent;
+
+if (isPrimary) {
+  // Для "Общий" показать нераспределённый процент
+  // 1. Собираем сумму всех percent, где !isPrimary && includeInDistribution === true
+  let totalPercent = 0;
+  snapshot.docs.forEach(d => {
+    const dat = d.data();
+    if (!dat.isPrimary && dat.includeInDistribution !== false) {
+      totalPercent += Number(dat.percent || 0);
+    }
+  });
+  displayPercent = 100 - totalPercent;
+  if (displayPercent < 0) displayPercent = 0;
+}
+
+
   const name = data.name || "";
   let titleFontSize = "2em";
   if (name.length > 18) titleFontSize = "1.4em";
@@ -598,7 +615,7 @@ await Promise.all(snapshot.docs.map(async doc => {
         </div>
         <div class="envelope-distribution">
           <span style="font-size:12px;">Распределение:</span>
-          <span style="font-weight:400;font-size:12px;">${percent}%</span>
+          <span style="font-weight:400;font-size:12px;">${displayPercent}%</span>
         </div>
         ${
           data.transferEnabled && data.transferTarget
