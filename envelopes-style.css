@@ -2282,3 +2282,10 @@ textarea,
   line-height: 1.15em;
   opacity: 1 !important;
 }
+
+.glass-modal .modal-actions,
+.glass-modal .form-buttons:only-child {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
