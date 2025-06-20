@@ -182,8 +182,8 @@ button:hover {
   margin: 0 auto 24px auto;
   border-radius: 30px;
   background:
-    linear-gradient(45deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.03) 52%, rgba(255,255,255,0.00) 100%),
-    linear-gradient(120deg, rgba(255,255,255,0.13) 0%, rgba(0,0,0,0.53) 100%);
+    linear-gradient(45deg, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.03) 60%, rgba(255,255,255,0.00) 100%),
+    rgba(15,15,17,0.53); /* ← чёрно-прозрачный основной! */
   box-shadow: 0 8px 24px 0 rgba(0,0,0,0.14), 0 2.5px 9px 0 rgba(255,255,255,0.07) inset;
   backdrop-filter: blur(18px) saturate(1.15);
   -webkit-backdrop-filter: blur(18px) saturate(1.15);
