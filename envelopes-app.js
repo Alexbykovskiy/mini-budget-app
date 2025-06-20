@@ -754,18 +754,30 @@ if (isPrimary) {
   }
 }));
 
+// Сумма добавленного за этот месяц по всем конвертам
+let totalAddedThisMonth = 0;
+await Promise.all(snapshot.docs.map(async doc => {
+  const stats = await getEnvelopeMonthStats(doc.id);
+  totalAddedThisMonth += stats.added;
+}));
+
+
 if (summaryHeader) {
   const now = new Date();
   const dateStr = now.toLocaleDateString("ru-RU", {
     day: "numeric", month: "long", year: "numeric"
   });
   summaryHeader.innerHTML = `
-    <div style="display:flex; flex-direction:column; align-items:flex-start; width:100%;">
-      <span class="summary-total-label">Всего</span>
-      <span class="summary-total-amount">${totalBalance.toFixed(2)} €</span>
-    </div>
-    <span class="summary-date">${dateStr}</span>
-  `;
+  <div style="display:flex; flex-direction:column; align-items:flex-start; width:100%;">
+    <span class="summary-total-label">Всего</span>
+    <span class="summary-total-amount">${Math.round(totalBalance).toLocaleString('ru-RU')} €</span>
+    <span class="summary-month-label" style="font-size:1.02em; color:#e8b17b; font-weight:400; opacity:0.82; margin-top:4px;">
+      В этом месяце: <b style="color:#fff; font-weight:600;">${Math.round(totalAddedThisMonth).toLocaleString('ru-RU')} €</b>
+    </span>
+  </div>
+  <span class="summary-date">${dateStr}</span>
+`;
+
 }
 
 } // <-- это уже конец всей функции loadEnvelopes
