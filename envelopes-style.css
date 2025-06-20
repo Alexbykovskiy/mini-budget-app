@@ -2111,5 +2111,23 @@ textarea,
   opacity: 1;
 }
 
+.add-envelope-form input[type="text"],
+.add-envelope-form input[type="number"] {
+  background: rgba(36, 40, 47, 0.15);  /* слегка затемнённый фон */
+  border-radius: 13px;
+  border: 1.2px solid rgba(255,255,255,0.23);
+  padding: 10px 15px;
+  font-size: 15px;
+  color: #23292D;
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+  /* Самое важное — равномерная внутренняя тень: */
+  box-shadow:
+    0 1.5px 8px 0 rgba(0,0,0,0.10) inset,
+    0 0 0 1px rgba(0,0,0,0.08) inset;
+  transition: box-shadow 0.18s, border-color 0.16s, background 0.13s;
+  outline: none;
+}
+
 
 
