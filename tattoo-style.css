@@ -138,3 +138,41 @@ button:hover {
   border-radius: 999px;
   background: rgba(255,163,92,0.07);
 }
+
+.history-section {
+  max-width: 360px;
+  margin: 0 auto 18px auto;
+  background: rgba(255,255,255,0.13);
+  backdrop-filter: blur(18px);
+  border-radius: 25px;
+  padding: 18px 12px 14px 12px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.13);
+}
+
+.history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.history-entry {
+  background: rgba(255,255,255,0.23);
+  backdrop-filter: blur(12px);
+  border-radius: 15px;
+  padding: 10px 12px;
+  color: #23292D;
+  font-size: 15px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  word-break: break-word;
+}
+
+.history-entry.income { border-left: 4px solid #33bc4a; }
+.history-entry.expense { border-left: 4px solid #FFA35C; }
+
