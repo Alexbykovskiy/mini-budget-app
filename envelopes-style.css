@@ -2232,3 +2232,30 @@ textarea,
   background: none !important;
   filter: none !important;
 }
+
+
+.envelope-row-grid {
+  display: grid;
+  grid-template-columns: 1fr 60px; /* слева всё текстовое, справа progress/infinity */
+  align-items: center;
+  gap: 0 16px; /* или 18px, как нравится */
+  min-height: 60px;
+  width: 100%;
+}
+.envelope-progress-info {
+  min-width: 0; /* не даёт тексту расползаться вширь */
+}
+.envelope-progress-ring {
+  width: 60px;
+  min-width: 60px;
+  max-width: 60px;
+  height: 60px;
+  min-height: 60px;
+  max-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0;
+  margin-right: 0;
+  position: relative;
+}

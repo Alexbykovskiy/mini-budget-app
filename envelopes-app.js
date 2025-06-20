@@ -612,12 +612,12 @@ if (isPrimary) {
   block.setAttribute("data-id", doc.id);
   // --- ДО block.innerHTML = ... ---
 
-  block.innerHTML = `
+ block.innerHTML = `
   <div class="envelope-main">
     <div class="envelope-header" style="font-size:${titleFontSize}; color:#23292D; font-weight:700;">
       ${escapeHTML(name)}
     </div>
-    <div class="envelope-row" style="display:flex;align-items:center;gap:20px;">
+    <div class="envelope-row-grid">
       <div class="envelope-progress-info">
         <div class="envelope-balance">
           <span class="env-balance-main">${data.current.toFixed(2)}</span>
@@ -635,41 +635,39 @@ if (isPrimary) {
         }
       </div>
       <div class="envelope-progress-ring">
-          ${
-  goalForCalc && goalForCalc > 0
-    ? `<svg width="60" height="60">
-          <!-- Серый фон-круг -->
-          <circle
-            cx="30" cy="30" r="26"
-            stroke="#d2d7dd"
-            stroke-width="8"
-            fill="none"
-            opacity="0.36"
-          />
-          <!-- Оранжевая дуга-прогресс -->
-          <circle
-            cx="30" cy="30" r="26"
-            stroke="#FFA35C"
-            stroke-width="8"
-            fill="none"
-            stroke-linecap="round"
-            stroke-dasharray="${2 * Math.PI * 26}"
-            stroke-dashoffset="${2 * Math.PI * 26 * (1 - progress)}"
-            style="transition:stroke-dashoffset 0.4s;"
-            transform="rotate(-90 30 30)"
-          />
-          <text x="30" y="36" text-anchor="middle" font-size="18" fill="#FFA35C" font-weight="bold">${progressPercent}%</text>
-       </svg>`
-    : `<div class="infinity-ring">∞</div>`
-}
-        </div>
+        ${
+          goalForCalc && goalForCalc > 0
+            ? `<svg width="60" height="60">
+                  <circle
+                    cx="30" cy="30" r="26"
+                    stroke="#d2d7dd"
+                    stroke-width="8"
+                    fill="none"
+                    opacity="0.36"
+                  />
+                  <circle
+                    cx="30" cy="30" r="26"
+                    stroke="#FFA35C"
+                    stroke-width="8"
+                    fill="none"
+                    stroke-linecap="round"
+                    stroke-dasharray="${2 * Math.PI * 26}"
+                    stroke-dashoffset="${2 * Math.PI * 26 * (1 - progress)}"
+                    style="transition:stroke-dashoffset 0.4s;"
+                    transform="rotate(-90 30 30)"
+                  />
+                  <text x="30" y="36" text-anchor="middle" font-size="18" fill="#FFA35C" font-weight="bold">${progressPercent}%</text>
+               </svg>`
+            : `<div class="infinity-ring">∞</div>`
+        }
       </div>
-      <div class="envelope-stats" style="margin: 8px 0 4px 0;">
-        <div>Добавлено в этом месяце: <b>${addedThisMonth.toFixed(2)}</b></div>
-        <div>Потрачено в этом месяце: <b>${spentThisMonth.toFixed(2)}</b></div>
-      </div>
-      <div class="envelope-divider"></div>
-      <div class="envelope-comment">${escapeHTML(data.comment || "Комментарий не указан")}</div>
+    </div>
+    <div class="envelope-stats" style="margin: 8px 0 4px 0;">
+      <div>Добавлено в этом месяце: <b>${addedThisMonth.toFixed(2)}</b></div>
+      <div>Потрачено в этом месяце: <b>${spentThisMonth.toFixed(2)}</b></div>
+    </div>
+    <div class="envelope-divider"></div>
+    <div class="envelope-comment">${escapeHTML(data.comment || "Комментарий не указан")}</div>
     </div>
     <div class="envelope-actions">
       <button class="round-btn menu small menu-btn" data-id="${doc.id}" title="Меню">
