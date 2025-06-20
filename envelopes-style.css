@@ -754,8 +754,8 @@ main.container, .block, ... {
 
 .distribution-warning {
   color: #FFA35C !important;
-  font-weight: 700;
-  font-size: 1.03em;
+  font-weight: 500;
+  font-size: 0.8em;
   margin-top: 7px;
   letter-spacing: 0.01em;
 }
