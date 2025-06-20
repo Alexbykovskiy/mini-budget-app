@@ -767,17 +767,20 @@ if (summaryHeader) {
   const dateStr = now.toLocaleDateString("ru-RU", {
     day: "numeric", month: "long", year: "numeric"
   });
-  summaryHeader.innerHTML = `
-  <div style="display:flex; flex-direction:column; align-items:flex-start; width:100%;">
-    <span class="summary-total-label">Всего</span>
-    <span class="summary-total-amount">${Math.round(totalBalance).toLocaleString('ru-RU')} €</span>
-    <span class="summary-month-label" style="font-size:1.02em; color:#e8b17b; font-weight:400; opacity:0.82; margin-top:4px;">
-      В этом месяце: <b style="color:#fff; font-weight:600;">${Math.round(totalAddedThisMonth).toLocaleString('ru-RU')} €</b>
+summaryHeader.innerHTML = `
+  <div style="display:flex; align-items:flex-start; justify-content:space-between; width:100%;">
+    <div style="display:flex; flex-direction:column; align-items:flex-start;">
+      <span class="summary-total-label">Всего</span>
+      <span class="summary-total-amount">${Math.round(totalBalance).toLocaleString('ru-RU')} €</span>
+      <span class="summary-month-label" style="font-size:1.02em; color:#e8b17b; font-weight:400; opacity:0.82; margin-top:4px;">
+        В этом месяце: <b style="color:#fff; font-weight:600;">${Math.round(totalAddedThisMonth).toLocaleString('ru-RU')} €</b>
+      </span>
+    </div>
+    <span class="summary-date" style="white-space:nowrap; margin-left:18px; margin-top:2px; font-size:1.06em; color:#f4ecd3; opacity:0.85;">
+      ${dateStr}
     </span>
   </div>
-  <span class="summary-date">${dateStr}</span>
 `;
-
 }
 
 } // <-- это уже конец всей функции loadEnvelopes

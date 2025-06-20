@@ -2262,3 +2262,16 @@ textarea,
   position: relative;
  margin-left: -20px; /* Сдвиг влево, например на 10px */
 }
+
+.summary-date {
+  white-space: nowrap;
+  text-align: right;
+  font-size: 1.07em;
+  color: #f4ecd3;
+  opacity: 0.85;
+  margin-left: 18px;
+  margin-top: 2px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
