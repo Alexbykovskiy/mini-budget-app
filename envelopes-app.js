@@ -1896,13 +1896,3 @@ async function transferBalancesAtMonthStart() {
   await batch.commit();
   console.log("✅ Остатки перенесены.");
 }
-
-.envelope-actions .round-btn.orange:after,
-.envelope-actions .round-btn:after,
-.round-btn.orange:after,
-.round-btn:after {
-  display: none !important;
-  content: none !important;
-  background: none !important;
-  filter: none !important;
-}
