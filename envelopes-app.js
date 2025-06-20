@@ -387,7 +387,7 @@ async function renderInlineDistributionEditor() {
   if (total > 100) {
     html += `<div style="color:#C93D1F; font-weight:500;">Внимание: распределено больше 100%!</div>`;
   } else if (total < 100) {
-    html += `<div class="distribution-warning">Внимание: часть процентов не распределены! Они будут направлены в "Общий"</div>`;
+    html += `<div class="distribution-warning">часть процентов не распределена! Она будет направлена в "Общий"</div>`;
 
   } else {
     html += `<div style="color:#186663;">Распределение корректно.</div>`;
