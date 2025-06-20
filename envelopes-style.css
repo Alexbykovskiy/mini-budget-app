@@ -2149,10 +2149,19 @@ textarea,
   opacity: 1;
   transition: opacity 0.36s;
   min-width: 220px;
-  max-width: 90vw;
+  max-width: 340px; /* ← фиксированная максимальная ширина */
+  width: auto;
   line-height: 1.5;
   letter-spacing: 0.01em;
+  word-break: break-word;
+  box-sizing: border-box;
 }
 
-
-
+@media (max-width: 370px) {
+  .toast-tip-center {
+    max-width: 94vw;
+    width: auto;
+    padding: 13px 8px;
+    font-size: 14px;
+  }
+}
