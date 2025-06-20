@@ -2342,3 +2342,22 @@ textarea,
   height: 32px;
   display: block;
 }
+
+.pill-btn {
+  color: #888; /* стандартный цвет иконки */
+  transition: color 0.15s, background 0.15s;
+}
+
+.pill-btn:hover {
+  background: rgba(255,163,92,0.17);
+  color: #FFA35C; /* Оранжевая иконка при ховере */
+}
+
+.pill-icon svg {
+  width: 32px;
+  height: 32px;
+  display: block;
+  stroke: currentColor;
+  fill: none;
+  transition: stroke 0.15s, fill 0.15s;
+}
