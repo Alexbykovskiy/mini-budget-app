@@ -356,3 +356,58 @@ textarea {
   color: #fff;
   letter-spacing: 0.02em;
 }
+
+.block {
+  width: 360px;
+  max-width: 98vw;
+  margin: 0 auto 24px auto;
+  border-radius: 24px !important;
+  background:
+    linear-gradient(120deg,
+      rgba(255,255,255,0.10) 8%,    /* светлее в левом верхнем */
+      rgba(0,0,0,0.41) 100%         /* темнее в правом нижнем */
+    ),
+    rgba(0,0,0,0.50);               /* для глубины/стекла */
+  box-shadow: 0 6px 24px 0 rgba(0,0,0,0.06), 0 1.5px 6px 0 rgba(0,0,0,0.06);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  position: relative;
+  overflow: hidden;
+  padding: 18px 20px 22px 20px;
+  box-sizing: border-box;
+}
+/* Фаска — белая градиентная обводка по краю */
+.block:before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 2;
+  background:
+    linear-gradient(135deg,
+      rgba(255,255,255,0.36) 0%,
+      rgba(255,255,255,0.15) 32%,
+      rgba(255,255,255,0.00) 68%
+    );
+}
+/* Тонкая стеклянная “рамка” по самому краю блока */
+.block:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  pointer-events: none;
+  z-index: 10;
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.50) 15%, rgba(255,255,255,0.00) 90%) border-box;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0) border-box;
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0) border-box;
+  mask-composite: exclude;
+}
