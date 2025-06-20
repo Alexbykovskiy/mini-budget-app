@@ -1814,8 +1814,9 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   // --- Перенос остатков 1 числа месяца ---
   const today = new Date();
-  if (today.getDate() === 1) {
+  if (today.getDate() === 20) {
     await transferBalancesAtMonthStart();
+showCenterToast("Остатки автоматически перенесены!", 2900);
   }
 
   loadEnvelopes();
