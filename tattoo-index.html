@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tattoo Финансы</title>
+  <link rel="stylesheet" href="tattoo-style.css">
+</head>
+<body>
+  <div class="container">
+    <header class="glass-panel">
+      <h1>Финансовая статистика</h1>
+      <div class="stats">
+        <div>Общий доход: <span id="total-income">0 €</span></div>
+        <div>Белый доход: <span id="white-income">0 €</span></div>
+        <div>Чёрный доход: <span id="black-income">0 €</span></div>
+        <div>Общие расходы: <span id="total-expenses">0 €</span></div>
+        <div>Чистый доход: <span id="net-income">0 €</span></div>
+      </div>
+    </header>
+    <section class="glass-panel form-section">
+      <h2>Добавить доход</h2>
+      <input type="number" id="income-amount" placeholder="Сумма (€)">
+      <input type="date" id="income-date">
+      <select id="work-type">
+        <option>Новая татуировка</option>
+        <option>Коррекция</option>
+        <option>Cover-up</option>
+      </select>
+      <select id="income-type">
+        <option value="white">Белый доход</option>
+        <option value="black">Чёрный доход</option>
+      </select>
+      <button onclick="addIncome()">Добавить доход</button>
+    </section>
+    <section class="glass-panel form-section">
+      <h2>Добавить расход</h2>
+      <input type="number" id="expense-amount" placeholder="Сумма (€)">
+      <input type="date" id="expense-date">
+      <select id="expense-category">
+        <option>Транспорт</option>
+        <option>Жильё</option>
+        <option>Еда</option>
+        <option>Расходники</option>
+        <option>Бухгалтерия</option>
+      </select>
+      <button onclick="addExpense()">Добавить расход</button>
+    </section>
+    <footer class="glass-panel footer-section">
+      <button onclick="showCalendar()">Календарь поездок</button>
+      <button onclick="showSettings()">Настройки</button>
+    </footer>
+  </div>
+  <script src="tattoo-app.js"></script>
+</body>
+</html>
