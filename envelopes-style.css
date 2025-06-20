@@ -165,12 +165,11 @@ body {
 }
 
 .envelope-actions .round-btn.menu {
-  background: #f5f7f7;
-  color: #23292D;
-  box-shadow: none;
-  border: none;
+  background: rgba(245, 247, 247, 0.49) !important;
+  color: #23292D !important;
+  box-shadow: none !important;
+  border: none !important;
 }
-
 .envelope-actions .round-btn svg {
   width: 20px !important;
   height: 20px !important;
