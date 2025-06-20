@@ -768,15 +768,27 @@ if (summaryHeader) {
     day: "numeric", month: "long", year: "numeric"
   });
 summaryHeader.innerHTML = `
-  <div style="display:flex; align-items:flex-start; justify-content:space-between; width:100%;">
-    <div style="display:flex; flex-direction:column; align-items:flex-start;">
+  <div style="display: flex; align-items: flex-start; justify-content: space-between; width: 100%;">
+    <div style="display: flex; flex-direction: column; align-items: flex-start;">
       <span class="summary-total-label">Всего</span>
-      <span class="summary-total-amount">${Math.round(totalBalance).toLocaleString('ru-RU')} €</span>
+      <span class="summary-total-amount" style="white-space:nowrap;">
+        ${Math.round(totalBalance).toLocaleString('ru-RU')} €
+      </span>
       <span class="summary-month-label" style="font-size:1.02em; color:#e8b17b; font-weight:400; opacity:0.82; margin-top:4px;">
-        В этом месяце: <b style="color:#fff; font-weight:600;">${Math.round(totalAddedThisMonth).toLocaleString('ru-RU')} €</b>
+        В этом месяце:
+        <b style="color:#fff; font-weight:600;">${Math.round(totalAddedThisMonth).toLocaleString('ru-RU')} €</b>
       </span>
     </div>
-    <span class="summary-date" style="white-space:nowrap; margin-left:18px; margin-top:2px; font-size:1.06em; color:#f4ecd3; opacity:0.85;">
+    <span class="summary-date" style="
+      white-space:nowrap;
+      margin-left:12px;
+      margin-top:0;
+      font-size:1.04em;
+      color:#f4ecd3;
+      opacity:0.87;
+      font-weight:400;
+      align-self:flex-start;
+      ">
       ${dateStr}
     </span>
   </div>
