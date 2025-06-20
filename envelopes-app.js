@@ -666,7 +666,7 @@ if (isPrimary) {
               fill="none"
               opacity="0.36"
             />
-            <text x="30" y="38" text-anchor="middle" font-size="32" fill="#FFA35C" font-weight="bold" letter-spacing="2">∞</text>
+            <text x="30" y="30" text-anchor="middle" dominant-baseline="middle" font-size="32" fill="#FFA35C" font-weight="bold" letter-spacing="2">∞</text>
          </svg>`
   }
 </div>
