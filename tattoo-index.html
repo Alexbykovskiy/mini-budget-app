@@ -18,34 +18,43 @@
         <div>Чистый доход: <span id="net-income">0 €</span></div>
       </div>
     </header>
+   <section class="block">
+  <h2>Добавить доход</h2>
+  <input type="number" id="income-amount" placeholder="Сумма (€)">
+  <div class="inline-fields">
+    <input type="date" id="income-date">
+    <select id="work-type">
+      <option>Новая татуировка</option>
+      <option>Коррекция</option>
+      <option>Cover-up</option>
+    </select>
+  </div>
+  <div class="inline-fields">
+    <select id="income-type">
+      <option value="white">Белый доход</option>
+      <option value="black">Чёрный доход</option>
+    </select>
+    <button onclick="addIncome()">Добавить доход</button>
+  </div>
+</section>
     <section class="block">
-      <h2>Добавить доход</h2>
-      <input type="number" id="income-amount" placeholder="Сумма (€)">
-      <input type="date" id="income-date">
-      <select id="work-type">
-        <option>Новая татуировка</option>
-        <option>Коррекция</option>
-        <option>Cover-up</option>
-      </select>
-      <select id="income-type">
-        <option value="white">Белый доход</option>
-        <option value="black">Чёрный доход</option>
-      </select>
-      <button onclick="addIncome()">Добавить доход</button>
-    </section>
-    <section class="block">
-      <h2>Добавить расход</h2>
-      <input type="number" id="expense-amount" placeholder="Сумма (€)">
-      <input type="date" id="expense-date">
-      <select id="expense-category">
-        <option>Транспорт</option>
-        <option>Жильё</option>
-        <option>Еда</option>
-        <option>Расходники</option>
-        <option>Бухгалтерия</option>
-      </select>
-      <button onclick="addExpense()">Добавить расход</button>
-    </section>
+  <h2>Добавить расход</h2>
+  <input type="number" id="expense-amount" placeholder="Сумма (€)">
+  <div class="inline-fields">
+    <input type="date" id="expense-date">
+    <select id="expense-category">
+      <option>Транспорт</option>
+      <option>Жильё</option>
+      <option>Еда</option>
+      <option>Расходники</option>
+      <option>Бухгалтерия</option>
+    </select>
+  </div>
+  <div class="inline-fields">
+    <button onclick="addExpense()">Добавить расход</button>
+  </div>
+</section>
+
     <footer class="block">
       <button onclick="showCalendar()">Календарь поездок</button>
       <button onclick="showSettings()">Настройки</button>
