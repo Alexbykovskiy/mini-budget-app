@@ -1810,7 +1810,13 @@ modal.innerHTML = `
    
 window.addEventListener("DOMContentLoaded", async () => {
   await ensureSystemEnvelopes();
-await fillTransferTargetSelect();
+  await fillTransferTargetSelect();
+
+  // --- Перенос остатков 1 числа месяца ---
+  const today = new Date();
+  if (today.getDate() === 1) {
+    await transferBalancesAtMonthStart();
+  }
 
   loadEnvelopes();
   document.getElementById('reset-envelopes').addEventListener('click', resetAllEnvelopes);
