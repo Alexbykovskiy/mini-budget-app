@@ -8,7 +8,7 @@
 </head>
 <body>
   <div class="container">
-    <header class="block info-panel">
+    <header class="glass-panel">
       <h1>Финансовая статистика</h1>
       <div class="stats">
         <div>Общий доход: <span id="total-income">0 €</span></div>
@@ -18,7 +18,7 @@
         <div>Чистый доход: <span id="net-income">0 €</span></div>
       </div>
     </header>
-    <section class="block">
+    <section class="glass-panel form-section">
       <h2>Добавить доход</h2>
       <input type="number" id="income-amount" placeholder="Сумма (€)">
       <input type="date" id="income-date">
@@ -33,7 +33,7 @@
       </select>
       <button onclick="addIncome()">Добавить доход</button>
     </section>
-    <section class="block">
+    <section class="glass-panel form-section">
       <h2>Добавить расход</h2>
       <input type="number" id="expense-amount" placeholder="Сумма (€)">
       <input type="date" id="expense-date">
@@ -46,7 +46,7 @@
       </select>
       <button onclick="addExpense()">Добавить расход</button>
     </section>
-   <footer class="block">
+    <footer class="glass-panel footer-section">
       <button onclick="showCalendar()">Календарь поездок</button>
       <button onclick="showSettings()">Настройки</button>
     </footer>
@@ -88,11 +88,6 @@
     </span>
   </a>
 </div>
-<header class="block info-panel">
-  <h2>История</h2>
-  <ul id="history-list" class="history-list">
-    <!-- Здесь будут отображаться записи -->
-  </ul>
-</section>
+
 </body>
 </html>
