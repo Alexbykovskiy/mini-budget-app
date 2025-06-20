@@ -634,34 +634,44 @@ if (isPrimary) {
             : ""
         }
       </div>
-      <div class="envelope-progress-ring">
-        ${
-          goalForCalc && goalForCalc > 0
-            ? `<svg width="60" height="60">
-                  <circle
-                    cx="30" cy="30" r="26"
-                    stroke="#d2d7dd"
-                    stroke-width="8"
-                    fill="none"
-                    opacity="0.36"
-                  />
-                  <circle
-                    cx="30" cy="30" r="26"
-                    stroke="#FFA35C"
-                    stroke-width="8"
-                    fill="none"
-                    stroke-linecap="round"
-                    stroke-dasharray="${2 * Math.PI * 26}"
-                    stroke-dashoffset="${2 * Math.PI * 26 * (1 - progress)}"
-                    style="transition:stroke-dashoffset 0.4s;"
-                    transform="rotate(-90 30 30)"
-                  />
-                  <text x="30" y="36" text-anchor="middle" font-size="18" fill="#FFA35C" font-weight="bold">${progressPercent}%</text>
-               </svg>`
-            : `<div class="infinity-ring">∞</div>`
-        }
-      </div>
-    </div>
+<div class="envelope-progress-ring">
+  ${
+    goalForCalc && goalForCalc > 0
+      ? `<svg width="60" height="60">
+            <circle
+              cx="30" cy="30" r="26"
+              stroke="#d2d7dd"
+              stroke-width="8"
+              fill="none"
+              opacity="0.36"
+            />
+            <circle
+              cx="30" cy="30" r="26"
+              stroke="#FFA35C"
+              stroke-width="8"
+              fill="none"
+              stroke-linecap="round"
+              stroke-dasharray="${2 * Math.PI * 26}"
+              stroke-dashoffset="${2 * Math.PI * 26 * (1 - progress)}"
+              style="transition:stroke-dashoffset 0.4s;"
+              transform="rotate(-90 30 30)"
+            />
+            <text x="30" y="36" text-anchor="middle" font-size="18" fill="#FFA35C" font-weight="bold">${progressPercent}%</text>
+         </svg>`
+      : `<svg width="60" height="60">
+            <circle
+              cx="30" cy="30" r="26"
+              stroke="#d2d7dd"
+              stroke-width="8"
+              fill="none"
+              opacity="0.36"
+            />
+            <text x="30" y="38" text-anchor="middle" font-size="32" fill="#FFA35C" font-weight="bold" letter-spacing="2">∞</text>
+         </svg>`
+  }
+</div>
+</div>
+
     <div class="envelope-stats" style="margin: 8px 0 4px 0;">
        <div>Добавлено в этом месяце: <b>${Math.round(addedThisMonth).toLocaleString('ru-RU')}</b></div>
   <div>Потрачено в этом месяце: <b>${Math.round(spentThisMonth).toLocaleString('ru-RU')}</b></div>
