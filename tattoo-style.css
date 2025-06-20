@@ -1,6 +1,6 @@
 body {
   font-family: -apple-system, sans-serif;
-  background: url('background.jpg') no-repeat center center fixed;
+  background: url('envelopes-background.jpg') center center / cover no-repeat fixed;
   background-size: cover;
   margin: 0;
   padding: 10px;
