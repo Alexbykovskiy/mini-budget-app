@@ -2113,11 +2113,11 @@ textarea,
 
 .add-envelope-form input[type="text"],
 .add-envelope-form input[type="number"] {
-  background: rgba(36, 40, 47, 0.20);  /* Плотнее и темнее фон — почти как у modals */
+  background: rgba(36, 40, 47, 0.25);  /* Плотнее и темнее фон — почти как у modals */
   backdrop-filter: blur(7px);
   -webkit-backdrop-filter: blur(7px);
   border-radius: 14px;
-  border: 1.2px solid rgba(255,255,255,0.30);   /* более стеклянная обводка */
+  border: 1.2px solid rgba(255,255,255,0.01);   /* более стеклянная обводка */
   padding: 12px 16px;
   font-size: 15px;
   color: #fff;
