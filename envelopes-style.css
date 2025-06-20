@@ -139,26 +139,46 @@ body {
   border-radius: 50%;
   border: none;
   background: #e0e0e0;
-    color: #23292D;
+  color: #23292D;
   cursor: pointer;
   font-size: 1.12em;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.1s, box-shadow 0.15s;
+  transition: background 0.12s, color 0.11s;
   padding: 0;
+  box-shadow: none;
+  outline: none;
 }
-.envelope-actions .round-btn:hover {
-  background: #f5f7f7;
-  }
+
 .envelope-actions .round-btn.orange {
-  background: #FFA35C;
-  color: #fff;
-  }
+  background: #FFA35C !important;  /* плоский чисто оранжевый */
+  color: #fff !important;
+  box-shadow: none !important;
+  border: none !important;
+  filter: none !important;
+}
+
+.envelope-actions .round-btn.orange:hover {
+  background: #ffb76b !important;  /* чуть светлее при наведении */
+  color: #fff !important;
+}
+
 .envelope-actions .round-btn.menu {
   background: #f5f7f7;
   color: #23292D;
-  }
+  box-shadow: none;
+  border: none;
+}
+
+.envelope-actions .round-btn svg {
+  width: 20px !important;
+  height: 20px !important;
+  stroke: #fff !important;
+  fill: none !important;
+  display: block;
+  margin: 0;
+}
 
 /* Для мобильных */
 @media (max-width: 400px) {
