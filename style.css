@@ -2283,6 +2283,11 @@ input[type=range]::-moz-range-track {
   background: rgba(255,163,92,0.07);
 }
 
+pill-center:hover .pill-icon svg,
+.pill-third:hover .pill-icon svg {
+  stroke: #FFA35C !important;
+  transition: stroke 0.13s;
+}
 
 #debug-square {
   position: fixed;
