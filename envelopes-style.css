@@ -2293,37 +2293,52 @@ textarea,
 .floating-pill.wide {
   display: flex;
   justify-content: center;
-  align-items: center;
-  border-radius: 50px;
+  align-items: stretch;
+  border-radius: 40px;
+  background: rgba(255,255,255,0.13);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 2px 14px 0 rgba(0,0,0,0.12);
+  width: 320px;      /* подбери по дизайну, чтобы все три были равны */
+  margin: 0 auto 20px auto;
+  overflow: hidden;  /* это обязательно! */
+  height: 54px;
   padding: 0;
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(16px);
 }
 
-.floating-pill .pill-third {
+.pill-btn {
   flex: 1 1 0;
   display: flex;
   align-items: center;
   justify-content: center;
   min-width: 0;
-  height: 48px;
-  border-radius: 32px;
-  background: none;
+  height: 54px;
   border: none;
+  background: none;
   text-decoration: none;
+  transition: background 0.15s;
+  /* убрать рамки между кнопками */
 }
 
-.floating-pill .pill-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.pill-left {
+  border-top-left-radius: 40px;
+  border-bottom-left-radius: 40px;
 }
 
-.floating-pill .pill-divider {
-  width: 1.8px;
-  height: 36px;
-  background: rgba(180,180,180,0.16);
-  border-radius: 3px;
-  margin: 0 3px;
+.pill-right {
+  border-top-right-radius: 40px;
+  border-bottom-right-radius: 40px;
 }
 
+.pill-center {
+  border-radius: 0;
+}
+
+.pill-btn:hover {
+  background: rgba(120,120,120,0.08);
+}
+
+.pill-icon svg {
+  width: 32px;
+  height: 32px;
+  display: block;
+}
