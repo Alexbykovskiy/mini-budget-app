@@ -620,7 +620,7 @@ if (isPrimary) {
     <div class="envelope-row-grid">
       <div class="envelope-progress-info">
         <div class="envelope-balance">
-          <span class="env-balance-main">${data.current.toFixed(2)}</span>
+          <span class="env-balance-main">${Math.round(data.current).toLocaleString('ru-RU')}</span>
           <span class="env-balance-sep">/</span>
           <span class="env-balance-goal">${goalDisplay}</span>
         </div>
@@ -663,8 +663,8 @@ if (isPrimary) {
       </div>
     </div>
     <div class="envelope-stats" style="margin: 8px 0 4px 0;">
-      <div>Добавлено в этом месяце: <b>${addedThisMonth.toFixed(2)}</b></div>
-      <div>Потрачено в этом месяце: <b>${spentThisMonth.toFixed(2)}</b></div>
+       <div>Добавлено в этом месяце: <b>${Math.round(addedThisMonth).toLocaleString('ru-RU')}</b></div>
+  <div>Потрачено в этом месяце: <b>${Math.round(spentThisMonth).toLocaleString('ru-RU')}</b></div>
     </div>
     <div class="envelope-divider"></div>
     <div class="envelope-comment">${escapeHTML(data.comment || "Комментарий не указан")}</div>
