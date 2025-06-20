@@ -2113,20 +2113,28 @@ textarea,
 
 .add-envelope-form input[type="text"],
 .add-envelope-form input[type="number"] {
-  background: rgba(36, 40, 47, 0.15);  /* слегка затемнённый фон */
-  border-radius: 13px;
-  border: 1.2px solid rgba(255,255,255,0.23);
-  padding: 10px 15px;
-  font-size: 15px;
-  color: #23292D;
+  background: rgba(36, 40, 47, 0.20);  /* Плотнее и темнее фон — почти как у modals */
   backdrop-filter: blur(7px);
   -webkit-backdrop-filter: blur(7px);
-  /* Самое важное — равномерная внутренняя тень: */
-  box-shadow:
-    0 1.5px 8px 0 rgba(0,0,0,0.10) inset,
-    0 0 0 1px rgba(0,0,0,0.08) inset;
-  transition: box-shadow 0.18s, border-color 0.16s, background 0.13s;
+  border-radius: 14px;
+  border: 1.2px solid rgba(255,255,255,0.30);   /* более стеклянная обводка */
+  padding: 12px 16px;
+  font-size: 15px;
+  color: #fff;
+  box-shadow: 0 2px 6px 0 rgba(0,0,0,0.12) inset, 0 1.5px 6px 0 rgba(0,0,0,0.07);
   outline: none;
+  transition: box-shadow 0.17s, border-color 0.12s, background 0.14s;
+}
+.add-envelope-form input[type="text"]::placeholder,
+.add-envelope-form input[type="number"]::placeholder {
+  color: rgba(255,255,255,0.68) !important;
+  opacity: 1 !important;
+}
+.add-envelope-form input[type="text"]:focus,
+.add-envelope-form input[type="number"]:focus {
+  border-color: #FFA35C;
+  box-shadow: 0 0 0 2.5px rgba(255,163,92,0.18);
+  background: rgba(36,40,47,0.27);
 }
 
 
