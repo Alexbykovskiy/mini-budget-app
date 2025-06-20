@@ -2130,4 +2130,29 @@ textarea,
 }
 
 
+.toast-tip-center {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: #23292D;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 18px 24px;
+  border-radius: 20px;
+  border: 1.5px solid #363B44;
+  box-shadow: 0 8px 34px 0 rgba(0,0,0,0.28);
+  text-align: center;
+  z-index: 99999;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.36s;
+  min-width: 220px;
+  max-width: 90vw;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+}
+
+
 

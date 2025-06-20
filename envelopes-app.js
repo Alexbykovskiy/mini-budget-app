@@ -475,28 +475,7 @@ document.getElementById("transfer-target-select").style.display = data.transferE
     // Сообщение при клике
    distRow.addEventListener('click', function showDistInfo(e) {
   if (distributionCheckbox.disabled) {
-    let tip = document.getElementById('distribution-switch-tip');
-    if (tip) tip.remove();
-    tip = document.createElement('div');
-    tip.id = 'distribution-switch-tip';
-    tip.textContent = 'В "Общий" идут только нераспределённые проценты.';
-    tip.style.position = 'absolute';
-    tip.style.top = '16px';
-    tip.style.left = '50%';
-    tip.style.transform = 'translateX(-50%)';
-    tip.style.background = '#23292D';    // Плотный цвет, без прозрачности!
-    tip.style.color = '#fff';
-    tip.style.fontSize = '13.5px';
-    tip.style.padding = '13px 16px';
-    tip.style.borderRadius = '16px';
-    tip.style.border = '1.3px solid #363B44';  // Тёмная полупрозрачная обводка для "стеклянности"
-    tip.style.boxShadow = '0 6px 22px 0 rgba(0,0,0,0.18)';
-    tip.style.textAlign = 'center';
-    tip.style.zIndex = '9999';
-    tip.style.pointerEvents = 'none';
-    tip.style.opacity = '1';
-    distRow.appendChild(tip);
-    setTimeout(() => tip.remove(), 2200);
+    showCenterToast('В "Общий" идут только нераспределённые проценты.');
     e.preventDefault();
   }
 });
@@ -531,34 +510,17 @@ document.getElementById("transfer-target-select").style.display = data.transferE
   if (sources.length) {
     transferSwitch.disabled = true;
     transferSelect.disabled = true;
-    if (switchLabel) {
-      switchLabel.classList.add('ios-switch-disabled');
-      switchLabel.onclick = function(e) {
-        // Показываем всплывашку поверх формы (toast)
-        let tip = document.getElementById('transfer-switch-tip');
-        if (tip) tip.remove();
-        tip = document.createElement('div');
-        tip.id = 'transfer-switch-tip';
-        tip.textContent =
-          `Перенос невозможен. Этот конверт выбран как цель автопереноса из: ${sources.join(', ')}.`;
-        tip.style.position = 'absolute';
-        tip.style.top = '34px';
-        tip.style.left = '0';
-        tip.style.right = '0';
-        tip.style.background = 'rgba(30,33,41,0.97)';
-        tip.style.color = '#fff';
-        tip.style.fontSize = '13.5px';
-        tip.style.padding = '12px 15px';
-        tip.style.borderRadius = '16px';
-        tip.style.boxShadow = '0 4px 22px rgba(0,0,0,0.13)';
-        tip.style.textAlign = 'center';
-        tip.style.zIndex = '9999';
-        tip.style.pointerEvents = 'none';
-        switchLabel.parentElement.appendChild(tip);
-        setTimeout(() => tip.remove(), 2600);
-        e.preventDefault();
-      };
-    }
+   if (switchLabel) {
+  switchLabel.classList.add('ios-switch-disabled');
+  switchLabel.onclick = function(e) {
+    showCenterToast(
+      `Перенос невозможен. Этот конверт выбран как цель автопереноса из: ${sources.join(', ')}.`,
+      2600
+    );
+    e.preventDefault();
+  };
+}
+
   }
 });
 
@@ -1882,6 +1844,26 @@ transferSelect.style.display = transferSwitch.checked ? "block" : "none";
 transferSwitch.addEventListener("change", () => {
   transferSelect.style.display = transferSwitch.checked ? "block" : "none";
 });
+
+// Показать уведомление по центру экрана
+function showCenterToast(message, ms = 2200) {
+  // Удалить предыдущий, если был
+  let old = document.getElementById('center-toast-tip');
+  if (old) old.remove();
+
+  const tip = document.createElement('div');
+  tip.id = 'center-toast-tip';
+  tip.className = 'toast-tip-center';
+  tip.textContent = message;
+  document.body.appendChild(tip);
+
+  setTimeout(() => {
+    tip.style.opacity = '0';
+    setTimeout(() => tip.remove(), 400);
+  }, ms);
+}
+
+
 
 async function transferBalancesAtMonthStart() {
   const snapshot = await db.collection("envelopes").get();
