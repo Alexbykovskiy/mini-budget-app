@@ -2175,49 +2175,30 @@ textarea,
 }
 
 
-.pill-btn.dark-pill-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 20px 0 13px;
-  height: 44px;
-  min-width: 76px;
-  background: rgba(35, 41, 45, 0.82);
+.pill-btn.dark-pill-btn.transparent-btn {
+  background: rgba(30,33,41,0.39) !important;
   color: #fff !important;
+  font-weight: 500;
+  font-size: 15px;
+  height: 42px;
+  min-width: 60px;
+  padding: 0 22px;
   border-radius: 999px !important;
   border: none;
-  font-size: 15px;
-  font-weight: 500;
   box-shadow: none;
   outline: none;
   cursor: pointer;
-  transition: filter 0.14s, background 0.18s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.01em;
+  transition: background 0.18s, color 0.13s;
   backdrop-filter: blur(7px);
   -webkit-backdrop-filter: blur(7px);
-}
-
-.pill-btn.dark-pill-btn svg {
-  width: 22px !important;
-  height: 22px !important;
-  stroke: #fff !important;
-  fill: none;
-  opacity: 0.93;
-  flex-shrink: 0;
-  display: block;
   margin: 0;
 }
-
-.pill-btn.dark-pill-btn:hover,
-.pill-btn.dark-pill-btn:focus {
-  background: rgba(40,43,54,0.96);
-  filter: brightness(1.06);
-}
-
-.pill-btn.dark-pill-btn span {
-  font-size: 15px;
-  font-weight: 500;
-  color: #fff;
-  letter-spacing: 0.01em;
-  line-height: 1;
-  padding-top: 0;
+.pill-btn.dark-pill-btn.transparent-btn:hover,
+.pill-btn.dark-pill-btn.transparent-btn:focus {
+  background: rgba(30,33,41,0.59) !important;
+  filter: brightness(1.10);
 }
