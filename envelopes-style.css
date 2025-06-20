@@ -2245,20 +2245,6 @@ textarea,
 .envelope-progress-info {
   min-width: 0; /* не даёт тексту расползаться вширь */
 }
-.envelope-progress-ring {
-  width: 60px;
-  min-width: 60px;
-  max-width: 60px;
-  height: 60px;
-  min-height: 60px;
-  max-height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 0;
-  margin-right: 0;
-  position: relative;
-}
 
 
 .envelope-progress-ring {
@@ -2274,4 +2260,5 @@ textarea,
   margin-left: 0;
   margin-right: 0;
   position: relative;
+ margin-left: -10px; /* Сдвиг влево, например на 10px */
 }
