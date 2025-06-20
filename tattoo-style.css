@@ -46,3 +46,93 @@ button:hover {
 .footer-section button {
   margin-top: 10px;
 }
+
+.floating-pill {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 48px;
+  background: rgba(255,255,255,0.46);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 999px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12), 0 1px 3px rgba(255,255,255,0.20) inset;
+  border: 1.2px solid rgba(255,255,255,0.30);
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  z-index: 10010;
+  user-select: none;
+  pointer-events: auto;
+  padding: 0;
+  overflow: visible;
+}
+
+.pill-half, .pill-center {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-decoration: none;
+  transition: background 0.15s, filter 0.14s;
+  cursor: pointer;
+  outline: none;
+}
+
+.pill-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+}
+
+.pill-icon svg {
+  width: 35px !important;
+  height: 35px !important;
+  min-width: 35px;
+  min-height: 35px;
+  stroke: #888;
+  opacity: 0.95;
+  transition: stroke 0.13s;
+}
+
+.pill-divider {
+  width: 4px;
+  height: 36px;
+  align-self: center;
+  border-radius: 6px;
+  margin: 0;
+  background: linear-gradient(120deg,
+    rgba(255,255,255,0.97) 0%,
+    rgba(200,220,230,0.18) 48%,
+    rgba(180,180,180,0.07) 100%
+  );
+  box-shadow: 0 2px 7px 0 rgba(255,255,255,0.18) inset;
+  opacity: 0.72;
+  filter: blur(0.2px);
+}
+
+.pill-half:active, .pill-half:focus,
+.pill-center:active, .pill-center:focus {
+  filter: brightness(0.96);
+  background: rgba(220,220,220,0.19);
+  outline: none;
+}
+
+/* Ховер-эффекты: подсветка оранжевым! */
+.pill-half:hover .pill-icon svg,
+.pill-center:hover .pill-icon svg {
+  stroke: #FFA35C !important;
+  transition: stroke 0.13s;
+}
+
+.pill-half:focus-visible, .pill-center:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2.5px rgba(255,163,92,0.20);
+  border-radius: 999px;
+  background: rgba(255,163,92,0.07);
+}
