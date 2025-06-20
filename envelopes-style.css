@@ -1406,6 +1406,11 @@ linear-gradient(135deg, rgba(255,255,255,0.50) 15%, rgba(255,255,255,0.00) 90%) 
   stroke: #FFA35C; /* Подсветка оранжевым при ховере, или убери если не хочешь */
   transition: stroke 0.13s;
 }
+.pill-center:hover .pill-icon svg,
+.pill-third:hover .pill-icon svg {
+  stroke: #FFA35C !important;
+  transition: stroke 0.13s;
+}
 
 .pill-half:focus, .pill-half:active {
   outline: none;
