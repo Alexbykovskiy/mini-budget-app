@@ -2173,3 +2173,49 @@ textarea,
     font-size: 14px;
   }
 }
+
+
+.pill-btn.dark-pill-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 22px 0 16px;
+  height: 48px;
+  min-width: 90px;
+  background: rgba(30,33,41,0.82);
+  color: #fff !important;
+  border-radius: 999px !important;
+  border: none;
+  font-size: 16px;
+  font-weight: 500;
+  box-shadow: none;
+  outline: none;
+  cursor: pointer;
+  transition: filter 0.14s, background 0.18s;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.pill-btn.dark-pill-btn svg {
+  width: 22px !important;
+  height: 22px !important;
+  stroke: #fff !important;
+  fill: none;
+  opacity: 0.93;
+  flex-shrink: 0;
+}
+
+.pill-btn.dark-pill-btn:hover,
+.pill-btn.dark-pill-btn:focus {
+  background: rgba(40,43,54,0.92);
+  filter: brightness(1.06);
+}
+
+.pill-btn.dark-pill-btn span {
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  padding-top: 2px;
+}
