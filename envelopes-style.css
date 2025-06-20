@@ -2179,21 +2179,21 @@ textarea,
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 0 22px 0 16px;
-  height: 48px;
-  min-width: 90px;
-  background: rgba(30,33,41,0.82);
+  padding: 0 20px 0 13px;
+  height: 44px;
+  min-width: 76px;
+  background: rgba(35, 41, 45, 0.82);
   color: #fff !important;
   border-radius: 999px !important;
   border: none;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
   box-shadow: none;
   outline: none;
   cursor: pointer;
   transition: filter 0.14s, background 0.18s;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
 }
 
 .pill-btn.dark-pill-btn svg {
@@ -2203,19 +2203,21 @@ textarea,
   fill: none;
   opacity: 0.93;
   flex-shrink: 0;
+  display: block;
+  margin: 0;
 }
 
 .pill-btn.dark-pill-btn:hover,
 .pill-btn.dark-pill-btn:focus {
-  background: rgba(40,43,54,0.92);
+  background: rgba(40,43,54,0.96);
   filter: brightness(1.06);
 }
 
 .pill-btn.dark-pill-btn span {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
   color: #fff;
   letter-spacing: 0.01em;
   line-height: 1;
-  padding-top: 2px;
+  padding-top: 0;
 }
