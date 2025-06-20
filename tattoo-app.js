@@ -2,7 +2,9 @@
 // вставь сюда свой firebaseConfig
 
 function addIncome() {
-  alert('Добавление дохода будет реализовано позже.');
+const isInvoice = document.getElementById('is-invoice').checked;
+// Если true — это белый доход ("Фактура"), если false — чёрный доход  
+alert('Добавление дохода будет реализовано позже.');
 }
 
 function addExpense() {

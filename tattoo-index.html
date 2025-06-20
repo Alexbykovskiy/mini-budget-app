@@ -18,25 +18,58 @@
         <div>Чистый доход: <span id="net-income">0 €</span></div>
       </div>
     </header>
-   <section class="block">
+  
+
+ <section class="block">
+  <section class="block form-section">
   <h2>Добавить доход</h2>
-  <input type="number" id="income-amount" placeholder="Сумма (€)">
+  <!-- 2 строка: студия + дата -->
   <div class="inline-fields">
-    <input type="date" id="income-date">
+    <select id="income-location">
+      <option>Bratislava</option>
+      <option>Вена</option>
+      <option>Прага</option>
+      <!-- можно сделать динамическое добавление -->
+    </select>
+    <input type="date" id="income-date" placeholder="Дата">
+  </div>
+  <!-- 3 строка: сумма + тип работы -->
+  <div class="inline-fields">
+    <input type="number" id="income-amount" placeholder="Сумма (€)">
     <select id="work-type">
       <option>Новая татуировка</option>
       <option>Коррекция</option>
       <option>Cover-up</option>
     </select>
   </div>
-  <div class="inline-fields">
-    <select id="income-type">
-      <option value="white">Белый доход</option>
-      <option value="black">Чёрный доход</option>
-    </select>
-    <button onclick="addIncome()">Добавить доход</button>
+
+<div class="switch-row">
+  <label class="ios-switch">
+    <input type="checkbox" id="is-invoice">
+    <span class="ios-slider"></span>
+    <span class="switch-label">Фактура</span>
+  </label>
+</div>
+
+  <!-- 4 строка: две кнопки по краям -->
+  <div class="pill-row">
+    <button class="round-btn dark" onclick="cancelIncome()">
+      <!-- SVG крестик -->
+      <svg width="27" height="27" viewBox="0 0 27 27" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="7" y1="7" x2="20" y2="20"/>
+        <line x1="20" y1="7" x2="7" y2="20"/>
+      </svg>
+    </button>
+    <button class="round-btn dark" onclick="addIncome()">
+      <!-- SVG галочка -->
+      <svg width="27" height="27" viewBox="0 0 27 27" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6,15 12,21 21,8"/>
+      </svg>
+    </button>
   </div>
 </section>
+
+
     <section class="block">
   <h2>Добавить расход</h2>
   <input type="number" id="expense-amount" placeholder="Сумма (€)">

@@ -242,3 +242,111 @@ textarea {
   flex: 1 1 0;
   min-width: 0;
 }
+
+.inline-fields {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.inline-fields > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* Круглые тёмные кнопки (пилюли) — как на скрине */
+.pill-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  margin-top: 2px;
+}
+
+.round-btn.dark {
+  background: rgba(36, 40, 47, 0.76);
+  border-radius: 100%;
+  width: 51px;
+  height: 51px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.15), 0 1.5px 6px 0 rgba(0,0,0,0.12) inset;
+  border: 1.5px solid rgba(255,255,255,0.09);
+  cursor: pointer;
+  transition: background 0.13s, box-shadow 0.15s;
+  color: #eee;
+  font-size: 21px;
+  padding: 0;
+}
+
+.round-btn.dark:hover,
+.round-btn.dark:focus {
+  background: rgba(55, 58, 65, 0.92);
+  filter: brightness(1.13);
+}
+
+.round-btn.dark svg {
+  stroke: #ccc;
+  width: 27px;
+  height: 27px;
+  display: block;
+}
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  margin-top: -6px;
+}
+
+.ios-switch {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  gap: 11px;
+}
+
+.ios-switch input[type="checkbox"] {
+  display: none;
+}
+
+.ios-slider {
+  width: 44px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(60, 62, 72, 0.73);
+  position: relative;
+  transition: background 0.19s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.13) inset;
+}
+
+.ios-slider:before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left 0.18s, background 0.18s;
+  box-shadow: 0 1.5px 6px 0 rgba(0,0,0,0.10);
+}
+
+.ios-switch input:checked + .ios-slider {
+  background: linear-gradient(120deg, #ffa35c 60%, #f8d8b4 100%);
+}
+
+.ios-switch input:checked + .ios-slider:before {
+  left: 20px;
+  background: #fff;
+}
+
+.switch-label {
+  font-size: 17px;
+  font-weight: 500;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
