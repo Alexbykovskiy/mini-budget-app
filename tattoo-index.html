@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tattoo Финансы</title>
   <link rel="stylesheet" href="tattoo-style.css">
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
 </head>
 <body>
   <div class="container">
@@ -112,10 +113,38 @@
 </section>
 
     <footer class="block">
-      <button onclick="showCalendar()">Календарь поездок</button>
+     <div id="calendar-modal" class="modal" style="display:none;">
+  <div class="modal-content" style="max-width: 410px;">
+    <span class="close-modal" onclick="closeCalendar()">&times;</span>
+    <h2>Календарь поездок</h2>
+    <div style="margin-bottom:14px">
+      <select id="studio-select"></select>
+      <button onclick="showAddStudioModal()">+ Новая студия</button>
+    </div>
+    <div id="calendar"></div>
+  </div>
+</div>
+<div id="add-studio-modal" class="modal" style="display:none;">
+  <div class="modal-content" style="max-width:330px">
+    <span class="close-modal" onclick="closeAddStudioModal()">&times;</span>
+    <h3>Добавить студию</h3>
+    <input type="text" id="new-studio-name" placeholder="Название студии" style="margin-bottom:12px;width:100%">
+    <input type="color" id="new-studio-color" value="#3fa9f5" style="width:100%;height:40px;border-radius:12px">
+    <button onclick="addNewStudio()" style="margin-top:10px;width:100%">Сохранить</button>
+  </div>
+</div>
       <button onclick="showSettings()">Настройки</button>
     </footer>
   </div>
+
+<section class="block history-section">
+  <h2>История</h2>
+  <ul id="history-list" class="history-list">
+    <!-- Здесь будут отображаться записи -->
+  </ul>
+</section>
+</div>
+
 
 
 <div id="floating-pill" class="floating-pill">
@@ -154,17 +183,11 @@
     </span>
   </a>
 </div>
-<section class="block history-section">
-  <h2>История</h2>
-  <ul id="history-list" class="history-list">
-    <!-- Здесь будут отображаться записи -->
-  </ul>
-</section>
-</div>
 
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
 <script src="tattoo-app.js"></script>
 </body>
 </html>
