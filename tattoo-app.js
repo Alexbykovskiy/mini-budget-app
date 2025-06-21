@@ -49,6 +49,76 @@ async function addIncome() {
   }
 }
 
+let studios = [
+  {name: "Rocco Inc.", color: "#3fa9f5"},
+  {name: "SkyLine", color: "#f58a3f"},
+  {name: "Tattoo Lab", color: "#3ff5a7"}
+];
+let trips = [];
+
+function showCalendar() {
+  document.getElementById('calendar-modal').style.display = 'flex';
+  renderStudioSelect();
+  setTimeout(() => {
+    if (!window.fcInstance) {
+      window.fcInstance = new FullCalendar.Calendar(document.getElementById('calendar'), {
+        initialView: 'dayGridMonth',
+        selectable: true,
+        select: function(info) {
+          const studioIndex = document.getElementById('studio-select').value;
+          const studio = studios[studioIndex];
+          if (studio) {
+            trips.push({
+              title: studio.name,
+              start: info.startStr,
+              end: info.endStr,
+              color: studio.color
+            });
+            window.fcInstance.addEvent({
+              title: studio.name,
+              start: info.startStr,
+              end: info.endStr,
+              color: studio.color
+            });
+          }
+        },
+        events: trips,
+        height: 410,
+        headerToolbar: { left: 'title', center: '', right: 'today prev,next' },
+        locale: 'ru'
+      });
+      window.fcInstance.render();
+    }
+  }, 1);
+}
+function closeCalendar() {
+  document.getElementById('calendar-modal').style.display = 'none';
+  if (window.fcInstance) window.fcInstance.destroy(), window.fcInstance = null;
+}
+function renderStudioSelect() {
+  const sel = document.getElementById('studio-select');
+  sel.innerHTML = '';
+  studios.forEach((s, i) => {
+    sel.innerHTML += `<option value="${i}" style="color:${s.color}">${s.name}</option>`;
+  });
+}
+function showAddStudioModal() {
+  document.getElementById('add-studio-modal').style.display = 'flex';
+}
+function closeAddStudioModal() {
+  document.getElementById('add-studio-modal').style.display = 'none';
+}
+function addNewStudio() {
+  const name = document.getElementById('new-studio-name').value.trim();
+  const color = document.getElementById('new-studio-color').value;
+  if (name) {
+    studios.push({name, color});
+    renderStudioSelect();
+    closeAddStudioModal();
+  }
+}
+
+
 async function loadHistory() {
   const historyList = document.getElementById('history-list');
   if (!historyList) return;

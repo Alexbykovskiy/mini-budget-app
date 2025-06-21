@@ -437,3 +437,36 @@ textarea {
   display: block;
 }
 
+.modal {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  position: fixed; left: 0; top: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(25,28,36,0.56);
+  z-index: 15000;
+  backdrop-filter: blur(4px);
+}
+.modal[style*="display: flex"] {
+  display: flex !important;
+}
+.modal-content {
+  background: rgba(18,21,28,0.97);
+  border-radius: 22px;
+  padding: 32px 18px 24px 18px;
+  box-shadow: 0 8px 40px 0 rgba(0,0,0,0.18);
+  min-width: 320px;
+  max-width: 98vw;
+  position: relative;
+}
+.close-modal {
+  position: absolute; top: 10px; right: 18px;
+  font-size: 2rem;
+  color: #aaa;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.14s;
+}
+.close-modal:hover { color: #FFA35C; }
+
+
