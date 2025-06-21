@@ -55,34 +55,90 @@ async function loadHistory() {
   historyList.innerHTML = '<li style="color:#bbb">Загрузка...</li>';
 
   try {
-    const incomeSnap = await db.collection('incomes').orderBy('created', 'desc').get();
-    if (incomeSnap.empty) {
-      historyList.innerHTML = '<li style="color:#bbb">Нет доходов</li>';
+    // Получаем доходы и расходы
+    const [incomeSnap, expenseSnap] = await Promise.all([
+      db.collection('incomes').orderBy('created', 'desc').get(),
+      db.collection('expenses').orderBy('created', 'desc').get()
+    ]);
+
+    // Собираем все записи в один массив
+    let allEntries = [];
+    incomeSnap.forEach(doc => {
+      allEntries.push({ type: 'income', ...doc.data() });
+    });
+    expenseSnap.forEach(doc => {
+      allEntries.push({ type: 'expense', ...doc.data() });
+    });
+
+    // Сортируем по дате (убывание)
+    allEntries.sort((a, b) => (b.created > a.created ? 1 : -1));
+
+    if (allEntries.length === 0) {
+      historyList.innerHTML = '<li style="color:#bbb">Нет записей</li>';
       return;
     }
 
+    // Рендерим историю
     historyList.innerHTML = '';
-    incomeSnap.forEach(doc => {
-      const data = doc.data();
-      historyList.innerHTML += `
-        <li class="history-entry income">
-          <div>Доход: <b>${data.amount} €</b> ${data.isInvoice ? '(Фактура)' : ''}</div>
-          <div>Студия: ${data.location}</div>
-          <div>Дата: ${data.date}</div>
-          <div>Тип: ${data.workType}</div>
-        </li>
-      `;
+    allEntries.forEach(entry => {
+      if (entry.type === 'income') {
+        historyList.innerHTML += `
+          <li class="history-entry income">
+            <div>Доход: <b>${entry.amount} €</b> ${entry.isInvoice ? '(Фактура)' : ''}</div>
+            <div>Студия: ${entry.location}</div>
+            <div>Дата: ${entry.date}</div>
+            <div>Тип: ${entry.workType}</div>
+          </li>
+        `;
+      } else if (entry.type === 'expense') {
+        historyList.innerHTML += `
+          <li class="history-entry expense">
+            <div>Расход: <b>${entry.amount} €</b></div>
+            <div>Локация: ${entry.location}</div>
+            <div>Дата: ${entry.date}</div>
+            <div>Категория: ${entry.expenseType}</div>
+          </li>
+        `;
+      }
     });
   } catch (e) {
     historyList.innerHTML = `<li style="color:red">Ошибка загрузки истории: ${e.message}</li>`;
   }
 }
 
+async function addExpense() {
+  const location = document.getElementById('expense-location').value;
+  const date = document.getElementById('expense-date').value;
+  const amount = parseFloat(document.getElementById('expense-amount').value);
+  const expenseType = document.getElementById('expense-type').value;
 
-function addExpense() {
-  alert('Добавление расхода будет реализовано позже.');
+  // Простая валидация
+  if (!location || !date || !amount || !expenseType) {
+    alert('Пожалуйста, заполните все поля!');
+    return;
+  }
+
+  try {
+    await db.collection('expenses').add({
+      location,
+      date,
+      amount,
+      expenseType,
+      created: new Date().toISOString()
+    });
+
+    // Очищаем поля после добавления
+    document.getElementById('expense-location').value = '';
+    document.getElementById('expense-date').value = '';
+    document.getElementById('expense-amount').value = '';
+    document.getElementById('expense-type').value = '';
+
+    // Перезагружаем историю
+    loadHistory();
+  } catch (e) {
+    alert('Ошибка при добавлении расхода: ' + e.message);
+  }
 }
-
 function calculateStats() {
   alert('Расчёт статистики будет реализован позже.');
 }
