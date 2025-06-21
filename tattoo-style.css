@@ -470,3 +470,35 @@ textarea {
 .close-modal:hover { color: #FFA35C; }
 
 
+.footer-btns {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+.footer-btn {
+  background: rgba(36, 40, 47, 0.72);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 500;
+  padding: 10px 20px 10px 16px;
+  border-radius: 999px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.15), 0 1.5px 6px 0 rgba(0,0,0,0.09) inset;
+  transition: background 0.16s, color 0.13s, box-shadow 0.13s;
+}
+.footer-btn svg {
+  width: 23px;
+  height: 23px;
+  stroke: #FFA35C;
+}
+.footer-btn:hover {
+  background: rgba(255,163,92,0.19);
+  color: #FFA35C;
+}
+
+
