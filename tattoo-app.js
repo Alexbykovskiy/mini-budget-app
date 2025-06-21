@@ -213,9 +213,6 @@ function calculateStats() {
   alert('Расчёт статистики будет реализован позже.');
 }
 
-function showCalendar() {
-  alert('Календарь будет реализован позже.');
-}
 
 function showSettings() {
   alert('Настройки будут реализованы позже.');
