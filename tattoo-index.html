@@ -71,19 +71,43 @@
 
     <section class="block">
   <h2>Добавить расход</h2>
-  <input type="number" id="expense-amount" placeholder="Сумма (€)">
+  <!-- 1 строка: Локация + Дата -->
   <div class="inline-fields">
-    <input type="date" id="expense-date">
-    <select id="expense-category">
+    <select id="expense-location">
+      <option>Bratislava</option>
+      <option>Вена</option>
+      <option>Прага</option>
+      <!-- Можно добавить другие локации -->
+    </select>
+    <input type="date" id="expense-date" placeholder="Дата">
+  </div>
+  <!-- 2 строка: Сумма + Вид расхода -->
+  <div class="inline-fields">
+    <input type="number" id="expense-amount" placeholder="Сумма (€)">
+    <select id="expense-type">
       <option>Транспорт</option>
       <option>Жильё</option>
       <option>Еда</option>
       <option>Расходники</option>
       <option>Бухгалтерия</option>
+      <!-- Добавь свои типы расходов -->
     </select>
   </div>
-  <div class="inline-fields">
-    <button onclick="addExpense()">Добавить расход</button>
+  <!-- 3 строка: две кнопки (отмена и подтвердить, как в доходах) -->
+  <div class="pill-row">
+    <button class="round-btn dark" onclick="cancelExpense()">
+      <!-- SVG крестик -->
+      <svg width="27" height="27" viewBox="0 0 27 27" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="7" y1="7" x2="20" y2="20"/>
+        <line x1="20" y1="7" x2="7" y2="20"/>
+      </svg>
+    </button>
+    <button class="round-btn dark" onclick="addExpense()">
+      <!-- SVG галочка -->
+      <svg width="27" height="27" viewBox="0 0 27 27" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6,15 12,21 21,8"/>
+      </svg>
+    </button>
   </div>
 </section>
 
