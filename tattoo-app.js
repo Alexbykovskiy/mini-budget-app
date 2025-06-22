@@ -115,16 +115,15 @@ function showAddStudioModal() {
 function closeAddStudioModal() {
   document.getElementById('add-studio-modal').style.display = 'none';
 }
-function addNewStudio() {
+async function addNewStudio() {
   const name = document.getElementById('new-studio-name').value.trim();
   const color = document.getElementById('new-studio-color').value;
   if (name) {
-    studios.push({name, color});
-    renderStudioSelect();
+    await db.collection('studios').add({ name, color });
     closeAddStudioModal();
+    loadStudios();
   }
 }
-
 
 async function loadHistory() {
   const historyList = document.getElementById('history-list');
