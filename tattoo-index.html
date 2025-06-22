@@ -132,28 +132,43 @@
   <div class="modal-content" style="max-width: 340px;">
     <span class="close-modal" onclick="closeStudioModal()">&times;</span>
     <h3>Студия</h3>
-    <form id="studio-form" autocomplete="off">
+    <form id="studio-form" autocomplete="off" style="display:flex;flex-direction:column;gap:16px;">
       <input
         type="text"
         id="studio-name"
         list="studio-list"
         placeholder="Название студии"
-        style="width:100%;margin-bottom:12px"
+        style="width:100%;margin-bottom:0"
         required
         oninput="onStudioNameInput()"
+        autocomplete="off"
       >
       <datalist id="studio-list"></datalist>
-      <label style="display:block;margin-bottom:12px">
-        Цвет: <input type="color" id="studio-color" style="vertical-align:middle;width:44px;height:30px;border-radius:9px">
-      </label>
-      <div style="display:flex;gap:8px;justify-content:space-between">
-        <button type="submit" style="flex:1">Сохранить</button>
-        <button type="button" id="delete-studio-btn" style="flex:1;background:#fbb;display:none">Удалить</button>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <!-- Кнопка выбора цвета -->
+        <label style="margin:0;">
+          <input type="color" id="studio-color" class="color-circle">
+        </label>
+        <span style="font-size:16px;color:#ccc;">Выбери цвет</span>
+      </div>
+      <div class="studio-modal-actions">
+        <button type="button" id="delete-studio-btn" class="round-btn dark" style="display:none;">
+          <!-- SVG крестик -->
+          <svg width="27" height="27" viewBox="0 0 27 27" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="7" y1="7" x2="20" y2="20"/>
+            <line x1="20" y1="7" x2="7" y2="20"/>
+          </svg>
+        </button>
+        <button type="submit" class="round-btn dark">
+          <!-- SVG галочка -->
+          <svg width="27" height="27" viewBox="0 0 27 27" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6,15 12,21 21,8"/>
+          </svg>
+        </button>
       </div>
     </form>
   </div>
 </div>
-
 
 <footer class="block">
   <div class="footer-btns">
