@@ -77,32 +77,28 @@ async function addIncome() {
 let studios = [];
 let trips = [];
 
-function showCalendar() {
+async function showCalendar() {
   document.getElementById('calendar-modal').style.display = 'flex';
   renderStudioSelect();
+  await loadTrips(); // <-- вот это важно!
+  setTimeout(() => {
+    if (!window.fcInstance) {
+      window.fcInstance = new FullCalendar.Calendar(document.getElementById('calendar'), {
+        // ...
+        events: trips,
+        // ...
+      });
+      window.fcInstance.render();
+    }
+  }, 1);
+}
+
   setTimeout(() => {
     if (!window.fcInstance) {
       window.fcInstance = new FullCalendar.Calendar(document.getElementById('calendar'), {
         initialView: 'dayGridMonth',
         selectable: true,
-        select: function(info) {
-          const studioIndex = document.getElementById('studio-select').value;
-          const studio = studios[studioIndex];
-          if (studio) {
-            trips.push({
-              title: studio.name,
-              start: info.startStr,
-              end: info.endStr,
-              color: studio.color
-            });
-            window.fcInstance.addEvent({
-              title: studio.name,
-              start: info.startStr,
-              end: info.endStr,
-              color: studio.color
-            });
-          }
-        },
+        // select — можешь отключить, если не хочешь добавлять мышкой диапазон
         events: trips,
         height: 410,
         headerToolbar: { left: 'title', center: '', right: 'today prev,next' },
@@ -112,6 +108,7 @@ function showCalendar() {
     }
   }, 1);
 }
+
 function closeCalendar() {
   document.getElementById('calendar-modal').style.display = 'none';
   if (window.fcInstance) window.fcInstance.destroy(), window.fcInstance = null;
@@ -138,6 +135,22 @@ async function addNewStudio() {
     loadStudios();
   }
 }
+
+async function loadTrips() {
+  trips = [];
+  const snap = await db.collection('trips').get();
+  snap.forEach(doc => {
+    const data = doc.data();
+    trips.push({
+      id: doc.id,
+      title: data.studio,
+      start: data.start,
+      end: data.end,
+      color: data.color
+    });
+  });
+}
+
 
 async function loadHistory() {
   const historyList = document.getElementById('history-list');
@@ -323,7 +336,7 @@ async function addTripByDates() {
     alert('Выберите студию и обе даты!');
     return;
   }
-  // В Firestore (если хочешь сохранять)
+  // Сохраняем в Firestore
   await db.collection('trips').add({
     studio: studio.name,
     color: studio.color,
@@ -332,14 +345,11 @@ async function addTripByDates() {
     created: new Date().toISOString()
   });
 
-  // Добавляем в календарь на лету (если не используешь загрузку из Firestore)
+  // Обновляем календарь, если открыт
   if (window.fcInstance) {
-    window.fcInstance.addEvent({
-      title: studio.name,
-      start: dateFrom,
-      end: addDays(dateTo, 1),
-      color: studio.color
-    });
+    await loadTrips();
+    window.fcInstance.removeAllEvents();
+    trips.forEach(event => window.fcInstance.addEvent(event));
   }
 
   // Сбросить поля
