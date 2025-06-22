@@ -76,6 +76,8 @@ async function addIncome() {
 
 let studios = [];
 let trips = [];
+let currentTripId = null; // Для отслеживания, редактируем ли поездку
+
 
 async function showCalendar() {
   document.getElementById('calendar-modal').style.display = 'flex';
@@ -88,17 +90,34 @@ async function showCalendar() {
     window.fcInstance = null;
   }
 
-  setTimeout(() => {
-    window.fcInstance = new FullCalendar.Calendar(document.getElementById('calendar'), {
-      initialView: 'dayGridMonth',
-      selectable: true,
-      events: trips,
-      height: 410,
-      headerToolbar: { left: 'title', center: '', right: 'today prev,next' },
-      locale: 'ru'
-    });
-    window.fcInstance.render();
-  }, 1);
+ setTimeout(() => {
+  window.fcInstance = new FullCalendar.Calendar(document.getElementById('calendar'), {
+    initialView: 'dayGridMonth',
+    selectable: true,
+    events: trips,
+    height: 410,
+    headerToolbar: { left: 'title', center: '', right: 'today prev,next' },
+    locale: 'ru',
+    eventClick: function(info) {
+      const event = info.event;
+      const studioName = event.title;
+      const startDate = event.startStr.slice(0, 10);
+      // End в календаре эксклюзивно: вычесть 1 день!
+      const endDate = event.endStr
+        ? (new Date(+event.end - 24 * 3600 * 1000)).toISOString().slice(0, 10)
+        : startDate;
+      // Найти студию по имени
+      const studioIdx = studios.findIndex(s => s.name === studioName);
+      document.getElementById('studio-select').value = studioIdx;
+      document.getElementById('trip-date-from').value = startDate;
+      document.getElementById('trip-date-to').value = endDate;
+      currentTripId = event.extendedProps.id;
+      // Показать кнопку-корзину для удаления
+      document.getElementById('delete-trip-btn').style.display = "";
+    }
+  });
+  window.fcInstance.render();
+}, 1);
 }
 
   function closeCalendar() {
@@ -138,7 +157,8 @@ async function loadTrips() {
       title: data.studio,
       start: data.start,
       end: data.end,
-      color: data.color
+      color: data.color,
+      extendedProps: { id: doc.id } // <-- это обязательно для идентификации!
     });
   });
 }
@@ -328,25 +348,38 @@ async function addTripByDates() {
     alert('Выберите студию и обе даты!');
     return;
   }
-  // Сохраняем в Firestore
-  await db.collection('trips').add({
-    studio: studio.name,
-    color: studio.color,
-    start: dateFrom,
-    end: addDays(dateTo, 1), // FullCalendar end date exclusive
-    created: new Date().toISOString()
-  });
 
-  // Обновляем календарь, если открыт
+  if (currentTripId) {
+    // Редактирование существующей поездки
+    await db.collection('trips').doc(currentTripId).update({
+      studio: studio.name,
+      color: studio.color,
+      start: dateFrom,
+      end: addDays(dateTo, 1)
+    });
+    currentTripId = null; // После обновления сбрасываем!
+  } else {
+    // Новая поездка
+    await db.collection('trips').add({
+      studio: studio.name,
+      color: studio.color,
+      start: dateFrom,
+      end: addDays(dateTo, 1),
+      created: new Date().toISOString()
+    });
+  }
+
+  // Обновить календарь
   if (window.fcInstance) {
     await loadTrips();
     window.fcInstance.removeAllEvents();
     trips.forEach(event => window.fcInstance.addEvent(event));
   }
 
-  // Сбросить поля
+  // Сбросить поля и скрыть кнопку удаления
   document.getElementById('trip-date-from').value = '';
   document.getElementById('trip-date-to').value = '';
+  document.getElementById('delete-trip-btn').style.display = "none";
 }
 
 // Вспомогательная функция для вычисления end (эксклюзивно)
@@ -354,6 +387,23 @@ function addDays(dateStr, days) {
   const date = new Date(dateStr);
   date.setDate(date.getDate() + days);
   return date.toISOString().split('T')[0];
+}
+
+async function deleteTripById() {
+  if (!currentTripId) return;
+  if (!confirm('Удалить поездку?')) return;
+  await db.collection('trips').doc(currentTripId).delete();
+  // После удаления обновить календарь
+  if (window.fcInstance) {
+    await loadTrips();
+    window.fcInstance.removeAllEvents();
+    trips.forEach(event => window.fcInstance.addEvent(event));
+  }
+  // Очистить всё
+  document.getElementById('trip-date-from').value = '';
+  document.getElementById('trip-date-to').value = '';
+  currentTripId = null;
+  document.getElementById('delete-trip-btn').style.display = "none";
 }
 
 
