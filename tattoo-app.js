@@ -209,13 +209,90 @@ async function addExpense() {
     alert('Ошибка при добавлении расхода: ' + e.message);
   }
 }
-function calculateStats() {
-  alert('Расчёт статистики будет реализован позже.');
-}
 
 
-function showSettings() {
-  alert('Настройки будут реализованы позже.');
+// Открыть модалку для новой или существующей студии
+function showStudioModal(studioIdx = null) {
+  const modal = document.getElementById('studio-modal');
+  modal.style.display = 'flex';
+  const nameInput = document.getElementById('studio-name');
+  const colorInput = document.getElementById('studio-color');
+  const datalist = document.getElementById('studio-list');
+  const deleteBtn = document.getElementById('delete-studio-btn');
+  nameInput.value = "";
+  colorInput.value = "#3fa9f5";
+  deleteBtn.style.display = "none";
+
+  // Заполняем datalist студий
+  datalist.innerHTML = studios.map(s => `<option value="${s.name}">`).join('');
+
+  // Если редактируем — автозаполняем поля
+  if (studioIdx !== null && studios[studioIdx]) {
+    nameInput.value = studios[studioIdx].name;
+    colorInput.value = studios[studioIdx].color;
+    deleteBtn.style.display = "block";
+    deleteBtn.onclick = function() {
+      if (confirm(`Удалить студию "${studios[studioIdx].name}"?`)) {
+        studios.splice(studioIdx, 1);
+        closeStudioModal();
+        renderStudioSelect();
+        if (typeof renderStudioList === "function") renderStudioList();
+      }
+    };
+  } else {
+    deleteBtn.style.display = "none";
+    deleteBtn.onclick = null;
+  }
+
+  // При вводе — если студия уже есть, автозаполнить цвет
+  nameInput.oninput = function() {
+    const idx = studios.findIndex(s => s.name.toLowerCase() === nameInput.value.trim().toLowerCase());
+    if (idx >= 0) {
+      colorInput.value = studios[idx].color;
+      deleteBtn.style.display = "block";
+      deleteBtn.onclick = function() {
+        if (confirm(`Удалить студию "${studios[idx].name}"?`)) {
+          studios.splice(idx, 1);
+          closeStudioModal();
+          renderStudioSelect();
+          if (typeof renderStudioList === "function") renderStudioList();
+        }
+      };
+    } else {
+      colorInput.value = "#3fa9f5";
+      deleteBtn.style.display = "none";
+      deleteBtn.onclick = null;
+    }
+  };
 }
+
+// Скрыть модалку
+function closeStudioModal() {
+  document.getElementById('studio-modal').style.display = 'none';
+}
+
+// Обработка формы
+document.getElementById('studio-form').onsubmit = function(e) {
+  e.preventDefault();
+  const name = document.getElementById('studio-name').value.trim();
+  const color = document.getElementById('studio-color').value;
+  if (!name) return;
+
+  let idx = studios.findIndex(s => s.name.toLowerCase() === name.toLowerCase());
+  if (idx >= 0) {
+    studios[idx].color = color; // Редактируем цвет
+  } else {
+    studios.push({ name, color }); // Добавляем новую
+  }
+  closeStudioModal();
+  renderStudioSelect();
+  if (typeof renderStudioList === "function") renderStudioList();
+};
+
+// Вызов этой модалки: по кнопке “+ студия” в календаре/списке студий:
+function showAddStudioModal() {
+  showStudioModal(null);
+}
+
 
 window.addEventListener('DOMContentLoaded', loadHistory);

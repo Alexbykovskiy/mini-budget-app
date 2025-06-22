@@ -133,6 +133,34 @@
     <button onclick="addNewStudio()" style="margin-top:10px;width:100%">Сохранить</button>
   </div>
 </div>
+
+<div id="studio-modal" class="modal" style="display:none;">
+  <div class="modal-content" style="max-width: 340px;">
+    <span class="close-modal" onclick="closeStudioModal()">&times;</span>
+    <h3>Студия</h3>
+    <form id="studio-form" autocomplete="off">
+      <input
+        type="text"
+        id="studio-name"
+        list="studio-list"
+        placeholder="Название студии"
+        style="width:100%;margin-bottom:12px"
+        required
+        oninput="onStudioNameInput()"
+      >
+      <datalist id="studio-list"></datalist>
+      <label style="display:block;margin-bottom:12px">
+        Цвет: <input type="color" id="studio-color" style="vertical-align:middle;width:44px;height:30px;border-radius:9px">
+      </label>
+      <div style="display:flex;gap:8px;justify-content:space-between">
+        <button type="submit" style="flex:1">Сохранить</button>
+        <button type="button" id="delete-studio-btn" style="flex:1;background:#fbb;display:none">Удалить</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
 <footer class="block">
   <div class="footer-btns">
     <button onclick="showCalendar()" class="footer-btn">
@@ -154,6 +182,9 @@
     </button>
   </div>
 </footer>
+
+
+
 
 <section class="block history-section">
   <h2>История</h2>
