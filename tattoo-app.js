@@ -13,6 +13,17 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// Загрузка студий из Firestore
+async function loadStudios() {
+  studios = [];
+  const snap = await db.collection('studios').get();
+  snap.forEach(doc => {
+    studios.push({ id: doc.id, ...doc.data() });
+  });
+  renderStudioSelect && renderStudioSelect();
+  if (typeof renderStudioList === "function") renderStudioList();
+}
+
 async function addIncome() {
   const location = document.getElementById('income-location').value;
   const date = document.getElementById('income-date').value;
@@ -49,11 +60,7 @@ async function addIncome() {
   }
 }
 
-let studios = [
-  {name: "Rocco Inc.", color: "#3fa9f5"},
-  {name: "SkyLine", color: "#f58a3f"},
-  {name: "Tattoo Lab", color: "#3ff5a7"}
-];
+let studios = [];
 let trips = [];
 
 function showCalendar() {
@@ -247,22 +254,25 @@ function showStudioModal(studioIdx = null) {
   // При вводе — если студия уже есть, автозаполнить цвет
   nameInput.oninput = function() {
     const idx = studios.findIndex(s => s.name.toLowerCase() === nameInput.value.trim().toLowerCase());
-    if (idx >= 0) {
-      colorInput.value = studios[idx].color;
-      deleteBtn.style.display = "block";
-      deleteBtn.onclick = function() {
-        if (confirm(`Удалить студию "${studios[idx].name}"?`)) {
-          studios.splice(idx, 1);
+if (idx >= 0) {
+  colorInput.value = studios[idx].color;
+  deleteBtn.style.display = "block";
+  deleteBtn.onclick = function() {
+    if (confirm(`Удалить студию "${studios[idx].name}"?`)) {
+      const id = studios[idx].id;
+      db.collection('studios').doc(id).delete()
+        .then(() => {
           closeStudioModal();
-          renderStudioSelect();
-          if (typeof renderStudioList === "function") renderStudioList();
-        }
-      };
-    } else {
-      colorInput.value = "#3fa9f5";
-      deleteBtn.style.display = "none";
-      deleteBtn.onclick = null;
+          loadStudios(); // подгрузить новый актуальный список после удаления
+        })
+        .catch(e => alert('Ошибка при удалении студии: ' + e.message));
     }
+  };
+} else {
+  colorInput.value = "#3fa9f5";
+  deleteBtn.style.display = "none";
+  deleteBtn.onclick = null;
+}
   };
 }
 
@@ -272,7 +282,7 @@ function closeStudioModal() {
 }
 
 // Обработка формы
-document.getElementById('studio-form').onsubmit = function(e) {
+document.getElementById('studio-form').onsubmit = async function(e) {
   e.preventDefault();
   const name = document.getElementById('studio-name').value.trim();
   const color = document.getElementById('studio-color').value;
@@ -280,19 +290,19 @@ document.getElementById('studio-form').onsubmit = function(e) {
 
   let idx = studios.findIndex(s => s.name.toLowerCase() === name.toLowerCase());
   if (idx >= 0) {
-    studios[idx].color = color; // Редактируем цвет
+    // Обновляем существующую студию в Firestore
+    const id = studios[idx].id;
+    await db.collection('studios').doc(id).update({ color });
   } else {
-    studios.push({ name, color }); // Добавляем новую
+    // Добавляем новую студию в Firestore
+    await db.collection('studios').add({ name, color });
   }
   closeStudioModal();
-  renderStudioSelect();
-  if (typeof renderStudioList === "function") renderStudioList();
+  loadStudios();
 };
 
-// Вызов этой модалки: по кнопке “+ студия” в календаре/списке студий:
-function showAddStudioModal() {
-  showStudioModal(null);
-}
 
-
-window.addEventListener('DOMContentLoaded', loadHistory);
+window.addEventListener('DOMContentLoaded', () => {
+  loadStudios();
+  loadHistory();
+});
