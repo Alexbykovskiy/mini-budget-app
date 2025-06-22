@@ -24,6 +24,20 @@ async function loadStudios() {
   if (typeof renderStudioList === "function") renderStudioList();
 }
 
+function renderStudioOptions() {
+  // Для доходов
+  const incomeSel = document.getElementById('income-location');
+  if (incomeSel) {
+    incomeSel.innerHTML = studios.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+  }
+  // Для расходов (если нужно — можно дублировать)
+  const expenseSel = document.getElementById('expense-location');
+  if (expenseSel) {
+    expenseSel.innerHTML = studios.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+  }
+}
+
+
 async function addIncome() {
   const location = document.getElementById('income-location').value;
   const date = document.getElementById('income-date').value;
