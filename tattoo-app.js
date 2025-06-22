@@ -314,6 +314,46 @@ document.getElementById('studio-form').onsubmit = async function(e) {
   loadStudios();
 };
 
+async function addTripByDates() {
+  const studioIdx = document.getElementById('studio-select').value;
+  const studio = studios[studioIdx];
+  const dateFrom = document.getElementById('trip-date-from').value;
+  const dateTo = document.getElementById('trip-date-to').value;
+  if (!studio || !dateFrom || !dateTo) {
+    alert('Выберите студию и обе даты!');
+    return;
+  }
+  // В Firestore (если хочешь сохранять)
+  await db.collection('trips').add({
+    studio: studio.name,
+    color: studio.color,
+    start: dateFrom,
+    end: addDays(dateTo, 1), // FullCalendar end date exclusive
+    created: new Date().toISOString()
+  });
+
+  // Добавляем в календарь на лету (если не используешь загрузку из Firestore)
+  if (window.fcInstance) {
+    window.fcInstance.addEvent({
+      title: studio.name,
+      start: dateFrom,
+      end: addDays(dateTo, 1),
+      color: studio.color
+    });
+  }
+
+  // Сбросить поля
+  document.getElementById('trip-date-from').value = '';
+  document.getElementById('trip-date-to').value = '';
+}
+
+// Вспомогательная функция для вычисления end (эксклюзивно)
+function addDays(dateStr, days) {
+  const date = new Date(dateStr);
+  date.setDate(date.getDate() + days);
+  return date.toISOString().split('T')[0];
+}
+
 
 window.addEventListener('DOMContentLoaded', () => {
   loadStudios();
