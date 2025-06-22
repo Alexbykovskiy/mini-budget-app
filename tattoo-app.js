@@ -80,36 +80,28 @@ let trips = [];
 async function showCalendar() {
   document.getElementById('calendar-modal').style.display = 'flex';
   renderStudioSelect();
-  await loadTrips(); // <-- вот это важно!
+  await loadTrips();
+
+  // Если календарь уже был — уничтожить его перед созданием заново!
+  if (window.fcInstance) {
+    window.fcInstance.destroy();
+    window.fcInstance = null;
+  }
+
   setTimeout(() => {
-    if (!window.fcInstance) {
-      window.fcInstance = new FullCalendar.Calendar(document.getElementById('calendar'), {
-        // ...
-        events: trips,
-        // ...
-      });
-      window.fcInstance.render();
-    }
+    window.fcInstance = new FullCalendar.Calendar(document.getElementById('calendar'), {
+      initialView: 'dayGridMonth',
+      selectable: true,
+      events: trips,
+      height: 410,
+      headerToolbar: { left: 'title', center: '', right: 'today prev,next' },
+      locale: 'ru'
+    });
+    window.fcInstance.render();
   }, 1);
 }
 
-  setTimeout(() => {
-    if (!window.fcInstance) {
-      window.fcInstance = new FullCalendar.Calendar(document.getElementById('calendar'), {
-        initialView: 'dayGridMonth',
-        selectable: true,
-        // select — можешь отключить, если не хочешь добавлять мышкой диапазон
-        events: trips,
-        height: 410,
-        headerToolbar: { left: 'title', center: '', right: 'today prev,next' },
-        locale: 'ru'
-      });
-      window.fcInstance.render();
-    }
-  }, 1);
-}
-
-function closeCalendar() {
+  function closeCalendar() {
   document.getElementById('calendar-modal').style.display = 'none';
   if (window.fcInstance) window.fcInstance.destroy(), window.fcInstance = null;
 }
