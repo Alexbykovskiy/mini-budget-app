@@ -689,3 +689,11 @@ textarea {
   min-height: 20px;
   margin-top: 0px;
 }
+
+.ios-switch input[type="checkbox"]:disabled + .ios-slider {
+  background: #d5d5d5 !important;
+  opacity: 0.7;
+}
+.switch-disabled {
+  pointer-events: auto !important;
+}

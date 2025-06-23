@@ -330,6 +330,66 @@ function showStudioModal(studioIdx = null) {
   colorInput.value = "#3fa9f5";
   deleteBtn.style.display = "none";
 
+function showStudioModal(studioIdx = null) {
+  const modal = document.getElementById('studio-modal');
+  modal.style.display = 'flex';
+  const nameInput = document.getElementById('studio-name');
+  const colorInput = document.getElementById('studio-color');
+  const datalist = document.getElementById('studio-list');
+  const deleteBtn = document.getElementById('delete-studio-btn');
+  const defaultSwitch = document.getElementById('studio-default-switch');
+  nameInput.value = "";
+  colorInput.value = "#3fa9f5";
+  deleteBtn.style.display = "none";
+
+  // Найти текущую студию по умолчанию
+  const currentDefaultStudio = studios.find(s => s.isDefault);
+
+  // Заполняем datalist студий
+  datalist.innerHTML = studios.map(s => `<option value="${s.name}">`).join('');
+
+  if (studioIdx !== null && studios[studioIdx]) {
+    nameInput.value = studios[studioIdx].name;
+    colorInput.value = studios[studioIdx].color;
+    defaultSwitch.checked = !!studios[studioIdx].isDefault;
+    deleteBtn.style.display = "block";
+    // Свитч только доступен, если это студия по умолчанию или сейчас нет другой студии по умолчанию
+    if (
+      currentDefaultStudio &&
+      !studios[studioIdx].isDefault
+    ) {
+      defaultSwitch.disabled = true;
+      defaultSwitch.classList.add('switch-disabled');
+    } else {
+      defaultSwitch.disabled = false;
+      defaultSwitch.classList.remove('switch-disabled');
+    }
+    // ...
+  } else {
+    defaultSwitch.checked = false;
+    if (currentDefaultStudio) {
+      defaultSwitch.disabled = true;
+      defaultSwitch.classList.add('switch-disabled');
+    } else {
+      defaultSwitch.disabled = false;
+      defaultSwitch.classList.remove('switch-disabled');
+    }
+    deleteBtn.style.display = "none";
+    deleteBtn.onclick = null;
+  }
+
+  // При клике на недоступный свитч — показать подсказку!
+  defaultSwitch.onclick = function() {
+    if (defaultSwitch.disabled) {
+      alert('Студия по умолчанию: "' + currentDefaultStudio.name + '"');
+      return false;
+    }
+  };
+
+  // ...остальной код (цвет, удаление и т.д.)
+}
+
+
   // Заполняем datalist студий
   datalist.innerHTML = studios.map(s => `<option value="${s.name}">`).join('');
 
@@ -624,6 +684,8 @@ async function deleteExpenseEdit() {
     alert('Ошибка при удалении: ' + e.message);
   }
 }
+
+
 
 window.addEventListener('DOMContentLoaded', () => {
   loadStudios();
