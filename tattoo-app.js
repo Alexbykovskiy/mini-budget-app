@@ -213,6 +213,7 @@ document.querySelectorAll('.edit-entry-btn').forEach(btn => {
     const type = btn.getAttribute('data-type');
     const id = btn.getAttribute('data-id');
     currentEdit = { type, id };
+renderEditActions();
 
     if (type === 'income') {
       const doc = await db.collection('incomes').doc(id).get();
@@ -476,6 +477,7 @@ async function saveIncomeEdit() {
   if (!location || !date || !amount || !workType) {
     alert('Пожалуйста, заполните все поля!');
     return;
+ renderEditActions();
   }
   try {
     await db.collection('incomes').doc(currentEdit.id).update({
@@ -499,6 +501,7 @@ async function saveExpenseEdit() {
   if (!location || !date || !amount || !expenseType) {
     alert('Пожалуйста, заполните все поля!');
     return;
+renderEditActions();
   }
   try {
     await db.collection('expenses').doc(currentEdit.id).update({
@@ -521,6 +524,7 @@ function cancelIncome() {
   clearIncomeForm();
   currentEdit = null;
   document.querySelector('.form-section').classList.remove('editing');
+ renderEditActions();
 }
 function clearIncomeForm() {
   document.getElementById('income-location').value = '';
@@ -536,6 +540,7 @@ function cancelExpense() {
   document.querySelectorAll('.block').forEach(block => {
     if (block.querySelector('h2')?.textContent.includes('Добавить расход')) {
       block.classList.remove('editing');
+renderEditActions();
     }
   });
 }
@@ -546,7 +551,60 @@ function clearExpenseForm() {
   document.getElementById('expense-type').value = '';
 }
 
+function renderEditActions() {
+  // Для ДОХОДА
+  const incActions = document.getElementById('income-edit-actions');
+  if (incActions) {
+    if (currentEdit && currentEdit.type === 'income') {
+      incActions.innerHTML = `<button class="delete-entry-btn" onclick="deleteIncomeEdit()">Удалить</button>`;
+    } else {
+      incActions.innerHTML = '';
+    }
+  }
+  // Для РАСХОДА
+  const expActions = document.getElementById('expense-edit-actions');
+  if (expActions) {
+    if (currentEdit && currentEdit.type === 'expense') {
+      expActions.innerHTML = `<button class="delete-entry-btn" onclick="deleteExpenseEdit()">Удалить</button>`;
+    } else {
+      expActions.innerHTML = '';
+    }
+  }
+}
 
+async function deleteIncomeEdit() {
+  if (!currentEdit || currentEdit.type !== 'income') return;
+  if (!confirm('Удалить этот доход?')) return;
+  try {
+    await db.collection('incomes').doc(currentEdit.id).delete();
+    clearIncomeForm();
+    currentEdit = null;
+    document.querySelector('.form-section').classList.remove('editing');
+    renderEditActions();
+    loadHistory();
+  } catch (e) {
+    alert('Ошибка при удалении: ' + e.message);
+  }
+}
+
+async function deleteExpenseEdit() {
+  if (!currentEdit || currentEdit.type !== 'expense') return;
+  if (!confirm('Удалить этот расход?')) return;
+  try {
+    await db.collection('expenses').doc(currentEdit.id).delete();
+    clearExpenseForm();
+    currentEdit = null;
+    document.querySelectorAll('.block').forEach(block => {
+      if (block.querySelector('h2')?.textContent.includes('Добавить расход')) {
+        block.classList.remove('editing');
+      }
+    });
+    renderEditActions();
+    loadHistory();
+  } catch (e) {
+    alert('Ошибка при удалении: ' + e.message);
+  }
+}
 
 window.addEventListener('DOMContentLoaded', () => {
   loadStudios();

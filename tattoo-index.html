@@ -48,6 +48,8 @@
   </label>
 </div>
 
+<div class="edit-action-row" id="income-edit-actions"></div>
+
   <!-- 4 строка: две кнопки по краям -->
   <div class="pill-row">
     <button class="round-btn dark" onclick="cancelIncome()">
@@ -88,6 +90,7 @@
       <!-- Добавь свои типы расходов -->
     </select>
   </div>
+<div class="edit-action-row" id="expense-edit-actions"></div>
   <!-- 3 строка: две кнопки (отмена и подтвердить, как в доходах) -->
   <div class="pill-row">
     <button class="round-btn dark" onclick="cancelExpense()">
@@ -97,13 +100,14 @@
         <line x1="20" y1="7" x2="7" y2="20"/>
       </svg>
     </button>
-    <button class="round-btn dark" onclick="addExpense()">
+    <button class="round-btn dark" onclick="onExpenseConfirm()">
       <!-- SVG галочка -->
       <svg width="27" height="27" viewBox="0 0 27 27" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="6,15 12,21 21,8"/>
       </svg>
     </button>
-  </div>
+  
+</div>
 </section>
 
     
