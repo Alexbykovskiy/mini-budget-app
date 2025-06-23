@@ -215,6 +215,25 @@ document.querySelectorAll('.edit-entry-btn').forEach(btn => {
     currentEdit = { type, id };
 renderEditActions();
 
+if (type === 'income') {
+  // (тут заполнение полей)
+  // ...  
+  document.querySelector('.form-section').classList.add('editing');
+  // Прокрутка к блоку "Добавить доход"
+  document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
+} else if (type === 'expense') {
+  // (тут заполнение полей)
+  // ...
+  document.querySelectorAll('.block').forEach(block => {
+    if (block.querySelector('h2')?.textContent.includes('Добавить расход')) {
+      block.classList.add('editing');
+      // Прокрутка к блоку "Добавить расход"
+      block.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
+}
+
+
     if (type === 'income') {
       const doc = await db.collection('incomes').doc(id).get();
       const data = doc.data();
