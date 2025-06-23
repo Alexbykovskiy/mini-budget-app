@@ -637,3 +637,25 @@ textarea {
   filter: brightness(1.08);
   box-shadow: 0 6px 24px rgba(255,163,92,0.16);
 }
+
+.edit-entry-btn {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  background: rgba(255,163,92,0.13);
+  border: none;
+  color: #FFA35C;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: background 0.16s;
+  box-shadow: 0 1.5px 6px 0 rgba(0,0,0,0.13);
+  z-index: 3;
+}
+.edit-entry-btn:hover {
+  background: #FFA35C;
+  color: #fff;
+}
+.history-entry { position: relative; }

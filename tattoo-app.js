@@ -77,7 +77,7 @@ async function addIncome() {
 let studios = [];
 let trips = [];
 let currentTripId = null; // Для отслеживания, редактируем ли поездку
-
+let currentEdit = null; // {type: 'income'|'expense', id: '...'}
 
 async function showCalendar() {
   document.getElementById('calendar-modal').style.display = 'flex';
@@ -178,12 +178,12 @@ async function loadHistory() {
 
     // Собираем все записи в один массив
     let allEntries = [];
-    incomeSnap.forEach(doc => {
-      allEntries.push({ type: 'income', ...doc.data() });
-    });
-    expenseSnap.forEach(doc => {
-      allEntries.push({ type: 'expense', ...doc.data() });
-    });
+   incomeSnap.forEach(doc => {
+  allEntries.push({ type: 'income', id: doc.id, ...doc.data() });
+});
+expenseSnap.forEach(doc => {
+  allEntries.push({ type: 'expense', id: doc.id, ...doc.data() });
+});
 
     // Сортируем по дате (убывание)
     allEntries.sort((a, b) => (b.created > a.created ? 1 : -1));
@@ -197,24 +197,26 @@ async function loadHistory() {
     historyList.innerHTML = '';
     allEntries.forEach(entry => {
       if (entry.type === 'income') {
-        historyList.innerHTML += `
-          <li class="history-entry income">
-            <div>Доход: <b>${entry.amount} €</b> ${entry.isInvoice ? '(Фактура)' : ''}</div>
-            <div>Студия: ${entry.location}</div>
-            <div>Дата: ${entry.date}</div>
-            <div>Тип: ${entry.workType}</div>
-          </li>
-        `;
-      } else if (entry.type === 'expense') {
-        historyList.innerHTML += `
-          <li class="history-entry expense">
-            <div>Расход: <b>${entry.amount} €</b></div>
-            <div>Локация: ${entry.location}</div>
-            <div>Дата: ${entry.date}</div>
-            <div>Категория: ${entry.expenseType}</div>
-          </li>
-        `;
-      }
+  historyList.innerHTML += `
+    <li class="history-entry income">
+      <div>Доход: <b>${entry.amount} €</b> ${entry.isInvoice ? '(Фактура)' : ''}</div>
+      <div>Студия: ${entry.location}</div>
+      <div>Дата: ${entry.date}</div>
+      <div>Тип: ${entry.workType}</div>
+      <button class="edit-entry-btn" data-type="income" data-id="${entry.id}">✎</button>
+    </li>
+  `;
+} else if (entry.type === 'expense') {
+  historyList.innerHTML += `
+    <li class="history-entry expense">
+      <div>Расход: <b>${entry.amount} €</b></div>
+      <div>Локация: ${entry.location}</div>
+      <div>Дата: ${entry.date}</div>
+      <div>Категория: ${entry.expenseType}</div>
+      <button class="edit-entry-btn" data-type="expense" data-id="${entry.id}">✎</button>
+    </li>
+  `;
+}
     });
   } catch (e) {
     historyList.innerHTML = `<li style="color:red">Ошибка загрузки истории: ${e.message}</li>`;
@@ -380,6 +382,7 @@ async function addTripByDates() {
   document.getElementById('trip-date-from').value = '';
   document.getElementById('trip-date-to').value = '';
   document.getElementById('delete-trip-btn').style.display = "none";
+currentTripId = null;
 }
 
 // Вспомогательная функция для вычисления end (эксклюзивно)
