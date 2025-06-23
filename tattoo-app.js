@@ -20,6 +20,7 @@ async function loadStudios() {
   snap.forEach(doc => {
     studios.push({ id: doc.id, ...doc.data() });
   });
+  renderStudioOptions(); // <-- добавь сюда
   renderStudioSelect && renderStudioSelect();
   if (typeof renderStudioList === "function") renderStudioList();
 }
@@ -206,6 +207,45 @@ expenseSnap.forEach(doc => {
       <button class="edit-entry-btn" data-type="income" data-id="${entry.id}">✎</button>
     </li>
   `;
+// После рендера карточек истории:
+document.querySelectorAll('.edit-entry-btn').forEach(btn => {
+  btn.addEventListener('click', async function() {
+    const type = btn.getAttribute('data-type');
+    const id = btn.getAttribute('data-id');
+    currentEdit = { type, id };
+
+    if (type === 'income') {
+      const doc = await db.collection('incomes').doc(id).get();
+      const data = doc.data();
+      // Заполняем поля дохода
+      document.getElementById('income-location').value = data.location;
+      document.getElementById('income-date').value = data.date;
+      document.getElementById('income-amount').value = data.amount;
+      document.getElementById('work-type').value = data.workType;
+      document.getElementById('is-invoice').checked = !!data.isInvoice;
+
+      // Визуально подсветить форму (например, добавить класс .editing)
+      document.querySelector('.form-section').classList.add('editing');
+    } else if (type === 'expense') {
+      const doc = await db.collection('expenses').doc(id).get();
+      const data = doc.data();
+      document.getElementById('expense-location').value = data.location;
+      document.getElementById('expense-date').value = data.date;
+      document.getElementById('expense-amount').value = data.amount;
+      document.getElementById('expense-type').value = data.expenseType;
+
+      // Визуально подсветить форму (найти первый блок с h2 = 'Добавить расход')
+      document.querySelectorAll('.block').forEach(block => {
+        if (block.querySelector('h2')?.textContent.includes('Добавить расход')) {
+          block.classList.add('editing');
+        }
+      });
+    }
+  });
+});
+
+
+
 } else if (entry.type === 'expense') {
   historyList.innerHTML += `
     <li class="history-entry expense">
@@ -408,6 +448,104 @@ async function deleteTripById() {
   currentTripId = null;
   document.getElementById('delete-trip-btn').style.display = "none";
 }
+
+function onIncomeConfirm() {
+  if (currentEdit && currentEdit.type === 'income') {
+    saveIncomeEdit();
+  } else {
+    addIncome();
+  }
+}
+
+function onExpenseConfirm() {
+  if (currentEdit && currentEdit.type === 'expense') {
+    saveExpenseEdit();
+  } else {
+    addExpense();
+  }
+}
+
+
+async function saveIncomeEdit() {
+  if (!currentEdit || currentEdit.type !== 'income') return;
+  const location = document.getElementById('income-location').value;
+  const date = document.getElementById('income-date').value;
+  const amount = parseFloat(document.getElementById('income-amount').value);
+  const workType = document.getElementById('work-type').value;
+  const isInvoice = document.getElementById('is-invoice').checked;
+  if (!location || !date || !amount || !workType) {
+    alert('Пожалуйста, заполните все поля!');
+    return;
+  }
+  try {
+    await db.collection('incomes').doc(currentEdit.id).update({
+      location, date, amount, workType, isInvoice
+    });
+    clearIncomeForm();
+    currentEdit = null;
+    document.querySelector('.form-section').classList.remove('editing');
+    loadHistory();
+  } catch (e) {
+    alert('Ошибка при сохранении: ' + e.message);
+  }
+}
+
+async function saveExpenseEdit() {
+  if (!currentEdit || currentEdit.type !== 'expense') return;
+  const location = document.getElementById('expense-location').value;
+  const date = document.getElementById('expense-date').value;
+  const amount = parseFloat(document.getElementById('expense-amount').value);
+  const expenseType = document.getElementById('expense-type').value;
+  if (!location || !date || !amount || !expenseType) {
+    alert('Пожалуйста, заполните все поля!');
+    return;
+  }
+  try {
+    await db.collection('expenses').doc(currentEdit.id).update({
+      location, date, amount, expenseType
+    });
+    clearExpenseForm();
+    currentEdit = null;
+    document.querySelectorAll('.block').forEach(block => {
+      if (block.querySelector('h2')?.textContent.includes('Добавить расход')) {
+        block.classList.remove('editing');
+      }
+    });
+    loadHistory();
+  } catch (e) {
+    alert('Ошибка при сохранении: ' + e.message);
+  }
+}
+
+function cancelIncome() {
+  clearIncomeForm();
+  currentEdit = null;
+  document.querySelector('.form-section').classList.remove('editing');
+}
+function clearIncomeForm() {
+  document.getElementById('income-location').value = '';
+  document.getElementById('income-date').value = '';
+  document.getElementById('income-amount').value = '';
+  document.getElementById('work-type').value = '';
+  document.getElementById('is-invoice').checked = false;
+}
+
+function cancelExpense() {
+  clearExpenseForm();
+  currentEdit = null;
+  document.querySelectorAll('.block').forEach(block => {
+    if (block.querySelector('h2')?.textContent.includes('Добавить расход')) {
+      block.classList.remove('editing');
+    }
+  });
+}
+function clearExpenseForm() {
+  document.getElementById('expense-location').value = '';
+  document.getElementById('expense-date').value = '';
+  document.getElementById('expense-amount').value = '';
+  document.getElementById('expense-type').value = '';
+}
+
 
 
 window.addEventListener('DOMContentLoaded', () => {

@@ -659,3 +659,9 @@ textarea {
   color: #fff;
 }
 .history-entry { position: relative; }
+
+.editing {
+  box-shadow: 0 0 0 3px #ffa35c, 0 8px 24px 0 rgba(0,0,0,0.14);
+  border: 2px solid #ffa35c;
+  transition: box-shadow 0.18s, border 0.18s;
+}
