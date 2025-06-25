@@ -685,6 +685,34 @@ async function deleteExpenseEdit() {
   }
 }
 
+function renderStudiosSummary() {
+  const summary = document.getElementById('studios-summary');
+  if (!summary) return;
+  if (!studios.length) {
+    summary.innerHTML = '<span style="color:#bbb;">Нет добавленных студий</span>';
+    return;
+  }
+  const defaultStudio = studios.find(s => s.isDefault);
+  summary.innerHTML = studios.map(s =>
+    `<span class="studio-pill${s.isDefault ? ' default' : ''}" style="background:${s.isDefault ? '' : (s.color || '#4444')};">
+      ${s.name}${s.isDefault ? ' — по умолчанию' : ''}
+    </span>`
+  ).join('');
+}
+
+function loadStudios() {
+  studios = [];
+  db.collection('studios').get().then(snap => {
+    snap.forEach(doc => {
+      studios.push({ id: doc.id, ...doc.data() });
+    });
+    renderStudioOptions();
+    renderStudiosSummary(); // ← сюда!
+    renderStudioSelect && renderStudioSelect();
+    if (typeof renderStudioList === "function") renderStudioList();
+  });
+}
+
 
 
 window.addEventListener('DOMContentLoaded', () => {

@@ -697,3 +697,32 @@ textarea {
 .switch-disabled {
   pointer-events: auto !important;
 }
+
+.studios-summary {
+  font-size: 15.5px;
+  background: rgba(255,255,255,0.14);
+  border-radius: 12px;
+  margin-bottom: 11px;
+  padding: 11px 14px 10px 14px;
+  color: #fff;
+  box-shadow: 0 2px 7px rgba(0,0,0,0.07);
+  line-height: 1.65;
+}
+.studio-pill {
+  display: inline-block;
+  margin-right: 8px;
+  margin-bottom: 4px;
+  padding: 4px 14px 4px 14px;
+  border-radius: 999px;
+  background: #222c;
+  font-weight: 500;
+  font-size: 15px;
+  color: #fff;
+  border: 1.5px solid transparent;
+}
+.studio-pill.default {
+  background: linear-gradient(90deg, #ffa35c 70%, #33bc4a 100%);
+  color: #fff !important;
+  border: 1.5px solid #ffa35c;
+  box-shadow: 0 2px 7px #ffa35c29;
+}
