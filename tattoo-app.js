@@ -685,19 +685,18 @@ async function deleteExpenseEdit() {
   }
 }
 
-function renderStudiosSummary() {
-  const summary = document.getElementById('studios-summary');
-  if (!summary) return;
-  if (!studios.length) {
-    summary.innerHTML = '<span style="color:#bbb;">Нет добавленных студий</span>';
-    return;
-  }
-  summary.innerHTML = studios.map((s, i) =>
-    `<span class="studio-pill${s.isDefault ? ' default' : ''}" 
-            data-idx="${i}" 
-            style="background:${s.isDefault ? '' : (s.color || '#4444')}; cursor:pointer;"
-            title="Выбрать эту студию">${s.name}${s.isDefault ? ' — по умолчанию' : ''}</span>`
-  ).join('');
+summary.innerHTML = studios.map((s, i) =>
+  `<span class="studio-pill${s.isDefault ? ' default' : ''}" 
+          data-idx="${i}" 
+          style="background:${s.isDefault ? '' : (s.color || '#4444')}; cursor:pointer;"
+          title="Выбрать эту студию">
+      ${s.isDefault ? `<svg viewBox="0 0 20 20" width="18" height="18" style="vertical-align:-2.5px; margin-right:5px; fill:#fff; display:inline-block;">
+        <path d="M2 10.2 10 3l8 7.2V17a1 1 0 0 1-1 1h-4.2A.8.8 0 0 1 12 17.2V14a2 2 0 0 0-4 0v3.2c0 .44-.36.8-.8.8H3a1 1 0 0 1-1-1v-6.8z" fill="#fff"/>
+        <path d="M2.7 9.5a1 1 0 0 1 1.4-1.4L10 4.14l5.9 4.96a1 1 0 1 1-1.3 1.52L10 6.26 4.04 9.58a1 1 0 0 1-1.34-.08z" fill="#ffa35c"/>
+      </svg>` : ''}
+      ${s.name}${s.isDefault ? ' — по умолчанию' : ''}
+  </span>`
+).join('');
 
   // Добавим обработчик клика:
   summary.querySelectorAll('.studio-pill').forEach(pill => {

@@ -723,6 +723,8 @@ textarea {
 }
 .studio-pill.default {
   background: linear-gradient(90deg, #ffa35c 70%, #33bc4a 100%);
+ margin-right: 5px;
+  vertical-align: middle;
   color: #fff !important;
   border: 1.5px solid #ffa35c;
   box-shadow: 0 2px 7px #ffa35c29;
