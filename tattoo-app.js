@@ -330,17 +330,6 @@ function showStudioModal(studioIdx = null) {
   colorInput.value = "#3fa9f5";
   deleteBtn.style.display = "none";
 
-function showStudioModal(studioIdx = null) {
-  const modal = document.getElementById('studio-modal');
-  modal.style.display = 'flex';
-  const nameInput = document.getElementById('studio-name');
-  const colorInput = document.getElementById('studio-color');
-  const datalist = document.getElementById('studio-list');
-  const deleteBtn = document.getElementById('delete-studio-btn');
-  const defaultSwitch = document.getElementById('studio-default-switch');
-  nameInput.value = "";
-  colorInput.value = "#3fa9f5";
-  deleteBtn.style.display = "none";
 
   // Найти текущую студию по умолчанию
   const currentDefaultStudio = studios.find(s => s.isDefault);
