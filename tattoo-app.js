@@ -692,12 +692,25 @@ function renderStudiosSummary() {
     summary.innerHTML = '<span style="color:#bbb;">Нет добавленных студий</span>';
     return;
   }
-  const defaultStudio = studios.find(s => s.isDefault);
-  summary.innerHTML = studios.map(s =>
-    `<span class="studio-pill${s.isDefault ? ' default' : ''}" style="background:${s.isDefault ? '' : (s.color || '#4444')};">
-      ${s.name}${s.isDefault ? ' — по умолчанию' : ''}
-    </span>`
+  summary.innerHTML = studios.map((s, i) =>
+    `<span class="studio-pill${s.isDefault ? ' default' : ''}" 
+            data-idx="${i}" 
+            style="background:${s.isDefault ? '' : (s.color || '#4444')}; cursor:pointer;"
+            title="Выбрать эту студию">${s.name}${s.isDefault ? ' — по умолчанию' : ''}</span>`
   ).join('');
+
+  // Добавим обработчик клика:
+  summary.querySelectorAll('.studio-pill').forEach(pill => {
+    pill.addEventListener('click', function() {
+      const idx = pill.getAttribute('data-idx');
+      const select = document.getElementById('studio-select');
+      if (select && idx !== null) {
+        select.selectedIndex = idx;
+        // Можно визуально подсветить select или вызвать смену (если что-то зависит)
+        select.dispatchEvent(new Event('change'));
+      }
+    });
+  });
 }
 
 function loadStudios() {

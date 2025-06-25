@@ -719,10 +719,17 @@ textarea {
   font-size: 15px;
   color: #fff;
   border: 1.5px solid transparent;
+ transition: background 0.13s, box-shadow 0.13s;
 }
 .studio-pill.default {
   background: linear-gradient(90deg, #ffa35c 70%, #33bc4a 100%);
   color: #fff !important;
   border: 1.5px solid #ffa35c;
   box-shadow: 0 2px 7px #ffa35c29;
+}
+
+.studio-pill:hover {
+  filter: brightness(1.18);
+  box-shadow: 0 3px 16px #ffa35c33;
+  opacity: 0.93;
 }
