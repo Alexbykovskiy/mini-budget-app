@@ -707,18 +707,6 @@ async function deleteExpenseEdit() {
 }
 
 
-function loadStudios() {
-  studios = [];
-  db.collection('studios').get().then(snap => {
-    snap.forEach(doc => {
-      studios.push({ id: doc.id, ...doc.data() });
-    });
-    renderStudioOptions();
-    renderStudiosSummary(); // ← сюда!
-    renderStudioSelect && renderStudioSelect();
-    if (typeof renderStudioList === "function") renderStudioList();
-  });
-}
 
 
 
