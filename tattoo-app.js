@@ -352,13 +352,14 @@ async function addExpense() {
 
 // Открыть модалку для новой или существующей студии
 function showStudioModal(studioIdx = null) {
-  const modal = document.getElementById('studio-modal');
+  const modal      = document.getElementById('studio-modal');
   modal.style.display = 'flex';
-  const nameInput = document.getElementById('studio-name');
+
+  const nameInput  = document.getElementById('studio-name');
   const colorInput = document.getElementById('studio-color');
-  const datalist = document.getElementById('studio-list');
-  const deleteBtn = document.getElementById('delete-studio-btn');
-const defaultSwitch = document.getElementById('studio-default-switch');
+  const datalist   = document.getElementById('studio-list');
+  const deleteBtn  = document.getElementById('delete-studio-btn');
+  const defaultSwitch = document.getElementById('studio-default-switch'); // ← новая строка
   nameInput.value = "";
   colorInput.value = "#3fa9f5";
   deleteBtn.style.display = "none";
@@ -456,7 +457,6 @@ if (idx >= 0) {
   deleteBtn.onclick = null;
 }
   };
-}
 
 // Скрыть модалку
 function closeStudioModal() {
