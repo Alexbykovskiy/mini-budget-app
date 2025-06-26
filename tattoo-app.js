@@ -409,8 +409,7 @@ function showStudioModal(studioIdx = null) {
     }
   };
 
-  // ...остальной код (цвет, удаление и т.д.)
-}
+
 
 
   // Заполняем datalist студий
