@@ -171,9 +171,9 @@ function renderExpenses(data) {
     list.appendChild(li);
   });
 
- const sorted = [...entriesWithMileage].sort((a, b) => a.date.localeCompare(b.date));
-const startMileage = Number(sorted[0]?.mileage || 0);
-const endMileage = Number(sorted[sorted.length - 1]?.mileage || 0);
+const mileages = entriesWithMileage.map(e => Number(e.mileage));
+const startMileage = Math.min(...mileages);
+const endMileage = Math.max(...mileages);
 const distance = endMileage - startMileage;
 
 const startDate = sorted[0]?.date;
