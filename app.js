@@ -124,8 +124,9 @@ function loadExpenses() {
     .onSnapshot(snapshot => {
       expenses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       fullTotal = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
-      renderExpenses(expenses);
-      loadReminders(); // ← вставь эту строку вот здесь!
+      renderExpenses(expenses);     // обновляет только список и диаграмму
+updateStats(expenses);        // обновляет карточки — ВСЕГДА по всем расходам
+loadReminders();
     });
 }
 
@@ -135,29 +136,7 @@ function renderExpenses(data) {
   list.innerHTML = "";
   let total = 0;
 
-  // Берём только записи с пробегом
-  const entriesWithMileage = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));
-// 1) Сортируем по дате для расчёта дней
-const sorted   = [...entriesWithMileage].sort((a,b)=>a.date.localeCompare(b.date));
-// 2) Берём все пробеги и считаем дистанцию
-const ms       = entriesWithMileage.map(e=>Number(e.mileage));
-const distance = Math.max(...ms) - Math.min(...ms);
-// 3) Считаем дни между первой и последней датой
-const daysDiff = sorted.length>1
-  ? Math.ceil((new Date(sorted.at(-1).date) - new Date(sorted[0].date)) / (1000*60*60*24))
-  : 0;
- // 4) Записываем в карточки
-  document.getElementById('stat-distance').textContent  = distance;
-  document.getElementById('stat-total-km').textContent = Math.max(...ms);
-  document.getElementById('stat-days').textContent     = daysDiff + ' дней';
-  // 5) Пробег двигателя
-  const mileageBeforeSwap = 190000;
-  const engineOffsetKm    = 64374;
-  const engineKm = Math.max(...ms) - mileageBeforeSwap + engineOffsetKm;
-  document.getElementById('stat-engine-km').textContent =
-    engineKm > 0 ? engineKm.toLocaleString("ru-RU") : "—";
-
-   data.forEach((exp, index) => {
+    data.forEach((exp, index) => {
     total += Number(exp.amount);
     const li = document.createElement('li');
 
@@ -193,10 +172,39 @@ const daysDiff = sorted.length>1
   });
 
   updateChart(data, total);
-  calculateCostPerKm(data);
-  calculatePureRunningCost(data);
-  calculateFuelStats(data);
-document.getElementById('stat-total-amount').textContent = total.toFixed(2);
+ }
+
+// Обновляет карточки статистики по всему массиву расходов
+function updateStats(fullData) {
+  // Берём только записи с пробегом
+  const entriesWithMileage = fullData.filter(e => e.mileage && !isNaN(Number(e.mileage)));
+  // 1) Сортируем по дате для расчёта дней
+  const sorted   = [...entriesWithMileage].sort((a,b)=>a.date.localeCompare(b.date));
+  // 2) Берём все пробеги и считаем дистанцию
+  const ms       = entriesWithMileage.map(e=>Number(e.mileage));
+  const distance = ms.length ? Math.max(...ms) - Math.min(...ms) : 0;
+  // 3) Считаем дни между первой и последней датой
+  const daysDiff = sorted.length>1
+    ? Math.ceil((new Date(sorted.at(-1).date) - new Date(sorted[0].date)) / (1000*60*60*24))
+    : 0;
+  // 4) Записываем в карточки
+  document.getElementById('stat-distance').textContent  = distance;
+  document.getElementById('stat-total-km').textContent = ms.length ? Math.max(...ms) : 0;
+  document.getElementById('stat-days').textContent     = daysDiff + ' дней';
+  // 5) Пробег двигателя
+  const mileageBeforeSwap = 190000;
+  const engineOffsetKm    = 64374;
+  const engineKm = ms.length ? Math.max(...ms) - mileageBeforeSwap + engineOffsetKm : 0;
+  document.getElementById('stat-engine-km').textContent =
+    engineKm > 0 ? engineKm.toLocaleString("ru-RU") : "—";
+
+  // Всё, что касается сумм
+  document.getElementById('stat-total-amount').textContent = fullData.reduce((sum, e) => sum + Number(e.amount), 0).toFixed(2);
+
+  // Подсчёт стоимости на км, чистых затрат, расхода и средней цены литра
+  calculateCostPerKm(fullData);
+  calculatePureRunningCost(fullData);
+  calculateFuelStats(fullData);
 }
 
 function calculateCostPerKm(data) {
@@ -375,7 +383,7 @@ function applyFilters() {
   if (categoryFilter && categoryFilter !== "Все") filtered = filtered.filter(e => e.category === categoryFilter);
   if (!isNaN(rowStart) && !isNaN(rowEnd)) filtered = filtered.slice(rowStart - 1, rowEnd);
 
-  renderExpenses(filtered);
+  renderExpenses(filtered, true);
 loadReminders(); // добавь эту строку
 }
 
