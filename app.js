@@ -134,7 +134,34 @@ function loadExpenses() {
 function renderExpenses(data) {
   list.innerHTML = "";
   let total = 0;
+
+  // Берём только записи с пробегом
   const entriesWithMileage = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));
+
+  // 1) Сортируем записи по дате (для вычисления дней)
+  const sorted = [...entriesWithMileage].sort((a, b) =>
+    a.date.localeCompare(b.date)
+  );
+
+  // 2) Вычисляем минимальный и максимальный пробег (неважно, какая у них дата)
+  const mileages     = entriesWithMileage.map(e => Number(e.mileage));
+  const startMileage = Math.min(...mileages);
+  const endMileage   = Math.max(...mileages);
+  const distance     = endMileage - startMileage;
+
+  // 3) Вычисляем разницу в днях по первым/последним датам
+  const startDate = sorted[0]?.date;
+  const endDate   = sorted[sorted.length - 1]?.date;
+  let daysDiff    = "—";
+  if (startDate && endDate) {
+    const diff = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24));
+    daysDiff = diff > 0 ? diff : 1;
+  }
+
+  // Обновляем карточки
+  document.getElementById('stat-distance').textContent  = distance;
+  document.getElementById('stat-total-km').textContent = endMileage;
+  document.getElementById('stat-days').textContent     = `${daysDiff} дней`;
 
   data.forEach((exp, index) => {
     total += Number(exp.amount);
