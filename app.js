@@ -137,33 +137,27 @@ function renderExpenses(data) {
 
   // Берём только записи с пробегом
   const entriesWithMileage = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));
-
-  // 1) Сортируем записи по дате (для вычисления дней)
-  const sorted = [...entriesWithMileage].sort((a, b) =>
-    a.date.localeCompare(b.date)
-  );
-
-  // 2) Вычисляем минимальный и максимальный пробег (неважно, какая у них дата)
-  const mileages     = entriesWithMileage.map(e => Number(e.mileage));
-  const startMileage = Math.min(...mileages);
-  const endMileage   = Math.max(...mileages);
-  const distance     = endMileage - startMileage;
-
-  // 3) Вычисляем разницу в днях по первым/последним датам
-  const startDate = sorted[0]?.date;
-  const endDate   = sorted[sorted.length - 1]?.date;
-  let daysDiff    = "—";
-  if (startDate && endDate) {
-    const diff = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24));
-    daysDiff = diff > 0 ? diff : 1;
-  }
-
-  // Обновляем карточки
+// 1) Сортируем по дате для расчёта дней
+const sorted   = [...entriesWithMileage].sort((a,b)=>a.date.localeCompare(b.date));
+// 2) Берём все пробеги и считаем дистанцию
+const ms       = entriesWithMileage.map(e=>Number(e.mileage));
+const distance = Math.max(...ms) - Math.min(...ms);
+// 3) Считаем дни между первой и последней датой
+const daysDiff = sorted.length>1
+  ? Math.ceil((new Date(sorted.at(-1).date) - new Date(sorted[0].date)) / (1000*60*60*24))
+  : 0;
+ // 4) Записываем в карточки
   document.getElementById('stat-distance').textContent  = distance;
-  document.getElementById('stat-total-km').textContent = endMileage;
-  document.getElementById('stat-days').textContent     = `${daysDiff} дней`;
+  document.getElementById('stat-total-km').textContent = Math.max(...ms);
+  document.getElementById('stat-days').textContent     = daysDiff + ' дней';
+  // 5) Пробег двигателя
+  const mileageBeforeSwap = 190000;
+  const engineOffsetKm    = 64374;
+  const engineKm = Math.max(...ms) - mileageBeforeSwap + engineOffsetKm;
+  document.getElementById('stat-engine-km').textContent =
+    engineKm > 0 ? engineKm.toLocaleString("ru-RU") : "—";
 
-  data.forEach((exp, index) => {
+   data.forEach((exp, index) => {
     total += Number(exp.amount);
     const li = document.createElement('li');
 
@@ -197,42 +191,6 @@ function renderExpenses(data) {
     `;
     list.appendChild(li);
   });
-
-const mileages = entriesWithMileage.map(e => Number(e.mileage));
-const startMileage = Math.min(...mileages);
-const endMileage = Math.max(...mileages);
-const distance = endMileage - startMileage;
-
-const startDate = sorted[0]?.date;
-const endDate = sorted[sorted.length - 1]?.date;
-let daysDiff = "—";
-if (startDate && endDate) {
-  const diff = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24));
-  daysDiff = diff > 0 ? diff : 1;
-}
-
-const latestMileage = entriesWithMileage.length
-  ? Math.max(...entriesWithMileage.map(e => Number(e.mileage)))
-  : 0;
-
-document.getElementById('stat-distance').textContent = distance;
-document.getElementById('stat-total-km').textContent = latestMileage;
-document.getElementById('stat-days').textContent = `${daysDiff} дней`;
-
-// 🛠 Пробег двигателя
-const mileageBeforeSwap = 190000;
-const engineOffsetKm = 64374;
-const engineKm = latestMileage - mileageBeforeSwap + engineOffsetKm;
-const formattedEngineKm = engineKm > 0 ? engineKm.toLocaleString("ru-RU") : "—";
-document.getElementById('stat-days').textContent = `${daysDiff} дней`;
-
-document.getElementById('stat-engine-km').innerHTML = `
-  ${formattedEngineKm}
-  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 256 256" fill="currentColor" style="margin-left:4px; vertical-align:middle">
-    <path d="M240,104v48a16,16,0,0,1-16,16H216v16a8,8,0,0,1-16,0V168H184v8a8,8,0,0,1-16,0v-8H128v8a8,8,0,0,1-16,0v-8H88v8a8,8,0,0,1-16,0v-8H56v16a8,8,0,0,1-16,0V168H32a16,16,0,0,1-16-16V104a16,16,0,0,1,16-16H48V80a8,8,0,0,1,8-8H96V56a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8V72h40a8,8,0,0,1,8,8v8h24A16,16,0,0,1,240,104Z"/>
-  </svg>
-`;
-document.getElementById('stat-days').textContent = `${daysDiff} дней`;
 
   updateChart(data, total);
   calculateCostPerKm(data);
