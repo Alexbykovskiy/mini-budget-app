@@ -720,6 +720,5 @@ window.addEventListener('DOMContentLoaded', () => {
   loadStudios();
   loadHistory();
 });
-}
 
 
