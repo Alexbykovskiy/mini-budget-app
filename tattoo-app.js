@@ -716,10 +716,6 @@ async function deleteExpenseEdit() {
   }
 }
 
-
-
-
-
 window.addEventListener('DOMContentLoaded', () => {
   loadStudios();
   loadHistory();
