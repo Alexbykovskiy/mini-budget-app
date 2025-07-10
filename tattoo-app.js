@@ -457,10 +457,19 @@ if (idx >= 0) {
   colorInput.value = studios[idx].color;
   deleteBtn.style.display = "block";
  deleteBtn.onclick = async function() {
-  if (confirm(`Удалить студию "${studios[idx].name}"?`)) {
-    const id = studios[idx].id;
+  if (confirm(`Удалить студию "${studio.name}"?`)) {
     try {
-      await db.collection('studios').doc(id).delete();
+      // Если студия была дефолтной — удалить ковёр для нее из trips
+      if (studio.isDefault) {
+        const q = await db.collection('trips')
+          .where('studio','==', studio.name)
+          .where('isDefaultCover','==', true).get();
+        const batch = db.batch();
+        q.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+      }
+      // Удаляем саму студию
+      await db.collection('studios').doc(studio.id).delete();
       await loadStudios();
       closeStudioModal();
     } catch(e) {
