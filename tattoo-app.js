@@ -382,30 +382,33 @@ function showStudioModal(studioIdx = null) {
  // Заполняем datalist студий
 datalist.innerHTML = studios.map(s => `<option value="${s.name}">`).join('');
 
+// Найти студию (по индексу или по имени в инпуте)
+let studio = null;
 if (studioIdx !== null && studios[studioIdx]) {
-  nameInput.value = studios[studioIdx].name;
-  colorInput.value = studios[studioIdx].color;
-  defaultSwitch.checked = !!studios[studioIdx].isDefault;
+  studio = studios[studioIdx];
+} else if (nameInput.value) {
+  studio = studios.find(s => s.name.trim().toLowerCase() === nameInput.value.trim().toLowerCase());
+}
+
+if (studio) {
+  nameInput.value = studio.name;
+  colorInput.value = studio.color;
+  defaultSwitch.checked = !!studio.isDefault;
   deleteBtn.style.display = "block";
 
-  // КОРРЕКТНАЯ ЛОГИКА для флажка:
   const countDefault = studios.filter(s => s.isDefault).length;
-  if (studios[studioIdx].isDefault) {
-    // Это дефолтная — флажок активен, можно снять
+  if (studio.isDefault) {
     defaultSwitch.disabled = false;
     defaultSwitch.classList.remove('switch-disabled');
   } else if (countDefault > 0) {
-    // Уже есть дефолтная (но не эта) — флажок заблокирован
     defaultSwitch.disabled = true;
     defaultSwitch.classList.add('switch-disabled');
   } else {
-    // Ни одной дефолтной нет — флажок доступен
     defaultSwitch.disabled = false;
     defaultSwitch.classList.remove('switch-disabled');
   }
 } else {
   defaultSwitch.checked = false;
-  // При добавлении новой студии: если есть дефолтная — заблокировать, если нет — разрешить
   const countDefault = studios.filter(s => s.isDefault).length;
   if (countDefault > 0) {
     defaultSwitch.disabled = true;
@@ -417,6 +420,17 @@ if (studioIdx !== null && studios[studioIdx]) {
   deleteBtn.style.display = "none";
   deleteBtn.onclick = null;
 }
+
+// При клике на недоступный свитч — показать подсказку!
+defaultSwitch.onclick = function() {
+  if (defaultSwitch.disabled) {
+    const currentDefaultStudio = studios.find(s => s.isDefault);
+    if (currentDefaultStudio) {
+      alert('Студия по умолчанию: "' + currentDefaultStudio.name + '"');
+    }
+    return false;
+  }
+};
 
 // При клике на недоступный свитч — показать подсказку!
 defaultSwitch.onclick = function() {
