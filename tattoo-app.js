@@ -397,6 +397,17 @@ if (studio) {
   colorInput.value = studio.color;
   defaultSwitch.checked = !!studio.isDefault;
   deleteBtn.style.display = "block";
+  deleteBtn.onclick = async function() {
+    if (confirm(`Удалить студию "${studio.name}"?`)) {
+      try {
+        await db.collection('studios').doc(studio.id).delete();
+        await loadStudios();
+        closeStudioModal();
+      } catch(e) {
+        alert('Ошибка при удалении студии: ' + e.message);
+      }
+    }
+  };
 
   const countDefault = studios.filter(s => s.isDefault).length;
   if (studio.isDefault) {
