@@ -176,11 +176,10 @@ async function addNewStudio() {
   const color = document.getElementById('new-studio-color').value;
   if (name) {
     await db.collection('studios').add({ name, color });
+    await loadStudios();
     closeAddStudioModal();
-    loadStudios();
   }
 }
-
 async function loadTrips() {
   trips = [];
   const snap = await db.collection('trips').get();
@@ -443,17 +442,18 @@ defaultSwitch.onclick = function() {
 if (idx >= 0) {
   colorInput.value = studios[idx].color;
   deleteBtn.style.display = "block";
-  deleteBtn.onclick = function() {
-    if (confirm(`Удалить студию "${studios[idx].name}"?`)) {
-      const id = studios[idx].id;
-      db.collection('studios').doc(id).delete()
-        .then(() => {
-          closeStudioModal();
-          loadStudios(); // подгрузить новый актуальный список после удаления
-        })
-        .catch(e => alert('Ошибка при удалении студии: ' + e.message));
+ deleteBtn.onclick = async function() {
+  if (confirm(`Удалить студию "${studios[idx].name}"?`)) {
+    const id = studios[idx].id;
+    try {
+      await db.collection('studios').doc(id).delete();
+      await loadStudios();
+      closeStudioModal();
+    } catch(e) {
+      alert('Ошибка при удалении студии: ' + e.message);
     }
-  };
+  }
+};
 } else {
   colorInput.value = "#3fa9f5";
   deleteBtn.style.display = "none";
@@ -498,8 +498,8 @@ document.getElementById('studio-form').onsubmit = async function(e) {
     await db.collection('studios').add({ name, color, isDefault: false });
   }
 
+   await loadStudios();      // <-- СНАЧАЛА жди обновления studios/trips!
   closeStudioModal();
-  loadStudios();
 };
 async function addTripByDates() {
   const studioIdx = document.getElementById('studio-select').value;
