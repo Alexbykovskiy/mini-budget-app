@@ -465,8 +465,8 @@ if (idx >= 0) {
   deleteBtn.style.display = "none";
   deleteBtn.onclick = null;
 }
-  };
-
+};              // конец nameInput.oninput
+}               // ← ДОБАВЬ ЭТУ СТРОКУ! конец showStudioModal
 // Скрыть модалку
 function closeStudioModal() {
   document.getElementById('studio-modal').style.display = 'none';
