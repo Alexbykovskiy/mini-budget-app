@@ -488,28 +488,33 @@ document.getElementById('studio-form').onsubmit = async function(e) {
   const isDefault = document.getElementById('studio-default-switch').checked;
   if (!name) return;
 
-  // Если выставили дефолтную, снять isDefault у всех остальных!
+  let idx = studios.findIndex(s => s.name.toLowerCase() === name.toLowerCase());
+  let id = idx >= 0 ? studios[idx].id : null;
+
+  // 1. Если снимаем чекбокс — явно сбрасываем isDefault у текущей студии
+  if (!isDefault && idx >= 0 && studios[idx].isDefault) {
+    await db.collection('studios').doc(id).update({ color, isDefault: false });
+  }
+
+  // 2. Если ставим чекбокс — снимаем isDefault у всех других
   if (isDefault) {
-    // Снять флаг у всех других студий
     const updates = studios.filter(s => s.isDefault && s.name !== name)
       .map(s => db.collection('studios').doc(s.id).update({ isDefault: false }));
     await Promise.all(updates);
-  }
 
-  let idx = studios.findIndex(s => s.name.toLowerCase() === name.toLowerCase());
-  if (idx >= 0) {
-    // Обновляем существующую студию в Firestore (с флагом по умолчанию)
-    const id = studios[idx].id;
-    await db.collection('studios').doc(id).update({ color, isDefault: !!isDefault });
-  } else {
-    // Добавляем новую студию в Firestore (с флагом по умолчанию)
-    await db.collection('studios').add({ name, color, isDefault: !!isDefault });
+    if (idx >= 0) {
+      await db.collection('studios').doc(id).update({ color, isDefault: true });
+    } else {
+      await db.collection('studios').add({ name, color, isDefault: true });
+    }
+  } else if (idx < 0) {
+    // 3. Если добавляем новую студию без дефолта
+    await db.collection('studios').add({ name, color, isDefault: false });
   }
 
   closeStudioModal();
   loadStudios();
 };
-
 async function addTripByDates() {
   const studioIdx = document.getElementById('studio-select').value;
   const studio = studios[studioIdx];
