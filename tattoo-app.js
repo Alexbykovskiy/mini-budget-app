@@ -17,14 +17,15 @@ const db = firebase.firestore();
 async function loadStudios() {
   studios = [];
   const snap = await db.collection('studios').get();
-  snap.forEach(doc => {
-    studios.push({ id: doc.id, ...doc.data() });
-  });
-  renderStudioOptions(); // <-- добавь сюда
-  renderStudioSelect && renderStudioSelect();
+  snap.forEach(doc => studios.push({ id: doc.id, ...doc.data() }));
+
+  const def = studios.find(s => s.isDefault);
+  if (def) await ensureDefaultCover(def);
+
+  renderStudioOptions();
+  renderStudioSelect?.();
   if (typeof renderStudioList === "function") renderStudioList();
 }
-
 function renderStudioOptions() {
   // Для доходов
   const incomeSel = document.getElementById('income-location');
@@ -522,6 +523,12 @@ async function addTripByDates() {
     });
   }
 
+// Обрезаем ковёр дефолт-студии, если выбрана не дефолт-студия!
+  const def = studios.find(s => s.isDefault);
+  if (def && def.name !== studio.name) {
+    await clipDefaultCover(dateFrom, addDays(dateTo, 1));
+  }
+
   // Обновить календарь
   if (window.fcInstance) {
     await loadTrips();
@@ -546,7 +553,23 @@ function addDays(dateStr, days) {
 async function deleteTripById() {
   if (!currentTripId) return;
   if (!confirm('Удалить поездку?')) return;
+
+  // 1. Получаем диапазон удаляемой поездки
+  const docSnap = await db.collection('trips').doc(currentTripId).get();
+  const data = docSnap.exists ? docSnap.data() : null;
+  const start = data ? data.start : null;
+  const end = data ? data.end : null;
+  const studioName = data ? data.studio : null;
+
+  // 2. Удаляем поездку
   await db.collection('trips').doc(currentTripId).delete();
+
+  // 3. Если это НЕ дефолт-студия, восстанавливаем ковёр
+  const def = studios.find(s => s.isDefault);
+  if (def && def.name !== studioName && start && end) {
+    await mergeDefaultCover(start, end);
+  }
+
   // После удаления обновить календарь
   if (window.fcInstance) {
     await loadTrips();
@@ -715,6 +738,78 @@ async function deleteExpenseEdit() {
     alert('Ошибка при удалении: ' + e.message);
   }
 }
+
+// Создать дефолтный "ковёр" для студии по умолчанию, если его нет
+async function ensureDefaultCover(defStudio) {
+  const q = await db.collection('trips')
+        .where('studio','==', defStudio.name)
+        .where('isDefaultCover','==', true).limit(1).get();
+  if (q.empty) {
+    await db.collection('trips').add({
+      studio: defStudio.name,
+      color : defStudio.color,
+      start : '1900-01-01',          // максимально большой диапазон
+      end   : '2100-01-01',
+      isDefaultCover: true,
+      created: new Date().toISOString()
+    });
+  }
+}
+
+// Обрезать ковёр дефолт-студии при добавлении новой поездки другой студии
+async function clipDefaultCover(start, end) {
+  const def = studios.find(s => s.isDefault);
+  if (!def) return;
+  const snap = await db.collection('trips')
+        .where('studio','==', def.name)
+        .where('isDefaultCover','==', true).limit(1).get();
+  if (snap.empty) return;
+  const doc = snap.docs[0];
+  const data = doc.data();
+  if (start <= data.end && end >= data.start) {
+    await db.runTransaction(async t => {
+      t.delete(doc.ref);
+      if (start > data.start) {
+        t.set(db.collection('trips').doc(), {
+          studio: def.name, color: def.color,
+          start : data.start, end: start,
+          isDefaultCover: true
+        });
+      }
+      if (end < data.end) {
+        t.set(db.collection('trips').doc(), {
+          studio: def.name, color: def.color,
+          start : end, end: data.end,
+          isDefaultCover: true
+        });
+      }
+    });
+  }
+}
+
+// Восстанавливает ковёр дефолт-студии при удалении поездки другой студии
+async function mergeDefaultCover(start, end) {
+  const def = studios.find(s => s.isDefault);
+  if (!def) return;
+  const partsSnap = await db.collection('trips')
+      .where('studio','==',def.name)
+      .where('isDefaultCover','==',true)
+      .orderBy('start').get();
+  let left = start, right = end, toDelete=[];
+  partsSnap.forEach(d=>{
+    const p = d.data();
+    if (p.end === start) { left = p.start; toDelete.push(d.id); }
+    if (p.start === end) { right = p.end;  toDelete.push(d.id); }
+  });
+  await db.runTransaction(async t=>{
+    toDelete.forEach(id=>t.delete(db.collection('trips').doc(id)));
+    t.set(db.collection('trips').doc(),{
+      studio:def.name,color:def.color,
+      start:left,end:right,isDefaultCover:true
+    });
+  });
+}
+
 
 window.addEventListener('DOMContentLoaded', () => {
   loadStudios();
