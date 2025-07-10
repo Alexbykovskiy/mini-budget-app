@@ -378,17 +378,20 @@ function showStudioModal(studioIdx = null) {
   // Найти текущую студию по умолчанию
   const currentDefaultStudio = studios.find(s => s.isDefault);
 
- // Заполняем datalist студий
-datalist.innerHTML = studios.map(s => `<option value="${s.name}">`).join('');
-
-// Найти студию (по индексу или по имени в инпуте)
+// Универсальный поиск студии: по индексу, по выбранному селектору, по имени в поле ввода
 let studio = null;
 if (studioIdx !== null && studios[studioIdx]) {
   studio = studios[studioIdx];
-} else if (nameInput.value) {
-  studio = studios.find(s => s.name.trim().toLowerCase() === nameInput.value.trim().toLowerCase());
+} else {
+  // ищем по выбранному значению селектора, если есть
+  const sel = document.getElementById('studio-select');
+  let selIdx = sel && sel.selectedIndex >= 0 ? sel.selectedIndex : null;
+  if (selIdx !== null && studios[selIdx]) {
+    studio = studios[selIdx];
+  } else if (nameInput.value) {
+    studio = studios.find(s => s.name.trim().toLowerCase() === nameInput.value.trim().toLowerCase());
+  }
 }
-
 if (studio) {
   nameInput.value = studio.name;
   colorInput.value = studio.color;
