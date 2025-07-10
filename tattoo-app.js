@@ -444,26 +444,7 @@ defaultSwitch.onclick = function() {
 };
 
 
-  // Заполняем datalist студий
-  datalist.innerHTML = studios.map(s => `<option value="${s.name}">`).join('');
 
-  // Если редактируем — автозаполняем поля
-  if (studioIdx !== null && studios[studioIdx]) {
-    nameInput.value = studios[studioIdx].name;
-    colorInput.value = studios[studioIdx].color;
-    deleteBtn.style.display = "block";
-    deleteBtn.onclick = function() {
-      if (confirm(`Удалить студию "${studios[studioIdx].name}"?`)) {
-        studios.splice(studioIdx, 1);
-        closeStudioModal();
-        renderStudioSelect();
-        if (typeof renderStudioList === "function") renderStudioList();
-      }
-    };
-  } else {
-    deleteBtn.style.display = "none";
-    deleteBtn.onclick = null;
-  }
 
   // При вводе — если студия уже есть, автозаполнить цвет
   nameInput.oninput = function() {
