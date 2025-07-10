@@ -62,6 +62,7 @@ let expenseChart;
 let expenses = [];
 let fullTotal = 0;
 let editingReminderId = null;
+let globalDistance = 0; // Пробег для расчёта среднего расхода
 
 // ========== ДОБАВИТЬ НАПОМИНАНИЕ ==========
 const infoAddForm = document.getElementById('info-add-form');
@@ -183,6 +184,7 @@ function updateStats(fullData) {
   // 2) Берём все пробеги и считаем дистанцию
   const ms       = entriesWithMileage.map(e=>Number(e.mileage));
   const distance = ms.length ? Math.max(...ms) - Math.min(...ms) : 0;
+globalDistance = distance; // Всегда держим актуальный пробег для расхода
   // 3) Считаем дни между первой и последней датой
   const daysDiff = sorted.length>1
     ? Math.ceil((new Date(sorted.at(-1).date) - new Date(sorted[0].date)) / (1000*60*60*24))
@@ -245,16 +247,16 @@ function calculatePureRunningCost(data) {
     e.liters && !isNaN(Number(e.liters)) &&
     e.amount && !isNaN(Number(e.amount))
   );
-  const mileageEntries = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));
-  const sorted = [...mileageEntries].sort((a, b) => a.date.localeCompare(b.date));
-  const distance = sorted.length >= 2 ? Number(sorted[sorted.length - 1].mileage) - Number(sorted[0].mileage) : 0;
-  const totalLiters = fuelEntries.reduce((sum, e) => sum + Number(e.liters), 0);
-  const totalAmount = fuelEntries.reduce((sum, e) => sum + Number(e.amount), 0);
-  const consumption = distance > 0 ? (totalLiters / distance * 100) : null;
-  const pricePerLiter = totalLiters > 0 ? (totalAmount / totalLiters) : null;
+  const distance = globalDistance; // ← Берём расчетный пробег из карточки!
+const totalLiters = fuelEntries.reduce((sum, e) => sum + Number(e.liters), 0);
+const totalAmount = fuelEntries.reduce((sum, e) => sum + Number(e.amount), 0);
+const consumption = distance > 0 ? (totalLiters / distance * 100) : null;
+const pricePerLiter = totalLiters > 0 ? (totalAmount / totalLiters) : null;
+
 
   document.getElementById('stat-consumption').textContent =
-  consumption !== null ? consumption.toFixed(1) : '—';
+  consumption !== null ? consumption.toFixed(2) : '—';
+
 
 document.getElementById('stat-price-fuel').textContent =
   pricePerLiter !== null ? pricePerLiter.toFixed(2) : '—';
