@@ -482,8 +482,16 @@ document.getElementById('studio-form').onsubmit = async function(e) {
 
   // 1. Если снимаем чекбокс — явно сбрасываем isDefault у текущей студии
   if (!isDefault && idx >= 0 && studios[idx].isDefault) {
-    await db.collection('studios').doc(id).update({ color, isDefault: false });
-  }
+  await db.collection('studios').doc(id).update({ color, isDefault: false });
+
+  // После снятия флажка — удалить ковер (trips с isDefaultCover: true для этой студии)
+  const q = await db.collection('trips')
+    .where('studio','==', studios[idx].name)
+    .where('isDefaultCover','==', true).get();
+  const batch = db.batch();
+  q.forEach(doc => batch.delete(doc.ref));
+  await batch.commit();
+}
 
   // 2. Если ставим чекбокс — снимаем isDefault у всех других
   if (isDefault) {
