@@ -432,16 +432,7 @@ defaultSwitch.onclick = function() {
   }
 };
 
-// При клике на недоступный свитч — показать подсказку!
-defaultSwitch.onclick = function() {
-  if (defaultSwitch.disabled) {
-    const currentDefaultStudio = studios.find(s => s.isDefault);
-    if (currentDefaultStudio) {
-      alert('Студия по умолчанию: "' + currentDefaultStudio.name + '"');
-    }
-    return false;
-  }
-};
+
 
 
 
