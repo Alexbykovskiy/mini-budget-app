@@ -388,29 +388,32 @@ function showStudioModal(studioIdx = null) {
     defaultSwitch.checked = !!studios[studioIdx].isDefault;
     deleteBtn.style.display = "block";
     // Свитч только доступен, если это студия по умолчанию или сейчас нет другой студии по умолчанию
-    if (
-      currentDefaultStudio &&
-      !studios[studioIdx].isDefault
-    ) {
-      defaultSwitch.disabled = true;
-      defaultSwitch.classList.add('switch-disabled');
-    } else {
-      defaultSwitch.disabled = false;
-      defaultSwitch.classList.remove('switch-disabled');
-    }
-    // ...
+    // Если у студии стоит isDefault, флажок активен (разрешено снять),
+// если у другой студии — флажок неактивен (серый)
+if (currentDefaultStudio) {
+  if (studios[studioIdx].isDefault) {
+    // Это дефолтная — можно снять флажок!
+    defaultSwitch.disabled = false;
+    defaultSwitch.classList.remove('switch-disabled');
   } else {
-    defaultSwitch.checked = false;
-    if (currentDefaultStudio) {
-      defaultSwitch.disabled = true;
-      defaultSwitch.classList.add('switch-disabled');
-    } else {
-      defaultSwitch.disabled = false;
-      defaultSwitch.classList.remove('switch-disabled');
-    }
-    deleteBtn.style.display = "none";
-    deleteBtn.onclick = null;
+    // Не дефолтная — нельзя поставить флажок
+    defaultSwitch.disabled = true;
+    defaultSwitch.classList.add('switch-disabled');
   }
+} else {
+  // Если вообще нет дефолтной студии — разрешить всем!
+  defaultSwitch.disabled = false;
+  defaultSwitch.classList.remove('switch-disabled');
+}
+    // ...
+ } else {
+  defaultSwitch.checked = false;
+  // При добавлении новой студии флажок всегда активен!
+  defaultSwitch.disabled = false;
+  defaultSwitch.classList.remove('switch-disabled');
+  deleteBtn.style.display = "none";
+  deleteBtn.onclick = null;
+}
 
   // При клике на недоступный свитч — показать подсказку!
   defaultSwitch.onclick = function() {
