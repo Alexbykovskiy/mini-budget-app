@@ -478,17 +478,27 @@ document.getElementById('studio-form').onsubmit = async function(e) {
   e.preventDefault();
   const name = document.getElementById('studio-name').value.trim();
   const color = document.getElementById('studio-color').value;
+  const isDefault = document.getElementById('studio-default-switch').checked;
   if (!name) return;
+
+  // Если выставили дефолтную, снять isDefault у всех остальных!
+  if (isDefault) {
+    // Снять флаг у всех других студий
+    const updates = studios.filter(s => s.isDefault && s.name !== name)
+      .map(s => db.collection('studios').doc(s.id).update({ isDefault: false }));
+    await Promise.all(updates);
+  }
 
   let idx = studios.findIndex(s => s.name.toLowerCase() === name.toLowerCase());
   if (idx >= 0) {
-    // Обновляем существующую студию в Firestore
+    // Обновляем существующую студию в Firestore (с флагом по умолчанию)
     const id = studios[idx].id;
-    await db.collection('studios').doc(id).update({ color });
+    await db.collection('studios').doc(id).update({ color, isDefault: !!isDefault });
   } else {
-    // Добавляем новую студию в Firestore
-    await db.collection('studios').add({ name, color });
+    // Добавляем новую студию в Firestore (с флагом по умолчанию)
+    await db.collection('studios').add({ name, color, isDefault: !!isDefault });
   }
+
   closeStudioModal();
   loadStudios();
 };
