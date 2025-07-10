@@ -265,35 +265,45 @@ if (type === 'income') {
   });
 }
 
+if (type === 'income') {
+  const doc = await db.collection('incomes').doc(id).get();
+  const data = doc.data();
 
-    if (type === 'income') {
-      const doc = await db.collection('incomes').doc(id).get();
-      const data = doc.data();
-      // Заполняем поля дохода
-      document.getElementById('income-location').value = data.location;
-      document.getElementById('income-date').value = data.date;
-      document.getElementById('income-amount').value = data.amount;
-      document.getElementById('work-type').value = data.workType;
-      document.getElementById('is-invoice').checked = !!data.isInvoice;
+  // Заполняем поля дохода только если они есть в DOM
+  const elLoc = document.getElementById('income-location');
+  const elDate = document.getElementById('income-date');
+  const elAmount = document.getElementById('income-amount');
+  const elType = document.getElementById('work-type');
+  const elInvoice = document.getElementById('is-invoice');
+  if (elLoc) elLoc.value = data.location;
+  if (elDate) elDate.value = data.date;
+  if (elAmount) elAmount.value = data.amount;
+  if (elType) elType.value = data.workType;
+  if (elInvoice) elInvoice.checked = !!data.isInvoice;
 
-      // Визуально подсветить форму (например, добавить класс .editing)
-      document.querySelector('.form-section').classList.add('editing');
-    } else if (type === 'expense') {
-      const doc = await db.collection('expenses').doc(id).get();
-      const data = doc.data();
-      document.getElementById('expense-location').value = data.location;
-      document.getElementById('expense-date').value = data.date;
-      document.getElementById('expense-amount').value = data.amount;
-      document.getElementById('expense-type').value = data.expenseType;
+  // Визуально подсветить форму (например, добавить класс .editing)
+  document.querySelector('.form-section').classList.add('editing');
+}
+ else if (type === 'expense') {
+  const doc = await db.collection('expenses').doc(id).get();
+  const data = doc.data();
 
-      // Визуально подсветить форму (найти первый блок с h2 = 'Добавить расход')
-      document.querySelectorAll('.block').forEach(block => {
-        if (block.querySelector('h2')?.textContent.includes('Добавить расход')) {
-          block.classList.add('editing');
-        }
-      });
+  const elLoc = document.getElementById('expense-location');
+  const elDate = document.getElementById('expense-date');
+  const elAmount = document.getElementById('expense-amount');
+  const elType = document.getElementById('expense-type');
+  if (elLoc) elLoc.value = data.location;
+  if (elDate) elDate.value = data.date;
+  if (elAmount) elAmount.value = data.amount;
+  if (elType) elType.value = data.expenseType;
+
+  // Визуально подсветить форму (найти первый блок с h2 = 'Добавить расход')
+  document.querySelectorAll('.block').forEach(block => {
+    if (block.querySelector('h2')?.textContent.includes('Добавить расход')) {
+      block.classList.add('editing');
     }
   });
+}  });
 });
 
 
