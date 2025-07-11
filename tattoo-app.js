@@ -392,6 +392,12 @@ if (studioIdx !== null && studios[studioIdx]) {
     studio = studios.find(s => s.name.trim().toLowerCase() === nameInput.value.trim().toLowerCase());
   }
 }
+if (!studio) {
+  if (fillBtn) fillBtn.style.display = "none";
+} else {
+  if (fillBtn) fillBtn.style.display = "";
+}
+
 if (studio) {
   nameInput.value = studio.name;
   colorInput.value = studio.color;
@@ -408,6 +414,23 @@ if (studio) {
       }
     }
   };
+const fillBtn = document.getElementById('fill-default-btn');
+if (fillBtn) {
+  fillBtn.onclick = async function() {
+    fillBtn.disabled = true;
+    fillBtn.textContent = 'Заполнение...';
+    await fillStudioGaps(studio);
+    fillBtn.disabled = false;
+    fillBtn.textContent = 'Заполнить пустые даты этой студией';
+    alert('Пустые даты заполнены!');
+    // Обновить календарь
+    await loadTrips();
+    if (window.fcInstance) {
+      window.fcInstance.removeAllEvents();
+      trips.forEach(event => window.fcInstance.addEvent(event));
+    }
+  }
+}
 
   const countDefault = studios.filter(s => s.isDefault).length;
   if (studio.isDefault) {
@@ -623,6 +646,12 @@ async function deleteTripById() {
     window.fcInstance.removeAllEvents();
     trips.forEach(event => window.fcInstance.addEvent(event));
   }
+await fillDefaultCoverGaps();
+await loadTrips();
+if (window.fcInstance) {
+  window.fcInstance.removeAllEvents();
+  trips.forEach(event => window.fcInstance.addEvent(event));
+}
   // Очистить всё
   document.getElementById('trip-date-from').value = '';
   document.getElementById('trip-date-to').value = '';
@@ -855,6 +884,112 @@ async function mergeDefaultCover(start, end) {
       start:left,end:right,isDefaultCover:true
     });
   });
+}
+
+// Заполнить свободные промежутки дефолтной студией
+async function fillDefaultCoverGaps() {
+  const def = studios.find(s => s.isDefault);
+  if (!def) return;
+
+  // Удалить все старые ковры дефолта
+  const snap = await db.collection('trips')
+    .where('studio', '==', def.name)
+    .where('isDefaultCover', '==', true).get();
+  const batch = db.batch();
+  snap.forEach(doc => batch.delete(doc.ref));
+  await batch.commit();
+
+  // Собираем все занятые интервалы (кроме дефолта)
+  const allTripsSnap = await db.collection('trips').get();
+  const intervals = [];
+  allTripsSnap.forEach(doc => {
+    const d = doc.data();
+    if (d.studio !== def.name || !d.isDefaultCover) {
+      intervals.push({ start: d.start, end: d.end });
+    }
+  });
+
+  // Добавляем границы (например, с 1900-01-01 по 2100-01-01)
+  intervals.push({ start: '2100-01-01', end: '2100-12-31' });
+  intervals.push({ start: '1900-01-01', end: '1900-01-02' });
+  // Сортируем по старту
+  intervals.sort((a, b) => a.start.localeCompare(b.start));
+
+  // Теперь ищем все "пустые окна"
+  let prevEnd = '1900-01-02';
+  for (const intv of intervals) {
+    if (prevEnd < intv.start) {
+      // Есть свободное окно!
+      await db.collection('trips').add({
+        studio: def.name,
+        color: def.color,
+        start: prevEnd,
+        end: intv.start,
+        isDefaultCover: true,
+        created: new Date().toISOString()
+      });
+    }
+    if (intv.end > prevEnd) prevEnd = intv.end;
+  }
+}
+
+// Заполняет все незанятые даты выбранной студией
+async function fillStudioGaps(studio) {
+  // Получаем все поездки всех студий КРОМЕ этой студии (чтобы не дублировать свои же записи)
+const snap = await db.collection('trips').get();
+let busyIntervals = [];
+snap.forEach(doc => {
+  const d = doc.data();
+  if (d.studio !== studio.name) { // Только чужие интервалы
+    busyIntervals.push({ start: d.start, end: d.end });
+  }
+});
+
+  // Массив всех занятых дат (yyyy-mm-dd) -> Set
+  const busyDays = new Set();
+  busyIntervals.forEach(intv => {
+    let d = new Date(intv.start);
+    let end = new Date(intv.end);
+    while (d < end) {
+      busyDays.add(d.toISOString().slice(0, 10));
+      d.setDate(d.getDate() + 1);
+    }
+  });
+
+  // Выбираем диапазон, который хотим покрывать (например, ближайшие 2 года)
+  let startDate = new Date();
+  let endDate = new Date();
+  endDate.setFullYear(endDate.getFullYear() + 2);
+
+  let freeRanges = [];
+  let curStart = null;
+  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    const ds = d.toISOString().slice(0, 10);
+    if (!busyDays.has(ds)) {
+      if (curStart === null) curStart = ds;
+    } else {
+      if (curStart !== null) {
+        // Добавить промежуток
+        freeRanges.push({ start: curStart, end: ds });
+        curStart = null;
+      }
+    }
+  }
+  // Добавить хвост, если есть
+  if (curStart !== null) {
+    freeRanges.push({ start: curStart, end: endDate.toISOString().slice(0, 10) });
+  }
+
+  // Создать поездки на все пустые промежутки
+  for (const rng of freeRanges) {
+    await db.collection('trips').add({
+      studio: studio.name,
+      color: studio.color,
+      start: rng.start,
+      end: rng.end,
+      created: new Date().toISOString()
+    });
+  }
 }
 
 
