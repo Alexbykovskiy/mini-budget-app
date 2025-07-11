@@ -830,29 +830,45 @@ async function ensureDefaultCover(defStudio) {
 }
 
 // Обрезать ковёр дефолт-студии при добавлении новой поездки другой студии
+// дата `end` передаётся уже +1 день (эксклюзив)
 async function clipDefaultCover(start, end) {
   const def = studios.find(s => s.isDefault);
   if (!def) return;
+
+  // нормализуем к "YYYY-MM-DD"
+  const sStart = String(start).slice(0,10);
+  const sEnd   = String(end).slice(0,10);
+
+  // находим единственный ковёр-док
   const snap = await db.collection('trips')
         .where('studio','==', def.name)
         .where('isDefaultCover','==', true).limit(1).get();
   if (snap.empty) return;
   const doc = snap.docs[0];
   const data = doc.data();
-  if (start <= data.end && end >= data.start) {
+
+  // нормализуем даты ковра
+  const dStart = String(data.start).slice(0,10);
+  const dEnd   = String(data.end).slice(0,10);
+
+  // если новый диапазон уже покрыт ковром — разрезаем на 2 (до и после)
+  if (sStart <= dEnd && sEnd >= dStart) {
     await db.runTransaction(async t => {
-      t.delete(doc.ref);
-      if (start > data.start) {
+      t.delete(doc.ref);                 // убираем старый ковёр
+
+      // левая часть (до начала новой поездки)
+      if (sStart > dStart) {
         t.set(db.collection('trips').doc(), {
           studio: def.name, color: def.color,
-          start : data.start, end: start,
+          start : dStart, end: sStart,
           isDefaultCover: true
         });
       }
-      if (end < data.end) {
+      // правая часть (после конца поездки)
+      if (sEnd < dEnd) {
         t.set(db.collection('trips').doc(), {
           studio: def.name, color: def.color,
-          start : end, end: data.end,
+          start : sEnd, end: dEnd,
           isDefaultCover: true
         });
       }
@@ -868,11 +884,14 @@ async function mergeDefaultCover(start, end) {
       .where('studio','==',def.name)
       .where('isDefaultCover','==',true)
       .orderBy('start').get();
-  let left = start, right = end, toDelete=[];
+  // нормализуем к формату "YYYY-MM-DD"
+  let left = String(start).slice(0,10), right = String(end).slice(0,10), toDelete=[];
   partsSnap.forEach(d=>{
     const p = d.data();
-    if (p.end === start) { left = p.start; toDelete.push(d.id); }
-    if (p.start === end) { right = p.end;  toDelete.push(d.id); }
+    const pStart = String(p.start).slice(0,10);
+    const pEnd = String(p.end).slice(0,10);
+    if (pEnd === left) { left = pStart; toDelete.push(d.id); }
+    if (pStart === right) { right = pEnd; toDelete.push(d.id); }
   });
   await db.runTransaction(async t=>{
     toDelete.forEach(id=>t.delete(db.collection('trips').doc(id)));
