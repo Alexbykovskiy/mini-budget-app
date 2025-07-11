@@ -58,20 +58,15 @@ function renderStudiosSummary() {
         ${s.name}${s.isDefault ? ' — по умолчанию' : ''}
     </span>`
   ).join('');
-
-  // Добавим обработчик клика:
-  summary.querySelectorAll('.studio-pill').forEach(pill => {
-    pill.addEventListener('click', function() {
-      const idx = pill.getAttribute('data-idx');
-      const select = document.getElementById('studio-select');
-      if (select && idx !== null) {
-        select.selectedIndex = idx;
-        select.dispatchEvent(new Event('change'));
-      }
-    });
+// При клике на студию открываем редактор с её данными
+summary.querySelectorAll('.studio-pill').forEach(pill => {
+  pill.addEventListener('click', function() {
+    const idx = pill.getAttribute('data-idx');
+    if (idx !== null) {
+      showStudioModal(Number(idx));
+    }
   });
-}
-
+});
 async function addIncome() {
   const location = document.getElementById('income-location').value;
   const date = document.getElementById('income-date').value;
