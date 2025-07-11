@@ -367,9 +367,12 @@ function showStudioModal(studioIdx = null) {
   const datalist   = document.getElementById('studio-list');
   const deleteBtn  = document.getElementById('delete-studio-btn');
   const defaultSwitch = document.getElementById('studio-default-switch'); // ← новая строка
+ // Очищаем форму ТОЛЬКО если не редактируем существующую студию
+if (studioIdx === null || !studios[studioIdx]) {
   nameInput.value = "";
   colorInput.value = "#3fa9f5";
   deleteBtn.style.display = "none";
+}
 
 
   // Найти текущую студию по умолчанию
