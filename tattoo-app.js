@@ -784,6 +784,35 @@ async function deleteExpenseEdit() {
 }
 
 // Создать дефолтный "ковёр" для студии по умолчанию, если его нет
+async function mergeDefaultCover(start, end) {
+  const def = studios.find(s => s.isDefault);
+  if (!def) return;
+  // Ищем куски ковра, смыкающиеся с [start, end)
+  const partsSnap = await db.collection('trips')
+    .where('studio', '==', def.name)
+    .where('isDefaultCover', '==', true)
+    .orderBy('start').get();
+
+  let left = start, right = end, toDelete = [];
+  partsSnap.forEach(d => {
+    const p = d.data();
+    if (p.end === start) { left = p.start; toDelete.push(d.id); }
+    if (p.start === end) { right = p.end; toDelete.push(d.id); }
+  });
+
+  // Удаляем старые куски, вставляем объединённый
+  await db.runTransaction(async t => {
+    toDelete.forEach(id => t.delete(db.collection('trips').doc(id)));
+    t.set(db.collection('trips').doc(), {
+      studio: def.name,
+      color: def.color,
+      start: left,
+      end: right,
+      isDefaultCover: true
+    });
+  });
+}
+
 async function ensureDefaultCover(defStudio) {
   const q = await db.collection('trips')
         .where('studio','==', defStudio.name)
