@@ -616,10 +616,34 @@ if (def && def.name !== studioName && start && end) {
 }
 
 if (window.fcInstance) {
-  await loadTrips();
-  window.fcInstance.removeAllEvents();
-  trips.forEach(event => window.fcInstance.addEvent(event));
+  window.fcInstance.destroy();
+  window.fcInstance = null;
 }
+await loadTrips();
+
+window.fcInstance = new FullCalendar.Calendar(document.getElementById('calendar'), {
+  initialView: 'dayGridMonth',
+  selectable: true,
+  events: trips,
+  height: 410,
+  headerToolbar: { left: 'title', center: '', right: 'today prev,next' },
+  locale: 'ru',
+  eventClick: function(info) {
+    const event = info.event;
+    const studioName = event.title;
+    const startDate = event.startStr.slice(0, 10);
+    const endDate = event.endStr
+      ? (new Date(+event.end - 24 * 3600 * 1000)).toISOString().slice(0, 10)
+      : startDate;
+    const studioIdx = studios.findIndex(s => s.name === studioName);
+    document.getElementById('studio-select').value = studioIdx;
+    document.getElementById('trip-date-from').value = startDate;
+    document.getElementById('trip-date-to').value = endDate;
+    currentTripId = event.extendedProps.id;
+    document.getElementById('delete-trip-btn').style.display = "";
+  }
+});
+window.fcInstance.render();
   // Очистить всё
   document.getElementById('trip-date-from').value = '';
   document.getElementById('trip-date-to').value = '';
