@@ -842,8 +842,6 @@ await db.collection('trips').add({
   isDefaultCover: true,
   created: new Date().toISOString()
 });
-
-  }
 }
 
 // Обрезать ковёр дефолт-студии при добавлении новой поездки другой студии
