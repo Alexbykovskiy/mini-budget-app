@@ -109,6 +109,10 @@ async function addIncome() {
 }
 
 let studios = [];
+// Приоритет студии: 1 — по умолчанию, 2 — все остальные
+function getStudioPriority(studio) {
+  return studio.isDefault ? 1 : 2;
+}
 let trips = [];
 let currentTripId = null; // Для отслеживания, редактируем ли поездку
 let currentEdit = null; // {type: 'income'|'expense', id: '...'}
@@ -570,11 +574,38 @@ async function addTripByDates() {
     });
   }
 
-// Обрезаем ковёр дефолт-студии, если выбрана не дефолт-студия!
-  const def = studios.find(s => s.isDefault);
-  if (def && def.name !== studio.name) {
-    await clipDefaultCover(dateFrom, addDays(dateTo, 1));
+// Обрезаем только те trips, у которых приоритет МЕНЬШЕ, чем у выбранной студии
+const newPriority = getStudioPriority(studio);
+for (const ev of trips) {
+  if (
+    !(ev.end <= dateFrom || ev.start >= addDays(dateTo, 1)) // Есть пересечение дат
+    && ev.title !== studio.name // Не совпадает имя студии
+  ) {
+    const otherStudio = studios.find(s => s.name === ev.title);
+    if (otherStudio && getStudioPriority(otherStudio) < newPriority) {
+      // Удаляем/обрезаем диапазон студии с меньшим приоритетом (обычно дефолт)
+      // Полное перекрытие — удалить event
+      if (dateFrom <= ev.start && addDays(dateTo,1) >= ev.end) {
+        await db.collection('trips').doc(ev.id).delete();
+      } else {
+        // Частичное перекрытие: обрезаем слева и/или справа
+        if (dateFrom > ev.start) {
+          await db.collection('trips').add({
+            ...ev,
+            end: dateFrom
+          });
+        }
+        if (addDays(dateTo,1) < ev.end) {
+          await db.collection('trips').add({
+            ...ev,
+            start: addDays(dateTo,1)
+          });
+        }
+        await db.collection('trips').doc(ev.id).delete();
+      }
+    }
   }
+}
 
   // Обновить календарь
   if (window.fcInstance) {
