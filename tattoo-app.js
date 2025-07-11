@@ -529,7 +529,12 @@ document.getElementById('studio-form').onsubmit = async function(e) {
     await db.collection('studios').add({ name, color, isDefault: false });
   }
 
-   await loadStudios();      // <-- СНАЧАЛА жди обновления studios/trips!
+    await loadStudios();
+  await loadTrips(); // <-- ЭТО
+  if (window.fcInstance) {
+    window.fcInstance.removeAllEvents();
+    trips.forEach(event => window.fcInstance.addEvent(event));
+  }
   closeStudioModal();
 };
 async function addTripByDates() {
