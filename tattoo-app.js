@@ -829,17 +829,20 @@ async function deleteExpenseEdit() {
 // Создать дефолтный "ковёр" для студии по умолчанию, если его нет
 async function ensureDefaultCover(defStudio) {
   const q = await db.collection('trips')
-        .where('studio','==', defStudio.name)
-        .where('isDefaultCover','==', true).limit(1).get();
-  if (q.empty) {
-    await db.collection('trips').add({
-      studio: defStudio.name,
-      color : defStudio.color,
-      start : '1900-01-01',          // максимально большой диапазон
-      end   : '2100-01-01',
-      isDefaultCover: true,
-      created: new Date().toISOString()
-    });
+  .where('studio','==', defStudio.name)
+  .where('isDefaultCover','==', true)
+  .limit(1).get();
+// Если ХОТЯ БЫ ОДИН trip с isDefaultCover уже есть — НЕ добавлять ковер
+if (!q.empty) return; // ← вот этот return добавь!
+await db.collection('trips').add({
+  studio: defStudio.name,
+  color : defStudio.color,
+  start : '1900-01-01',
+  end   : '2100-01-01',
+  isDefaultCover: true,
+  created: new Date().toISOString()
+});
+
   }
 }
 
