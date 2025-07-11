@@ -784,35 +784,6 @@ async function deleteExpenseEdit() {
 }
 
 // Создать дефолтный "ковёр" для студии по умолчанию, если его нет
-async function mergeDefaultCover(start, end) {
-  const def = studios.find(s => s.isDefault);
-  if (!def) return;
-  // Ищем куски ковра, смыкающиеся с [start, end)
-  const partsSnap = await db.collection('trips')
-    .where('studio', '==', def.name)
-    .where('isDefaultCover', '==', true)
-    .orderBy('start').get();
-
-  let left = start, right = end, toDelete = [];
-  partsSnap.forEach(d => {
-    const p = d.data();
-    if (p.end === start) { left = p.start; toDelete.push(d.id); }
-    if (p.start === end) { right = p.end; toDelete.push(d.id); }
-  });
-
-  // Удаляем старые куски, вставляем объединённый
-  await db.runTransaction(async t => {
-    toDelete.forEach(id => t.delete(db.collection('trips').doc(id)));
-    t.set(db.collection('trips').doc(), {
-      studio: def.name,
-      color: def.color,
-      start: left,
-      end: right,
-      isDefaultCover: true
-    });
-  });
-}
-
 async function ensureDefaultCover(defStudio) {
   const q = await db.collection('trips')
         .where('studio','==', defStudio.name)
@@ -830,45 +801,29 @@ async function ensureDefaultCover(defStudio) {
 }
 
 // Обрезать ковёр дефолт-студии при добавлении новой поездки другой студии
-// дата `end` передаётся уже +1 день (эксклюзив)
 async function clipDefaultCover(start, end) {
   const def = studios.find(s => s.isDefault);
   if (!def) return;
-
-  // нормализуем к "YYYY-MM-DD"
-  const sStart = String(start).slice(0,10);
-  const sEnd   = String(end).slice(0,10);
-
-  // находим единственный ковёр-док
   const snap = await db.collection('trips')
         .where('studio','==', def.name)
         .where('isDefaultCover','==', true).limit(1).get();
   if (snap.empty) return;
   const doc = snap.docs[0];
   const data = doc.data();
-
-  // нормализуем даты ковра
-  const dStart = String(data.start).slice(0,10);
-  const dEnd   = String(data.end).slice(0,10);
-
-  // если новый диапазон уже покрыт ковром — разрезаем на 2 (до и после)
-  if (sStart <= dEnd && sEnd >= dStart) {
+  if (start <= data.end && end >= data.start) {
     await db.runTransaction(async t => {
-      t.delete(doc.ref);                 // убираем старый ковёр
-
-      // левая часть (до начала новой поездки)
-      if (sStart > dStart) {
+      t.delete(doc.ref);
+      if (start > data.start) {
         t.set(db.collection('trips').doc(), {
           studio: def.name, color: def.color,
-          start : dStart, end: sStart,
+          start : data.start, end: start,
           isDefaultCover: true
         });
       }
-      // правая часть (после конца поездки)
-      if (sEnd < dEnd) {
+      if (end < data.end) {
         t.set(db.collection('trips').doc(), {
           studio: def.name, color: def.color,
-          start : sEnd, end: dEnd,
+          start : end, end: data.end,
           isDefaultCover: true
         });
       }
@@ -884,14 +839,11 @@ async function mergeDefaultCover(start, end) {
       .where('studio','==',def.name)
       .where('isDefaultCover','==',true)
       .orderBy('start').get();
-  // нормализуем к формату "YYYY-MM-DD"
-  let left = String(start).slice(0,10), right = String(end).slice(0,10), toDelete=[];
+  let left = start, right = end, toDelete=[];
   partsSnap.forEach(d=>{
     const p = d.data();
-    const pStart = String(p.start).slice(0,10);
-    const pEnd = String(p.end).slice(0,10);
-    if (pEnd === left) { left = pStart; toDelete.push(d.id); }
-    if (pStart === right) { right = pEnd; toDelete.push(d.id); }
+    if (p.end === start) { left = p.start; toDelete.push(d.id); }
+    if (p.start === end) { right = p.end;  toDelete.push(d.id); }
   });
   await db.runTransaction(async t=>{
     toDelete.forEach(id=>t.delete(db.collection('trips').doc(id)));
