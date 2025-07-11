@@ -588,20 +588,29 @@ for (const ev of trips) {
         await db.collection('trips').doc(ev.id).delete();
       } else {
         // Частичное перекрытие: обрезаем слева и/или справа
-        if (dateFrom > ev.start && dateFrom < ev.end) {
-          await db.collection('trips').add({
-            ...ev,
-            start: ev.start,
-            end: dateFrom
-          });
-        }
-        if (addDays(dateTo,1) > ev.start && addDays(dateTo,1) < ev.end) {
-          await db.collection('trips').add({
-            ...ev,
-            start: addDays(dateTo,1),
-            end: ev.end
-          });
-        }
+       if (dateFrom > ev.start && dateFrom < ev.end) {
+  await db.collection('trips').add({
+    studio: ev.title,
+    title: ev.title,
+    color: ev.color,
+    start: ev.start,
+    end: dateFrom,
+    isDefaultCover: ev.isDefaultCover || false,
+    created: ev.created || new Date().toISOString()
+  });
+}
+if (addDays(dateTo,1) > ev.start && addDays(dateTo,1) < ev.end) {
+  await db.collection('trips').add({
+    studio: ev.title,
+    title: ev.title,
+    color: ev.color,
+    start: addDays(dateTo,1),
+    end: ev.end,
+    isDefaultCover: ev.isDefaultCover || false,
+    created: ev.created || new Date().toISOString()
+  });
+}
+
         await db.collection('trips').doc(ev.id).delete();
       }
     }
