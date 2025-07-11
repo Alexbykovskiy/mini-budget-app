@@ -141,9 +141,9 @@ async function showCalendar() {
       const studioName = event.title;
       const startDate = event.startStr.slice(0, 10);
       // End в календаре эксклюзивно: вычесть 1 день!
-     const endObj = event.end ? new Date(event.end) : new Date(event.start);
-endObj.setDate(endObj.getDate() - 1); // <-- всегда минус 1 день, корректно!
-const endDate = endObj.toISOString().slice(0, 10);
+      const endDate = event.endStr
+        ? (new Date(+event.end - 24 * 3600 * 1000)).toISOString().slice(0, 10)
+        : startDate;
       // Найти студию по имени
       const studioIdx = studios.findIndex(s => s.name === studioName);
       document.getElementById('studio-select').value = studioIdx;
