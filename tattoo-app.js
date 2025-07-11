@@ -58,15 +58,17 @@ function renderStudiosSummary() {
         ${s.name}${s.isDefault ? ' — по умолчанию' : ''}
     </span>`
   ).join('');
-// При клике на студию открываем редактор с её данными
-summary.querySelectorAll('.studio-pill').forEach(pill => {
-  pill.addEventListener('click', function() {
-    const idx = pill.getAttribute('data-idx');
-    if (idx !== null) {
-      showStudioModal(Number(idx));
-    }
+
+ summary.querySelectorAll('.studio-pill').forEach(pill => {
+    pill.addEventListener('click', function() {
+      const idx = pill.getAttribute('data-idx');
+      if (idx !== null) {
+        showStudioModal(Number(idx));
+      }
+    });
   });
-});
+} // ← вот тут обязательно нужна скобка!
+
 async function addIncome() {
   const location = document.getElementById('income-location').value;
   const date = document.getElementById('income-date').value;
@@ -992,5 +994,3 @@ window.addEventListener('DOMContentLoaded', () => {
   loadStudios();
   loadHistory();
 });
-
-
