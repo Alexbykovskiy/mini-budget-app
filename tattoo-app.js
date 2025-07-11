@@ -610,16 +610,16 @@ async function deleteTripById() {
 
   // 3. Если это НЕ дефолт-студия, восстанавливаем ковёр
   const def = studios.find(s => s.isDefault);
-  if (def && def.name !== studioName && start && end) {
-    await mergeDefaultCover(start, end);
-  }
+if (def && def.name !== studioName && start && end) {
+  await mergeDefaultCover(start, end);
+  await new Promise(r => setTimeout(r, 250)); // <-- эта строка!
+}
 
-  // После удаления обновить календарь
-  if (window.fcInstance) {
-    await loadTrips();
-    window.fcInstance.removeAllEvents();
-    trips.forEach(event => window.fcInstance.addEvent(event));
-  }
+if (window.fcInstance) {
+  await loadTrips();
+  window.fcInstance.removeAllEvents();
+  trips.forEach(event => window.fcInstance.addEvent(event));
+}
   // Очистить всё
   document.getElementById('trip-date-from').value = '';
   document.getElementById('trip-date-to').value = '';
