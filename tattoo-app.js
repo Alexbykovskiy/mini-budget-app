@@ -529,8 +529,16 @@ document.getElementById('studio-form').onsubmit = async function(e) {
     await db.collection('studios').add({ name, color, isDefault: false });
   }
 
-   await loadStudios();      // <-- СНАЧАЛА жди обновления studios/trips!
-  closeStudioModal();
+ await loadStudios();       // Перечитали список студий, это создаст/удалит ковер если надо
+await loadTrips();         // <-- ЭТО ДОБАВЬ! Сразу получаем новые trips
+
+// Если календарь открыт, обнови события
+if (window.fcInstance) {
+  window.fcInstance.removeAllEvents();
+  trips.forEach(event => window.fcInstance.addEvent(event));
+}
+
+closeStudioModal();        // Закрываем модалку уже после обновления календаря
 };
 async function addTripByDates() {
   const studioIdx = document.getElementById('studio-select').value;
