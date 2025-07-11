@@ -574,7 +574,7 @@ async function addTripByDates() {
     });
   }
 
-// Обрезаем только те trips, у которых приоритет МЕНЬШЕ, чем у выбранной студии
+// Обрезаем все куски дефолт-студии, которые пересекаются с новым guest spot
 const newPriority = getStudioPriority(studio);
 for (const ev of trips) {
   if (
@@ -583,22 +583,23 @@ for (const ev of trips) {
   ) {
     const otherStudio = studios.find(s => s.name === ev.title);
     if (otherStudio && getStudioPriority(otherStudio) < newPriority) {
-      // Удаляем/обрезаем диапазон студии с меньшим приоритетом (обычно дефолт)
       // Полное перекрытие — удалить event
       if (dateFrom <= ev.start && addDays(dateTo,1) >= ev.end) {
         await db.collection('trips').doc(ev.id).delete();
       } else {
         // Частичное перекрытие: обрезаем слева и/или справа
-        if (dateFrom > ev.start) {
+        if (dateFrom > ev.start && dateFrom < ev.end) {
           await db.collection('trips').add({
             ...ev,
+            start: ev.start,
             end: dateFrom
           });
         }
-        if (addDays(dateTo,1) < ev.end) {
+        if (addDays(dateTo,1) > ev.start && addDays(dateTo,1) < ev.end) {
           await db.collection('trips').add({
             ...ev,
-            start: addDays(dateTo,1)
+            start: addDays(dateTo,1),
+            end: ev.end
           });
         }
         await db.collection('trips').doc(ev.id).delete();
@@ -606,7 +607,6 @@ for (const ev of trips) {
     }
   }
 }
-
   // Обновить календарь
   if (window.fcInstance) {
     await loadTrips();
