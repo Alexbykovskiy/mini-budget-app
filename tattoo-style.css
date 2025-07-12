@@ -1,10 +1,20 @@
 body {
   font-family: -apple-system, sans-serif;
-  background: url('envelopes-background.jpg') center center / cover no-repeat fixed;
-  background-size: cover;
+  /* background: url('envelopes-background.jpg') center center / cover no-repeat fixed; */
+  /* background-size: cover; */
+  background: none !important;
   margin: 0;
   padding: 10px;
   color: #fff;
+  position: relative;
+}
+.background-fixed {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: 0;
+  background: url('envelopes-background.jpg') center center / cover no-repeat;
+  pointer-events: none;
+  user-select: none;
 }
 .container {
   max-width: 360px;
@@ -13,6 +23,8 @@ body {
   flex-direction: column;
   gap: 15px;
   width: 100%;
+position: relative;
+  z-index: 1;
 }
 
 .glass-panel {
@@ -127,6 +139,8 @@ body {
   border-radius: 25px;
   padding: 18px 12px 14px 12px;
   box-shadow: 0 6px 14px rgba(0,0,0,0.13);
+ position: relative;
+  z-index: 1;
 }
 
 .history-list {
@@ -169,6 +183,8 @@ body {
   -webkit-backdrop-filter: blur(18px) saturate(1.15);
   position: relative;
   overflow: hidden;
+position: relative;
+  z-index: 1;
   
 
   transition: box-shadow 0.16s, background 0.14s;
@@ -787,4 +803,6 @@ textarea {
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0) border-box;
   mask-composite: exclude;
+ position: relative;
+  z-index: 1;
 }
