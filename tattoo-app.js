@@ -1074,12 +1074,12 @@ function refreshCalendar() {
     window.fcInstance.destroy();
     window.fcInstance = null;
   }
+  setTimeout(() => {
   window.fcInstance = new FullCalendar.Calendar(document.getElementById('calendar'), {
     initialView: 'dayGridMonth',
-    fixedWeekCount: true,
-    height: 'auto',
     selectable: true,
     events: trips,
+    height: 410,
     headerToolbar: { left: 'title', center: '', right: 'today prev,next' },
     locale: 'ru',
     eventClick: function(info) {
@@ -1091,17 +1091,25 @@ function refreshCalendar() {
         : startDate;
       const studioIdx = studios.findIndex(s => s.name === studioName);
       document.getElementById('studio-select').value = studioIdx;
+
+      // Обновить видимость!
       updateCalendarInputsVisibility();
+
       const studio = studios[studioIdx];
       if (studio && !studio.isDefault) {
         document.getElementById('trip-date-from').value = startDate;
         document.getElementById('trip-date-to').value = endDate;
         document.getElementById('delete-trip-btn').style.display = "";
+        currentTripId = event.extendedProps.id;
+      } else {
+        // Для дефолт-студии сбрасываем id и прячем кнопку удаления
+        currentTripId = null;
+        document.getElementById('delete-trip-btn').style.display = "none";
       }
-      currentTripId = event.extendedProps.id;
     }
   });
   window.fcInstance.render();
+}, 1);
 }
 
 // Вызови refreshCalendar() после загрузки trips (и при каждом изменении trips)
