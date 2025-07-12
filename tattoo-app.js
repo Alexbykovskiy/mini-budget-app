@@ -1082,6 +1082,7 @@ setTimeout(() => {
     height: 'auto',
     headerToolbar: { left: 'title', center: '', right: 'today prev,next' },
     locale: 'ru',
+firstDay: 1,
     eventClick: function(info) {
       const event = info.event;
       const studioName = event.title;

@@ -806,3 +806,19 @@ textarea {
  position: relative;
   z-index: 1;
 }
+
+/* Стили для дней недели в шапке FullCalendar */
+.fc .fc-col-header-cell {
+  background: transparent !important;  для полной прозрачности */
+  color: #fff !important;
+  font-weight: 500;
+  font-size: 16px;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Убрать любые бордеры, если есть */
+.fc-theme-standard th, .fc-theme-standard .fc-scrollgrid {
+  border: none !important;
+  box-shadow: none !important;
+}
