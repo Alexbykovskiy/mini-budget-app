@@ -616,48 +616,6 @@ async function addTripByDates() {
       created: new Date().toISOString()
     });
   }
-// Обрезаем все куски дефолт-студии, которые пересекаются с новым guest spot
-const newPriority = getStudioPriority(studio);
-for (const ev of trips) {
-  if (
-    !(ev.end <= dateFrom || ev.start >= addDays(dateTo, 1)) // Есть пересечение дат
-    && ev.title !== studio.name // Не совпадает имя студии
-  ) {
-    const otherStudio = studios.find(s => s.name === ev.title);
-    if (otherStudio && getStudioPriority(otherStudio) < newPriority) {
-      // Полное перекрытие — удалить event
-      if (dateFrom <= ev.start && addDays(dateTo,1) >= ev.end) {
-        await db.collection('trips').doc(ev.id).delete();
-      } else {
-        // Частичное перекрытие: обрезаем слева и/или справа
-if (dateFrom > ev.start && dateFrom < ev.end) {
-  await db.collection('trips').add({
-    studio: ev.title,
-    title: ev.title,
-    color: ev.color,
-    start: ev.start,
-    end: dateFrom,
-    isDefaultCover: !!ev.isDefaultCover,
-    created: ev.created || new Date().toISOString()
-  });
-}
-if (addDays(dateTo,1) > ev.start && addDays(dateTo,1) < ev.end) {
-  await db.collection('trips').add({
-    studio: ev.title,
-    title: ev.title,
-    color: ev.color,
-    start: addDays(dateTo, 1),    // ← ПРАВИЛЬНО! Начало нового правого куска
-    end: ev.end,                  // ← ПРАВИЛЬНО! Конец куска совпадает с концом исходного
-    isDefaultCover: !!ev.isDefaultCover,
-    created: ev.created || new Date().toISOString()
-  });
-}
-
-        await db.collection('trips').doc(ev.id).delete();
-      }
-    }
-  }
-}
   // Обновить календарь
   if (window.fcInstance) {
     await loadTrips();
@@ -699,12 +657,13 @@ async function deleteTripById() {
     await mergeDefaultCover(start, end);
   }
 
-  // После удаления обновить календарь
+  // === Вот тут обновление календаря! ===
   if (window.fcInstance) {
     await loadTrips();
     window.fcInstance.removeAllEvents();
     trips.forEach(event => window.fcInstance.addEvent(event));
   }
+
   // Очистить всё
   document.getElementById('trip-date-from').value = '';
   document.getElementById('trip-date-to').value = '';
