@@ -1079,7 +1079,7 @@ setTimeout(() => {
     initialView: 'dayGridMonth',
     selectable: true,
     events: trips,
-    height: 410,
+    height: 'auto',
     headerToolbar: { left: 'title', center: '', right: 'today prev,next' },
     locale: 'ru',
     eventClick: function(info) {
