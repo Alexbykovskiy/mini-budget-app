@@ -166,67 +166,7 @@ function updateCalendarInputsVisibility() {
 }
 
 
-async function showCalendar() {
-  document.getElementById('calendar-modal').style.display = 'flex';
-  renderStudioSelect();
-updateCalendarInputsVisibility();
-  await loadTrips();
-
-// Добавь это!
-  const fillBtn = document.getElementById('fill-default-cover-btn');
-  const defaultStudioIdx = studios.findIndex(s => s.isDefault);
-  fillBtn.style.display = defaultStudioIdx >= 0 ? "" : "none";
-  fillBtn.onclick = fillDefaultCoverGaps;
-
-  // Если календарь уже был — уничтожить его перед созданием заново!
-  if (window.fcInstance) {
-    window.fcInstance.destroy();
-    window.fcInstance = null;
-  }
-
-setTimeout(() => {
-  window.fcInstance = new FullCalendar.Calendar(document.getElementById('calendar'), {
-    initialView: 'dayGridMonth',
-    selectable: true,
-    events: trips,
-    height: 410,
-    headerToolbar: { left: 'title', center: '', right: 'today prev,next' },
-    locale: 'ru',
-    eventClick: function(info) {
-      const event = info.event;
-      const studioName = event.title;
-      const startDate = event.startStr.slice(0, 10);
-      const endDate = event.endStr
-        ? (new Date(+event.end - 24 * 3600 * 1000)).toISOString().slice(0, 10)
-        : startDate;
-      const studioIdx = studios.findIndex(s => s.name === studioName);
-      document.getElementById('studio-select').value = studioIdx;
-
-      // Обновить видимость!
-      updateCalendarInputsVisibility();
-
-      const studio = studios[studioIdx];
-      if (studio && !studio.isDefault) {
-        document.getElementById('trip-date-from').value = startDate;
-        document.getElementById('trip-date-to').value = endDate;
-        document.getElementById('delete-trip-btn').style.display = "";
-        currentTripId = event.extendedProps.id;
-      } else {
-        // Для дефолт-студии сбрасываем id и прячем кнопку удаления
-        currentTripId = null;
-        document.getElementById('delete-trip-btn').style.display = "none";
-      }
-    }
-  });
-  window.fcInstance.render();
-}, 1);
-}
-
-  function closeCalendar() {
-  document.getElementById('calendar-modal').style.display = 'none';
-  if (window.fcInstance) window.fcInstance.destroy(), window.fcInstance = null;
-}
-function renderStudioSelect() {
+ function renderStudioSelect() {
   const sel = document.getElementById('studio-select');
   sel.innerHTML = '';
   studios.forEach((s, i) => {

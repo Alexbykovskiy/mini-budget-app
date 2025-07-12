@@ -111,68 +111,11 @@
 </section>
 
     
-     <div id="calendar-modal" class="modal" style="display:none;">
-  <div class="modal-content" style="max-width: 410px;">
-    <span class="close-modal" onclick="closeCalendar()">&times;</span>
-    <h2>Календарь поездок</h2>
-<div id="studios-guest-summary" class="studios-summary" style="margin-top:6px;"></div>
-<div id="studios-summary" class="studios-summary"></div>
-    <div style="margin-bottom:17px; display:flex; align-items:center; gap:14px;">
-      <select id="studio-select" style="flex:1"></select>
-      <!-- Круглая кнопка с карандашом для добавления/редактирования студии -->
-      <button type="button" class="round-btn dark" style="min-width:51px" onclick="showStudioModal()">
-        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 20h9" />
-          <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
-        </svg>
-      </button>
-    </div>
-<!-- Только для дефолт-студии: -->
-<div id="fill-cover-block" style="display:none;">
-  <button
-    id="fill-default-cover-btn"
-    class="round-btn orange"
-    style="gap:10px; align-items:center; margin-bottom:11px;"
-    title="Заполнить все свободные дни дефолт-студией">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="2" y="7" width="20" height="15" rx="3"/>
-      <path d="M2 7V5a3 3 0 0 1 3-3h14a3 3 0 0 1 3 3v2"/>
-    </svg>
-    <span style="font-size:15px;">Заполнить свободные дни</span>
-  </button>
-</div>
 
-<!-- Только для guest spot: -->
-<div id="dates-block" class="calendar-dates-row" style="display:flex;gap:12px;justify-content:center;margin-bottom:14px;">
-  <input type="date" id="trip-date-from" class="calendar-date-pill" placeholder="От">
-  <input type="date" id="trip-date-to" class="calendar-date-pill" placeholder="До">
-  <button type="button" class="round-btn orange" onclick="addTripByDates()" title="Добавить поездку">
-    <!-- Галочка -->
-    <svg width="25" height="25" viewBox="0 0 27 27" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="6,15 12,21 21,8"/>
-    </svg>
-  </button>
-  <button
-    type="button"
-    class="round-btn dark"
-    id="delete-trip-btn"
-    style="display:none;"
-    onclick="deleteTripById()"
-    title="Удалить поездку">
-    <!-- SVG корзина -->
-    <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="3 6 5 6 21 6"></polyline>
-      <path d="M19 6l-2 14H7L5 6"></path>
-      <path d="M10 11v6"></path>
-      <path d="M14 11v6"></path>
-      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
-    </svg>
-  </button>
-</div>
 
-    <div id="calendar"></div>
-  </div>
-</div>
+
+
+
 <div id="add-studio-modal" class="modal" style="display:none;">
   <div class="modal-content" style="max-width:330px">
     <span class="close-modal" onclick="closeAddStudioModal()">&times;</span>
@@ -232,28 +175,63 @@
   </div>
 </div>
 
-<footer class="block">
-  <div class="footer-btns">
-    <button onclick="showCalendar()" class="footer-btn">
-      <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="4" width="18" height="18" rx="4"></rect>
-        <line x1="16" y1="2" x2="16" y2="6"></line>
-        <line x1="8" y1="2" x2="8" y2="6"></line>
-        <line x1="3" y1="10" x2="21" y2="10"></line>
+<section class="block calendar-section">
+  <h2 style="margin-bottom:12px;">Календарь поездок</h2>
+
+  <div id="studios-guest-summary" class="studios-summary" style="margin-top:6px;"></div>
+  <div id="studios-summary" class="studios-summary"></div>
+
+  <div style="margin-bottom:17px; display:flex; align-items:center; gap:14px;">
+    <select id="studio-select" style="flex:1"></select>
+    <button type="button" class="round-btn dark" style="min-width:51px" onclick="showStudioModal()">
+      <!-- SVG карандаш -->
+      <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16.7 5.3l2 2c.4.4.4 1 0 1.4l-8.5 8.5c-.2.2-.4.3-.7.3H7v-2.5c0-.3.1-.5.3-.7l8.5-8.5a1 1 0 0 1 1.4 0z"/>
+        <path d="M13.5 7.5l3 3"/>
       </svg>
-      Календарь поездок
-    </button>
-    <button onclick="showSettings()" class="footer-btn">
-      <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"></circle>
-        <path d="M12 16v-4"></path>
-        <path d="M12 8h.01"></path>
-      </svg>
-      Настройки
     </button>
   </div>
-</footer>
 
+  <!-- Кнопка "Заполнить ковер" -->
+  <div id="fill-cover-block" style="display:none;">
+    <button
+      id="fill-default-cover-btn"
+      class="round-btn orange"
+      style="gap:10px; align-items:center; margin-bottom:11px;"
+      title="Заполнить все свободные дни дефолт-студией">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="7" width="20" height="15" rx="3"/>
+        <path d="M2 7V5a3 3 0 0 1 3-3h14a3 3 0 0 1 3 3v2"/>
+      </svg>
+      <span style="font-size:15px;">Заполнить свободные дни</span>
+    </button>
+  </div>
+
+  <!-- Поля дат и кнопки -->
+  <div id="dates-block" class="calendar-dates-row" style="display:flex;gap:12px;justify-content:center;margin-bottom:14px;">
+    <input type="date" id="trip-date-from" class="calendar-date-pill" placeholder="От">
+    <input type="date" id="trip-date-to" class="calendar-date-pill" placeholder="До">
+    <button type="button" class="round-btn orange" onclick="addTripByDates()" title="Добавить поездку">
+      <!-- SVG галочка -->
+      <svg width="25" height="25" viewBox="0 0 27 27" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6,15 12,21 21,8"/>
+      </svg>
+    </button>
+    <button type="button" class="round-btn dark" id="delete-trip-btn" style="display:none;" onclick="deleteTripById()" title="Удалить поездку">
+      <!-- SVG корзина -->
+      <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6l-2 14H7L5 6"></path>
+        <path d="M10 11v6"></path>
+        <path d="M14 11v6"></path>
+        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Сам календарь -->
+  <div id="calendar"></div>
+</section>
 
 
 
@@ -311,7 +289,7 @@
 <script src="tattoo-app.js"></script>
 
 <div id="calendar-toast"
-     style="display:none; position:fixed; left:50%; top:18%; transform:translate(-50%,0); z-index:9999; min-width:230px; max-width:80vw; background:rgba(32,37,43,0.93); color:#fff; font-size:1.14em; border-radius:16px; box-shadow:0 6px 32px rgba(0,0,0,0.14); padding:19px 26px; text-align:center; opacity:0; transition:opacity 0.27s;">
+     style="display:none; position:fixed; left:50%; top:18%; transform:translate(-50%,0); z-index:999999 !important; min-width:230px; max-width:80vw; background:rgba(32,37,43,0.93); color:#fff; font-size:1.14em; border-radius:16px; box-shadow:0 6px 32px rgba(0,0,0,0.14); padding:19px 26px; text-align:center; opacity:0; transition:opacity 0.27s;">
 </div>
 </body>
 </html>

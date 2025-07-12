@@ -735,3 +735,18 @@ textarea {
   box-shadow: 0 3px 16px #ffa35c33;
   opacity: 0.93;
 }
+
+.calendar-section {
+  margin-bottom: 32px;
+  max-width: 470px;
+  margin-left: auto;
+  margin-right: auto;
+  background: rgba(40,43,48,0.80);
+  border-radius: 18px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.09);
+  padding: 24px 12px 22px 12px;
+}
+#calendar {
+  min-height: 410px;
+  margin-bottom: 18px;
+}
