@@ -151,14 +151,6 @@ updateCalendarInputsVisibility();
     window.fcInstance = null;
   }
 
- setTimeout(() => {
-  window.fcInstance = new FullCalendar.Calendar(document.getElementById('calendar'), {
-    initialView: 'dayGridMonth',
-    selectable: true,
-    events: trips,
-    height: 410,
-    headerToolbar: { left: 'title', center: '', right: 'today prev,next' },
-    locale: 'ru',
 setTimeout(() => {
   window.fcInstance = new FullCalendar.Calendar(document.getElementById('calendar'), {
     initialView: 'dayGridMonth',
