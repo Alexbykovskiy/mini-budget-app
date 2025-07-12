@@ -210,24 +210,26 @@
   </div>
 
   <!-- Поля дат и кнопки -->
-  <div id="dates-block" class="calendar-dates-row" style="display:flex;gap:12px;justify-content:center;margin-bottom:14px;">
+  <div id="dates-block" class="calendar-dates-row" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+  <div class="inline-fields">
     <input type="date" id="trip-date-from" class="calendar-date-pill" placeholder="От">
     <input type="date" id="trip-date-to" class="calendar-date-pill" placeholder="До">
+  </div>
+  <div class="pill-row">
+    <button type="button" class="round-btn dark" id="delete-trip-btn" style="display:none;" onclick="deleteTripById()" title="Удалить поездку">
+      <!-- SVG крестик -->
+      <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- ... -->
+      </svg>
+    </button>
     <button type="button" class="round-btn orange" onclick="addTripByDates()" title="Добавить поездку">
+      <!-- SVG галочка -->
       <svg width="25" height="25" viewBox="0 0 27 27" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="6,15 12,21 21,8"/>
       </svg>
     </button>
-    <button type="button" class="round-btn dark" id="delete-trip-btn" style="display:none;" onclick="deleteTripById()" title="Удалить поездку">
-      <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="3 6 5 6 21 6"></polyline>
-        <path d="M19 6l-2 14H7L5 6"></path>
-        <path d="M10 11v6"></path>
-        <path d="M14 11v6"></path>
-        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
-      </svg>
-    </button>
   </div>
+</div>
 
   <!-- Сам календарь (FullCalendar) -->
   <div id="calendar"></div>

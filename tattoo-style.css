@@ -895,3 +895,8 @@ textarea {
 .fc-theme-standard td, .fc-theme-standard th, .fc-theme-standard .fc-scrollgrid {
   border-color: rgba(255,255,255,0.28) !important;
 }
+
+#dates-block .inline-fields input[type="date"] {
+  max-width: 150px;
+  min-width: 0;
+}
