@@ -250,6 +250,7 @@ async function addNewStudio() {
     await db.collection('studios').add({ name, color });
     await loadStudios();
     closeAddStudioModal();
+showCalendarToast('Студия добавлена!');
   }
 }
 async function loadTrips() {
@@ -479,6 +480,7 @@ if (studio) {
         await db.collection('studios').doc(studio.id).delete();
         await loadStudios();
         closeStudioModal();
+showCalendarToast('Студия удалена!');
       } catch(e) {
         alert('Ошибка при удалении студии: ' + e.message);
       }
@@ -615,6 +617,7 @@ if (window.fcInstance) {
 }
 
 closeStudioModal();        // Закрываем модалку уже после обновления календаря
+showCalendarToast('Студия изменена!');
 };
 async function addTripByDates() {
   const studioIdx = document.getElementById('studio-select').value;
@@ -703,6 +706,7 @@ for (const ev of trips) {
           isDefaultCover: !!ev.isDefaultCover,
           created: ev.created || new Date().toISOString()
         });
+showCalendarToast('Период добавлен!');
       }
       if (addDays(dateTo,1) > ev.start && addDays(dateTo,1) < ev.end) {
         await db.collection('trips').add({
@@ -729,7 +733,8 @@ for (const ev of trips) {
       start: dateFrom,
       end: addDays(dateTo, 1)
     });
-    currentTripId = null; // После обновления сбрасываем!
+    showCalendarToast('Период изменён!');
+currentTripId = null;
   } else {
     // Новая поездка
     await db.collection('trips').add({
@@ -774,6 +779,8 @@ async function deleteTripById() {
 
   // 2. Удаляем поездку
   await db.collection('trips').doc(currentTripId).delete();
+
+showCalendarToast('Период удалён!');
 
  
   // === Вот тут обновление календаря! ===
@@ -1104,6 +1111,20 @@ function addDays(dateStr, days) {
 }
 
 
+function showCalendarToast(msg) {
+  const toast = document.getElementById('calendar-toast');
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.style.display = '';
+  // Плавная анимация появления
+  setTimeout(() => toast.style.opacity = '1', 10);
+
+  // Скрыть через 3 секунды
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => toast.style.display = 'none', 350);
+  }, 3000);
+}
 
 
 window.addEventListener('DOMContentLoaded', () => {
