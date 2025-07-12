@@ -886,17 +886,13 @@ async function mergeDefaultCover(start, end) {
 
 // --- ЗАПОЛНИТЬ ВСЕ СВОБОДНЫЕ ДНИ КОВРОМ ДЕФОЛТ-СТУДИИ ---
 async function fillDefaultCoverGaps() {
-  // 1. Найти дефолтную студию
   const def = studios.find(s => s.isDefault);
   if (!def) return alert("Нет студии по умолчанию!");
 
-  // 2. Получить все поездки (все студии)
   await loadTrips();
 
-  // 3. Собрать все интервалы, уже занятые ЛЮБЫМИ студиями (без учёта isDefaultCover)
   const busyDays = new Set();
   for (const ev of trips) {
-    // Считаем только дни, не ковры дефолт-студии (isDefaultCover = true) — они позже!
     if (!ev.isDefaultCover) {
       let d = new Date(ev.start);
       const end = new Date(ev.end);
@@ -907,7 +903,6 @@ async function fillDefaultCoverGaps() {
     }
   }
 
-  // 4. Найти диапазон существующих событий
   let allDates = [];
   for (const ev of trips) {
     let d = new Date(ev.start);
@@ -917,12 +912,49 @@ async function fillDefaultCoverGaps() {
       d.setDate(d.getDate() + 1);
     }
   }
-  if (allDates.length === 0) return alert('Нет событий для расчёта диапазона!');
+  
+  if (allDates.length === 0) {
+    // Если событий нет — ковер на ближайший год с сегодня
+    let today = new Date();
+    let startStr = today.toISOString().slice(0,10);
+    let endDate = new Date(today);
+    endDate.setFullYear(endDate.getFullYear() + 1); // +1 год
+    let endStr = endDate.toISOString().slice(0,10);
+
+    // Удаляем старые ковры
+    const oldCovers = await db.collection('trips')
+      .where('studio', '==', def.name)
+      .where('isDefaultCover', '==', true)
+      .get();
+    const batch = db.batch();
+    oldCovers.forEach(doc => batch.delete(doc.ref));
+
+    // Создаём новый ковёр на год
+    const ref = db.collection('trips').doc();
+    batch.set(ref, {
+      studio: def.name,
+      color: def.color,
+      start: startStr,
+      end: endStr,
+      isDefaultCover: true,
+      created: new Date().toISOString()
+    });
+    await batch.commit();
+
+    await loadTrips();
+    if (window.fcInstance) {
+      window.fcInstance.removeAllEvents();
+      trips.forEach(event => window.fcInstance.addEvent(event));
+    }
+    alert("Ковёр дефолт-студии создан на ближайший год!");
+    return;
+  }
+
+  // ... остальная часть кода, как было ранее
   allDates.sort();
   let globalStart = allDates[0];
   let globalEnd = allDates[allDates.length - 1];
 
-  // 5. Собрать свободные интервалы между занятыми датами
   let intervals = [];
   let rangeStart = null;
 
@@ -940,10 +972,8 @@ async function fillDefaultCoverGaps() {
     }
     d.setDate(d.getDate() + 1);
   }
-  // Хвост
   if (rangeStart) intervals.push({ start: rangeStart, end: addDays(globalEnd,1) });
 
-  // 6. Удалить все старые ковры дефолт-студии
   const oldCovers = await db.collection('trips')
     .where('studio', '==', def.name)
     .where('isDefaultCover', '==', true)
@@ -951,7 +981,6 @@ async function fillDefaultCoverGaps() {
   const batch = db.batch();
   oldCovers.forEach(doc => batch.delete(doc.ref));
 
-  // 7. Создать ковры только для новых, действительно свободных интервалов
   for (const range of intervals) {
     if (range.start >= range.end) continue;
     const ref = db.collection('trips').doc();
@@ -966,16 +995,14 @@ async function fillDefaultCoverGaps() {
   }
   await batch.commit();
 
-  // 8. Перерисовать календарь
   await loadTrips();
   if (window.fcInstance) {
     window.fcInstance.removeAllEvents();
     trips.forEach(event => window.fcInstance.addEvent(event));
   }
 
-  alert("Все свободные дни заполнены дефолт-студией");
+  alert("Все свободные дни заполнены дефолт-студией без дублей!");
 }
-
 function addDays(dateStr, days) {
   const date = new Date(dateStr);
   date.setDate(date.getDate() + days);
