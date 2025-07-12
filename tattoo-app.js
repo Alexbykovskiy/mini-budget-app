@@ -1069,33 +1069,40 @@ function showCalendarToast(msg) {
 // Глобальная переменная для календаря
 window.fcInstance = null;
 
-window.fcInstance = new FullCalendar.Calendar(document.getElementById('calendar'), {
-  initialView: 'dayGridMonth',
-  fixedWeekCount: true, // ← чтобы всегда было 6 строк!
-  height: 'auto',       // ← пусть высота подстраивается сама
-  selectable: true,
-  events: trips,
-  headerToolbar: { left: 'title', center: '', right: 'today prev,next' },
-  locale: 'ru',
-  eventClick: function(info) {
-    const event = info.event;
-    const studioName = event.title;
-    const startDate = event.startStr.slice(0, 10);
-    const endDate = event.endStr
-      ? (new Date(+event.end - 24 * 3600 * 1000)).toISOString().slice(0, 10)
-      : startDate;
-    const studioIdx = studios.findIndex(s => s.name === studioName);
-    document.getElementById('studio-select').value = studioIdx;
-    updateCalendarInputsVisibility();
-    const studio = studios[studioIdx];
-    if (studio && !studio.isDefault) {
-      document.getElementById('trip-date-from').value = startDate;
-      document.getElementById('trip-date-to').value = endDate;
-      document.getElementById('delete-trip-btn').style.display = "";
-    }
-    currentTripId = event.extendedProps.id;
+function refreshCalendar() {
+  if (window.fcInstance) {
+    window.fcInstance.destroy();
+    window.fcInstance = null;
   }
-});
+  window.fcInstance = new FullCalendar.Calendar(document.getElementById('calendar'), {
+    initialView: 'dayGridMonth',
+    fixedWeekCount: true,
+    height: 'auto',
+    selectable: true,
+    events: trips,
+    headerToolbar: { left: 'title', center: '', right: 'today prev,next' },
+    locale: 'ru',
+    eventClick: function(info) {
+      const event = info.event;
+      const studioName = event.title;
+      const startDate = event.startStr.slice(0, 10);
+      const endDate = event.endStr
+        ? (new Date(+event.end - 24 * 3600 * 1000)).toISOString().slice(0, 10)
+        : startDate;
+      const studioIdx = studios.findIndex(s => s.name === studioName);
+      document.getElementById('studio-select').value = studioIdx;
+      updateCalendarInputsVisibility();
+      const studio = studios[studioIdx];
+      if (studio && !studio.isDefault) {
+        document.getElementById('trip-date-from').value = startDate;
+        document.getElementById('trip-date-to').value = endDate;
+        document.getElementById('delete-trip-btn').style.display = "";
+      }
+      currentTripId = event.extendedProps.id;
+    }
+  });
+  window.fcInstance.render();
+}
 
 // Вызови refreshCalendar() после загрузки trips (и при каждом изменении trips)
 async function loadTrips() {
