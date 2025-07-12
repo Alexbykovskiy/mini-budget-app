@@ -114,9 +114,29 @@ let trips = [];
 let currentTripId = null; // Для отслеживания, редактируем ли поездку
 let currentEdit = null; // {type: 'income'|'expense', id: '...'}
 
+function updateCalendarInputsVisibility() {
+  const select = document.getElementById('studio-select');
+  const idx = select ? select.value : null;
+  const studio = idx !== null && studios[idx] ? studios[idx] : null;
+  const isDefault = studio && studio.isDefault;
+
+  // Показываем нужный блок, скрываем ненужный
+  document.getElementById('fill-cover-block').style.display = isDefault ? '' : 'none';
+  document.getElementById('dates-block').style.display = isDefault ? 'none' : 'flex';
+
+  // Если выбрана дефолт-студия — очищаем даты и скрываем кнопку удаления поездки
+  if (isDefault) {
+    document.getElementById('trip-date-from').value = '';
+    document.getElementById('trip-date-to').value = '';
+    document.getElementById('delete-trip-btn').style.display = "none";
+  }
+}
+
+
 async function showCalendar() {
   document.getElementById('calendar-modal').style.display = 'flex';
   renderStudioSelect();
+updateCalendarInputsVisibility();
   await loadTrips();
 
 // Добавь это!
@@ -171,8 +191,12 @@ function renderStudioSelect() {
   studios.forEach((s, i) => {
     sel.innerHTML += `<option value="${i}" style="color:${s.color}">${s.name}</option>`;
   });
-}
-function showAddStudioModal() {
+
+  // --- Добавить обработчик и сразу вызвать обновление видимости полей ---
+  sel.removeEventListener('change', updateCalendarInputsVisibility); // чтобы не дублировать
+  sel.addEventListener('change', updateCalendarInputsVisibility);
+  updateCalendarInputsVisibility();
+}function showAddStudioModal() {
   document.getElementById('add-studio-modal').style.display = 'flex';
 }
 function closeAddStudioModal() {
@@ -1035,6 +1059,9 @@ function addDays(dateStr, days) {
   date.setDate(date.getDate() + days);
   return date.toISOString().split('T')[0];
 }
+
+
+
 
 window.addEventListener('DOMContentLoaded', () => {
   loadStudios();
