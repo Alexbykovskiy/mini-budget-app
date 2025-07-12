@@ -1132,6 +1132,7 @@ async function loadTrips() {
 window.addEventListener('DOMContentLoaded', () => {
   loadStudios();
   loadHistory();
+loadTrips();
 });
 
 
