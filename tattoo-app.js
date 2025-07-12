@@ -708,12 +708,7 @@ async function deleteTripById() {
   // 2. Удаляем поездку
   await db.collection('trips').doc(currentTripId).delete();
 
-  // 3. Если это НЕ дефолт-студия, восстанавливаем ковёр
-  const def = studios.find(s => s.isDefault);
-  if (def && def.name !== studioName && start && end) {
-    await mergeDefaultCover(start, end);
-  }
-
+ 
   // === Вот тут обновление календаря! ===
   if (window.fcInstance) {
     await loadTrips();
@@ -914,29 +909,6 @@ async function clipDefaultCover(start, end) {
       }
     });
   }
-}
-
-// Восстанавливает ковёр дефолт-студии при удалении поездки другой студии
-async function mergeDefaultCover(start, end) {
-  const def = studios.find(s => s.isDefault);
-  if (!def) return;
-  const partsSnap = await db.collection('trips')
-      .where('studio','==',def.name)
-      .where('isDefaultCover','==',true)
-      .orderBy('start').get();
-  let left = start, right = end, toDelete=[];
-  partsSnap.forEach(d=>{
-    const p = d.data();
-    if (p.end === start) { left = p.start; toDelete.push(d.id); }
-    if (p.start === end) { right = p.end;  toDelete.push(d.id); }
-  });
-  await db.runTransaction(async t=>{
-    toDelete.forEach(id=>t.delete(db.collection('trips').doc(id)));
-    t.set(db.collection('trips').doc(),{
-      studio:def.name,color:def.color,
-      start:left,end:right,isDefaultCover:true
-    });
-  });
 }
 
 // --- ЗАПОЛНИТЬ ВСЕ СВОБОДНЫЕ ДНИ КОВРОМ ДЕФОЛТ-СТУДИИ ---
