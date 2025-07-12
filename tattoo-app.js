@@ -19,10 +19,7 @@ async function loadStudios() {
   const snap = await db.collection('studios').get();
   snap.forEach(doc => studios.push({ id: doc.id, ...doc.data() }));
 
-  const def = studios.find(s => s.isDefault);
-  if (def) await ensureDefaultCover(def);
-
-  renderStudioOptions();
+   renderStudioOptions();
   renderStudioSelect?.();
   if (typeof renderStudioList === "function") renderStudioList();
 }
@@ -121,6 +118,12 @@ async function showCalendar() {
   document.getElementById('calendar-modal').style.display = 'flex';
   renderStudioSelect();
   await loadTrips();
+
+// Добавь это!
+  const fillBtn = document.getElementById('fill-default-cover-btn');
+  const defaultStudioIdx = studios.findIndex(s => s.isDefault);
+  fillBtn.style.display = defaultStudioIdx >= 0 ? "" : "none";
+  fillBtn.onclick = fillDefaultCoverGaps;
 
   // Если календарь уже был — уничтожить его перед созданием заново!
   if (window.fcInstance) {
@@ -826,23 +829,6 @@ async function deleteExpenseEdit() {
   }
 }
 
-// Создать дефолтный "ковёр" для студии по умолчанию, если его нет
-async function ensureDefaultCover(defStudio) {
-  const q = await db.collection('trips')
-  .where('studio','==', defStudio.name)
-  .where('isDefaultCover','==', true)
-  .limit(1).get();
-// Если ХОТЯ БЫ ОДИН trip с isDefaultCover уже есть — НЕ добавлять ковер
-if (!q.empty) return; // ← вот этот return добавь!
-await db.collection('trips').add({
-  studio: defStudio.name,
-  color : defStudio.color,
-  start : '1900-01-01',
-  end   : '2100-01-01',
-  isDefaultCover: true,
-  created: new Date().toISOString()
-});
-}
 
 // Обрезать ковёр дефолт-студии при добавлении новой поездки другой студии
 async function clipDefaultCover(start, end) {
@@ -898,6 +884,77 @@ async function mergeDefaultCover(start, end) {
   });
 }
 
+// --- ЗАПОЛНИТЬ ВСЕ СВОБОДНЫЕ ДНИ КОВРОМ ДЕФОЛТ-СТУДИИ ---
+async function fillDefaultCoverGaps() {
+  // 1. Найти дефолтную студию
+  const def = studios.find(s => s.isDefault);
+  if (!def) return alert("Нет студии по умолчанию!");
+
+  // 2. Получить все поездки
+  await loadTrips();
+
+  // 3. Собрать все интервалы, занятые не дефолт-студией
+  const busy = trips
+    .filter(ev => ev.title !== def.name)
+    .map(ev => ({
+      start: ev.start,
+      end: ev.end
+    }))
+    .sort((a, b) => a.start.localeCompare(b.start));
+
+  // 4. Определить весь рабочий диапазон календаря
+  let globalStart = '2000-01-01';
+  let globalEnd = '2100-01-01';
+  if (busy.length) {
+    globalStart = busy[0].start < globalStart ? busy[0].start : globalStart;
+    globalEnd = busy[busy.length-1].end > globalEnd ? busy[busy.length-1].end : globalEnd;
+  }
+
+  // 5. Найти свободные интервалы между занятыми
+  let intervals = [];
+  let lastEnd = globalStart;
+  for (const ev of busy) {
+    if (lastEnd < ev.start) {
+      intervals.push({ start: lastEnd, end: ev.start });
+    }
+    if (ev.end > lastEnd) lastEnd = ev.end;
+  }
+  if (lastEnd < globalEnd) {
+    intervals.push({ start: lastEnd, end: globalEnd });
+  }
+
+  // 6. Удалить старые ковры дефолт-студии (чтобы не было дублей)
+  const oldCovers = await db.collection('trips')
+    .where('studio', '==', def.name)
+    .where('isDefaultCover', '==', true)
+    .get();
+  const batch = db.batch();
+  oldCovers.forEach(doc => batch.delete(doc.ref));
+
+  // 7. Создать ковры для всех свободных интервалов
+  for (const range of intervals) {
+    if (range.start >= range.end) continue;
+    const ref = db.collection('trips').doc();
+    batch.set(ref, {
+      studio: def.name,
+      color: def.color,
+      start: range.start,
+      end: range.end,
+      isDefaultCover: true,
+      created: new Date().toISOString()
+    });
+  }
+  await batch.commit();
+
+  // 8. Перерисовать календарь
+  await loadTrips();
+  if (window.fcInstance) {
+    window.fcInstance.removeAllEvents();
+    trips.forEach(event => window.fcInstance.addEvent(event));
+  }
+
+  alert("Все свободные дни заполнены дефолт-студией!");
+}
 
 window.addEventListener('DOMContentLoaded', () => {
   loadStudios();
