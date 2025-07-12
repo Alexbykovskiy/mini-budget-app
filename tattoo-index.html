@@ -178,13 +178,15 @@
 <section class="block calendar-section">
   <h2 style="margin-bottom:12px;">Календарь поездок</h2>
 
-  <div id="studios-guest-summary" class="studios-summary" style="margin-top:6px;"></div>
-  <div id="studios-summary" class="studios-summary"></div>
+  <!-- Краткая сводка guest spot -->
+  <div id="studios-guest-summary" class="studios-summary" style="margin-bottom:6px;"></div>
+  <!-- Плашки-студии для быстрого выбора -->
+  <div id="studios-summary" class="studios-summary" style="margin-bottom:13px;"></div>
 
+  <!-- Строка выбора студии и кнопка “редактировать” -->
   <div style="margin-bottom:17px; display:flex; align-items:center; gap:14px;">
     <select id="studio-select" style="flex:1"></select>
     <button type="button" class="round-btn dark" style="min-width:51px" onclick="showStudioModal()">
-      <!-- SVG карандаш -->
       <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
         <path d="M16.7 5.3l2 2c.4.4.4 1 0 1.4l-8.5 8.5c-.2.2-.4.3-.7.3H7v-2.5c0-.3.1-.5.3-.7l8.5-8.5a1 1 0 0 1 1.4 0z"/>
         <path d="M13.5 7.5l3 3"/>
@@ -192,10 +194,9 @@
     </button>
   </div>
 
-  <!-- Кнопка "Заполнить ковер" -->
+  <!-- Кнопка “Заполнить ковер” для дефолт-студии -->
   <div id="fill-cover-block" style="display:none;">
-    <button
-      id="fill-default-cover-btn"
+    <button id="fill-default-cover-btn"
       class="round-btn orange"
       style="gap:10px; align-items:center; margin-bottom:11px;"
       title="Заполнить все свободные дни дефолт-студией">
@@ -212,13 +213,11 @@
     <input type="date" id="trip-date-from" class="calendar-date-pill" placeholder="От">
     <input type="date" id="trip-date-to" class="calendar-date-pill" placeholder="До">
     <button type="button" class="round-btn orange" onclick="addTripByDates()" title="Добавить поездку">
-      <!-- SVG галочка -->
       <svg width="25" height="25" viewBox="0 0 27 27" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="6,15 12,21 21,8"/>
       </svg>
     </button>
     <button type="button" class="round-btn dark" id="delete-trip-btn" style="display:none;" onclick="deleteTripById()" title="Удалить поездку">
-      <!-- SVG корзина -->
       <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="3 6 5 6 21 6"></polyline>
         <path d="M19 6l-2 14H7L5 6"></path>
@@ -229,10 +228,9 @@
     </button>
   </div>
 
-  <!-- Сам календарь -->
+  <!-- Сам календарь (FullCalendar) -->
   <div id="calendar"></div>
 </section>
-
 
 
 <section class="block history-section">

@@ -1066,6 +1066,68 @@ function showCalendarToast(msg) {
   }, 3000);
 }
 
+// Глобальная переменная для календаря
+window.fcInstance = null;
+
+async function refreshCalendar() {
+  if (window.fcInstance) {
+    window.fcInstance.destroy();
+    window.fcInstance = null;
+  }
+
+  window.fcInstance = new FullCalendar.Calendar(document.getElementById('calendar'), {
+    initialView: 'dayGridMonth',
+    selectable: true,
+    events: trips,
+    height: 410,
+    headerToolbar: { left: 'title', center: '', right: 'today prev,next' },
+    locale: 'ru',
+    eventClick: function(info) {
+      const event = info.event;
+      const studioName = event.title;
+      const startDate = event.startStr.slice(0, 10);
+      // End в календаре эксклюзивно: вычесть 1 день!
+      const endDate = event.endStr
+        ? (new Date(+event.end - 24 * 3600 * 1000)).toISOString().slice(0, 10)
+        : startDate;
+      // Найти студию по имени
+      const studioIdx = studios.findIndex(s => s.name === studioName);
+      document.getElementById('studio-select').value = studioIdx;
+      updateCalendarInputsVisibility();
+      const studio = studios[studioIdx];
+      if (studio && !studio.isDefault) {
+        document.getElementById('trip-date-from').value = startDate;
+        document.getElementById('trip-date-to').value = endDate;
+        document.getElementById('delete-trip-btn').style.display = "";
+      }
+      currentTripId = event.extendedProps.id;
+    }
+  });
+  window.fcInstance.render();
+}
+
+// Вызови refreshCalendar() после загрузки trips (и при каждом изменении trips)
+async function loadTrips() {
+  trips = [];
+  const snap = await db.collection('trips').get();
+  snap.forEach(doc => {
+    const data = doc.data();
+    trips.push({
+      id: doc.id,
+      title: data.studio,
+      start: data.start,
+      end: data.end,
+      color: data.color,
+      isDefaultCover: !!data.isDefaultCover,
+      extendedProps: { id: doc.id }
+    });
+  });
+
+  renderStudiosSummary();
+  renderGuestSpotsSummary();
+  refreshCalendar(); // <-- ДОБАВЬ В КОНЦЕ
+}
+
 
 window.addEventListener('DOMContentLoaded', () => {
   loadStudios();
