@@ -225,13 +225,15 @@ async function loadTrips() {
   snap.forEach(doc => {
     const data = doc.data();
     trips.push({
-      id: doc.id,
-      title: data.studio,
-      start: data.start,
-      end: data.end,
-      color: data.color,
-      extendedProps: { id: doc.id } // <-- это обязательно для идентификации!
-    });
+  id: doc.id,
+  title: data.studio,
+  start: data.start,
+  end: data.end,
+  color: data.color,
+  isDefaultCover: !!data.isDefaultCover,   // <-- ДОБАВЬ ЭТО!
+  extendedProps: { id: doc.id }
+});
+
   });
 }
 
