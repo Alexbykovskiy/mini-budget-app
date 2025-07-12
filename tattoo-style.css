@@ -807,18 +807,60 @@ textarea {
   z-index: 1;
 }
 
-/* Стили для дней недели в шапке FullCalendar */
-.fc .fc-col-header-cell {
-  background: transparent !important;  для полной прозрачности */
-  color: #fff !important;
-  font-weight: 500;
-  font-size: 16px;
-  border: none !important;
-  box-shadow: none !important;
+/* 1. Левая граница */
+.fc-theme-standard .fc-scrollgrid,
+.fc-theme-standard td, .fc-theme-standard th {
+  border-left: 1px solid rgba(255,255,255,0.16) !important;
+}
+.fc-theme-standard .fc-scrollgrid thead {
+  border-top: none !important;
 }
 
-/* Убрать любые бордеры, если есть */
-.fc-theme-standard th, .fc-theme-standard .fc-scrollgrid {
-  border: none !important;
-  box-shadow: none !important;
+/* 2. Вне месяца — прозрачный */
+.fc-day-other {
+  background: transparent !important;
+  color: #888 !important;
+  opacity: 0.62 !important;
+}
+
+/* 3. Квадратные и компактные ячейки */
+.fc .fc-daygrid-day-frame {
+  min-height: 48px;
+  height: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 2px 2px 0 2px;
+}
+.fc .fc-daygrid-day-top {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 0;
+  color: #fff;
+}
+.fc .fc-daygrid-day-events {
+  width: 100%;
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5px;
+  margin-top: 2px;
+}
+.fc-event {
+  font-size: 13px !important;
+  padding: 0 2px !important;
+  border-radius: 6px !important;
+  min-height: 17px;
+  max-width: 99%;
+  margin: 0 !important;
+}
+
+#calendar {
+  padding: 0;
+  margin: 0;
 }
