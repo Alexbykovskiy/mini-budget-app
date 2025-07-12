@@ -552,63 +552,51 @@ async function addTripByDates() {
   const studio = studios[studioIdx];
   const dateFrom = document.getElementById('trip-date-from').value;
   const dateTo = document.getElementById('trip-date-to').value;
-  if (!studio || !dateFrom || !dateTo) {
-    alert('Выберите студию и обе даты!');
-    return;
-  }
+  // ... валидация и проверка пересечений (оставляй как было)
 
-  // Проверяем, нет ли пересечений с другими guest spot-студиями (не дефолт)
-  const from = new Date(dateFrom);
-  const to = new Date(dateTo);
-  to.setHours(23,59,59,999); // чтобы включительно
-
-  // Собираем все поездки кроме дефолт-студии
-  const busyRanges = trips.filter(ev =>
-    ev.title !== studio.name && // не эта же студия
-    (!studios.find(s => s.name === ev.title)?.isDefault) // не дефолт-студия
-  );
-
-  // Перебираем, ищем пересечения
-  let overlapDates = [];
-  for (const ev of busyRanges) {
-    // Диапазон существующей поездки
-    let d1 = new Date(ev.start);
-    let d2 = new Date(ev.end);
-    d2.setDate(d2.getDate() - 1); // включительно
-
-    // Если диапазоны пересекаются
-    if (from <= d2 && to >= d1) {
-      // Собираем даты пересечения
-      let cur = new Date(Math.max(d1, from));
-      let until = new Date(Math.min(d2, to));
-      while (cur <= until) {
-        overlapDates.push(cur.toISOString().slice(0,10));
-        cur.setDate(cur.getDate() + 1);
+  // --- СНАЧАЛА ОБРЕЗАЕМ ДЕФОЛТ-КОВЁР! ---
+  const newPriority = getStudioPriority(studio);
+  for (const ev of trips) {
+    if (
+      !(ev.end <= dateFrom || ev.start >= addDays(dateTo, 1)) // Есть пересечение дат
+      && ev.title !== studio.name // Не совпадает имя студии
+    ) {
+      const otherStudio = studios.find(s => s.name === ev.title);
+      if (otherStudio && getStudioPriority(otherStudio) < newPriority) {
+        // Полное перекрытие — удалить event
+        if (dateFrom <= ev.start && addDays(dateTo,1) >= ev.end) {
+          await db.collection('trips').doc(ev.id).delete();
+        } else {
+          // Частичное перекрытие: обрезаем слева и/или справа
+          if (dateFrom > ev.start && dateFrom < ev.end) {
+            await db.collection('trips').add({
+              studio: ev.title,
+              title: ev.title,
+              color: ev.color,
+              start: ev.start,
+              end: dateFrom,
+              isDefaultCover: !!ev.isDefaultCover,
+              created: ev.created || new Date().toISOString()
+            });
+          }
+          if (addDays(dateTo,1) > ev.start && addDays(dateTo,1) < ev.end) {
+            await db.collection('trips').add({
+              studio: ev.title,
+              title: ev.title,
+              color: ev.color,
+              start: addDays(dateTo, 1),
+              end: ev.end,
+              isDefaultCover: !!ev.isDefaultCover,
+              created: ev.created || new Date().toISOString()
+            });
+          }
+          await db.collection('trips').doc(ev.id).delete();
+        }
       }
     }
   }
 
-  if (overlapDates.length > 0) {
-    // Группируем по диапазонам для красоты
-    overlapDates.sort();
-    let ranges = [];
-    let rangeStart = overlapDates[0], prev = overlapDates[0];
-    for (let i = 1; i < overlapDates.length; i++) {
-      let curr = overlapDates[i];
-      let prevDate = new Date(prev);
-      prevDate.setDate(prevDate.getDate() + 1);
-      if (curr !== prevDate.toISOString().slice(0,10)) {
-        ranges.push(rangeStart === prev ? rangeStart : `${rangeStart} – ${prev}`);
-        rangeStart = curr;
-      }
-      prev = curr;
-    }
-    ranges.push(rangeStart === prev ? rangeStart : `${rangeStart} – ${prev}`);
-
-    alert('Выбранные даты пересекаются с уже добавленными поездками:\n' + ranges.join('\n') + '\nПроверьте диапазон!');
-    return;
-  }
-
+  // --- ТЕПЕРЬ ДОБАВЛЯЕМ НОВУЮ ПОЕЗДКУ ---
   if (currentTripId) {
     // Редактирование существующей поездки
     await db.collection('trips').doc(currentTripId).update({
@@ -628,7 +616,6 @@ async function addTripByDates() {
       created: new Date().toISOString()
     });
   }
-
 // Обрезаем все куски дефолт-студии, которые пересекаются с новым guest spot
 const newPriority = getStudioPriority(studio);
 for (const ev of trips) {
