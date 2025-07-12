@@ -890,40 +890,60 @@ async function fillDefaultCoverGaps() {
   const def = studios.find(s => s.isDefault);
   if (!def) return alert("Нет студии по умолчанию!");
 
-  // 2. Получить все поездки
+  // 2. Получить все поездки (все студии)
   await loadTrips();
 
-  // 3. Собрать все интервалы, занятые не дефолт-студией
-  const busy = trips
-    .filter(ev => ev.title !== def.name)
-    .map(ev => ({
-      start: ev.start,
-      end: ev.end
-    }))
-    .sort((a, b) => a.start.localeCompare(b.start));
-
-  // 4. Определить весь рабочий диапазон календаря
-  let globalStart = '2000-01-01';
-  let globalEnd = '2100-01-01';
-  if (busy.length) {
-    globalStart = busy[0].start < globalStart ? busy[0].start : globalStart;
-    globalEnd = busy[busy.length-1].end > globalEnd ? busy[busy.length-1].end : globalEnd;
-  }
-
-  // 5. Найти свободные интервалы между занятыми
-  let intervals = [];
-  let lastEnd = globalStart;
-  for (const ev of busy) {
-    if (lastEnd < ev.start) {
-      intervals.push({ start: lastEnd, end: ev.start });
+  // 3. Собрать все интервалы, уже занятые ЛЮБЫМИ студиями (без учёта isDefaultCover)
+  const busyDays = new Set();
+  for (const ev of trips) {
+    // Считаем только дни, не ковры дефолт-студии (isDefaultCover = true) — они позже!
+    if (!ev.isDefaultCover) {
+      let d = new Date(ev.start);
+      const end = new Date(ev.end);
+      while (d < end) {
+        busyDays.add(d.toISOString().slice(0,10));
+        d.setDate(d.getDate() + 1);
+      }
     }
-    if (ev.end > lastEnd) lastEnd = ev.end;
-  }
-  if (lastEnd < globalEnd) {
-    intervals.push({ start: lastEnd, end: globalEnd });
   }
 
-  // 6. Удалить старые ковры дефолт-студии (чтобы не было дублей)
+  // 4. Найти диапазон существующих событий
+  let allDates = [];
+  for (const ev of trips) {
+    let d = new Date(ev.start);
+    const end = new Date(ev.end);
+    while (d < end) {
+      allDates.push(d.toISOString().slice(0,10));
+      d.setDate(d.getDate() + 1);
+    }
+  }
+  if (allDates.length === 0) return alert('Нет событий для расчёта диапазона!');
+  allDates.sort();
+  let globalStart = allDates[0];
+  let globalEnd = allDates[allDates.length - 1];
+
+  // 5. Собрать свободные интервалы между занятыми датами
+  let intervals = [];
+  let rangeStart = null;
+
+  let d = new Date(globalStart);
+  const end = new Date(globalEnd);
+  while (d <= end) {
+    const dateStr = d.toISOString().slice(0,10);
+    if (!busyDays.has(dateStr)) {
+      if (!rangeStart) rangeStart = dateStr;
+    } else {
+      if (rangeStart) {
+        intervals.push({ start: rangeStart, end: dateStr });
+        rangeStart = null;
+      }
+    }
+    d.setDate(d.getDate() + 1);
+  }
+  // Хвост
+  if (rangeStart) intervals.push({ start: rangeStart, end: addDays(globalEnd,1) });
+
+  // 6. Удалить все старые ковры дефолт-студии
   const oldCovers = await db.collection('trips')
     .where('studio', '==', def.name)
     .where('isDefaultCover', '==', true)
@@ -931,7 +951,7 @@ async function fillDefaultCoverGaps() {
   const batch = db.batch();
   oldCovers.forEach(doc => batch.delete(doc.ref));
 
-  // 7. Создать ковры для всех свободных интервалов
+  // 7. Создать ковры только для новых, действительно свободных интервалов
   for (const range of intervals) {
     if (range.start >= range.end) continue;
     const ref = db.collection('trips').doc();
@@ -953,7 +973,13 @@ async function fillDefaultCoverGaps() {
     trips.forEach(event => window.fcInstance.addEvent(event));
   }
 
-  alert("Все свободные дни заполнены дефолт-студией!");
+  alert("Все свободные дни заполнены дефолт-студией");
+}
+
+function addDays(dateStr, days) {
+  const date = new Date(dateStr);
+  date.setDate(date.getDate() + days);
+  return date.toISOString().split('T')[0];
 }
 
 window.addEventListener('DOMContentLoaded', () => {
