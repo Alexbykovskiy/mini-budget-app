@@ -69,6 +69,39 @@ function renderStudiosSummary() {
   });
 }
 
+function renderGuestSpotsSummary() {
+  const summary = document.getElementById('studios-guest-summary');
+  if (!summary) return;
+
+  // Сегодня
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0,10);
+
+  // Только guest spot и только актуальные/будущие
+  let activeTrips = trips.filter(trip => {
+    const studio = studios.find(s => s.name === trip.title);
+    return studio && !studio.isDefault && !trip.isDefaultCover && trip.end > todayStr;
+  });
+
+  // Сортировка по старту
+  activeTrips.sort((a, b) => a.start.localeCompare(b.start));
+
+  // Формат дат
+  const fmt = d => {
+    const [y,m,dd] = d.split('-');
+    return `${dd}.${m}.${y}`;
+  };
+
+  if (!activeTrips.length) {
+    summary.innerHTML = `<div style="opacity:.5;text-align:center">Нет актуальных guest spot</div>`;
+    return;
+  }
+
+  summary.innerHTML = activeTrips.map(trip =>
+    `<div style="margin-bottom:3px;"><b>${trip.title}</b> <span style="opacity:.7;">${fmt(trip.start)} – ${fmt((new Date(+new Date(trip.end)-24*3600*1000)).toISOString().slice(0,10))}</span></div>`
+  ).join('');
+}
+
 async function addIncome() {
   const location = document.getElementById('income-location').value;
   const date = document.getElementById('income-date').value;
@@ -225,18 +258,20 @@ async function loadTrips() {
   snap.forEach(doc => {
     const data = doc.data();
     trips.push({
-  id: doc.id,
-  title: data.studio,
-  start: data.start,
-  end: data.end,
-  color: data.color,
-  isDefaultCover: !!data.isDefaultCover,   // <-- ДОБАВЬ ЭТО!
-  extendedProps: { id: doc.id }
-});
-
+      id: doc.id,
+      title: data.studio,
+      start: data.start,
+      end: data.end,
+      color: data.color,
+      isDefaultCover: !!data.isDefaultCover,
+      extendedProps: { id: doc.id }
+    });
   });
-}
 
+  // --- ДОБАВЬ ВОТ ЭТИ ДВЕ СТРОКИ В КОНЦЕ ---
+  renderStudiosSummary();
+  renderGuestSpotsSummary();
+}
 
 async function loadHistory() {
   const historyList = document.getElementById('history-list');
