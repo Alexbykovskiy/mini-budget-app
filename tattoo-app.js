@@ -1069,11 +1069,10 @@ function showCalendarToast(msg) {
 // Глобальная переменная для календаря
 window.fcInstance = null;
 
- window.fcInstance = new FullCalendar.Calendar(document.getElementById('calendar'), {
-  initialView: 'multiMonthYear',
-  multiMonthMaxColumns: 1, // ← по одному месяцу в строке
-  multiMonthMaxRows: 2,    // ← всего два месяца показываем одновременно
-  height: 'auto',
+window.fcInstance = new FullCalendar.Calendar(document.getElementById('calendar'), {
+  initialView: 'dayGridMonth',
+  fixedWeekCount: true, // ← чтобы всегда было 6 строк!
+  height: 'auto',       // ← пусть высота подстраивается сама
   selectable: true,
   events: trips,
   headerToolbar: { left: 'title', center: '', right: 'today prev,next' },
@@ -1097,7 +1096,6 @@ window.fcInstance = null;
     currentTripId = event.extendedProps.id;
   }
 });
-
 
 // Вызови refreshCalendar() после загрузки trips (и при каждом изменении trips)
 async function loadTrips() {
