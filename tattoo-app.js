@@ -652,46 +652,44 @@ if (overlapDates.length > 0) {
 }
 
   // --- СНАЧАЛА ОБРЕЗАЕМ ДЕФОЛТ-КОВЁР! ---
-  const newPriority = getStudioPriority(studio);
-  for (const ev of trips) {
-    if (
-      !(ev.end <= dateFrom || ev.start >= addDays(dateTo, 1)) // Есть пересечение дат
-      && ev.title !== studio.name // Не совпадает имя студии
-    ) {
-      const otherStudio = studios.find(s => s.name === ev.title);
-      if (otherStudio && getStudioPriority(otherStudio) < newPriority) {
-        // Полное перекрытие — удалить event
-        if (dateFrom <= ev.start && addDays(dateTo,1) >= ev.end) {
-          await db.collection('trips').doc(ev.id).delete();
-        } else {
-          // Частичное перекрытие: обрезаем слева и/или справа
-          if (dateFrom > ev.start && dateFrom < ev.end) {
-            await db.collection('trips').add({
-              studio: ev.title,
-              title: ev.title,
-              color: ev.color,
-              start: ev.start,
-              end: dateFrom,
-              isDefaultCover: !!ev.isDefaultCover,
-              created: ev.created || new Date().toISOString()
-            });
-          }
-          if (addDays(dateTo,1) > ev.start && addDays(dateTo,1) < ev.end) {
-            await db.collection('trips').add({
-              studio: ev.title,
-              title: ev.title,
-              color: ev.color,
-              start: addDays(dateTo, 1),
-              end: ev.end,
-              isDefaultCover: !!ev.isDefaultCover,
-              created: ev.created || new Date().toISOString()
-            });
-          }
-          await db.collection('trips').doc(ev.id).delete();
-        }
+  // Обрезаем только ковер дефолт-студии (isDefaultCover === true)
+for (const ev of trips) {
+  if (
+    !(ev.end <= dateFrom || ev.start >= addDays(dateTo, 1)) // Есть пересечение дат
+    && ev.title !== studio.name // Не совпадает имя студии
+    && ev.isDefaultCover // Только дефолт-ковер!
+  ) {
+    // Полное перекрытие — удалить event
+    if (dateFrom <= ev.start && addDays(dateTo,1) >= ev.end) {
+      await db.collection('trips').doc(ev.id).delete();
+    } else {
+      // Частичное перекрытие: обрезаем слева и/или справа
+      if (dateFrom > ev.start && dateFrom < ev.end) {
+        await db.collection('trips').add({
+          studio: ev.title,
+          title: ev.title,
+          color: ev.color,
+          start: ev.start,
+          end: dateFrom,
+          isDefaultCover: !!ev.isDefaultCover,
+          created: ev.created || new Date().toISOString()
+        });
       }
+      if (addDays(dateTo,1) > ev.start && addDays(dateTo,1) < ev.end) {
+        await db.collection('trips').add({
+          studio: ev.title,
+          title: ev.title,
+          color: ev.color,
+          start: addDays(dateTo, 1),
+          end: ev.end,
+          isDefaultCover: !!ev.isDefaultCover,
+          created: ev.created || new Date().toISOString()
+        });
+      }
+      await db.collection('trips').doc(ev.id).delete();
     }
   }
+}
 
   // --- ТЕПЕРЬ ДОБАВЛЯЕМ НОВУЮ ПОЕЗДКУ ---
   if (currentTripId) {
