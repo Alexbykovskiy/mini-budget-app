@@ -865,17 +865,16 @@ textarea {
   margin: 0;
 }
 
-/* Дни недели: прозрачный/дымчатый фон, чёрные буквы, скругление */
 .fc .fc-col-header-cell {
-  background: rgba(35,38,45,0.09) !important;
+  background: transparent !important;    /* ← главное изменение! */
   color: #111 !important;
   font-weight: 600;
   font-size: 15.5px;
-  border-radius: 9px 9px 0 0 !important;
+  border-radius: 12px 12px 0 0 !important;
   border: none !important;
   box-shadow: none !important;
-  padding-top: 4px !important;
-  padding-bottom: 4px !important;
+  padding-top: 7px !important;
+  padding-bottom: 7px !important;
   letter-spacing: 0.03em;
   transition: background 0.16s;
 }
