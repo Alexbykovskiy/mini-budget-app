@@ -864,3 +864,31 @@ textarea {
   padding: 0;
   margin: 0;
 }
+
+/* Дни недели: прозрачный/дымчатый фон, чёрные буквы, скругление */
+.fc .fc-col-header-cell {
+  background: rgba(35,38,45,0.09) !important;
+  color: #111 !important;
+  font-weight: 600;
+  font-size: 15.5px;
+  border-radius: 9px 9px 0 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+  letter-spacing: 0.03em;
+  transition: background 0.16s;
+}
+/* Более “пухлые” и скруглённые ячейки дней */
+.fc .fc-daygrid-day-frame {
+  min-height: 48px;
+  height: 48px;
+  border-radius: 10px !important;
+  background: rgba(35,38,45,0.07);
+  margin: 2px 1px 0 1px;
+  transition: background 0.15s, box-shadow 0.13s;
+}
+.fc .fc-daygrid-day-frame:hover {
+  background: rgba(255,255,255,0.10);
+  box-shadow: 0 2px 8px 0 rgba(255,255,255,0.07) inset;
+}
