@@ -1079,8 +1079,7 @@ setTimeout(() => {
     initialView: 'dayGridMonth',
     selectable: true,
     events: trips,
-    fixedWeekCount: true,      // ← всегда 6 недель
-    height: 'auto',            // ← высота подстраивается
+    height: 410,
     headerToolbar: { left: 'title', center: '', right: 'today prev,next' },
     locale: 'ru',
     eventClick: function(info) {
@@ -1093,6 +1092,7 @@ setTimeout(() => {
       const studioIdx = studios.findIndex(s => s.name === studioName);
       document.getElementById('studio-select').value = studioIdx;
 
+      // Обновить видимость!
       updateCalendarInputsVisibility();
 
       const studio = studios[studioIdx];
@@ -1102,6 +1102,7 @@ setTimeout(() => {
         document.getElementById('delete-trip-btn').style.display = "";
         currentTripId = event.extendedProps.id;
       } else {
+        // Для дефолт-студии сбрасываем id и прячем кнопку удаления
         currentTripId = null;
         document.getElementById('delete-trip-btn').style.display = "none";
       }
@@ -1109,6 +1110,7 @@ setTimeout(() => {
   });
   window.fcInstance.render();
 }, 1);
+}
 
 // Вызови refreshCalendar() после загрузки trips (и при каждом изменении trips)
 async function loadTrips() {
