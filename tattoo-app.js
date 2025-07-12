@@ -555,56 +555,61 @@ async function addTripByDates() {
   // ... валидация и проверка пересечений (оставляй как было)
 
 // Проверяем, нет ли пересечений с другими guest spot-студиями (не дефолт)
-  const from = new Date(dateFrom);
-  const to = new Date(dateTo);
-  to.setHours(23,59,59,999); // чтобы включительно
+const from = new Date(dateFrom);
+const to = new Date(dateTo);
+to.setHours(23,59,59,999); // чтобы включительно
 
-  // Собираем все поездки кроме дефолт-студии
-  const busyRanges = trips.filter(ev =>
-    ev.title !== studio.name && // не эта же студия
-    (!studios.find(s => s.name === ev.title)?.isDefault) // не дефолт-студия
-  );
+const busyRanges = trips.filter(ev =>
+  ev.title !== studio.name &&
+  (!studios.find(s => s.name === ev.title)?.isDefault)
+);
 
-  // Перебираем, ищем пересечения
-  let overlapDates = [];
-  for (const ev of busyRanges) {
-    // Диапазон существующей поездки
-    let d1 = new Date(ev.start);
-    let d2 = new Date(ev.end);
-    d2.setDate(d2.getDate() - 1); // включительно
+let overlapDates = [];
+for (const ev of busyRanges) {
+  let d1 = new Date(ev.start);
+  let d2 = new Date(ev.end);
+  d2.setDate(d2.getDate() - 1); // включительно
 
-    // Если диапазоны пересекаются
-    if (from <= d2 && to >= d1) {
-      // Собираем даты пересечения
-      let cur = new Date(Math.max(d1, from));
-      let until = new Date(Math.min(d2, to));
-      while (cur <= until) {
-        overlapDates.push(cur.toISOString().slice(0,10));
-        cur.setDate(cur.getDate() + 1);
-      }
+  if (from <= d2 && to >= d1) {
+    let cur = new Date(Math.max(d1, from));
+    let until = new Date(Math.min(d2, to));
+    while (cur <= until) {
+      overlapDates.push(cur.toISOString().slice(0,10));
+      cur.setDate(cur.getDate() + 1);
     }
   }
+}
 
-  if (overlapDates.length > 0) {
-    // Группируем по диапазонам для красоты
-    overlapDates.sort();
-    let ranges = [];
-    let rangeStart = overlapDates[0], prev = overlapDates[0];
-    for (let i = 1; i < overlapDates.length; i++) {
-      let curr = overlapDates[i];
-      let prevDate = new Date(prev);
-      prevDate.setDate(prevDate.getDate() + 1);
-      if (curr !== prevDate.toISOString().slice(0,10)) {
-        ranges.push(rangeStart === prev ? rangeStart : `${rangeStart} – ${prev}`);
-        rangeStart = curr;
-      }
-      prev = curr;
+if (overlapDates.length > 0) {
+  // Группируем по диапазонам для красоты
+  overlapDates.sort();
+  let ranges = [];
+  let rangeStart = overlapDates[0], prev = overlapDates[0];
+  for (let i = 1; i < overlapDates.length; i++) {
+    let curr = overlapDates[i];
+    let prevDate = new Date(prev);
+    prevDate.setDate(prevDate.getDate() + 1);
+    if (curr !== prevDate.toISOString().slice(0,10)) {
+      ranges.push([rangeStart, prev]);
+      rangeStart = curr;
     }
-    ranges.push(rangeStart === prev ? rangeStart : `${rangeStart} – ${prev}`);
-
-    alert('Выбранные даты пересекаются с уже добавленными поездками:\n' + ranges.join('\n') + '\nПроверьте диапазон!');
-    return;
+    prev = curr;
   }
+  ranges.push([rangeStart, prev]);
+
+  // === Форматируем в дд.мм.гггг ===
+  function fmt(dateStr) {
+    const [y, m, d] = dateStr.split('-');
+    return `${d}.${m}.${y}`;
+  }
+  let message = ranges.map(([a, b]) => {
+    if (a === b) return fmt(a);
+    return fmt(a) + ' – ' + fmt(b);
+  }).join('\n');
+
+  alert('Выбранные даты пересекаются с уже добавленными поездками:\n' + message + '\nПроверьте диапазон!');
+  return;
+}
 
   // --- СНАЧАЛА ОБРЕЗАЕМ ДЕФОЛТ-КОВЁР! ---
   const newPriority = getStudioPriority(studio);
