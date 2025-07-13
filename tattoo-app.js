@@ -1135,6 +1135,19 @@ async function loadTrips() {
   refreshCalendar(); // <-- ДОБАВЬ В КОНЦЕ
 }
 
+function onTripDeleteOrReset() {
+  // Если редактируем существующий трип — удаляем его
+  if (currentTripId) {
+    deleteTripById();
+  } else {
+    // Просто сбросить поля ввода
+    document.getElementById('trip-date-from').value = '';
+    document.getElementById('trip-date-to').value = '';
+    currentTripId = null;
+    document.getElementById('delete-trip-btn').style.display = "none";
+    // Можно также обновить UI, если нужно
+  }
+}
 
 window.addEventListener('DOMContentLoaded', () => {
   loadStudios().then(() => {
