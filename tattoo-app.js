@@ -162,9 +162,11 @@ function updateCalendarInputsVisibility() {
     document.getElementById('trip-date-from').value = '';
     document.getElementById('trip-date-to').value = '';
     document.getElementById('delete-trip-btn').style.display = "none";
+  } else {
+    // ← Вот это важно! Показываем кнопку для guest spot-студии всегда
+    document.getElementById('delete-trip-btn').style.display = "";
   }
 }
-
 
  function renderStudioSelect() {
   const sel = document.getElementById('studio-select');
