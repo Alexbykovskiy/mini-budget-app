@@ -133,6 +133,7 @@ async function addIncome() {
 
     // Перезагружаем историю
     loadHistory();
+await updateStats();
   } catch (e) {
     alert('Ошибка при добавлении дохода: ' + e.message);
   }
@@ -373,6 +374,8 @@ async function addExpense() {
 
     // Перезагружаем историю
     loadHistory();
+await updateStats();
+
   } catch (e) {
     alert('Ошибка при добавлении расхода: ' + e.message);
   }
@@ -776,6 +779,8 @@ async function saveIncomeEdit() {
     currentEdit = null;
     document.querySelector('.form-section').classList.remove('editing');
     loadHistory();
+await updateStats();
+
   } catch (e) {
     alert('Ошибка при сохранении: ' + e.message);
   }
@@ -804,6 +809,8 @@ renderEditActions();
       }
     });
     loadHistory();
+await updateStats();
+
   } catch (e) {
     alert('Ошибка при сохранении: ' + e.message);
   }
@@ -871,6 +878,8 @@ async function deleteIncomeEdit() {
     document.querySelector('.form-section').classList.remove('editing');
     renderEditActions();
     loadHistory();
+await updateStats();
+
   } catch (e) {
     alert('Ошибка при удалении: ' + e.message);
   }
@@ -890,6 +899,8 @@ async function deleteExpenseEdit() {
     });
     renderEditActions();
     loadHistory();
+await updateStats();
+
   } catch (e) {
     alert('Ошибка при удалении: ' + e.message);
   }
@@ -1150,10 +1161,46 @@ function onTripDeleteOrReset() {
     // Можно также обновить UI, если нужно
   }
 }
+async function updateStats() {
+  // Получаем доходы и расходы
+  const [incomeSnap, expenseSnap] = await Promise.all([
+    db.collection('incomes').get(),
+    db.collection('expenses').get()
+  ]);
+
+  let totalIncome = 0;
+  let whiteIncome = 0;
+  let blackIncome = 0;
+  let totalExpenses = 0;
+
+  incomeSnap.forEach(doc => {
+    const d = doc.data();
+    totalIncome += Number(d.amount) || 0;
+    if (d.isInvoice) {
+      whiteIncome += Number(d.amount) || 0;
+    } else {
+      blackIncome += Number(d.amount) || 0;
+    }
+  });
+  expenseSnap.forEach(doc => {
+    const d = doc.data();
+    totalExpenses += Number(d.amount) || 0;
+  });
+
+  const netIncome = totalIncome - totalExpenses;
+
+  // Обновляем значения на странице
+  document.getElementById('total-income').textContent = totalIncome.toLocaleString() + ' €';
+  document.getElementById('white-income').textContent = whiteIncome.toLocaleString() + ' €';
+  document.getElementById('black-income').textContent = blackIncome.toLocaleString() + ' €';
+  document.getElementById('total-expenses').textContent = totalExpenses.toLocaleString() + ' €';
+  document.getElementById('net-income').textContent = netIncome.toLocaleString() + ' €';
+}
 
 window.addEventListener('DOMContentLoaded', () => {
   loadStudios().then(() => {
     loadHistory();
     loadTrips();
+updateStats(); // ← сюда
   });
 });
