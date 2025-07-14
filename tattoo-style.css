@@ -54,6 +54,7 @@ position: relative;
 }
 
 .history-col-sum {
+padding-left: 18px;
   flex: 0 0 88px;
   min-width: 78px;
   max-width: 110px;
@@ -67,9 +68,7 @@ position: relative;
   z-index: 2;
   background: none;
   position: relative;
-  /* Левая цветная полоска задается через псевдоэлемент выше */
-  border-right: 2px solid #ffa35c; /* Оранжевая линия */
-}
+  }
 
 .flex-history-threecol .history-col-main {
   flex: 2 1 0;
@@ -79,8 +78,7 @@ position: relative;
   gap: 3px;
   min-width: 0;
   padding: 14px 8px 14px 14px;
-  border-right: 2px solid #ffa35c; /* Вторая оранжевая линия */
-}
+ }
 
 .flex-history-threecol .history-col-actions {
   flex: 0 0 54px;
@@ -1002,6 +1000,7 @@ textarea {
 }
 
 .history-col-sum {
+padding-left: 18px;
   flex: 0 0 84px;
   min-width: 75px;
   max-width: 108px;
@@ -1039,15 +1038,15 @@ textarea {
   z-index: 2;
 }
 .edit-entry-btn-mini {
-  width: 33px; height: 33px;
-  background: rgba(255,255,255,0.11);
+  width: 40px;  /* побольше, если нужно */
+  height: 40px;
   border-radius: 50%;
+  background: rgba(255,255,255,0.10);
   border: none;
-  outline: none;
+  color: #ffa35c;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffa35c;
   cursor: pointer;
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.07);
   transition: background 0.14s, box-shadow 0.13s;
@@ -1056,8 +1055,8 @@ textarea {
   padding: 0;
 }
 .edit-entry-btn-mini svg {
-  width: 19px !important;
-  height: 19px !important;
+  width: 20px !important;
+  height: 20px !important;
   stroke: #ffa35c;
   display: block;
 }
@@ -1080,6 +1079,7 @@ textarea {
 }
 
 .history-col-sum {
+padding-left: 18px;
   flex: 0 0 88px;
   min-width: 78px;
   max-width: 110px;
@@ -1094,8 +1094,7 @@ textarea {
   background: none;
   position: relative;
   /* Левая цветная полоска задается через псевдоэлемент выше */
-  border-right: 2px solid #ffa35c; /* Оранжевая линия */
-}
+ }
 
 .flex-history-threecol .history-col-main {
   flex: 2 1 0;
@@ -1105,8 +1104,7 @@ textarea {
   gap: 3px;
   min-width: 0;
   padding: 14px 8px 14px 14px;
-  border-right: 2px solid #ffa35c; /* Вторая оранжевая линия */
-}
+ }
 
 .flex-history-threecol .history-col-actions {
   flex: 0 0 54px;
