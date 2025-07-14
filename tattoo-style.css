@@ -947,3 +947,73 @@ textarea {
 .history-category { color: #ffa35c; font-size: 14px; }
 .history-invoice { color: #ffa35c; font-weight: 500; margin-left: 4px; }
 
+.flex-history-card {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 18px;
+  background: rgba(80,60,20,0.07);
+  border-radius: 18px;
+  margin-bottom: 10px;
+  padding: 11px 18px 13px 15px;
+}
+
+.history-amount-big {
+  min-width: 70px;
+  max-width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(120deg,rgba(255,255,255,0.09) 10%,rgba(80,60,20,0.11) 100%);
+  border-radius: 15px;
+  font-size: 2.1em;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.09) inset;
+  margin-right: 0;
+  align-self: stretch;
+}
+.history-info-vertical {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+  padding-top: 1px;
+}
+.history-studio { font-weight: 500; font-size: 17px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+.history-date   { color: #bbb; font-size: 15px; }
+.history-category { color: #ffa35c; font-size: 15px; }
+.history-invoice { color: #ffa35c; font-weight: 500; margin-left: 4px; }
+
+.edit-entry-btn-mini {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  background: rgba(255,255,255,0.09);
+  border-radius: 50%;
+  border: none;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffa35c;
+  cursor: pointer;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.07);
+  transition: background 0.14s, box-shadow 0.13s;
+  z-index: 3;
+}
+.edit-entry-btn-mini svg {
+  display: block;
+  width: 21px !important;
+  height: 21px !important;
+  stroke: #ffa35c;
+}
+.edit-entry-btn-mini:hover,
+.edit-entry-btn-mini:focus {
+  background: rgba(255,200,110,0.17);
+  box-shadow: 0 0 0 2px #ffa35c33;
+}
