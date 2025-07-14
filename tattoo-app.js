@@ -262,38 +262,47 @@ function formatDateDMY(dateStr) {
   return `${parseInt(d, 10)} ${months[mm - 1]} ${y}`;
 }
 
- if (entry.type === 'income') {
-  historyList.innerHTML += `
-    <li class="history-entry flex-history-card">
-  <div class="history-amount-big">
-    <span>${entry.amount} €</span>
-  </div>
-  <div class="history-info-vertical">
-    <div class="history-studio">${entry.location || ''}${entry.isInvoice ? ' <span class="history-invoice">(Фактура)</span>' : ''}</div>
-    <div class="history-date">${formatDateDMY(entry.date)}</div>
-    <div class="history-category">${entry.workType || entry.expenseType || ''}</div>
-  </div>
-  <button class="edit-entry-btn-mini" data-type="${entry.type}" data-id="${entry.id}" title="Редактировать">
-    <svg width="20" height="20" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.7" fill="none"><path d="M14.7 3.8c.5-.5 1.3-.5 1.8 0s.5 1.3 0 1.8l-8.8 8.8-2.5.7.7-2.5 8.8-8.8z"/><path d="M12.3 6.2l1.5 1.5"/></svg>
-  </button>
-</li>
-  `;
-}
-else if (entry.type === 'expense') {
-  historyList.innerHTML += `
-    <li class="history-entry expense flex-row">
-      <div class="history-main">
-        <div class="history-studio">${entry.location || ''}</div>
-        <div class="history-date">${formatDateDMY(entry.date)}</div>
-        <div class="history-category">${entry.expenseType || ''}</div>
-      </div>
-      <div class="history-amount">
-        <span>${entry.amount} €</span>
-      </div>
-      <button class="edit-entry-btn" data-type="expense" data-id="${entry.id}">✎</button>
-    </li>
-  `;
-}
+historyList.innerHTML += `
+  <li class="history-entry flex-history-threecol ${income}">
+    <div class="history-col-sum">
+      <span>${entry.amount} €</span>
+    </div>
+    <div class="history-col-main">
+      <div class="history-studio">${entry.location || ''}${entry.isInvoice ? ' <span class="history-invoice">(Фактура)</span>' : ''}</div>
+      <div class="history-date">${formatDateDMY(entry.date)}</div>
+      <div class="history-category">${entry.workType || entry.expenseType || ''}</div>
+    </div>
+    <div class="history-col-actions">
+      <button class="edit-entry-btn-mini" data-type="${entry.type}" data-id="${entry.id}" title="Редактировать">
+        <svg width="20" height="20" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.7" fill="none">
+          <path d="M14.7 3.8c.5-.5 1.3-.5 1.8 0s.5 1.3 0 1.8l-8.8 8.8-2.5.7.7-2.5 8.8-8.8z"/>
+          <path d="M12.3 6.2l1.5 1.5"/>
+        </svg>
+      </button>
+    </div>
+  </li>
+`;
+
+historyList.innerHTML += `
+  <li class="history-entry flex-history-threecol ${expense}">
+    <div class="history-col-sum">
+      <span>${entry.amount} €</span>
+    </div>
+    <div class="history-col-main">
+      <div class="history-studio">${entry.location || ''}${entry.isInvoice ? ' <span class="history-invoice">(Фактура)</span>' : ''}</div>
+      <div class="history-date">${formatDateDMY(entry.date)}</div>
+      <div class="history-category">${entry.workType || entry.expenseType || ''}</div>
+    </div>
+    <div class="history-col-actions">
+      <button class="edit-entry-btn-mini" data-type="${entry.type}" data-id="${entry.id}" title="Редактировать">
+        <svg width="20" height="20" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.7" fill="none">
+          <path d="M14.7 3.8c.5-.5 1.3-.5 1.8 0s.5 1.3 0 1.8l-8.8 8.8-2.5.7.7-2.5 8.8-8.8z"/>
+          <path d="M12.3 6.2l1.5 1.5"/>
+        </svg>
+      </button>
+    </div>
+  </li>
+`;
 
     
 
