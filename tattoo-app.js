@@ -239,7 +239,7 @@ expenseSnap.forEach(doc => {
 });
 
     // Сортируем по дате (убывание)
-    allEntries.sort((a, b) => (b.created > a.created ? 1 : -1));
+    allEntries.sort((a, b) => b.date.localeCompare(a.date));
 
     if (allEntries.length === 0) {
       historyList.innerHTML = '<li style="color:#bbb">Нет записей</li>';
