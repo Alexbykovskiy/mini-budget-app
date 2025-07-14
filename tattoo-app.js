@@ -265,7 +265,7 @@ function formatDateDMY(dateStr) {
 historyList.innerHTML += `
   <li class="history-entry flex-history-threecol ${entry.type}">
     <div class="history-col-sum">
-      <span>${entry.amount} €</span>
+      <span>${entry.amount}</span>
     </div>
     <div class="history-col-main">
       <div class="history-studio">${entry.location || ''}</div>

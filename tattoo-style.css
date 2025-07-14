@@ -1137,16 +1137,16 @@ padding-left: 18px;
 }
 
 .history-col-sum {
+  font-size: 1.3em;      /* Было 2.1em, теперь поменьше */
+  font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  font-size: 2.1em;
-  font-weight: 700;
+  padding-left: 18px;
 }
-
 .history-col-sum span {
   white-space: nowrap;
   overflow: hidden;
@@ -1154,8 +1154,8 @@ padding-left: 18px;
   display: inline-block;
   max-width: 100%;
   font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
 }
-
 .history-invoice {
   color: #ffa35c;
   font-weight: 500;
