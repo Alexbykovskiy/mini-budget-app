@@ -268,7 +268,10 @@ historyList.innerHTML += `
       <span>${entry.amount} €</span>
     </div>
     <div class="history-col-main">
-      <div class="history-studio">${entry.location || ''}${entry.isInvoice ? ' <span class="history-invoice">(Фактура)</span>' : ''}</div>
+      <div class="history-studio">
+        ${entry.location || ''}
+        ${entry.isInvoice ? '<span class="history-invoice">(Фактура)</span>' : ''}
+      </div>
       <div class="history-date">${formatDateDMY(entry.date)}</div>
       <div class="history-category">${entry.workType || entry.expenseType || ''}</div>
     </div>
@@ -282,7 +285,6 @@ historyList.innerHTML += `
     </div>
   </li>
 `;
-
 // После рендера карточек истории:
 document.querySelectorAll('.edit-entry-btn').forEach(btn => {
   btn.addEventListener('click', async function() {
