@@ -268,11 +268,9 @@ historyList.innerHTML += `
       <span>${entry.amount} €</span>
     </div>
     <div class="history-col-main">
-      <div class="history-studio">
-        ${entry.location || ''}
-        ${entry.isInvoice ? '<span class="history-invoice">(Фактура)</span>' : ''}
-      </div>
-      <div class="history-date">${formatDateDMY(entry.date)}</div>
+      <div class="history-studio">${entry.location || ''}</div>
+${entry.isInvoice ? '<div class="history-invoice">(Фактура)</div>' : ''}
+<div class="history-date">${formatDateDMY(entry.date)}</div>
       <div class="history-category">${entry.workType || entry.expenseType || ''}</div>
     </div>
     <div class="history-col-actions">

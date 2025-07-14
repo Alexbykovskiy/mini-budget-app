@@ -1135,3 +1135,31 @@ padding-left: 18px;
 .history-studio {
   color: #fff !important;
 }
+
+.history-col-sum {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-size: 2.1em;
+  font-weight: 700;
+}
+
+.history-col-sum span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  max-width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+
+.history-invoice {
+  color: #ffa35c;
+  font-weight: 500;
+  font-size: 15px;
+  margin: 2px 0 2px 0;
+  white-space: nowrap;
+}
