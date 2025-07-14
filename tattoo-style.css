@@ -1137,7 +1137,7 @@ padding-left: 18px;
 }
 
 .history-col-sum {
-  font-size: 1.3em;      /* Было 2.1em, теперь поменьше */
+  font-size: 2.0em;      /* Было 2.1em, теперь поменьше */
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
@@ -1162,4 +1162,14 @@ padding-left: 18px;
   font-size: 15px;
   margin: 2px 0 2px 0;
   white-space: nowrap;
+}
+
+.history-category {
+  color: #ffa35c;
+  font-size: 13px;           /* меньше чем было */
+  white-space: nowrap;       /* не переносить строку */
+  overflow: hidden;
+  text-overflow: ellipsis;   /* если слишком длинно — троеточие */
+  max-width: 100%;
+  display: block;
 }
