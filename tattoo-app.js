@@ -249,16 +249,52 @@ expenseSnap.forEach(doc => {
     // Рендерим историю
     historyList.innerHTML = '';
     allEntries.forEach(entry => {
-      if (entry.type === 'income') {
+
+// --- Форматирование даты ---
+function formatDateDMY(dateStr) {
+  if (!dateStr) return '';
+  const months = [
+    'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+    'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+  ];
+  const [y, m, d] = dateStr.split('-');
+  const mm = parseInt(m, 10);
+  return `${parseInt(d, 10)} ${months[mm - 1]} ${y}`;
+}
+
+ if (entry.type === 'income') {
   historyList.innerHTML += `
-    <li class="history-entry income">
-      <div>Доход: <b>${entry.amount} €</b> ${entry.isInvoice ? '(Фактура)' : ''}</div>
-      <div>Студия: ${entry.location}</div>
-      <div>Дата: ${entry.date}</div>
-      <div>Тип: ${entry.workType}</div>
+    <li class="history-entry income flex-row">
+      <div class="history-main">
+        <div class="history-studio">${entry.location || ''}${entry.isInvoice ? ' <span class="history-invoice">(Фактура)</span>' : ''}</div>
+        <div class="history-date">${formatDateDMY(entry.date)}</div>
+        <div class="history-category">${entry.workType || ''}</div>
+      </div>
+      <div class="history-amount">
+        <span>${entry.amount} €</span>
+      </div>
       <button class="edit-entry-btn" data-type="income" data-id="${entry.id}">✎</button>
     </li>
   `;
+}
+else if (entry.type === 'expense') {
+  historyList.innerHTML += `
+    <li class="history-entry expense flex-row">
+      <div class="history-main">
+        <div class="history-studio">${entry.location || ''}</div>
+        <div class="history-date">${formatDateDMY(entry.date)}</div>
+        <div class="history-category">${entry.expenseType || ''}</div>
+      </div>
+      <div class="history-amount">
+        <span>${entry.amount} €</span>
+      </div>
+      <button class="edit-entry-btn" data-type="expense" data-id="${entry.id}">✎</button>
+    </li>
+  `;
+}
+
+    
+
 // После рендера карточек истории:
 document.querySelectorAll('.edit-entry-btn').forEach(btn => {
   btn.addEventListener('click', async function() {
@@ -328,17 +364,6 @@ if (type === 'income') {
 
 
 
-} else if (entry.type === 'expense') {
-  historyList.innerHTML += `
-    <li class="history-entry expense">
-      <div>Расход: <b>${entry.amount} €</b></div>
-      <div>Локация: ${entry.location}</div>
-      <div>Дата: ${entry.date}</div>
-      <div>Категория: ${entry.expenseType}</div>
-      <button class="edit-entry-btn" data-type="expense" data-id="${entry.id}">✎</button>
-    </li>
-  `;
-}
     });
   } catch (e) {
     historyList.innerHTML = `<li style="color:red">Ошибка загрузки истории: ${e.message}</li>`;

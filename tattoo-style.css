@@ -911,3 +911,39 @@ textarea {
   color: #fff;
   letter-spacing: 0.01em;
 }
+
+
+.history-entry.flex-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 8px 10px 10px;
+  gap: 10px;
+  border-radius: 16px;
+  margin-bottom: 6px;
+}
+.history-main {
+  flex: 1 1 70%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  font-size: 15px;
+}
+.history-amount {
+  flex: 0 0 auto;
+  font-size: 1.32em;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(80,60,20,0.07);
+  padding: 0 12px;
+  border-radius: 11px;
+  min-width: 78px;
+  text-align: right;
+  align-self: flex-start;
+}
+.history-studio { font-weight: 500; font-size: 16px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+.history-date   { color: #bbb; font-size: 14px; }
+.history-category { color: #ffa35c; font-size: 14px; }
+.history-invoice { color: #ffa35c; font-weight: 500; margin-left: 4px; }
+
