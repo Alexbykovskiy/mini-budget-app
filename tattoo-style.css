@@ -74,7 +74,7 @@ position: relative;
 .flex-history-threecol .history-col-main {
   flex: 2 1 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   gap: 3px;
   min-width: 0;
@@ -1119,3 +1119,17 @@ textarea {
   padding: 0 10px;
 }
 
+
+.history-entry,
+.flex-history-threecol {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch;
+  min-height: 82px;
+  background: rgba(20,24,25,0.82);
+  border-radius: 20px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 14px 0 rgba(0,0,0,0.11);
+  position: relative;
+}
