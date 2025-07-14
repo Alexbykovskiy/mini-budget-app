@@ -282,7 +282,6 @@ historyList.innerHTML += `
     </div>
   </li>
 `;
-    
 
 // После рендера карточек истории:
 document.querySelectorAll('.edit-entry-btn').forEach(btn => {
