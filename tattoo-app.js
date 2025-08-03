@@ -1098,6 +1098,12 @@ function showCalendarToast(msg) {
 // Глобальная переменная для календаря
 window.fcInstance = null;
 
+function subtractOneDay(dateStr) {
+  const date = new Date(dateStr);
+  date.setUTCDate(date.getUTCDate() - 1);
+  return date.toISOString().slice(0, 10);
+}
+
 function refreshCalendar() {
   if (window.fcInstance) {
     window.fcInstance.destroy();
@@ -1116,9 +1122,9 @@ firstDay: 1,
       const event = info.event;
       const studioName = event.title;
       const startDate = event.startStr.slice(0, 10);
-      const endDate = event.endStr
-        ? (new Date(+event.end - 24 * 3600 * 1000)).toISOString().slice(0, 10)
-        : startDate;
+    const endDate = event.endStr
+  ? subtractOneDay(event.endStr)
+  : startDate;
       const studioIdx = studios.findIndex(s => s.name === studioName);
       document.getElementById('studio-select').value = studioIdx;
 
