@@ -98,30 +98,33 @@ function renderGuestSpotsSummary() {
   }
 
   summary.innerHTML = activeTrips.map(trip => {
-    const studio = studios.find(s => s.name === trip.title);
-    // Правильная дата "до"
-    const dateTo = (new Date(+new Date(trip.end)-24*3600*1000)).toISOString().slice(0,10);
-    return `
-      <div class="guest-spot-row" style="
-        display:flex; align-items:center; margin-bottom:7px; border-radius:999px;
-        background:${studio?.color || '#8888'}; min-height:40px; font-size:16px;
-        font-weight:500; box-shadow:0 1px 6px #0002; overflow:hidden;">
-        <span style="
-          flex:2; min-width:0; padding:8px 14px 8px 17px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff;">
-          ${trip.title}
-        </span>
-        <span style="
-          flex:1; text-align:center; min-width:84px; color:#fff; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
-          ${fmt(trip.start)}
-        </span>
-        <span style="
-          flex:1; text-align:right; padding-right:17px; min-width:84px; color:#fff; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
-          ${fmt(dateTo)}
-        </span>
-      </div>
-    `;
-  }).join('');
-}
+  const studio = studios.find(s => s.name === trip.title);
+  const dateTo = (new Date(+new Date(trip.end)-24*3600*1000)).toISOString().slice(0,10);
+  return `
+    <div class="guest-spot-row" style="
+      display:flex; align-items:center; margin-bottom:7px; border-radius:999px;
+      background:${studio?.color || '#8888'}; min-height:40px; font-size:16px;
+      font-weight:500; box-shadow:0 1px 6px #0002; overflow:hidden;">
+      <span style="
+        flex:2; min-width:0; padding:8px 14px 8px 17px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff;">
+        ${trip.title}
+      </span>
+      <span style="
+        flex:1; text-align:center; min-width:84px; color:#fff; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
+        ${fmt(trip.start)}
+      </span>
+      <span style="
+        flex:0 0 23px; text-align:center; color:#fff; font-size:22px; line-height:1; font-weight:900; opacity:0.83;">
+        &bull;
+      </span>
+      <span style="
+        flex:1; text-align:right; padding-right:17px; min-width:84px; color:#fff; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
+        ${fmt(dateTo)}
+      </span>
+    </div>
+  `;
+}).join('');
+
 
 async function addIncome() {
   const location = document.getElementById('income-location').value;
