@@ -73,54 +73,87 @@ function renderGuestSpotsSummary() {
   const summary = document.getElementById('studios-guest-summary');
   if (!summary) return;
 
-  // Сегодня
-  const today = new Date();
-  const todayStr = today.toISOString().slice(0,10);
-
-  // Только guest spot и только актуальные/будущие
-  let activeTrips = trips.filter(trip => {
+  // Собираем все guest spot trips (НЕ дефолт, НЕ ковер)
+  let guestTrips = trips.filter(trip => {
     const studio = studios.find(s => s.name === trip.title);
-    return studio && !studio.isDefault && !trip.isDefaultCover && trip.end > todayStr;
+    return studio && !studio.isDefault && !trip.isDefaultCover;
   });
 
-  // Сортировка по старту
-  activeTrips.sort((a, b) => a.start.localeCompare(b.start));
+  if (!guestTrips.length) {
+    summary.innerHTML = `<div style="opacity:.5;text-align:center">Нет guest spot поездок</div>`;
+    return;
+  }
 
-  // Формат дат
+  // Сортируем по старту (старые выше)
+  guestTrips.sort((a, b) => a.start.localeCompare(b.start));
+
+  // Текущий день
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  // Находим индекс "текущей" (сегодня внутри trip)
+  let currentIdx = guestTrips.findIndex(trip => trip.start <= todayStr && todayStr < trip.end);
+
+  // Если нет текущей, ставим первый будущий (start > today), иначе последнюю прошедшую
+  if (currentIdx === -1) {
+    currentIdx = guestTrips.findIndex(trip => trip.start > todayStr);
+    if (currentIdx === -1) currentIdx = guestTrips.length - 1; // если только прошлые
+  }
+
+  // Подсчёт дат для форматирования
   const fmt = d => {
     const [y,m,dd] = d.split('-');
     return `${dd}.${m}.${y}`;
   };
 
-  if (!activeTrips.length) {
-    summary.innerHTML = `<div style="opacity:.5;text-align:center">Нет актуальных guest spot</div>`;
-    return;
-  }
+  summary.innerHTML = `
+    <div class="guest-spot-scrollbox" style="
+      max-height: 222px; overflow-y:auto; padding-right:3px;">
+      ${guestTrips.map((trip, i) => {
+        const studio = studios.find(s => s.name === trip.title);
+        const dateTo = (new Date(+new Date(trip.end)-24*3600*1000)).toISOString().slice(0,10);
+        // Если прошлая поездка (кончилась до сегодня) — делаем прозрачнее
+        const isPast = trip.end <= todayStr;
+        // Приглушение цвета: делаем overlay прозрачный или opacity
+        const rowStyle = `
+          display:flex; align-items:center; margin-bottom:7px; border-radius:999px;
+          background:${studio?.color || '#8888'};
+          min-height:40px; font-size:16px; font-weight:500; box-shadow:0 1px 6px #0002;
+          overflow:hidden; position:relative;${isPast ? ' opacity:0.55; filter:grayscale(0.22);' : ''}
+        `;
+        return `
+          <div class="guest-spot-row" style="${rowStyle}">
+            <span style="
+              flex:2; min-width:0; padding:8px 14px 8px 17px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff;">
+              ${trip.title}
+            </span>
+            <span style="
+              flex:1; text-align:center; min-width:84px; color:#fff; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
+              ${fmt(trip.start)}
+            </span>
+            <span style="
+              flex:0 0 23px; text-align:center; color:#fff; font-size:22px; line-height:1; font-weight:900; opacity:0.83;">
+              &bull;
+            </span>
+            <span style="
+              flex:1; text-align:right; padding-right:17px; min-width:84px; color:#fff; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
+              ${fmt(dateTo)}
+            </span>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
 
-  summary.innerHTML = activeTrips.map(trip => {
-    const studio = studios.find(s => s.name === trip.title);
-    // Правильная дата "до"
-    const dateTo = (new Date(+new Date(trip.end)-24*3600*1000)).toISOString().slice(0,10);
-    return `
-      <div class="guest-spot-row" style="
-        display:flex; align-items:center; margin-bottom:7px; border-radius:999px;
-        background:${studio?.color || '#8888'}; min-height:40px; font-size:16px;
-        font-weight:500; box-shadow:0 1px 6px #0002; overflow:hidden;">
-        <span style="
-          flex:2; min-width:0; padding:8px 14px 8px 17px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff;">
-          ${trip.title}
-        </span>
-        <span style="
-          flex:1; text-align:center; min-width:84px; color:#fff; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
-          ${fmt(trip.start)}
-        </span>
-        <span style="
-          flex:1; text-align:right; padding-right:17px; min-width:84px; color:#fff; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
-          ${fmt(dateTo)}
-        </span>
-      </div>
-    `;
-  }).join('');
+  // Скроллируем так, чтобы текущий trip был 2-м сверху (5 в окне)
+  setTimeout(() => {
+    const scrollBox = summary.querySelector('.guest-spot-scrollbox');
+    const rows = scrollBox?.querySelectorAll('.guest-spot-row');
+    if (!rows || !rows.length) return;
+    let toIdx = Math.max(0, currentIdx - 2);
+    if (toIdx > rows.length - 5) toIdx = Math.max(0, rows.length - 5);
+    const scrollToRow = rows[toIdx];
+    if (scrollToRow) scrollBox.scrollTop = scrollToRow.offsetTop;
+  }, 50);
 }
 
 async function addIncome() {
