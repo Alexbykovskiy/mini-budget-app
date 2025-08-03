@@ -84,22 +84,21 @@ function renderGuestSpotsSummary() {
     return;
   }
 
-  // Сортируем по старту (старые выше)
+  // Сортировка по старту (старые выше)
   guestTrips.sort((a, b) => a.start.localeCompare(b.start));
 
-  // Текущий день
+  // Сегодня
   const todayStr = new Date().toISOString().slice(0, 10);
 
-  // Находим индекс "текущей" (сегодня внутри trip)
+  // Найти "текущую" поездку (сегодня внутри диапазона)
   let currentIdx = guestTrips.findIndex(trip => trip.start <= todayStr && todayStr < trip.end);
-
-  // Если нет текущей, ставим первый будущий (start > today), иначе последнюю прошедшую
   if (currentIdx === -1) {
+    // Нет активной сегодня — ищем первый будущий
     currentIdx = guestTrips.findIndex(trip => trip.start > todayStr);
-    if (currentIdx === -1) currentIdx = guestTrips.length - 1; // если только прошлые
+    if (currentIdx === -1) currentIdx = guestTrips.length - 1; // если только прошедшие
   }
 
-  // Подсчёт дат для форматирования
+  // Формат дат
   const fmt = d => {
     const [y,m,dd] = d.split('-');
     return `${dd}.${m}.${y}`;
@@ -111,14 +110,12 @@ function renderGuestSpotsSummary() {
       ${guestTrips.map((trip, i) => {
         const studio = studios.find(s => s.name === trip.title);
         const dateTo = (new Date(+new Date(trip.end)-24*3600*1000)).toISOString().slice(0,10);
-        // Если прошлая поездка (кончилась до сегодня) — делаем прозрачнее
         const isPast = trip.end <= todayStr;
-        // Приглушение цвета: делаем overlay прозрачный или opacity
         const rowStyle = `
           display:flex; align-items:center; margin-bottom:7px; border-radius:999px;
           background:${studio?.color || '#8888'};
           min-height:40px; font-size:16px; font-weight:500; box-shadow:0 1px 6px #0002;
-          overflow:hidden; position:relative;${isPast ? ' opacity:0.55; filter:grayscale(0.22);' : ''}
+          overflow:hidden; position:relative;${isPast ? ' opacity:0.54; filter:grayscale(0.22);' : ''}
         `;
         return `
           <div class="guest-spot-row" style="${rowStyle}">
@@ -131,7 +128,7 @@ function renderGuestSpotsSummary() {
               ${fmt(trip.start)}
             </span>
             <span style="
-              flex:0 0 23px; text-align:center; color:#fff; font-size:22px; line-height:1; font-weight:900; opacity:0.83;">
+              flex:0 0 23px; text-align:center; color:#fff; font-size:22px; line-height:1; font-weight:900; opacity:0.91;">
               &bull;
             </span>
             <span style="
@@ -144,7 +141,7 @@ function renderGuestSpotsSummary() {
     </div>
   `;
 
-  // Скроллируем так, чтобы текущий trip был 2-м сверху (5 в окне)
+  // Скролл: показывать "текущий" (или ближайший будущий) посередине блока
   setTimeout(() => {
     const scrollBox = summary.querySelector('.guest-spot-scrollbox');
     const rows = scrollBox?.querySelectorAll('.guest-spot-row');
@@ -153,7 +150,7 @@ function renderGuestSpotsSummary() {
     if (toIdx > rows.length - 5) toIdx = Math.max(0, rows.length - 5);
     const scrollToRow = rows[toIdx];
     if (scrollToRow) scrollBox.scrollTop = scrollToRow.offsetTop;
-  }, 50);
+  }, 60);
 }
 
 async function addIncome() {
