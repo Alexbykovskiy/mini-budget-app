@@ -841,8 +841,9 @@ function clearIncomeForm() {
   document.getElementById('income-amount').value = '';
   document.getElementById('work-type').value = '';
   document.getElementById('is-invoice').checked = false;
+  setDefaultDateInputs();
+  setDefaultStudioInputs();
 }
-
 function cancelExpense() {
   clearExpenseForm();
   currentEdit = null;
@@ -858,6 +859,8 @@ function clearExpenseForm() {
   document.getElementById('expense-date').value = '';
   document.getElementById('expense-amount').value = '';
   document.getElementById('expense-type').value = '';
+  setDefaultDateInputs();
+  setDefaultStudioInputs();
 }
 
 function renderEditActions() {
@@ -1161,6 +1164,67 @@ async function loadTrips() {
   refreshCalendar(); // <-- ДОБАВЬ В КОНЦЕ
 }
 
+function setDefaultDateInputs() {
+  const today = new Date().toISOString().slice(0, 10);
+  if (document.getElementById('income-date')) {
+    document.getElementById('income-date').value = today;
+  }
+  if (document.getElementById('expense-date')) {
+    document.getElementById('expense-date').value = today;
+  }
+}
+
+function findActiveStudio(dateStr) {
+  // 1. Сначала ищем guest spot/trip для даты
+  let activeTrip = trips.find(trip => {
+    // trip.start <= dateStr < trip.end (!)
+    return trip.start <= dateStr && dateStr < trip.end && !trip.isDefaultCover;
+  });
+  if (activeTrip) {
+    // Находим студию по названию
+    let s = studios.find(st => st.name === activeTrip.title);
+    return s ? s.name : studios.find(st => st.isDefault)?.name || '';
+  }
+  // 2. Если нет guest spot — дефолтная студия
+  return studios.find(st => st.isDefault)?.name || '';
+}
+
+function setDefaultStudioInputs() {
+  const dateIncome = document.getElementById('income-date')?.value || new Date().toISOString().slice(0,10);
+  const dateExpense = document.getElementById('expense-date')?.value || new Date().toISOString().slice(0,10);
+
+  // Для дохода
+  let activeStudioIncome = findActiveStudio(dateIncome);
+  if (document.getElementById('income-location')) {
+    document.getElementById('income-location').value = activeStudioIncome;
+  }
+  // Для расхода
+  let activeStudioExpense = findActiveStudio(dateExpense);
+  if (document.getElementById('expense-location')) {
+    document.getElementById('expense-location').value = activeStudioExpense;
+  }
+}
+
+function attachDateInputHandlers() {
+  const incomeDate = document.getElementById('income-date');
+  const expenseDate = document.getElementById('expense-date');
+
+  if (incomeDate) {
+    incomeDate.addEventListener('change', function() {
+      const date = this.value;
+      const studio = findActiveStudio(date);
+      document.getElementById('income-location').value = studio;
+    });
+  }
+  if (expenseDate) {
+    expenseDate.addEventListener('change', function() {
+      const date = this.value;
+      const studio = findActiveStudio(date);
+      document.getElementById('expense-location').value = studio;
+    });
+  }
+}
+
 function onTripDeleteOrReset() {
   // Если редактируем существующий трип — удаляем его
   if (currentTripId) {
@@ -1214,6 +1278,9 @@ window.addEventListener('DOMContentLoaded', () => {
   loadStudios().then(() => {
     loadHistory();
     loadTrips();
-updateStats(); // ← сюда
+    updateStats();
+    setDefaultDateInputs();
+    setDefaultStudioInputs();
+    attachDateInputHandlers();
   });
 });
