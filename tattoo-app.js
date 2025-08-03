@@ -1162,6 +1162,7 @@ async function loadTrips() {
   renderStudiosSummary();
   renderGuestSpotsSummary();
   refreshCalendar(); // <-- ДОБАВЬ В КОНЦЕ
+setDefaultStudioInputs();
 }
 
 function setDefaultDateInputs() {
@@ -1280,7 +1281,6 @@ window.addEventListener('DOMContentLoaded', () => {
     loadTrips();
     updateStats();
     setDefaultDateInputs();
-    setDefaultStudioInputs();
     attachDateInputHandlers();
   });
 });
