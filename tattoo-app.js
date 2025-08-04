@@ -109,8 +109,8 @@ function renderGuestSpotsSummary() {
     return `${dd}.${m}.${y}`;
   };
 
-  summary.innerHTML = `
-  <div class="guest-spot-scrollbox" style="max-height: 222px; overflow-y:auto; padding-right:3px;">
+summary.innerHTML = `
+  <div class="guest-spot-scrollbox" style="max-height:222px;overflow-y:auto;padding-right:3px;">
     ${
       tripsForList.map((trip, i) => {
         const studio = studios.find(s => s.name === trip.title);
@@ -119,32 +119,43 @@ function renderGuestSpotsSummary() {
         const isDefault = !!trip.isDefaultCover;
 
         const rowStyle = `
-          display:flex; align-items:center; margin-bottom:7px; border-radius:999px;
+          display:flex;align-items:center;margin-bottom:5px;border-radius:999px;
           background:${studio?.color || '#8888'};
-          min-height:40px; font-size:16px; font-weight:500; box-shadow:0 1px 6px #0002;
-          overflow:hidden; position:relative;${isPast ? ' opacity:0.54; filter:grayscale(0.22);' : ''}
+          min-height:32px;font-size:13.2px;font-weight:500;box-shadow:0 1px 6px #0002;
+          overflow:hidden;position:relative;${isPast ? ' opacity:0.54;filter:grayscale(0.22);' : ''}
         `;
+        // формат даты: дд.мм.гг (2 цифры года)
+        const fmt = d => {
+          const [y, m, dd] = d.split('-');
+          return `${dd}.${m}.${y.slice(-2)}`;
+        };
         const startDate = new Date(trip.start);
         const endDate = new Date(trip.end);
-        const daysCount = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24)); // всегда целое число
+        const daysCount = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24));
+
+        // Название студии, минимум 5 букв + троеточие если длиннее 7
+        let shortTitle = trip.title.length > 7 
+            ? trip.title.slice(0, 5) + '…' 
+            : trip.title;
+        // Подпись “по умолчанию” маленьким
+        let defaultLabel = isDefault ? '<span style="font-size:11px;opacity:.68;"> (по умолч.)</span>' : '';
 
         return `
           <div class="guest-spot-row" style="${rowStyle}">
-            <span style="flex:2; min-width:0; padding:8px 14px 8px 17px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff;">
-              ${trip.title}
-              ${isDefault ? '<span style="font-size:13px;opacity:.77;"> (по умолчанию)</span>' : ''}
+            <span style="flex:2;min-width:0;max-width:88px;padding:5px 8px 5px 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff;font-size:13.7px;">
+              ${shortTitle}${defaultLabel}
             </span>
-            <span style="flex:1; text-align:center; min-width:84px; color:#fff; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
+            <span style="flex:1;min-width:54px;text-align:center;color:#fff;opacity:.93;font-variant-numeric:tabular-nums;letter-spacing:.01em;">
               ${fmt(trip.start)}
             </span>
-            <span style="flex:0 0 23px; text-align:center; color:#fff; font-size:22px; line-height:1; font-weight:900; opacity:0.91;">
+            <span style="flex:0 0 14px;text-align:center;color:#fff;font-size:17px;line-height:1;font-weight:900;opacity:0.91;">
               &bull;
             </span>
-            <span style="flex:1; text-align:right; padding-right:17px; min-width:84px; color:#fff; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
+            <span style="flex:1;min-width:54px;text-align:right;padding-right:7px;color:#fff;opacity:.93;font-variant-numeric:tabular-nums;letter-spacing:.01em;">
               ${fmt(dateTo)}
             </span>
-            <span style="flex:0 0 64px; text-align:right; color:#fff; font-size:14.5px; font-weight:400; opacity:.77; margin-left:8px; margin-right:10px;">
-              ${daysCount} ${daysCount === 1 ? 'день' : (daysCount >= 2 && daysCount <= 4) ? 'дня' : 'дней'}
+            <span style="flex:0 0 32px;text-align:right;color:#fff;font-size:13px;font-weight:400;opacity:.79;margin-left:4px;margin-right:7px;">
+              ${daysCount} д
             </span>
           </div>
         `;
@@ -152,6 +163,7 @@ function renderGuestSpotsSummary() {
     }
   </div>
 `;
+
 
 
   // Скролл: показывать "текущий" (или ближайший будущий) посередине блока
