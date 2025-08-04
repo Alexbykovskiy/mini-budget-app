@@ -157,7 +157,7 @@ setTimeout(() => {
   const scrollToRow = rows[toIdx];
   if (scrollToRow) scrollBox.scrollTop = scrollToRow.offsetTop;
 }, 60);
-
+}
 
 async function addIncome() {
   const location = document.getElementById('income-location').value;
