@@ -141,7 +141,8 @@ summary.innerHTML = `
         let defaultLabel = isDefault ? '<span style="font-size:11px;opacity:.68;"> (по умолч.)</span>' : '';
 
         return `
-          <div class="guest-spot-row" style="${rowStyle};cursor:pointer;" onclick="showTripModal('${trip.title.replace(/'/g,"\\'")}', '${trip.start}', '${trip.end}')">
+          <div class="guest-spot-row" style="${rowStyle};cursor:pointer;" onclick="showTripModal('${trip.title.replace(/'/g,"\\'")}', '${trip.start}', '${dateTo}')">
+
 
             <span style="flex:2; min-width:0; max-width:88px; padding:5px 8px 5px 12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff; font-size:13.7px;">
   ${trip.title}${defaultLabel}
@@ -1371,16 +1372,16 @@ async function showTripModal(studioName, dateStart, dateEnd) {
   modal.onclick = e => { if (e.target === modal) { modal.style.display = 'none'; content.innerHTML = ''; } };
 
   // Фильтрация истории
-  const [incomeSnap, expenseSnap] = await Promise.all([
+ const [incomeSnap, expenseSnap] = await Promise.all([
     db.collection('incomes')
       .where('location', '==', studioName)
       .where('date', '>=', dateStart)
-      .where('date', '<', dateEnd)
+      .where('date', '<=', dateEnd)
       .orderBy('date', 'asc').get(),
     db.collection('expenses')
       .where('location', '==', studioName)
       .where('date', '>=', dateStart)
-      .where('date', '<', dateEnd)
+      .where('date', '<=', dateEnd)
       .orderBy('date', 'asc').get()
   ]);
   let incomes = [];
