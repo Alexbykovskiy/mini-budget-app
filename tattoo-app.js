@@ -119,7 +119,8 @@ function renderGuestSpotsSummary() {
 
         const rowStyle = `
           display:flex; align-items:center; margin-bottom:7px; border-radius:999px;
-          background:${isDefault ? '#e0e0e0' : (studio?.color || '#8888')};
+          background:${studio?.color || '#8888'};
+
           min-height:40px; font-size:16px; font-weight:500; box-shadow:0 1px 6px #0002;
           overflow:hidden; position:relative;${isPast ? ' opacity:0.54; filter:grayscale(0.22);' : ''}
         `;
