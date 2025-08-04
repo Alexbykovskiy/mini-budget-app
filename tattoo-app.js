@@ -73,29 +73,43 @@ function renderGuestSpotsSummary() {
   const summary = document.getElementById('studios-guest-summary');
   if (!summary) return;
 
-  // Собираем все guest spot trips (НЕ дефолт, НЕ ковер)
+  // Гостевые (не дефолт, не ковер)
   let guestTrips = trips.filter(trip => {
     const studio = studios.find(s => s.name === trip.title);
     return studio && !studio.isDefault && !trip.isDefaultCover;
   });
 
-  if (!guestTrips.length) {
-    summary.innerHTML = `<div style="opacity:.5;text-align:center">Нет guest spot поездок</div>`;
+  // Добавим дефолт-ковры длиннее 3 дней (isDefaultCover === true)
+  let defaultCovers = trips.filter(trip => {
+    // Ковер, не гестспот, длина > 3 дней
+    if (!trip.isDefaultCover) return false;
+    // Посчитаем разницу дат
+    const start = new Date(trip.start);
+    const end = new Date(trip.end);
+    const days = Math.round((end - start) / (1000 * 60 * 60 * 24));
+    return days > 3;
+  });
+
+  // Объединяем оба списка
+  let allTrips = [...guestTrips, ...defaultCovers];
+
+  if (!allTrips.length) {
+    summary.innerHTML = `<div style="opacity:.5;text-align:center">Нет поездок</div>`;
     return;
   }
 
   // Сортировка по старту (старые выше)
-  guestTrips.sort((a, b) => a.start.localeCompare(b.start));
+  allTrips.sort((a, b) => a.start.localeCompare(b.start));
 
   // Сегодня
   const todayStr = new Date().toISOString().slice(0, 10);
 
   // Найти "текущую" поездку (сегодня внутри диапазона)
-  let currentIdx = guestTrips.findIndex(trip => trip.start <= todayStr && todayStr < trip.end);
+  let currentIdx = allTrips.findIndex(trip => trip.start <= todayStr && todayStr < trip.end);
   if (currentIdx === -1) {
     // Нет активной сегодня — ищем первый будущий
-    currentIdx = guestTrips.findIndex(trip => trip.start > todayStr);
-    if (currentIdx === -1) currentIdx = guestTrips.length - 1; // если только прошедшие
+    currentIdx = allTrips.findIndex(trip => trip.start > todayStr);
+    if (currentIdx === -1) currentIdx = allTrips.length - 1; // если только прошедшие
   }
 
   // Формат дат
@@ -107,32 +121,36 @@ function renderGuestSpotsSummary() {
   summary.innerHTML = `
     <div class="guest-spot-scrollbox" style="
       max-height: 222px; overflow-y:auto; padding-right:3px;">
-      ${guestTrips.map((trip, i) => {
+      ${allTrips.map((trip, i) => {
         const studio = studios.find(s => s.name === trip.title);
         const dateTo = (new Date(+new Date(trip.end)-24*3600*1000)).toISOString().slice(0,10);
         const isPast = trip.end <= todayStr;
+        // Подпись для дефолтной (например, добавить иконку "🏠" если нужно)
+        const studioName = studio?.name || trip.title;
+
         const rowStyle = `
           display:flex; align-items:center; margin-bottom:7px; border-radius:999px;
           background:${studio?.color || '#8888'};
-          min-height:40px; font-size:16px; font-weight:500; box-shadow:0 1px 6px #0002;
+          min-height:38px; font-size:15px; font-weight:500; box-shadow:0 1px 6px #0002;
           overflow:hidden; position:relative;${isPast ? ' opacity:0.54; filter:grayscale(0.22);' : ''}
         `;
         return `
           <div class="guest-spot-row" style="${rowStyle}">
             <span style="
-              flex:2; min-width:0; padding:8px 14px 8px 17px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff;">
-              ${trip.title}
+              flex:2.7; min-width:0; padding:8px 6px 8px 14px; white-space:nowrap;
+              overflow:hidden; text-overflow:ellipsis; color:#fff; font-size:clamp(13px,3vw,15.5px); letter-spacing:.01em;">
+              ${studioName}
             </span>
             <span style="
-              flex:1; text-align:center; min-width:84px; color:#fff; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
+              flex:1; text-align:center; min-width:72px; max-width:83px; color:#fff; opacity:.92; font-variant-numeric:tabular-nums; letter-spacing:.02em; font-size:14.7px;">
               ${fmt(trip.start)}
             </span>
             <span style="
-              flex:0 0 23px; text-align:center; color:#fff; font-size:22px; line-height:1; font-weight:900; opacity:0.91;">
+              flex:0 0 17px; text-align:center; color:#fff; font-size:19px; line-height:1; font-weight:900; opacity:0.82;">
               &bull;
             </span>
             <span style="
-              flex:1; text-align:right; padding-right:17px; min-width:84px; color:#fff; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
+              flex:1; text-align:right; padding-right:13px; min-width:72px; max-width:83px; color:#fff; opacity:.92; font-variant-numeric:tabular-nums; letter-spacing:.02em; font-size:14.7px;">
               ${fmt(dateTo)}
             </span>
           </div>
