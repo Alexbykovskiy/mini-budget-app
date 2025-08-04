@@ -125,30 +125,32 @@ function renderGuestSpotsSummary() {
           min-height:38px; font-size:15px; font-weight:500; box-shadow:0 1px 6px #0002;
           overflow:hidden; position:relative;${isPast ? ' opacity:0.54; filter:grayscale(0.22);' : ''}
         `;
-        return `
-          <div class="guest-spot-row" style="${rowStyle}">
-            <span style="
-              flex:2.7; min-width:0; padding:8px 6px 8px 14px; white-space:nowrap;
-              overflow:hidden; text-overflow:ellipsis; color:#fff; font-size:clamp(13px,3vw,15.5px); letter-spacing:.01em;">
-              ${studioName}
-            </span>
-            <span style="
-              flex:1; text-align:center; min-width:72px; max-width:83px; color:#fff; opacity:.92; font-variant-numeric:tabular-nums; letter-spacing:.02em; font-size:14.7px;">
-              ${fmt(trip.start)}
-            </span>
-            <span style="
-              flex:0 0 17px; text-align:center; color:#fff; font-size:19px; line-height:1; font-weight:900; opacity:0.82;">
-              &bull;
-            </span>
-            <span style="
-              flex:1; text-align:right; padding-right:13px; min-width:72px; max-width:83px; color:#fff; opacity:.92; font-variant-numeric:tabular-nums; letter-spacing:.02em; font-size:14.7px;">
-              ${fmt(dateTo)}
-            </span>
-          </div>
-        `;
-      }).join('')}
-    </div>
-  `;
+       return `
+  <div class="guest-spot-row" style="${rowStyle}">
+    <span style="
+      flex:2.7; min-width:0; padding:8px 6px 8px 14px; white-space:nowrap;
+      overflow:hidden; text-overflow:ellipsis; color:#fff; font-size:clamp(13px,3vw,15.5px); letter-spacing:.01em;">
+      ${studioName}
+    </span>
+    <span style="
+      flex:1; text-align:center; min-width:72px; max-width:83px; color:#fff; opacity:.92; font-variant-numeric:tabular-nums; letter-spacing:.02em; font-size:14.7px;">
+      ${fmt(trip.start)}
+    </span>
+    <span style="
+      flex:0 0 17px; text-align:center; color:#fff; font-size:19px; line-height:1; font-weight:900; opacity:0.82;">
+      &bull;
+    </span>
+    <span style="
+      flex:1; text-align:right; padding-right:13px; min-width:72px; max-width:83px; color:#fff; opacity:.92; font-variant-numeric:tabular-nums; letter-spacing:.02em; font-size:14.7px;">
+      ${fmt(dateTo)}
+    </span>
+    <span style="
+      flex:0 0 auto; margin-left:7px; color:#fff; opacity:.62; font-size:13.7px; white-space:nowrap; letter-spacing:0.01em;">
+      ${days} дн.
+    </span>
+  </div>
+`;
+
 
   setTimeout(() => {
     const scrollBox = summary.querySelector('.guest-spot-scrollbox');
