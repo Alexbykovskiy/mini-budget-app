@@ -131,7 +131,7 @@ summary.innerHTML = `
   <div class="guest-spot-row" style="
     display:flex; align-items:center; margin-bottom:7px; border-radius:999px;
     background:${studio?.color || '#8888'};
-    min-height:38px; min-width:340px; max-width:340px; font-size:14.5px; font-weight:500; box-shadow:0 1px 6px #0002;
+    min-height:38px; min-width:340px; max-width:510px; font-size:14.5px; font-weight:500; box-shadow:0 1px 6px #0002;
     overflow:hidden; position:relative;${isPast ? ' opacity:0.54; filter:grayscale(0.22);' : ''}">
     <span style="
       flex:3.3; min-width:0; padding:7px 0 7px 13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff;
