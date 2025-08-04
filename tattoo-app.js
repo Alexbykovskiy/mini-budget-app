@@ -124,26 +124,30 @@ function renderGuestSpotsSummary() {
           min-height:40px; font-size:16px; font-weight:500; box-shadow:0 1px 6px #0002;
           overflow:hidden; position:relative;${isPast ? ' opacity:0.54; filter:grayscale(0.22);' : ''}
         `;
-        return `
-          <div class="guest-spot-row" style="${rowStyle}">
-            <span style="flex:2; min-width:0; padding:8px 14px 8px 17px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#222;">
-              ${trip.title}
-              ${isDefault ? '<span style="font-size:13px;opacity:.77;"> (по умолчанию)</span>' : ''}
-            </span>
-            <span style="flex:1; text-align:center; min-width:84px; color:#444; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
-              ${fmt(trip.start)}
-            </span>
-            <span style="flex:0 0 23px; text-align:center; color:#aaa; font-size:22px; line-height:1; font-weight:900; opacity:0.91;">
-              &bull;
-            </span>
-            <span style="flex:1; text-align:right; padding-right:17px; min-width:84px; color:#444; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
-              ${fmt(dateTo)}
-            </span>
-          </div>
-        `;
-      }).join('')}
-    </div>
-  `;
+        const startDate = new Date(trip.start);
+const endDate = new Date(trip.end);
+const daysCount = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24)); // всегда целое число
+
+return `
+  <div class="guest-spot-row" style="${rowStyle}">
+    <span style="flex:2; min-width:0; padding:8px 14px 8px 17px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff;">
+      ${trip.title}
+      ${isDefault ? '<span style="font-size:13px;opacity:.77;"> (по умолчанию)</span>' : ''}
+    </span>
+    <span style="flex:1; text-align:center; min-width:84px; color:#fff; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
+      ${fmt(trip.start)}
+    </span>
+    <span style="flex:0 0 23px; text-align:center; color:#fff; font-size:22px; line-height:1; font-weight:900; opacity:0.91;">
+      &bull;
+    </span>
+    <span style="flex:1; text-align:right; padding-right:17px; min-width:84px; color:#fff; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
+      ${fmt(dateTo)}
+    </span>
+    <span style="flex:0 0 64px; text-align:right; color:#fff; font-size:14.5px; font-weight:400; opacity:.77; margin-left:8px; margin-right:10px;">
+      ${daysCount} ${daysCount === 1 ? 'день' : (daysCount >= 2 && daysCount <= 4) ? 'дня' : 'дней'}
+    </span>
+  </div>
+`;
 
   // Скролл: показывать "текущий" (или ближайший будущий) посередине блока
   setTimeout(() => {
