@@ -128,27 +128,36 @@ summary.innerHTML = `
         overflow:hidden; position:relative;${isPast ? ' opacity:0.54; filter:grayscale(0.22);' : ''}
       `;
       return `
-        <div class="guest-spot-row" style="${rowStyle}">
-          <span style="flex:2.9; min-width:0; padding:8px 2px 8px 8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff; font-size:clamp(12px,2.3vw,15px); letter-spacing:0em;">
-            ${studioName}
-          </span>
-          <span style="flex:1; text-align:center; min-width:66px; max-width:76px; color:#fff; opacity:.92; font-variant-numeric:tabular-nums; letter-spacing:0.01em; font-size:13.8px;">
-            ${fmt(trip.start)}
-          </span>
-          <span style="flex:0 0 13px; text-align:center; color:#fff; font-size:16px; line-height:1; font-weight:900; opacity:0.78;">
-            &bull;
-          </span>
-          <span style="flex:1; text-align:right; padding-right:7px; min-width:66px; max-width:76px; color:#fff; opacity:.92; font-variant-numeric:tabular-nums; letter-spacing:0.01em; font-size:13.8px;">
-            ${fmt(dateTo)}
-          </span>
-          <span style="flex:0 0 auto; margin-left:4px; color:#fff; opacity:.62; font-size:12px; font-weight:400; white-space:nowrap; letter-spacing:0.01em;">
-            ${days} дн.
-          </span>
-        </div>
-      `;
-    }).join('')} <!-- ← вот тут закрывающая скобка и join! -->
+  <div class="guest-spot-row" style="
+    display:flex; align-items:center; margin-bottom:7px; border-radius:999px;
+    background:${studio?.color || '#8888'};
+    min-height:38px; min-width:340px; max-width:510px; font-size:14.5px; font-weight:500; box-shadow:0 1px 6px #0002;
+    overflow:hidden; position:relative;${isPast ? ' opacity:0.54; filter:grayscale(0.22);' : ''}">
+    <span style="
+      flex:3.3; min-width:0; padding:7px 0 7px 13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff;
+      font-size:clamp(12px,2vw,15px); letter-spacing:0em;">
+      ${studioName}
+    </span>
+    <span style="
+      flex:1.25; text-align:right; min-width:60px; max-width:66px; padding-right:2px; color:#fff; opacity:.92;
+      font-variant-numeric:tabular-nums; letter-spacing:0.01em; font-size:13px;">
+      ${fmt(trip.start)}
+    </span>
+    <span style="
+      flex:0 0 12px; text-align:center; color:#fff; font-size:15px; line-height:1; font-weight:900; opacity:0.75;">
+      &bull;
+    </span>
+    <span style="
+      flex:1.25; text-align:left; min-width:60px; max-width:66px; padding-left:2px; color:#fff; opacity:.92;
+      font-variant-numeric:tabular-nums; letter-spacing:0.01em; font-size:13px;">
+      ${fmt(dateTo)}
+    </span>
+    <span style="
+      flex:0 0 auto; margin-left:7px; color:#fff; opacity:.62; font-size:11.7px; font-weight:400; white-space:nowrap; letter-spacing:0.01em;">
+      ${days} дн.
+    </span>
   </div>
-`; // ← и вот тут закрывающая backtick/кавычка для template literal
+`;
 
 
   setTimeout(() => {
