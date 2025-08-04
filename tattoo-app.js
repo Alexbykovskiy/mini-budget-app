@@ -73,87 +73,75 @@ function renderGuestSpotsSummary() {
   const summary = document.getElementById('studios-guest-summary');
   if (!summary) return;
 
-  // 1. Guest spot (не дефолт, не ковер)
+  // Собираем все guest spot trips (НЕ дефолт, НЕ ковер)
   let guestTrips = trips.filter(trip => {
     const studio = studios.find(s => s.name === trip.title);
     return studio && !studio.isDefault && !trip.isDefaultCover;
   });
 
-  // 2. Длинные интервалы дефолт-студии (ковры)
-  let defaultCovers = trips.filter(trip => {
-    const studio = studios.find(s => s.name === trip.title);
-    if (!studio || !studio.isDefault) return false;
-    if (!trip.isDefaultCover) return false;
-    const start = new Date(trip.start);
-    const end = new Date(trip.end);
-    const days = Math.round((end - start) / (1000 * 60 * 60 * 24));
-    return days > 3;
-  });
-
-  let allTrips = [...guestTrips, ...defaultCovers];
-  if (!allTrips.length) {
-    summary.innerHTML = `<div style="opacity:.5;text-align:center">Нет поездок</div>`;
+  if (!guestTrips.length) {
+    summary.innerHTML = `<div style="opacity:.5;text-align:center">Нет guest spot поездок</div>`;
     return;
   }
 
-  allTrips.sort((a, b) => a.start.localeCompare(b.start));
+  // Сортировка по старту (старые выше)
+  guestTrips.sort((a, b) => a.start.localeCompare(b.start));
+
+  // Сегодня
   const todayStr = new Date().toISOString().slice(0, 10);
 
-  let currentIdx = allTrips.findIndex(trip => trip.start <= todayStr && todayStr < trip.end);
+  // Найти "текущую" поездку (сегодня внутри диапазона)
+  let currentIdx = guestTrips.findIndex(trip => trip.start <= todayStr && todayStr < trip.end);
   if (currentIdx === -1) {
-    currentIdx = allTrips.findIndex(trip => trip.start > todayStr);
-    if (currentIdx === -1) currentIdx = allTrips.length - 1;
+    // Нет активной сегодня — ищем первый будущий
+    currentIdx = guestTrips.findIndex(trip => trip.start > todayStr);
+    if (currentIdx === -1) currentIdx = guestTrips.length - 1; // если только прошедшие
   }
 
- const fmt = d => {
-  const [y, m, dd] = d.split('-');
-  return `${dd}.${m}.${y.slice(-2)}`; // последние 2 цифры года
-};
+  // Формат дат
+  const fmt = d => {
+    const [y,m,dd] = d.split('-');
+    return `${dd}.${m}.${y}`;
+  };
 
+  summary.innerHTML = `
+    <div class="guest-spot-scrollbox" style="
+      max-height: 222px; overflow-y:auto; padding-right:3px;">
+      ${guestTrips.map((trip, i) => {
+        const studio = studios.find(s => s.name === trip.title);
+        const dateTo = (new Date(+new Date(trip.end)-24*3600*1000)).toISOString().slice(0,10);
+        const isPast = trip.end <= todayStr;
+        const rowStyle = `
+          display:flex; align-items:center; margin-bottom:7px; border-radius:999px;
+          background:${studio?.color || '#8888'};
+          min-height:40px; font-size:16px; font-weight:500; box-shadow:0 1px 6px #0002;
+          overflow:hidden; position:relative;${isPast ? ' opacity:0.54; filter:grayscale(0.22);' : ''}
+        `;
+        return `
+          <div class="guest-spot-row" style="${rowStyle}">
+            <span style="
+              flex:2; min-width:0; padding:8px 14px 8px 17px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff;">
+              ${trip.title}
+            </span>
+            <span style="
+              flex:1; text-align:center; min-width:84px; color:#fff; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
+              ${fmt(trip.start)}
+            </span>
+            <span style="
+              flex:0 0 23px; text-align:center; color:#fff; font-size:22px; line-height:1; font-weight:900; opacity:0.91;">
+              &bull;
+            </span>
+            <span style="
+              flex:1; text-align:right; padding-right:17px; min-width:84px; color:#fff; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
+              ${fmt(dateTo)}
+            </span>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
 
- summary.innerHTML = `
-  <div class="guest-spot-scrollbox" style="max-height:222px;overflow-y:auto;padding-right:3px;">
-    ${allTrips.map((trip, i) => {
-      const studio = studios.find(s => s.name === trip.title);
-      const dateTo = (new Date(+new Date(trip.end)-24*3600*1000)).toISOString().slice(0,10);
-      const isPast = trip.end <= todayStr;
-      const studioName = studio?.name || trip.title;
-      const startDate = new Date(trip.start);
-      const endDate = new Date(trip.end);
-      const days = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24));
-      const rowStyle = `
-        display:flex; align-items:center; margin-bottom:7px; border-radius:999px;
-        background:${studio?.color || '#8888'};
-        min-height:38px; font-size:15px; font-weight:500; box-shadow:0 1px 6px #0002;
-        overflow:hidden; position:relative;${isPast ? ' opacity:0.54; filter:grayscale(0.22);' : ''}
-      `;
-     return `
-  <div class="guest-spot-row" style="${rowStyle}">
-    <span style="
-      flex:2.9; min-width:0; padding:8px 2px 8px 8px; white-space:nowrap;
-      overflow:hidden; text-overflow:ellipsis; color:#fff; font-size:clamp(12px,2.3vw,15px); letter-spacing:0em;">
-      ${studioName}
-    </span>
-    <span style="
-      flex:1; text-align:center; min-width:66px; max-width:76px; color:#fff; opacity:.92; font-variant-numeric:tabular-nums; letter-spacing:0.01em; font-size:13.8px;">
-      ${fmt(trip.start)}
-    </span>
-    <span style="
-      flex:0 0 13px; text-align:center; color:#fff; font-size:16px; line-height:1; font-weight:900; opacity:0.78;">
-      &bull;
-    </span>
-    <span style="
-      flex:1; text-align:right; padding-right:7px; min-width:66px; max-width:76px; color:#fff; opacity:.92; font-variant-numeric:tabular-nums; letter-spacing:0.01em; font-size:13.8px;">
-      ${fmt(dateTo)}
-    </span>
-    <span style="
-      flex:0 0 auto; margin-left:4px; color:#fff; opacity:.62; font-size:12px; font-weight:400; white-space:nowrap; letter-spacing:0.01em;">
-      ${days} дн.
-    </span>
-  </div>
-`;
-
-
+  // Скролл: показывать "текущий" (или ближайший будущий) посередине блока
   setTimeout(() => {
     const scrollBox = summary.querySelector('.guest-spot-scrollbox');
     const rows = scrollBox?.querySelectorAll('.guest-spot-row');
