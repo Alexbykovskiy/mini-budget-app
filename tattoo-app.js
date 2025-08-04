@@ -141,7 +141,8 @@ summary.innerHTML = `
         let defaultLabel = isDefault ? '<span style="font-size:11px;opacity:.68;"> (по умолч.)</span>' : '';
 
         return `
-          <div class="guest-spot-row" style="${rowStyle}">
+          <div class="guest-spot-row" style="${rowStyle};cursor:pointer;" onclick="showTripModal('${trip.title.replace(/'/g,"\\'")}', '${trip.start}', '${trip.end}')">
+
             <span style="flex:2; min-width:0; max-width:88px; padding:5px 8px 5px 12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff; font-size:13.7px;">
   ${trip.title}${defaultLabel}
 </span>
@@ -1356,6 +1357,79 @@ async function updateStats() {
   document.getElementById('total-expenses').textContent = totalExpenses.toLocaleString() + ' €';
   document.getElementById('net-income').textContent = netIncome.toLocaleString() + ' €';
 }
+
+
+async function showTripModal(studioName, dateStart, dateEnd) {
+  const modal = document.getElementById('trip-modal');
+  const closeBtn = document.getElementById('trip-modal-close');
+  const content = document.getElementById('trip-modal-content');
+  if (!modal || !content) return;
+
+  modal.style.display = 'flex';
+  closeBtn.onclick = () => { modal.style.display = 'none'; content.innerHTML = ''; };
+  // Закрытие по фону
+  modal.onclick = e => { if (e.target === modal) { modal.style.display = 'none'; content.innerHTML = ''; } };
+
+  // Фильтрация истории
+  const [incomeSnap, expenseSnap] = await Promise.all([
+    db.collection('incomes')
+      .where('location', '==', studioName)
+      .where('date', '>=', dateStart)
+      .where('date', '<', dateEnd)
+      .orderBy('date', 'asc').get(),
+    db.collection('expenses')
+      .where('location', '==', studioName)
+      .where('date', '>=', dateStart)
+      .where('date', '<', dateEnd)
+      .orderBy('date', 'asc').get()
+  ]);
+  let incomes = [];
+  incomeSnap.forEach(doc => incomes.push({ id: doc.id, ...doc.data() }));
+  let expenses = [];
+  expenseSnap.forEach(doc => expenses.push({ id: doc.id, ...doc.data() }));
+
+  // Подсчёт статистики
+  let sumIncome = incomes.reduce((s, e) => s + Number(e.amount || 0), 0);
+  let sumExpense = expenses.reduce((s, e) => s + Number(e.amount || 0), 0);
+  let netIncome = sumIncome - sumExpense;
+  const days = Math.max(1, Math.round((new Date(dateEnd) - new Date(dateStart)) / (1000 * 60 * 60 * 24)));
+  let avgIncomeDay = sumIncome / days;
+  let avgNetIncomeDay = netIncome / days;
+  let maxIncome = incomes.reduce((max, e) => Math.max(max, Number(e.amount || 0)), 0);
+  let maxExpense = expenses.reduce((max, e) => Math.max(max, Number(e.amount || 0)), 0);
+
+  // Формат даты
+  const fmt = d => {
+    const [y, m, dd] = d.split('-');
+    return `${dd}.${m}.${y.slice(-2)}`;
+  };
+
+  // Итоговый html
+  content.innerHTML = `
+    <div style="font-size:18px;font-weight:600;line-height:1.2;margin-bottom:6px;">
+      ${studioName}<br>
+      <span style="font-size:15px;font-weight:400;opacity:.86;">
+        ${fmt(dateStart)} — ${fmt(dateEnd)} (${days} дн.)
+      </span>
+    </div>
+    <div style="font-size:14.5px;line-height:1.7;margin-bottom:8px;">
+      <b>Доходы:</b> <span style="color:#65ffa0;">${sumIncome.toLocaleString(undefined,{maximumFractionDigits:2})} €</span><br>
+      <b>Расходы:</b> <span style="color:#ff8888;">${sumExpense.toLocaleString(undefined,{maximumFractionDigits:2})} €</span><br>
+      <b>Чистый доход:</b> <span style="color:#ffffc0;">${netIncome.toLocaleString(undefined,{maximumFractionDigits:2})} €</span><br>
+      <b>Средний доход в день:</b> ${avgIncomeDay.toLocaleString(undefined,{maximumFractionDigits:2})} €<br>
+      <b>Средний чистый доход в день:</b> ${avgNetIncomeDay.toLocaleString(undefined,{maximumFractionDigits:2})} €<br>
+      <b>Максимальный доход за день:</b> ${maxIncome.toLocaleString(undefined,{maximumFractionDigits:2})} €<br>
+      <b>Максимальный расход:</b> ${maxExpense.toLocaleString(undefined,{maximumFractionDigits:2})} €
+    </div>
+    <div style="font-size:15px;font-weight:500;margin-top:7px;margin-bottom:2px;">Детализация:</div>
+    <div style="font-size:13.5px;max-height:188px;overflow-y:auto;">
+      ${incomes.map(e => `<div style="color:#65ffa0;">${fmt(e.date)} — +${e.amount} € <span style="opacity:.66;">${e.workType||''}</span></div>`).join('')}
+      ${expenses.map(e => `<div style="color:#ffb2b2;">${fmt(e.date)} — -${e.amount} € <span style="opacity:.66;">${e.expenseType||''}</span></div>`).join('')}
+      ${incomes.length===0 && expenses.length===0 ? `<div style="opacity:.6;">Нет записей</div>` : ''}
+    </div>
+  `;
+}
+
 
 window.addEventListener('DOMContentLoaded', () => {
   loadStudios().then(() => {
