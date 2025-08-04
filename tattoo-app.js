@@ -142,9 +142,9 @@ summary.innerHTML = `
 
         return `
           <div class="guest-spot-row" style="${rowStyle}">
-            <span style="flex:2;min-width:0;max-width:88px;padding:5px 8px 5px 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff;font-size:13.7px;">
-              ${shortTitle}${defaultLabel}
-            </span>
+            <span style="flex:2; min-width:0; max-width:88px; padding:5px 8px 5px 12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff; font-size:13.7px;">
+  ${trip.title}${defaultLabel}
+</span>
             <span style="flex:1;min-width:54px;text-align:center;color:#fff;opacity:.93;font-variant-numeric:tabular-nums;letter-spacing:.01em;">
               ${fmt(trip.start)}
             </span>
