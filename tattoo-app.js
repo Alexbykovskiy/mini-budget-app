@@ -145,15 +145,15 @@ summary.innerHTML = `
             <span style="flex:2; min-width:0; max-width:88px; padding:5px 8px 5px 12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff; font-size:13.7px;">
   ${trip.title}${defaultLabel}
 </span>
-            <span style="flex:1;min-width:54px;text-align:center;color:#fff;opacity:.93;font-variant-numeric:tabular-nums;letter-spacing:.01em;">
-              ${fmt(trip.start)}
-            </span>
-            <span style="flex:0 0 14px;text-align:center;color:#fff;font-size:17px;line-height:1;font-weight:900;opacity:0.91;">
-              &bull;
-            </span>
-            <span style="flex:1;min-width:54px;text-align:right;padding-right:7px;color:#fff;opacity:.93;font-variant-numeric:tabular-nums;letter-spacing:.01em;">
-              ${fmt(dateTo)}
-            </span>
+            <span style="flex:1; min-width:50px; text-align:right; color:#fff; opacity:.93; font-variant-numeric:tabular-nums; letter-spacing:.01em; padding-right:3px;">
+  ${fmt(trip.start)}
+</span>
+<span style="flex:0 0 14px; text-align:center; color:#fff; font-size:17px; line-height:1; font-weight:900; opacity:0.91; padding:0 3px;">
+  &bull;
+</span>
+<span style="flex:1; min-width:50px; text-align:left; color:#fff; opacity:.93; font-variant-numeric:tabular-nums; letter-spacing:.01em; padding-left:3px;">
+  ${fmt(dateTo)}
+</span>
             <span style="flex:0 0 32px;text-align:right;color:#fff;font-size:13px;font-weight:400;opacity:.79;margin-left:4px;margin-right:7px;">
               ${daysCount} д
             </span>
