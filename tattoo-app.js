@@ -105,10 +105,11 @@ function renderGuestSpotsSummary() {
     if (currentIdx === -1) currentIdx = allTrips.length - 1;
   }
 
-  const fmt = d => {
-    const [y,m,dd] = d.split('-');
-    return `${dd}.${m}.${y}`;
-  };
+ const fmt = d => {
+  const [y, m, dd] = d.split('-');
+  return `${dd}.${m}.${y.slice(-2)}`; // последние 2 цифры года
+};
+
 
   summary.innerHTML = `
     <div class="guest-spot-scrollbox" style="
