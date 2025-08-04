@@ -104,55 +104,53 @@ function renderGuestSpotsSummary() {
     return `${dd}.${m}.${y}`;
   };
 
-summary.innerHTML = `
-  <div class="guest-spot-scrollbox" style="max-height:222px;overflow-y:auto;padding-right:3px;">
-    ${allTrips.map((trip, i) => {
-      const studio = studios.find(s => s.name === trip.title);
-      const dateTo = (new Date(+new Date(trip.end)-24*3600*1000)).toISOString().slice(0,10);
-      const isPast = trip.end <= todayStr;
-      const studioName = studio?.name || trip.title;
-      const startDate = new Date(trip.start);
-      const endDate = new Date(trip.end);
-      const days = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24));
-      const rowStyle = `
-        display:flex; align-items:center; margin-bottom:7px; border-radius:999px;
-        background:${studio?.color || '#8888'};
-        min-height:38px; font-size:15px; font-weight:500; box-shadow:0 1px 6px #0002;
-        overflow:hidden; position:relative;${isPast ? ' opacity:0.54; filter:grayscale(0.22);' : ''}
-      `;
-      return `
-        <div class="guest-spot-row" style="${rowStyle}">
-          <span style="flex:2.9; min-width:0; padding:8px 2px 8px 8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff; font-size:clamp(12px,2.3vw,15px); letter-spacing:0em;">
-            ${studioName}
-          </span>
-          <span style="flex:1; text-align:center; min-width:66px; max-width:76px; color:#fff; opacity:.92; font-variant-numeric:tabular-nums; letter-spacing:0.01em; font-size:13.8px;">
-            ${fmt(trip.start)}
-          </span>
-          <span style="flex:0 0 13px; text-align:center; color:#fff; font-size:16px; line-height:1; font-weight:900; opacity:0.78;">
-            &bull;
-          </span>
-          <span style="flex:1; text-align:right; padding-right:7px; min-width:66px; max-width:76px; color:#fff; opacity:.92; font-variant-numeric:tabular-nums; letter-spacing:0.01em; font-size:13.8px;">
-            ${fmt(dateTo)}
-          </span>
-          <span style="flex:0 0 auto; margin-left:4px; color:#fff; opacity:.62; font-size:12px; font-weight:400; white-space:nowrap; letter-spacing:0.01em;">
-            ${days} дн.
-          </span>
-        </div>
-      `;
-    }).join('')} <!-- ← вот тут закрывающая скобка и join! -->
-  </div>
-`; // ← и вот тут закрывающая backtick/кавычка для template literal
+  summary.innerHTML = `
+    <div class="guest-spot-scrollbox" style="
+      max-height: 222px; overflow-y:auto; padding-right:3px;">
+      ${guestTrips.map((trip, i) => {
+        const studio = studios.find(s => s.name === trip.title);
+        const dateTo = (new Date(+new Date(trip.end)-24*3600*1000)).toISOString().slice(0,10);
+        const isPast = trip.end <= todayStr;
+        const rowStyle = `
+          display:flex; align-items:center; margin-bottom:7px; border-radius:999px;
+          background:${studio?.color || '#8888'};
+          min-height:40px; font-size:16px; font-weight:500; box-shadow:0 1px 6px #0002;
+          overflow:hidden; position:relative;${isPast ? ' opacity:0.54; filter:grayscale(0.22);' : ''}
+        `;
+        return `
+          <div class="guest-spot-row" style="${rowStyle}">
+            <span style="
+              flex:2; min-width:0; padding:8px 14px 8px 17px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff;">
+              ${trip.title}
+            </span>
+            <span style="
+              flex:1; text-align:center; min-width:84px; color:#fff; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
+              ${fmt(trip.start)}
+            </span>
+            <span style="
+              flex:0 0 23px; text-align:center; color:#fff; font-size:22px; line-height:1; font-weight:900; opacity:0.91;">
+              &bull;
+            </span>
+            <span style="
+              flex:1; text-align:right; padding-right:17px; min-width:84px; color:#fff; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
+              ${fmt(dateTo)}
+            </span>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
 
-
- setTimeout(() => {
-  const scrollBox = summary.querySelector('.guest-spot-scrollbox');
-  const rows = scrollBox?.querySelectorAll('.guest-spot-row');
-  if (!rows || !rows.length) return;
-  let toIdx = Math.max(0, currentIdx - 2);
-  if (toIdx > rows.length - 5) toIdx = Math.max(0, rows.length - 5);
-  const scrollToRow = rows[toIdx];
-  if (scrollToRow) scrollBox.scrollTop = scrollToRow.offsetTop;
-}, 60);
+  // Скролл: показывать "текущий" (или ближайший будущий) посередине блока
+  setTimeout(() => {
+    const scrollBox = summary.querySelector('.guest-spot-scrollbox');
+    const rows = scrollBox?.querySelectorAll('.guest-spot-row');
+    if (!rows || !rows.length) return;
+    let toIdx = Math.max(0, currentIdx - 2);
+    if (toIdx > rows.length - 5) toIdx = Math.max(0, rows.length - 5);
+    const scrollToRow = rows[toIdx];
+    if (scrollToRow) scrollBox.scrollTop = scrollToRow.offsetTop;
+  }, 60);
 }
 
 async function addIncome() {
