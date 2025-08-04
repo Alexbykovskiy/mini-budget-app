@@ -121,35 +121,30 @@ summary.innerHTML = `
       const startDate = new Date(trip.start);
       const endDate = new Date(trip.end);
       const days = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24));
-     return `
-  <div class="guest-spot-row" style="
-    display:flex; align-items:center; margin-bottom:7px; border-radius:999px;
-    background:${studio?.color || '#8888'};
-    min-height:36px; font-size:13.8px; font-weight:500; box-shadow:0 1px 6px #0002;
-    overflow:hidden; position:relative;${isPast ? ' opacity:0.54; filter:grayscale(0.22);' : ''}">
-    <span style="
-      flex:2.5; min-width:0; padding:7px 0 7px 10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff;
-      font-size:clamp(12px,2vw,14px); letter-spacing:0em;">
-      ${studioName}
-    </span>
-    <span style="
-      flex:1.1; text-align:right; min-width:51px; max-width:60px; padding-right:1px; color:#fff; opacity:.92;
-      font-variant-numeric:tabular-nums; letter-spacing:0em; font-size:12.3px;">
-      ${fmt(trip.start)}
-    </span>
-    <span style="
-      flex:0 0 10px; text-align:center; color:#fff; font-size:13px; line-height:1; font-weight:900; opacity:0.75;">
-      &bull;
-    </span>
-    <span style="
-      flex:1.1; text-align:left; min-width:51px; max-width:60px; padding-left:1px; color:#fff; opacity:.92;
-      font-variant-numeric:tabular-nums; letter-spacing:0em; font-size:12.3px;">
-      ${fmt(dateTo)}
-    </span>
-    <span style="
-      flex:0 0 auto; margin-left:6px; color:#fff; opacity:.62; font-size:11px; font-weight:400; white-space:nowrap; letter-spacing:0em;">
-      ${days} дн.
-    </span>
+      return `
+        <div class="guest-spot-row" style="
+          display:flex; align-items:center; margin-bottom:7px; border-radius:999px;
+          background:${studio?.color || '#8888'};
+          min-height:38px; min-width:340px; max-width:510px; font-size:14.5px; font-weight:500; box-shadow:0 1px 6px #0002;
+          overflow:hidden; position:relative;${isPast ? ' opacity:0.54; filter:grayscale(0.22);' : ''}">
+          <span style="flex:3.3; min-width:0; padding:7px 0 7px 13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff; font-size:clamp(12px,2vw,15px); letter-spacing:0em;">
+            ${studioName}
+          </span>
+          <span style="flex:1.25; text-align:right; min-width:60px; max-width:66px; padding-right:2px; color:#fff; opacity:.92; font-variant-numeric:tabular-nums; letter-spacing:0.01em; font-size:13px;">
+            ${fmt(trip.start)}
+          </span>
+          <span style="flex:0 0 12px; text-align:center; color:#fff; font-size:15px; line-height:1; font-weight:900; opacity:0.75;">
+            &bull;
+          </span>
+          <span style="flex:1.25; text-align:left; min-width:60px; max-width:66px; padding-left:2px; color:#fff; opacity:.92; font-variant-numeric:tabular-nums; letter-spacing:0.01em; font-size:13px;">
+            ${fmt(dateTo)}
+          </span>
+          <span style="flex:0 0 auto; margin-left:7px; color:#fff; opacity:.62; font-size:11.7px; font-weight:400; white-space:nowrap; letter-spacing:0.01em;">
+            ${days} дн.
+          </span>
+        </div>
+      `;
+    }).join('')}
   </div>
 `;
 
@@ -162,7 +157,7 @@ setTimeout(() => {
   const scrollToRow = rows[toIdx];
   if (scrollToRow) scrollBox.scrollTop = scrollToRow.offsetTop;
 }, 60);
-
+}
 
 async function addIncome() {
   const location = document.getElementById('income-location').value;
