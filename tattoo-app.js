@@ -36,69 +36,42 @@ function renderStudioOptions() {
   }
 }
 
-function renderStudiosSummary() {
-  const summary = document.getElementById('studios-summary');
-  if (!summary) return;
-  if (!studios.length) {
-    summary.innerHTML = '<span style="color:#bbb;">Нет добавленных студий</span>';
-    return;
-  }
-  summary.innerHTML = studios.map((s, i) =>
-    `<span class="studio-pill${s.isDefault ? ' default' : ''}" 
-            data-idx="${i}" 
-            style="background:${s.isDefault ? '' : (s.color || '#4444')}; cursor:pointer;"
-            title="Выбрать эту студию">
-        ${s.isDefault ? `<svg viewBox="0 0 20 20" width="18" height="18" style="vertical-align:-2.5px; margin-right:5px; fill:#fff; display:inline-block;">
-          <path d="M2 10.2 10 3l8 7.2V17a1 1 0 0 1-1 1h-4.2A.8.8 0 0 1 12 17.2V14a2 2 0 0 0-4 0v3.2c0 .44-.36.8-.8.8H3a1 1 0 0 1-1-1v-6.8z" fill="#fff"/>
-          <path d="M2.7 9.5a1 1 0 0 1 1.4-1.4L10 4.14l5.9 4.96a1 1 0 1 1-1.3 1.52L10 6.26 4.04 9.58a1 1 0 0 1-1.34-.08z" fill="#ffa35c"/>
-        </svg>` : ''}
-        ${s.name}${s.isDefault ? ' — по умолчанию' : ''}
-    </span>`
-  ).join('');
-
-  // Добавим обработчик клика:
-  summary.querySelectorAll('.studio-pill').forEach(pill => {
-    pill.addEventListener('click', function() {
-      const idx = pill.getAttribute('data-idx');
-      const select = document.getElementById('studio-select');
-      if (select && idx !== null) {
-        select.selectedIndex = idx;
-        select.dispatchEvent(new Event('change'));
-      }
-    });
-  });
-}
-
 function renderGuestSpotsSummary() {
   const summary = document.getElementById('studios-guest-summary');
   if (!summary) return;
 
-  // Собираем все guest spot trips (НЕ дефолт, НЕ ковер)
+  // 1. Guest spot (не дефолт, не ковер)
   let guestTrips = trips.filter(trip => {
     const studio = studios.find(s => s.name === trip.title);
     return studio && !studio.isDefault && !trip.isDefaultCover;
   });
 
-  if (!guestTrips.length) {
-    summary.innerHTML = `<div style="opacity:.5;text-align:center">Нет guest spot поездок</div>`;
+  // 2. Длинные интервалы дефолт-студии (ковры)
+  let defaultCovers = trips.filter(trip => {
+    const studio = studios.find(s => s.name === trip.title);
+    if (!studio || !studio.isDefault) return false;
+    if (!trip.isDefaultCover) return false;
+    const start = new Date(trip.start);
+    const end = new Date(trip.end);
+    const days = Math.round((end - start) / (1000 * 60 * 60 * 24));
+    return days > 3;
+  });
+
+  let allTrips = [...guestTrips, ...defaultCovers];
+  if (!allTrips.length) {
+    summary.innerHTML = `<div style="opacity:.5;text-align:center">Нет поездок</div>`;
     return;
   }
 
-  // Сортировка по старту (старые выше)
-  guestTrips.sort((a, b) => a.start.localeCompare(b.start));
-
-  // Сегодня
+  allTrips.sort((a, b) => a.start.localeCompare(b.start));
   const todayStr = new Date().toISOString().slice(0, 10);
 
-  // Найти "текущую" поездку (сегодня внутри диапазона)
-  let currentIdx = guestTrips.findIndex(trip => trip.start <= todayStr && todayStr < trip.end);
+  let currentIdx = allTrips.findIndex(trip => trip.start <= todayStr && todayStr < trip.end);
   if (currentIdx === -1) {
-    // Нет активной сегодня — ищем первый будущий
-    currentIdx = guestTrips.findIndex(trip => trip.start > todayStr);
-    if (currentIdx === -1) currentIdx = guestTrips.length - 1; // если только прошедшие
+    currentIdx = allTrips.findIndex(trip => trip.start > todayStr);
+    if (currentIdx === -1) currentIdx = allTrips.length - 1;
   }
 
-  // Формат дат
   const fmt = d => {
     const [y,m,dd] = d.split('-');
     return `${dd}.${m}.${y}`;
@@ -107,32 +80,34 @@ function renderGuestSpotsSummary() {
   summary.innerHTML = `
     <div class="guest-spot-scrollbox" style="
       max-height: 222px; overflow-y:auto; padding-right:3px;">
-      ${guestTrips.map((trip, i) => {
+      ${allTrips.map((trip, i) => {
         const studio = studios.find(s => s.name === trip.title);
         const dateTo = (new Date(+new Date(trip.end)-24*3600*1000)).toISOString().slice(0,10);
         const isPast = trip.end <= todayStr;
+        const studioName = studio?.name || trip.title;
         const rowStyle = `
           display:flex; align-items:center; margin-bottom:7px; border-radius:999px;
           background:${studio?.color || '#8888'};
-          min-height:40px; font-size:16px; font-weight:500; box-shadow:0 1px 6px #0002;
+          min-height:38px; font-size:15px; font-weight:500; box-shadow:0 1px 6px #0002;
           overflow:hidden; position:relative;${isPast ? ' opacity:0.54; filter:grayscale(0.22);' : ''}
         `;
         return `
           <div class="guest-spot-row" style="${rowStyle}">
             <span style="
-              flex:2; min-width:0; padding:8px 14px 8px 17px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff;">
-              ${trip.title}
+              flex:2.7; min-width:0; padding:8px 6px 8px 14px; white-space:nowrap;
+              overflow:hidden; text-overflow:ellipsis; color:#fff; font-size:clamp(13px,3vw,15.5px); letter-spacing:.01em;">
+              ${studioName}
             </span>
             <span style="
-              flex:1; text-align:center; min-width:84px; color:#fff; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
+              flex:1; text-align:center; min-width:72px; max-width:83px; color:#fff; opacity:.92; font-variant-numeric:tabular-nums; letter-spacing:.02em; font-size:14.7px;">
               ${fmt(trip.start)}
             </span>
             <span style="
-              flex:0 0 23px; text-align:center; color:#fff; font-size:22px; line-height:1; font-weight:900; opacity:0.91;">
+              flex:0 0 17px; text-align:center; color:#fff; font-size:19px; line-height:1; font-weight:900; opacity:0.82;">
               &bull;
             </span>
             <span style="
-              flex:1; text-align:right; padding-right:17px; min-width:84px; color:#fff; opacity:.91; font-variant-numeric:tabular-nums; letter-spacing:.02em;">
+              flex:1; text-align:right; padding-right:13px; min-width:72px; max-width:83px; color:#fff; opacity:.92; font-variant-numeric:tabular-nums; letter-spacing:.02em; font-size:14.7px;">
               ${fmt(dateTo)}
             </span>
           </div>
@@ -141,7 +116,6 @@ function renderGuestSpotsSummary() {
     </div>
   `;
 
-  // Скролл: показывать "текущий" (или ближайший будущий) посередине блока
   setTimeout(() => {
     const scrollBox = summary.querySelector('.guest-spot-scrollbox');
     const rows = scrollBox?.querySelectorAll('.guest-spot-row');
@@ -152,7 +126,6 @@ function renderGuestSpotsSummary() {
     if (scrollToRow) scrollBox.scrollTop = scrollToRow.offsetTop;
   }, 60);
 }
-
 async function addIncome() {
   const location = document.getElementById('income-location').value;
   const date = document.getElementById('income-date').value;
