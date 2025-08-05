@@ -362,82 +362,67 @@ ${entry.isInvoice ? '<div class="history-invoice">(Фактура)</div>' : ''}
   </li>
 `;
 // После рендера карточек истории:
-document.querySelectorAll('.edit-entry-btn').forEach(btn => {
-  btn.addEventListener('click', async function() {
+document.querySelectorAll('.edit-entry-btn-mini').forEach(btn => {
+  btn.onclick = async function() {
     const type = btn.getAttribute('data-type');
     const id = btn.getAttribute('data-id');
     currentEdit = { type, id };
-renderEditActions();
+    renderEditActions();
 
-if (type === 'income') {
-  // (тут заполнение полей)
-  // ...  
-  document.querySelector('.form-section').classList.add('editing');
-  // Прокрутка к блоку "Добавить доход"
-  document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
-} else if (type === 'expense') {
-  // (тут заполнение полей)
-  // ...
-  document.querySelectorAll('.block').forEach(block => {
-    if (block.querySelector('h2')?.textContent.includes('Добавить расход')) {
-      block.classList.add('editing');
-      // Прокрутка к блоку "Добавить расход"
-      block.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Убрать подсветку со всех форм
+    document.querySelectorAll('.form-section, .block').forEach(b => b.classList.remove('editing'));
+
+    if (type === 'income') {
+      const doc = await db.collection('incomes').doc(id).get();
+      const data = doc.data();
+      if (!data) return;
+
+      // Заполняем поля дохода
+      const elLoc = document.getElementById('income-location');
+      const elDate = document.getElementById('income-date');
+      const elAmount = document.getElementById('income-amount');
+      const elType = document.getElementById('work-type');
+      const elInvoice = document.getElementById('is-invoice');
+      if (elLoc) elLoc.value = data.location;
+      if (elDate) elDate.value = data.date;
+      if (elAmount) elAmount.value = data.amount;
+      if (elType) elType.value = data.workType;
+      if (elInvoice) elInvoice.checked = !!data.isInvoice;
+
+      // Подсветка и прокрутка
+      document.querySelector('.form-section').classList.add('editing');
+      document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      elAmount?.focus();
     }
-  });
-}
+    else if (type === 'expense') {
+      const doc = await db.collection('expenses').doc(id).get();
+      const data = doc.data();
+      if (!data) return;
 
-if (type === 'income') {
-  const doc = await db.collection('incomes').doc(id).get();
-  const data = doc.data();
+      // Заполняем поля расхода
+      const elLoc = document.getElementById('expense-location');
+      const elDate = document.getElementById('expense-date');
+      const elAmount = document.getElementById('expense-amount');
+      const elType = document.getElementById('expense-type');
+      if (elLoc) elLoc.value = data.location;
+      if (elDate) elDate.value = data.date;
+      if (elAmount) elAmount.value = data.amount;
+      if (elType) elType.value = data.expenseType;
 
-  // Заполняем поля дохода только если они есть в DOM
-  const elLoc = document.getElementById('income-location');
-  const elDate = document.getElementById('income-date');
-  const elAmount = document.getElementById('income-amount');
-  const elType = document.getElementById('work-type');
-  const elInvoice = document.getElementById('is-invoice');
-  if (elLoc) elLoc.value = data.location;
-  if (elDate) elDate.value = data.date;
-  if (elAmount) elAmount.value = data.amount;
-  if (elType) elType.value = data.workType;
-  if (elInvoice) elInvoice.checked = !!data.isInvoice;
-
-  // Визуально подсветить форму (например, добавить класс .editing)
-  document.querySelector('.form-section').classList.add('editing');
-}
- else if (type === 'expense') {
-  const doc = await db.collection('expenses').doc(id).get();
-  const data = doc.data();
-
-  const elLoc = document.getElementById('expense-location');
-  const elDate = document.getElementById('expense-date');
-  const elAmount = document.getElementById('expense-amount');
-  const elType = document.getElementById('expense-type');
-  if (elLoc) elLoc.value = data.location;
-  if (elDate) elDate.value = data.date;
-  if (elAmount) elAmount.value = data.amount;
-  if (elType) elType.value = data.expenseType;
-
-  // Визуально подсветить форму (найти первый блок с h2 = 'Добавить расход')
-  document.querySelectorAll('.block').forEach(block => {
-    if (block.querySelector('h2')?.textContent.includes('Добавить расход')) {
-      block.classList.add('editing');
+      // Подсветка и прокрутка
+      document.querySelectorAll('.block').forEach(block => {
+        if (block.querySelector('h2')?.textContent.includes('Добавить расход')) {
+          block.classList.add('editing');
+          block.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          block.querySelector('#expense-amount')?.focus();
+        }
+      });
     }
-  });
-}  });
+  }
 });
 
-
-
-    });
-  } catch (e) {
-    historyList.innerHTML = `<li style="color:red">Ошибка загрузки истории: ${e.message}</li>`;
-  }
-}
-
-async function addExpense() {
-  const location = document.getElementById('expense-location').value;
+// --- конец обработчика, дальше твой addExpense ---
+async function addExpense() {  const location = document.getElementById('expense-location').value;
   const date = document.getElementById('expense-date').value;
   const amount = parseFloat(document.getElementById('expense-amount').value);
   const expenseType = document.getElementById('expense-type').value;
