@@ -309,12 +309,12 @@ async function loadHistory() {
 
     // Собираем все записи в один массив
     let allEntries = [];
-   incomeSnap.forEach(doc => {
-  allEntries.push({ type: 'income', id: doc.id, ...doc.data() });
-});
-expenseSnap.forEach(doc => {
-  allEntries.push({ type: 'expense', id: doc.id, ...doc.data() });
-});
+    incomeSnap.forEach(doc => {
+      allEntries.push({ type: 'income', id: doc.id, ...doc.data() });
+    });
+    expenseSnap.forEach(doc => {
+      allEntries.push({ type: 'expense', id: doc.id, ...doc.data() });
+    });
 
     // Сортируем по дате (убывание)
     allEntries.sort((a, b) => b.date.localeCompare(a.date));
@@ -324,103 +324,109 @@ expenseSnap.forEach(doc => {
       return;
     }
 
+    // --- Форматирование даты ---
+    function formatDateDMY(dateStr) {
+      if (!dateStr) return '';
+      const months = [
+        'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+        'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+      ];
+      const [y, m, d] = dateStr.split('-');
+      const mm = parseInt(m, 10);
+      return `${parseInt(d, 10)} ${months[mm - 1]} ${y}`;
+    }
+
     // Рендерим историю
     historyList.innerHTML = '';
     allEntries.forEach(entry => {
+      historyList.innerHTML += `
+        <li class="history-entry flex-history-threecol ${entry.type}">
+          <div class="history-col-sum">
+            <span>${entry.amount}</span>
+          </div>
+          <div class="history-col-main">
+            <div class="history-studio">${entry.location || ''}</div>
+            ${entry.isInvoice ? '<div class="history-invoice">(Фактура)</div>' : ''}
+            <div class="history-date">${formatDateDMY(entry.date)}</div>
+            <div class="history-category">${entry.workType || entry.expenseType || ''}</div>
+          </div>
+          <div class="history-col-actions">
+            <button class="edit-entry-btn-mini" data-type="${entry.type}" data-id="${entry.id}" title="Редактировать">
+              <svg width="20" height="20" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.7" fill="none">
+                <path d="M14.7 3.8c.5-.5 1.3-.5 1.8 0s.5 1.3 0 1.8l-8.8 8.8-2.5.7.7-2.5 8.8-8.8z"/>
+                <path d="M12.3 6.2l1.5 1.5"/>
+              </svg>
+            </button>
+          </div>
+        </li>
+      `;
+    });
 
-// --- Форматирование даты ---
-function formatDateDMY(dateStr) {
-  if (!dateStr) return '';
-  const months = [
-    'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
-    'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
-  ];
-  const [y, m, d] = dateStr.split('-');
-  const mm = parseInt(m, 10);
-  return `${parseInt(d, 10)} ${months[mm - 1]} ${y}`;
-}
+    // === Весь обработчик редактирования — после цикла, только один раз! ===
+    document.querySelectorAll('.edit-entry-btn-mini').forEach(btn => {
+      btn.onclick = async function() {
+        const type = btn.getAttribute('data-type');
+        const id = btn.getAttribute('data-id');
+        currentEdit = { type, id };
+        renderEditActions();
 
-historyList.innerHTML += `
-  <li class="history-entry flex-history-threecol ${entry.type}">
-    <div class="history-col-sum">
-      <span>${entry.amount}</span>
-    </div>
-    <div class="history-col-main">
-      <div class="history-studio">${entry.location || ''}</div>
-${entry.isInvoice ? '<div class="history-invoice">(Фактура)</div>' : ''}
-<div class="history-date">${formatDateDMY(entry.date)}</div>
-      <div class="history-category">${entry.workType || entry.expenseType || ''}</div>
-    </div>
-    <div class="history-col-actions">
-      <button class="edit-entry-btn-mini" data-type="${entry.type}" data-id="${entry.id}" title="Редактировать">
-        <svg width="20" height="20" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.7" fill="none">
-          <path d="M14.7 3.8c.5-.5 1.3-.5 1.8 0s.5 1.3 0 1.8l-8.8 8.8-2.5.7.7-2.5 8.8-8.8z"/>
-          <path d="M12.3 6.2l1.5 1.5"/>
-        </svg>
-      </button>
-    </div>
-  </li>
-`;
-// После рендера карточек истории:
-document.querySelectorAll('.edit-entry-btn-mini').forEach(btn => {
-  btn.onclick = async function() {
-    const type = btn.getAttribute('data-type');
-    const id = btn.getAttribute('data-id');
-    currentEdit = { type, id };
-    renderEditActions();
+        // Убрать подсветку со всех форм
+        document.querySelectorAll('.form-section, .block').forEach(b => b.classList.remove('editing'));
 
-    // Убрать подсветку со всех форм
-    document.querySelectorAll('.form-section, .block').forEach(b => b.classList.remove('editing'));
+        if (type === 'income') {
+          const doc = await db.collection('incomes').doc(id).get();
+          const data = doc.data();
+          if (!data) return;
 
-    if (type === 'income') {
-      const doc = await db.collection('incomes').doc(id).get();
-      const data = doc.data();
-      if (!data) return;
+          // Заполняем поля дохода
+          const elLoc = document.getElementById('income-location');
+          const elDate = document.getElementById('income-date');
+          const elAmount = document.getElementById('income-amount');
+          const elType = document.getElementById('work-type');
+          const elInvoice = document.getElementById('is-invoice');
+          if (elLoc) elLoc.value = data.location;
+          if (elDate) elDate.value = data.date;
+          if (elAmount) elAmount.value = data.amount;
+          if (elType) elType.value = data.workType;
+          if (elInvoice) elInvoice.checked = !!data.isInvoice;
 
-      // Заполняем поля дохода
-      const elLoc = document.getElementById('income-location');
-      const elDate = document.getElementById('income-date');
-      const elAmount = document.getElementById('income-amount');
-      const elType = document.getElementById('work-type');
-      const elInvoice = document.getElementById('is-invoice');
-      if (elLoc) elLoc.value = data.location;
-      if (elDate) elDate.value = data.date;
-      if (elAmount) elAmount.value = data.amount;
-      if (elType) elType.value = data.workType;
-      if (elInvoice) elInvoice.checked = !!data.isInvoice;
-
-      // Подсветка и прокрутка
-      document.querySelector('.form-section').classList.add('editing');
-      document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
-      elAmount?.focus();
-    }
-    else if (type === 'expense') {
-      const doc = await db.collection('expenses').doc(id).get();
-      const data = doc.data();
-      if (!data) return;
-
-      // Заполняем поля расхода
-      const elLoc = document.getElementById('expense-location');
-      const elDate = document.getElementById('expense-date');
-      const elAmount = document.getElementById('expense-amount');
-      const elType = document.getElementById('expense-type');
-      if (elLoc) elLoc.value = data.location;
-      if (elDate) elDate.value = data.date;
-      if (elAmount) elAmount.value = data.amount;
-      if (elType) elType.value = data.expenseType;
-
-      // Подсветка и прокрутка
-      document.querySelectorAll('.block').forEach(block => {
-        if (block.querySelector('h2')?.textContent.includes('Добавить расход')) {
-          block.classList.add('editing');
-          block.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          block.querySelector('#expense-amount')?.focus();
+          // Подсветка и прокрутка
+          document.querySelector('.form-section').classList.add('editing');
+          document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
+          elAmount?.focus();
         }
-      });
-    }
-  }
-});
+        else if (type === 'expense') {
+          const doc = await db.collection('expenses').doc(id).get();
+          const data = doc.data();
+          if (!data) return;
 
+          // Заполняем поля расхода
+          const elLoc = document.getElementById('expense-location');
+          const elDate = document.getElementById('expense-date');
+          const elAmount = document.getElementById('expense-amount');
+          const elType = document.getElementById('expense-type');
+          if (elLoc) elLoc.value = data.location;
+          if (elDate) elDate.value = data.date;
+          if (elAmount) elAmount.value = data.amount;
+          if (elType) elType.value = data.expenseType;
+
+          // Подсветка и прокрутка
+          document.querySelectorAll('.block').forEach(block => {
+            if (block.querySelector('h2')?.textContent.includes('Добавить расход')) {
+              block.classList.add('editing');
+              block.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              block.querySelector('#expense-amount')?.focus();
+            }
+          });
+        }
+      };
+    });
+    // === конец обработчика ===
+
+  } catch (e) {
+    historyList.innerHTML = `<li style="color:red">Ошибка загрузки истории: ${e.message}</li>`;
+  }
+}
 // --- конец обработчика, дальше твой addExpense ---
 async function addExpense() {  const location = document.getElementById('expense-location').value;
   const date = document.getElementById('expense-date').value;
