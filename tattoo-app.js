@@ -17,7 +17,7 @@ const db = firebase.firestore();
 async function loadStudios() {
   studios = [];
   const snap = await db.collection('studios').get();
-  snap.forEach(doc => studios.push({ id: doc.id, ...doc.data(), studio: doc.data().studio || doc.data().studio });
+  snap.forEach(doc => studios.push({ id: doc.id, ...doc.data(), studio: doc.data().studio });
 
    renderStudioOptions();
   renderStudioSelect?.();
@@ -648,8 +648,8 @@ document.getElementById('studio-form').onsubmit = async function(e) {
   await db.collection('studios').doc(id).update({ color, isDefault: false });
 
   // После снятия флажка — удалить ковер (trips с isDefaultCover: true для этой студии)
-  const q = await db.collection('trips')
-    .where('studio','==', studios[idx].name)
+ const q = await db.collection('trips')
+    .where('studio','==', studios[idx].studio)
     .where('isDefaultCover','==', true).get();
   const batch = db.batch();
   q.forEach(doc => batch.delete(doc.ref));
@@ -1052,7 +1052,7 @@ async function clipDefaultCover(start, end) {
       }
       if (end < data.end) {
         t.set(db.collection('trips').doc(), {
-          studio: def.name, color: def.color,
+          studio: def.studio, color: def.color,
           start : end, end: data.end,
           isDefaultCover: true
         });
@@ -1099,7 +1099,7 @@ async function fillDefaultCoverGaps() {
     let endStr = endDate.toISOString().slice(0,10);
 
     // Удаляем старые ковры
-    const oldCovers = await db.collection('trips')
+   const oldCovers = await db.collection('trips')
     .where('studio', '==', def.studio)
     .where('isDefaultCover', '==', true)
     .get();
@@ -1111,11 +1111,11 @@ async function fillDefaultCoverGaps() {
     batch.set(ref, {
   studio: def.studio,
   color: def.color,
-      start: startStr,
-      end: endStr,
-      isDefaultCover: true,
-      created: new Date().toISOString()
-    });
+  start: range.start,
+  end: range.end,
+  isDefaultCover: true,
+  created: new Date().toISOString()
+});
     await batch.commit();
 
     await loadTrips();
