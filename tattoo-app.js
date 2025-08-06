@@ -362,7 +362,7 @@ for (let i = 0; i < allEntries.length; i++) {
   // --- вот здесь ---
   const studio = studios.find(s => s.name === entry.location);
   let color = studio?.color || "#444";
-  const bgColor = hexToRgba(color, 0.5);
+  const bgColor = hexToRgba(color, 0.2);
 
  let isGroupedWithPrev = false;
 if (i > 0) {
