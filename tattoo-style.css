@@ -50,8 +50,7 @@ position: relative;
   min-height: 84px;
   background: rgba(20,24,25,0.79);
   border-radius: 20px;
-  margin-bottom: 16px;
-  overflow: hidden;
+   overflow: hidden;
   box-shadow: 0 2px 14px 0 rgba(0,0,0,0.12);
   position: relative;
 }
@@ -980,8 +979,7 @@ textarea {
   display: flex;
   align-items: stretch;
   padding: 0;
-  margin-bottom: 13px;
-  min-height: 76px;
+    min-height: 76px;
   background: rgba(80,60,20,0.07);
   border-radius: 19px;
   box-shadow: 0 2px 7px 0 rgba(0,0,0,0.10) inset;
@@ -1075,8 +1073,7 @@ padding-left: 18px;
   min-height: 84px;
   background: rgba(20,24,25,0.79);
   border-radius: 20px;
-  margin-bottom: 16px;
-  overflow: hidden;
+    overflow: hidden;
   box-shadow: 0 2px 14px 0 rgba(0,0,0,0.12);
   position: relative;
 }
@@ -1129,7 +1126,7 @@ padding-left: 18px;
   min-height: 82px;
   background: rgba(20,24,25,0.82);
   border-radius: 20px;
-  margin-bottom: 16px;
+ 
   overflow: hidden;
   box-shadow: 0 2px 14px 0 rgba(0,0,0,0.11);
   position: relative;
@@ -1234,5 +1231,15 @@ padding-left: 18px;
 }
 .history-list .group-separator {
   margin-top: 23px;
+}
+
+}
+/* Для плотной группировки внутри guest spot */
+.history-list .grouped-inside {
+  margin-bottom: 2.5px !important;
+}
+/* Для разделителя групп (если используешь) */
+.history-list .group-separator {
+  margin-top: 15px !important;
 }
 
