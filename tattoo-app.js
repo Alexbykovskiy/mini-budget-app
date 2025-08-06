@@ -344,20 +344,37 @@ async function loadHistory() {
       return `${parseInt(d, 10)} ${months[mm - 1]} ${y}`;
     }
 
+function findTripForEntry(entry) {
+  // Проходишь по trips, ищешь trip, в котором дата записи входит в диапазон trip.start <= entry.date < trip.end и совпадает студия
+  return trips.find(trip =>
+    trip.title === entry.location &&
+    trip.start <= entry.date &&
+    entry.date < trip.end
+  );
+}
+
+
     // Рендерим историю
     historyList.innerHTML = '';
 for (let i = 0; i < allEntries.length; i++) {
   const entry = allEntries[i];
   const studio = studios.find(s => s.name === entry.location);
   let color = studio?.color || "#444";
-  const bgColor = hexToRgba(color, 0.5);
+  const bgColor = hexToRgba(color, 0.2);
 
   // Сравниваем с предыдущей записью: если локация совпадает, делаем группировку
   let isGroupedWithPrev = false;
-  if (i > 0) {
-    const prev = allEntries[i - 1];
-    if (prev.location === entry.location) isGroupedWithPrev = true;
-  }
+if (i > 0) {
+  const prev = allEntries[i - 1];
+  const prevTrip = findTripForEntry(prev);
+  const currTrip = findTripForEntry(entry);
+  // Склеиваем только если и студия, и trip совпадают!
+  if (prev.location === entry.location &&
+      prevTrip && currTrip &&
+      prevTrip.start === currTrip.start &&
+      prevTrip.end === currTrip.end
+  ) isGroupedWithPrev = true;
+}
 
   historyList.innerHTML += `
     <li class="history-entry flex-history-threecol ${entry.type}${isGroupedWithPrev ? ' grouped-inside' : ''}" style="background:${bgColor};">
