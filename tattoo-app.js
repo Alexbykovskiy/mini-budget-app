@@ -17,7 +17,7 @@ const db = firebase.firestore();
 async function loadStudios() {
   studios = [];
   const snap = await db.collection('studios').get();
-  snap.forEach(doc => studios.push({ id: doc.id, ...doc.data() }));
+  snap.forEach(doc => studios.push({ id: doc.id, ...doc.data(), studio: doc.data().studio || doc.data().studio });
 
    renderStudioOptions();
   renderStudioSelect?.();
@@ -27,12 +27,12 @@ function renderStudioOptions() {
   // Для доходов
   const incomeSel = document.getElementById('income-location');
   if (incomeSel) {
-    incomeSel.innerHTML = studios.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+    incomeSel.innerHTML = studios.map(s => `<option value="${s.studio}">${s.studio}</option>`).join('');
   }
   // Для расходов (если нужно — можно дублировать)
   const expenseSel = document.getElementById('expense-location');
   if (expenseSel) {
-    expenseSel.innerHTML = studios.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+    expenseSel.innerHTML = studios.map(s => `<option value="${s.studio}">${s.studio}</option>`).join('');
   }
 }
 
@@ -52,7 +52,7 @@ function renderStudiosSummary() {
           <path d="M2 10.2 10 3l8 7.2V17a1 1 0 0 1-1 1h-4.2A.8.8 0 0 1 12 17.2V14a2 2 0 0 0-4 0v3.2c0 .44-.36.8-.8.8H3a1 1 0 0 1-1-1v-6.8z" fill="#fff"/>
           <path d="M2.7 9.5a1 1 0 0 1 1.4-1.4L10 4.14l5.9 4.96a1 1 0 1 1-1.3 1.52L10 6.26 4.04 9.58a1 1 0 0 1-1.34-.08z" fill="#ffa35c"/>
         </svg>` : ''}
-        ${s.name}${s.isDefault ? ' — по умолчанию' : ''}
+        ${s.studio}${s.isDefault ? ' — по умолчанию' : ''}
     </span>`
   ).join('');
 
@@ -75,7 +75,7 @@ function renderGuestSpotsSummary() {
 
   // Собираем guest spots и длинные default covers (> 3 дней)
   let tripsForList = trips.filter(trip => {
-    const studio = studios.find(s => s.name === trip.title);
+    const studio = studios.find(s => s.studio === trip.title);
     if (!studio) return false;
     if (trip.isDefaultCover) {
       // вычисляем длину периода
@@ -113,7 +113,7 @@ summary.innerHTML = `
   <div class="guest-spot-scrollbox" style="max-height:222px;overflow-y:auto;padding-right:3px;">
     ${
       tripsForList.map((trip, i) => {
-        const studio = studios.find(s => s.name === trip.title);
+        const studio = studios.find(s => s.studio === trip.title);
         const dateTo = (new Date(+new Date(trip.end)-24*3600*1000)).toISOString().slice(0,10);
         const isPast = trip.end <= todayStr;
         const isDefault = !!trip.isDefaultCover;
@@ -251,7 +251,7 @@ function updateCalendarInputsVisibility() {
   const sel = document.getElementById('studio-select');
   sel.innerHTML = '';
   studios.forEach((s, i) => {
-    sel.innerHTML += `<option value="${i}" style="color:${s.color}">${s.name}</option>`;
+    sel.innerHTML += `<option value="${i}" style="color:${s.color}">${s.studio}</option>`;
   });
 
   // --- Добавить обработчик и сразу вызвать обновление видимости полей ---
@@ -268,7 +268,7 @@ async function addNewStudio() {
   const name = document.getElementById('new-studio-name').value.trim();
   const color = document.getElementById('new-studio-color').value;
   if (name) {
-    await db.collection('studios').add({ name, color });
+    await db.collection('studios').add({ studio: name, color });
     await loadStudios();
     closeAddStudioModal();
 showCalendarToast('Студия добавлена!');
@@ -360,7 +360,7 @@ for (let i = 0; i < allEntries.length; i++) {
   const tripForThisEntry = findTripForEntry(entry);
 
   // --- вот здесь ---
-  const studio = studios.find(s => s.name === entry.studio);
+const studio = studios.find(s => s.studio === entry.studio);
   let color = studio?.color || "#444";
   const bgColor = hexToRgba(color, 0.2);
 
@@ -531,16 +531,16 @@ if (studioIdx !== null && studios[studioIdx]) {
   if (selIdx !== null && studios[selIdx]) {
     studio = studios[selIdx];
   } else if (nameInput.value) {
-    studio = studios.find(s => s.name.trim().toLowerCase() === nameInput.value.trim().toLowerCase());
+    studio = studios.find(s => s.studio.trim().toLowerCase() === nameInput.value.trim().toLowerCase());
   }
 }
 if (studio) {
-  nameInput.value = studio.name;
+  nameInput.value = studio.studio;
   colorInput.value = studio.color;
   defaultSwitch.checked = !!studio.isDefault;
   deleteBtn.style.display = "block";
   deleteBtn.onclick = async function() {
-    if (confirm(`Удалить студию "${studio.name}"?`)) {
+    if (confirm(`Удалить студию "${studio.studio}"?`)) {
       try {
         await db.collection('studios').doc(studio.id).delete();
         await loadStudios();
@@ -582,7 +582,7 @@ defaultSwitch.onclick = function() {
   if (defaultSwitch.disabled) {
     const currentDefaultStudio = studios.find(s => s.isDefault);
     if (currentDefaultStudio) {
-      alert('Студия по умолчанию: "' + currentDefaultStudio.name + '"');
+      alert('Студия по умолчанию: "' + currentDefaultstudio.studio + '"');
     }
     return false;
   }
@@ -595,18 +595,18 @@ defaultSwitch.onclick = function() {
 
   // При вводе — если студия уже есть, автозаполнить цвет
   nameInput.oninput = function() {
-    const idx = studios.findIndex(s => s.name.toLowerCase() === nameInput.value.trim().toLowerCase());
+    const idx = studios.findIndex(s => s.studio.toLowerCase() === nameInput.value.trim().toLowerCase());
 if (idx >= 0) {
   colorInput.value = studios[idx].color;
   deleteBtn.style.display = "block";
  deleteBtn.onclick = async function() {
-  if (confirm(`Удалить студию "${studio.name}"?`)) {
+  if (confirm(`Удалить студию "${studio.studio}"?`)) {
     try {
       // Если студия была дефолтной — удалить ковёр для нее из trips
       if (studio.isDefault) {
-        const q = await db.collection('trips')
-          .where('studio','==', studio.name)
-          .where('isDefaultCover','==', true).get();
+       const q = await db.collection('trips')
+    .where('studio','==', studios[idx].studio)
+    .where('isDefaultCover','==', true).get();
         const batch = db.batch();
         q.forEach(doc => batch.delete(doc.ref));
         await batch.commit();
@@ -640,7 +640,7 @@ document.getElementById('studio-form').onsubmit = async function(e) {
   const isDefault = document.getElementById('studio-default-switch').checked;
   if (!name) return;
 
-  let idx = studios.findIndex(s => s.name.toLowerCase() === name.toLowerCase());
+  let idx = studios.findIndex(s => s.studio.toLowerCase() === name.toLowerCase());
   let id = idx >= 0 ? studios[idx].id : null;
 
   // 1. Если снимаем чекбокс — явно сбрасываем isDefault у текущей студии
@@ -658,18 +658,18 @@ document.getElementById('studio-form').onsubmit = async function(e) {
 
   // 2. Если ставим чекбокс — снимаем isDefault у всех других
   if (isDefault) {
-    const updates = studios.filter(s => s.isDefault && s.name !== name)
+    const updates = studios.filter(s => s.isDefault && s.studio !== name)
       .map(s => db.collection('studios').doc(s.id).update({ isDefault: false }));
     await Promise.all(updates);
 
     if (idx >= 0) {
       await db.collection('studios').doc(id).update({ color, isDefault: true });
     } else {
-      await db.collection('studios').add({ name, color, isDefault: true });
+      await db.collection('studios').add({ studio: name, color, isDefault: true });
     }
   } else if (idx < 0) {
     // 3. Если добавляем новую студию без дефолта
-    await db.collection('studios').add({ name, color, isDefault: false });
+    await db.collection('studios').add({ studio: name, color, isDefault: false });
   }
 
   await loadStudios();       // Перечитали список студий, это создаст/удалит ковер если надо
@@ -697,8 +697,8 @@ const to = new Date(dateTo);
 to.setHours(23,59,59,999); // чтобы включительно
 
 const busyRanges = trips.filter(ev =>
-  ev.title !== studio.name &&
-  (!studios.find(s => s.name === ev.title)?.isDefault)
+  ev.title !== studio.studio &&
+  (!studios.find(s => s.studio === ev.title)?.isDefault)
 );
 
 let overlapDates = [];
@@ -753,7 +753,7 @@ if (overlapDates.length > 0) {
 for (const ev of trips) {
   if (
     !(ev.end <= dateFrom || ev.start >= addDays(dateTo, 1)) // Есть пересечение дат
-    && ev.title !== studio.name // Не совпадает имя студии
+    && ev.title !== studio.studio // Не совпадает имя студии
     && ev.isDefaultCover // Только дефолт-ковер!
   ) {
     // Полное перекрытие — удалить event
@@ -793,7 +793,7 @@ showCalendarToast('Период добавлен!');
   if (currentTripId) {
     // Редактирование существующей поездки
     await db.collection('trips').doc(currentTripId).update({
-      studio: studio.name,
+      studio: studio.studio,
       color: studio.color,
       start: dateFrom,
       end: addDays(dateTo, 1)
@@ -803,7 +803,7 @@ currentTripId = null;
   } else {
     // Новая поездка
     await db.collection('trips').add({
-      studio: studio.name,
+      studio: studio.studio,
       color: studio.color,
       start: dateFrom,
       end: addDays(dateTo, 1),
@@ -1034,8 +1034,8 @@ await updateStats();
 async function clipDefaultCover(start, end) {
   const def = studios.find(s => s.isDefault);
   if (!def) return;
-  const snap = await db.collection('trips')
-        .where('studio','==', def.name)
+ const snap = await db.collection('trips')
+        .where('studio','==', def.studio)
         .where('isDefaultCover','==', true).limit(1).get();
   if (snap.empty) return;
   const doc = snap.docs[0];
@@ -1045,7 +1045,7 @@ async function clipDefaultCover(start, end) {
       t.delete(doc.ref);
       if (start > data.start) {
         t.set(db.collection('trips').doc(), {
-          studio: def.name, color: def.color,
+  studio: def.studio, color: def.color,
           start : data.start, end: start,
           isDefaultCover: true
         });
@@ -1100,17 +1100,17 @@ async function fillDefaultCoverGaps() {
 
     // Удаляем старые ковры
     const oldCovers = await db.collection('trips')
-      .where('studio', '==', def.name)
-      .where('isDefaultCover', '==', true)
-      .get();
+    .where('studio', '==', def.studio)
+    .where('isDefaultCover', '==', true)
+    .get();
     const batch = db.batch();
     oldCovers.forEach(doc => batch.delete(doc.ref));
 
     // Создаём новый ковёр на год
     const ref = db.collection('trips').doc();
     batch.set(ref, {
-      studio: def.name,
-      color: def.color,
+  studio: def.studio,
+  color: def.color,
       start: startStr,
       end: endStr,
       isDefaultCover: true,
@@ -1232,7 +1232,7 @@ firstDay: 1,
     const endDate = event.endStr
   ? subtractOneDay(event.endStr)
   : startDate;
-      const studioIdx = studios.findIndex(s => s.name === studioName);
+      const studioIdx = studios.findIndex(s => s.studio === studioName);
       document.getElementById('studio-select').value = studioIdx;
 
       // Обновить видимость!
@@ -1296,11 +1296,11 @@ function findActiveStudio(dateStr) {
   });
   if (activeTrip) {
     // Находим студию по названию
-    let s = studios.find(st => st.name === activeTrip.title);
-    return s ? s.name : studios.find(st => st.isDefault)?.name || '';
+    let s = studios.find(st => st.studio === activeTrip.title);
+return s ? s.studio : studios.find(st => st.isDefault)?.studio || '';
   }
   // 2. Если нет guest spot — дефолтная студия
-  return studios.find(st => st.isDefault)?.name || '';
+  return studios.find(st => st.isDefault)?.studio || '';
 }
 
 function setDefaultStudioInputs() {
