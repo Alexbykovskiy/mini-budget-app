@@ -295,6 +295,14 @@ async function loadTrips() {
   renderGuestSpotsSummary();
 }
 
+function hexToRgba(hex, alpha = 0.5) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) hex = hex.split('').map(x => x + x).join('');
+  const num = parseInt(hex, 16);
+  return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, ${alpha})`;
+}
+
+
 async function loadHistory() {
   const historyList = document.getElementById('history-list');
   if (!historyList) return;
@@ -338,29 +346,33 @@ async function loadHistory() {
 
     // Рендерим историю
     historyList.innerHTML = '';
-    allEntries.forEach(entry => {
-      historyList.innerHTML += `
-        <li class="history-entry flex-history-threecol ${entry.type}">
-          <div class="history-col-sum">
-            <span>${entry.amount}</span>
-          </div>
-          <div class="history-col-main">
-            <div class="history-studio">${entry.location || ''}</div>
-            ${entry.isInvoice ? '<div class="history-invoice">(Фактура)</div>' : ''}
-            <div class="history-date">${formatDateDMY(entry.date)}</div>
-            <div class="history-category">${entry.workType || entry.expenseType || ''}</div>
-          </div>
-          <div class="history-col-actions">
-            <button class="edit-entry-btn-mini" data-type="${entry.type}" data-id="${entry.id}" title="Редактировать">
-              <svg width="20" height="20" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.7" fill="none">
-                <path d="M14.7 3.8c.5-.5 1.3-.5 1.8 0s.5 1.3 0 1.8l-8.8 8.8-2.5.7.7-2.5 8.8-8.8z"/>
-                <path d="M12.3 6.2l1.5 1.5"/>
-              </svg>
-            </button>
-          </div>
-        </li>
-      `;
-    });
+   allEntries.forEach(entry => {
+  const studio = studios.find(s => s.name === entry.location);
+  let color = studio?.color || "#444";
+  const bgColor = hexToRgba(color, 0.5);
+
+  historyList.innerHTML += `
+    <li class="history-entry flex-history-threecol ${entry.type}" style="background:${bgColor};">
+      <div class="history-col-sum">
+        <span>${entry.amount}</span>
+      </div>
+      <div class="history-col-main">
+        <div class="history-studio">${entry.location || ''}</div>
+        ${entry.isInvoice ? '<div class="history-invoice">(Фактура)</div>' : ''}
+        <div class="history-date">${formatDateDMY(entry.date)}</div>
+        <div class="history-category">${entry.workType || entry.expenseType || ''}</div>
+      </div>
+      <div class="history-col-actions">
+        <button class="edit-entry-btn-mini" data-type="${entry.type}" data-id="${entry.id}" title="Редактировать">
+          <svg width="20" height="20" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.7" fill="none">
+            <path d="M14.7 3.8c.5-.5 1.3-.5 1.8 0s.5 1.3 0 1.8l-8.8 8.8-2.5.7.7-2.5 8.8-8.8z"/>
+            <path d="M12.3 6.2l1.5 1.5"/>
+          </svg>
+        </button>
+      </div>
+    </li>
+  `;
+});
 
     // === Весь обработчик редактирования — после цикла, только один раз! ===
     document.querySelectorAll('.edit-entry-btn-mini').forEach(btn => {
