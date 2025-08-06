@@ -378,7 +378,8 @@ if (i > 0) {
 let isGroupStart = !isGroupedWithPrev; // ← новая переменная!
 
   // Вставляем запись
-  historyList.innerHTML += ` <li class="history-entry flex-history-threecol ${entry.type}${isGroupedWithPrev ? ' grouped-inside' : ''}" style="background:${bgColor};">
+historyList.innerHTML += ` <li class="history-entry flex-history-threecol ${entry.type}${isGroupedWithPrev ? ' grouped-inside' : ''}${isGroupStart ? ' group-separator' : ''}" style="background:${bgColor};">
+
       <div class="history-col-sum">
         <span>${entry.amount}</span>
       </div>
