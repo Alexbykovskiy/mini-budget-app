@@ -1422,7 +1422,9 @@ async function showTripModal(studioName, dateStart, dateEnd) {
   let sumIncome = incomes.reduce((s, e) => s + Number(e.amount || 0), 0);
   let sumExpense = expenses.reduce((s, e) => s + Number(e.amount || 0), 0);
   let netIncome = sumIncome - sumExpense;
-  const days = Math.max(1, Math.round((new Date(dateEnd) - new Date(dateStart)) / (1000 * 60 * 60 * 24)));
+  const start = new Date(dateStart);
+const end = new Date(dateEnd);
+const days = Math.max(1, Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1);
   let avgIncomeDay = sumIncome / days;
   let avgNetIncomeDay = netIncome / days;
   let maxIncome = incomes.reduce((max, e) => Math.max(max, Number(e.amount || 0)), 0);
