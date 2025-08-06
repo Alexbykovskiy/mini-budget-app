@@ -41,23 +41,6 @@ position: relative;
   margin-top: 10px;
 }
 
-/* Разделительная линия между группами guest spot */
-.history-list .history-entry:not(.grouped-inside)::before {
-  content: "";
-  display: block;
-  height: 1.5px;
-  width: 82%;
-  margin: 0 auto 13px auto;
-  background: linear-gradient(90deg, #ffa35c55 0%, #ffffff10 80%);
-  border-radius: 1px;
-}
-.history-list .history-entry:not(.grouped-inside) {
-  margin-top: 23px;
-}
-.history-list .grouped-inside {
-  margin-top: 0 !important;
-  margin-bottom: 5px !important;
-}
 
 
 
@@ -1238,5 +1221,23 @@ padding-left: 18px;
   width: 0px;
   background: transparent;
   display: none;
+}
+
+/* Разделительная линия между группами guest spot */
+.history-list .history-entry:not(.grouped-inside)::before {
+  content: "";
+  display: block;
+  height: 1.5px;
+  width: 82%;
+  margin: 0 auto 13px auto;
+  background: linear-gradient(90deg, #ffa35c55 0%, #ffffff10 80%);
+  border-radius: 1px;
+}
+.history-list .history-entry:not(.grouped-inside) {
+  margin-top: 23px;
+}
+.history-list .grouped-inside {
+  margin-top: 0 !important;
+  margin-bottom: 5px !important;
 }
 
