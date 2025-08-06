@@ -195,13 +195,13 @@ async function addIncome() {
 
   try {
     await db.collection('incomes').add({
-      location,
-      date,
-      amount,
-      workType,
-      isInvoice,
-      created: new Date().toISOString()
-    });
+  studio: location, // location — это выбранное имя студии
+  date,
+  amount,
+  workType,
+  isInvoice,
+  created: new Date().toISOString()
+});
     // Очищаем поля после добавления
     document.getElementById('income-location').value = '';
     document.getElementById('income-date').value = '';
@@ -347,7 +347,7 @@ async function loadHistory() {
 function findTripForEntry(entry) {
   // Проходишь по trips, ищешь trip, в котором дата записи входит в диапазон trip.start <= entry.date < trip.end и совпадает студия
   return trips.find(trip =>
-    trip.title === entry.location &&
+    trip.title === entry.studio &&
     trip.start <= entry.date &&
     entry.date < trip.end
   );
@@ -360,7 +360,7 @@ for (let i = 0; i < allEntries.length; i++) {
   const tripForThisEntry = findTripForEntry(entry);
 
   // --- вот здесь ---
-  const studio = studios.find(s => s.name === entry.location);
+  const studio = studios.find(s => s.name === entry.studio);
   let color = studio?.color || "#444";
   const bgColor = hexToRgba(color, 0.2);
 
@@ -369,7 +369,7 @@ if (i > 0) {
   const prev = allEntries[i - 1];
   const prevTrip = findTripForEntry(prev);
   if (
-    prev.location === entry.location &&
+    prev.location === entry.studio &&
     prevTrip && tripForThisEntry &&
     prevTrip.start === tripForThisEntry.start &&
     prevTrip.end === tripForThisEntry.end
@@ -383,7 +383,7 @@ let isGroupStart = !isGroupedWithPrev; // ← новая переменная!
         <span>${entry.amount}</span>
       </div>
       <div class="history-col-main">
-        <div class="history-studio">${entry.location || ''}</div>
+        <div class="history-studio">${entry.studio || ''}</div>
         ${entry.isInvoice ? '<div class="history-invoice">(Фактура)</div>' : ''}
         <div class="history-date">${formatDateDMY(entry.date)}</div>
         <div class="history-category">${entry.workType || entry.expenseType || ''}</div>
@@ -479,12 +479,12 @@ async function addExpense() {  const location = document.getElementById('expense
 
   try {
     await db.collection('expenses').add({
-      location,
-      date,
-      amount,
-      expenseType,
-      created: new Date().toISOString()
-    });
+  studio: location, // location — это выбранное имя студии
+  date,
+  amount,
+  expenseType,
+  created: new Date().toISOString()
+});
 
     // Очищаем поля после добавления
     document.getElementById('expense-location').value = '';
@@ -1403,12 +1403,12 @@ async function showTripModal(studioName, dateStart, dateEnd) {
   // Фильтрация истории
  const [incomeSnap, expenseSnap] = await Promise.all([
     db.collection('incomes')
-      .where('location', '==', studioName)
-      .where('date', '>=', dateStart)
-      .where('date', '<=', dateEnd)
+  .where('studio', '==', studioName)
+  .where('date', '>=', dateStart)
+  .where('date', '<=', dateEnd)
       .orderBy('date', 'asc').get(),
     db.collection('expenses')
-      .where('location', '==', studioName)
+      .where('studio', '==', studioName)
       .where('date', '>=', dateStart)
       .where('date', '<=', dateEnd)
       .orderBy('date', 'asc').get()
