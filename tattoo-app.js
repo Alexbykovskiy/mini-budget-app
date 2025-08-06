@@ -354,18 +354,20 @@ function findTripForEntry(entry) {
 }
 
 
-    // Рендерим историю
-    historyList.innerHTML = '';
+   historyList.innerHTML = '';
 for (let i = 0; i < allEntries.length; i++) {
   const entry = allEntries[i];
   const tripForThisEntry = findTripForEntry(entry);
 
-  // === ВОТ ЗДЕСЬ: сравниваем с предыдущей ===
+  // --- вот здесь ---
+  const studio = studios.find(s => s.name === entry.location);
+  let color = studio?.color || "#444";
+  const bgColor = hexToRgba(color, 0.5);
+
   let isGroupedWithPrev = false;
   if (i > 0) {
     const prev = allEntries[i - 1];
     const prevTrip = findTripForEntry(prev);
-    // группируем только если и студия, и trip совпадают!
     if (
       prev.location === entry.location &&
       prevTrip && tripForThisEntry &&
@@ -374,7 +376,7 @@ for (let i = 0; i < allEntries.length; i++) {
     ) isGroupedWithPrev = true;
   }
 
-  // Отладочный лог — оставь!
+  // Лог
   console.log('entry', entry.date, entry.location, '→ trip:', tripForThisEntry ? `${tripForThisEntry.start} — ${tripForThisEntry.end}` : 'NOT FOUND');
 
   // Вставляем запись
