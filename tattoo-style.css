@@ -1223,4 +1223,16 @@ padding-left: 18px;
   display: none;
 }
 
+.history-list .group-separator::before {
+  content: "";
+  display: block;
+  height: 1.5px;
+  width: 82%;
+  margin: 0 auto 13px auto;
+  background: linear-gradient(90deg, #ffa35c55 0%, #ffffff10 80%);
+  border-radius: 1px;
+}
+.history-list .group-separator {
+  margin-top: 23px;
+}
 

@@ -364,20 +364,18 @@ for (let i = 0; i < allEntries.length; i++) {
   let color = studio?.color || "#444";
   const bgColor = hexToRgba(color, 0.5);
 
-  let isGroupedWithPrev = false;
-  if (i > 0) {
-    const prev = allEntries[i - 1];
-    const prevTrip = findTripForEntry(prev);
-    if (
-      prev.location === entry.location &&
-      prevTrip && tripForThisEntry &&
-      prevTrip.start === tripForThisEntry.start &&
-      prevTrip.end === tripForThisEntry.end
-    ) isGroupedWithPrev = true;
-  }
-
-  // Лог
-  console.log('entry', entry.date, entry.location, '→ trip:', tripForThisEntry ? `${tripForThisEntry.start} — ${tripForThisEntry.end}` : 'NOT FOUND');
+ let isGroupedWithPrev = false;
+if (i > 0) {
+  const prev = allEntries[i - 1];
+  const prevTrip = findTripForEntry(prev);
+  if (
+    prev.location === entry.location &&
+    prevTrip && tripForThisEntry &&
+    prevTrip.start === tripForThisEntry.start &&
+    prevTrip.end === tripForThisEntry.end
+  ) isGroupedWithPrev = true;
+}
+let isGroupStart = !isGroupedWithPrev; // ← новая переменная!
 
   // Вставляем запись
   historyList.innerHTML += ` <li class="history-entry flex-history-threecol ${entry.type}${isGroupedWithPrev ? ' grouped-inside' : ''}" style="background:${bgColor};">
