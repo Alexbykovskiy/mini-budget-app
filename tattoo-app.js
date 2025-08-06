@@ -1099,10 +1099,10 @@ async function fillDefaultCoverGaps() {
     let endStr = endDate.toISOString().slice(0,10);
 
     // Удаляем старые ковры
-   const oldCovers = await db.collection('trips')
-    .where('studio', '==', def.studio)
-    .where('isDefaultCover', '==', true)
-    .get();
+  const oldCovers = await db.collection('trips')
+  .where('studio', '==', def.studio)
+  .where('isDefaultCover', '==', true)
+  .get();
     const batch = db.batch();
     oldCovers.forEach(doc => batch.delete(doc.ref));
 
@@ -1461,12 +1461,12 @@ async function showTripModal(studioName, dateStart, dateEnd) {
 }
 
 
-window.addEventListener('DOMContentLoaded', () => {
-  loadStudios().then(() => {
-    loadHistory();
-    loadTrips();
-    updateStats();
-    setDefaultDateInputs();
-    attachDateInputHandlers();
-  });
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadStudios();
+  await loadTrips();
+  await loadHistory();
+  await updateStats();
+  setDefaultDateInputs();
+  attachDateInputHandlers();
+});
 });
