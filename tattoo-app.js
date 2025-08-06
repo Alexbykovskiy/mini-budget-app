@@ -17,7 +17,7 @@ const db = firebase.firestore();
 async function loadStudios() {
   studios = [];
   const snap = await db.collection('studios').get();
-  snap.forEach(doc => studios.push({ id: doc.id, ...doc.data(), studio: doc.data().studio });
+  nap.forEach(doc => studios.push({ id: doc.id, ...doc.data(), studio: doc.data().studio }));
 
    renderStudioOptions();
   renderStudioSelect?.();
