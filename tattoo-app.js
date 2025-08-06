@@ -358,26 +358,27 @@ function findTripForEntry(entry) {
     historyList.innerHTML = '';
 for (let i = 0; i < allEntries.length; i++) {
   const entry = allEntries[i];
-  const studio = studios.find(s => s.name === entry.location);
-  let color = studio?.color || "#444";
-  const bgColor = hexToRgba(color, 0.2);
+  const tripForThisEntry = findTripForEntry(entry);
 
-  // Сравниваем с предыдущей записью: если локация совпадает, делаем группировку
+  // === ВОТ ЗДЕСЬ: сравниваем с предыдущей ===
   let isGroupedWithPrev = false;
-if (i > 0) {
-  const prev = allEntries[i - 1];
-  const prevTrip = findTripForEntry(prev);
-  const currTrip = findTripForEntry(entry);
-  // Склеиваем только если и студия, и trip совпадают!
-  if (prev.location === entry.location &&
-      prevTrip && currTrip &&
-      prevTrip.start === currTrip.start &&
-      prevTrip.end === currTrip.end
-  ) isGroupedWithPrev = true;
-}
+  if (i > 0) {
+    const prev = allEntries[i - 1];
+    const prevTrip = findTripForEntry(prev);
+    // группируем только если и студия, и trip совпадают!
+    if (
+      prev.location === entry.location &&
+      prevTrip && tripForThisEntry &&
+      prevTrip.start === tripForThisEntry.start &&
+      prevTrip.end === tripForThisEntry.end
+    ) isGroupedWithPrev = true;
+  }
 
-  historyList.innerHTML += `
-    <li class="history-entry flex-history-threecol ${entry.type}${isGroupedWithPrev ? ' grouped-inside' : ''}" style="background:${bgColor};">
+  // Отладочный лог — оставь!
+  console.log('entry', entry.date, entry.location, '→ trip:', tripForThisEntry ? `${tripForThisEntry.start} — ${tripForThisEntry.end}` : 'NOT FOUND');
+
+  // Вставляем запись
+  historyList.innerHTML += ` <li class="history-entry flex-history-threecol ${entry.type}${isGroupedWithPrev ? ' grouped-inside' : ''}" style="background:${bgColor};">
       <div class="history-col-sum">
         <span>${entry.amount}</span>
       </div>
