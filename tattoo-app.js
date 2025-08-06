@@ -349,7 +349,7 @@ async function loadHistory() {
    allEntries.forEach(entry => {
   const studio = studios.find(s => s.name === entry.location);
   let color = studio?.color || "#444";
-  const bgColor = hexToRgba(color, 0.5);
+  const bgColor = hexToRgba(color, 0.2);
 
   historyList.innerHTML += `
     <li class="history-entry flex-history-threecol ${entry.type}" style="background:${bgColor};">
