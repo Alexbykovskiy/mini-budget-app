@@ -368,12 +368,12 @@ for (let i = 0; i < allEntries.length; i++) {
 if (i > 0) {
   const prev = allEntries[i - 1];
   const prevTrip = findTripForEntry(prev);
-  if (
-    prev.location === entry.studio &&
-    prevTrip && tripForThisEntry &&
-    prevTrip.start === tripForThisEntry.start &&
-    prevTrip.end === tripForThisEntry.end
-  ) isGroupedWithPrev = true;
+ if (
+  prev.studio === entry.studio &&
+  prevTrip && tripForThisEntry &&
+  prevTrip.start === tripForThisEntry.start &&
+  prevTrip.end === tripForThisEntry.end
+) isGroupedWithPrev = true;
 }
 let isGroupStart = !isGroupedWithPrev; // ← новая переменная!
 
@@ -422,7 +422,7 @@ let isGroupStart = !isGroupedWithPrev; // ← новая переменная!
           const elAmount = document.getElementById('income-amount');
           const elType = document.getElementById('work-type');
           const elInvoice = document.getElementById('is-invoice');
-          if (elLoc) elLoc.value = data.location;
+          if (elLoc) elLoc.value = data.studio;
           if (elDate) elDate.value = data.date;
           if (elAmount) elAmount.value = data.amount;
           if (elType) elType.value = data.workType;
@@ -443,7 +443,7 @@ let isGroupStart = !isGroupedWithPrev; // ← новая переменная!
           const elDate = document.getElementById('expense-date');
           const elAmount = document.getElementById('expense-amount');
           const elType = document.getElementById('expense-type');
-          if (elLoc) elLoc.value = data.location;
+          if (elLoc) elLoc.value = data.studio;
           if (elDate) elDate.value = data.date;
           if (elAmount) elAmount.value = data.amount;
           if (elType) elType.value = data.expenseType;
@@ -893,8 +893,8 @@ async function saveIncomeEdit() {
   }
   try {
     await db.collection('incomes').doc(currentEdit.id).update({
-      location, date, amount, workType, isInvoice
-    });
+  studio: location, date, amount, workType, isInvoice
+});
     clearIncomeForm();
     currentEdit = null;
     document.querySelector('.form-section').classList.remove('editing');
@@ -919,8 +919,8 @@ renderEditActions();
   }
   try {
     await db.collection('expenses').doc(currentEdit.id).update({
-      location, date, amount, expenseType
-    });
+  studio: location, date, amount, expenseType
+});
     clearExpenseForm();
     currentEdit = null;
     document.querySelectorAll('.block').forEach(block => {
