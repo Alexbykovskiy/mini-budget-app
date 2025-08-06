@@ -346,13 +346,21 @@ async function loadHistory() {
 
     // Рендерим историю
     historyList.innerHTML = '';
-   allEntries.forEach(entry => {
+for (let i = 0; i < allEntries.length; i++) {
+  const entry = allEntries[i];
   const studio = studios.find(s => s.name === entry.location);
   let color = studio?.color || "#444";
-  const bgColor = hexToRgba(color, 0.2);
+  const bgColor = hexToRgba(color, 0.5);
+
+  // Сравниваем с предыдущей записью: если локация совпадает, делаем группировку
+  let isGroupedWithPrev = false;
+  if (i > 0) {
+    const prev = allEntries[i - 1];
+    if (prev.location === entry.location) isGroupedWithPrev = true;
+  }
 
   historyList.innerHTML += `
-    <li class="history-entry flex-history-threecol ${entry.type}" style="background:${bgColor};">
+    <li class="history-entry flex-history-threecol ${entry.type}${isGroupedWithPrev ? ' grouped-inside' : ''}" style="background:${bgColor};">
       <div class="history-col-sum">
         <span>${entry.amount}</span>
       </div>
@@ -372,7 +380,7 @@ async function loadHistory() {
       </div>
     </li>
   `;
-});
+}
 
     // === Весь обработчик редактирования — после цикла, только один раз! ===
     document.querySelectorAll('.edit-entry-btn-mini').forEach(btn => {

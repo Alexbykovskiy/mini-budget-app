@@ -1219,3 +1219,9 @@ padding-left: 18px;
   background: transparent;
   display: none;
 }
+
+/* Для внутренних записей группы (одного guest spot) — делаем меньший вертикальный отступ */
+.history-list .grouped-inside {
+  margin-top: -6px;      /* сливает ближе к предыдущей */
+  margin-bottom: 7px !important;   /* меньше обычного отступа */
+}
