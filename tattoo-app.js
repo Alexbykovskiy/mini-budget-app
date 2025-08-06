@@ -1469,4 +1469,4 @@ window.addEventListener('DOMContentLoaded', async () => {
   setDefaultDateInputs();
   attachDateInputHandlers();
 });
-);
+;
