@@ -1391,8 +1391,11 @@ async function updateStats() {
 
   document.getElementById('total-income').textContent = totalIncome.toLocaleString() + ' €';
 const fakturCount = allIncomeEntries.filter(e => e.isInvoice).length;
-document.getElementById('white-income').textContent = fakturCount + ' ' + pluralizeFaktura(fakturCount);
-  document.getElementById('black-income').textContent = blackIncome.toLocaleString() + ' €';
+const fakturSum = allIncomeEntries
+  .filter(e => e.isInvoice)
+  .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+document.getElementById('white-income').textContent =
+  fakturCount + ' ' + pluralizeFaktura(fakturCount) + ': ' + fakturSum.toLocaleString() + ' €';  document.getElementById('black-income').textContent = blackIncome.toLocaleString() + ' €';
   document.getElementById('total-expenses').textContent = totalExpenses.toLocaleString() + ' €';
   document.getElementById('net-income').textContent = netIncome.toLocaleString() + ' €';
 
