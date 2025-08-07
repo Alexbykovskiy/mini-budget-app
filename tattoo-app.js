@@ -1364,7 +1364,6 @@ function onTripDeleteOrReset() {
   }
 }
 async function updateStats() {
-  // Получаем доходы и расходы
   const [incomeSnap, expenseSnap] = await Promise.all([
     db.collection('incomes').get(),
     db.collection('expenses').get()
@@ -1374,15 +1373,14 @@ async function updateStats() {
   let whiteIncome = 0;
   let blackIncome = 0;
   let totalExpenses = 0;
+  let allIncomeEntries = [];
 
   incomeSnap.forEach(doc => {
     const d = doc.data();
+    allIncomeEntries.push({ ...d });
     totalIncome += Number(d.amount) || 0;
-    if (d.isInvoice) {
-      whiteIncome += Number(d.amount) || 0;
-    } else {
-      blackIncome += Number(d.amount) || 0;
-    }
+    if (d.isInvoice) whiteIncome += Number(d.amount) || 0;
+    else blackIncome += Number(d.amount) || 0;
   });
   expenseSnap.forEach(doc => {
     const d = doc.data();
@@ -1391,12 +1389,42 @@ async function updateStats() {
 
   const netIncome = totalIncome - totalExpenses;
 
-  // Обновляем значения на странице
   document.getElementById('total-income').textContent = totalIncome.toLocaleString() + ' €';
   document.getElementById('white-income').textContent = whiteIncome.toLocaleString() + ' €';
   document.getElementById('black-income').textContent = blackIncome.toLocaleString() + ' €';
   document.getElementById('total-expenses').textContent = totalExpenses.toLocaleString() + ' €';
   document.getElementById('net-income').textContent = netIncome.toLocaleString() + ' €';
+
+  const { workDaysCount, restDaysCount, percent, totalDays } = getWorkLifeBalance(allIncomeEntries);
+  document.getElementById('worklife-balance').innerHTML = `
+    Баланс: <span style="color:#ff5a5a;font-weight:600;">${workDaysCount}</span>
+    /
+    <span style="color:#49f979;font-weight:600;">${restDaysCount}</span>
+    (${percent}% рабочих)
+  `;
+}
+
+
+function getWorkLifeBalance(incomes) {
+  const year = new Date().getFullYear();
+  // Собираем все даты с доходами
+  const workDays = new Set(
+    incomes
+      .map(e => e.date)
+      .filter(date => date.startsWith(year.toString()))
+  );
+  // Все дни года
+  const firstDay = new Date(year, 0, 1);
+  const lastDay = new Date(year, 11, 31);
+  let allDays = [];
+  for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
+    allDays.push(d.toISOString().slice(0, 10));
+  }
+  const totalDays = allDays.length;
+  const workDaysCount = workDays.size;
+  const restDaysCount = totalDays - workDaysCount;
+  const percent = Math.round((workDaysCount / totalDays) * 100);
+  return { workDaysCount, restDaysCount, percent, totalDays };
 }
 
 
@@ -1472,6 +1500,8 @@ const days = Math.max(1, Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1);
     </div>
   `;
 }
+
+
 
 
 window.addEventListener('DOMContentLoaded', async () => {
