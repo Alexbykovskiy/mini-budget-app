@@ -1390,7 +1390,8 @@ async function updateStats() {
   const netIncome = totalIncome - totalExpenses;
 
   document.getElementById('total-income').textContent = totalIncome.toLocaleString() + ' €';
-  document.getElementById('white-income').textContent = whiteIncome.toLocaleString() + ' €';
+const fakturCount = allIncomeEntries.filter(e => e.isInvoice).length;
+document.getElementById('white-income').textContent = fakturCount + ' ' + pluralizeFaktura(fakturCount);
   document.getElementById('black-income').textContent = blackIncome.toLocaleString() + ' €';
   document.getElementById('total-expenses').textContent = totalExpenses.toLocaleString() + ' €';
   document.getElementById('net-income').textContent = netIncome.toLocaleString() + ' €';
@@ -1431,6 +1432,16 @@ function getWorkLifeBalance(incomes) {
   const percent = Math.round((workDaysCount / totalDays) * 100);
   return { workDaysCount, restDaysCount, percent, totalDays };
 }
+
+function pluralizeFaktura(n) {
+  n = Math.abs(n) % 100;
+  let n1 = n % 10;
+  if (n > 10 && n < 20) return 'фактур';
+  if (n1 > 1 && n1 < 5) return 'фактуры';
+  if (n1 == 1) return 'фактура';
+  return 'фактур';
+}
+
 
 async function showTripModal(studioName, dateStart, dateEnd) {
   const modal = document.getElementById('trip-modal');
