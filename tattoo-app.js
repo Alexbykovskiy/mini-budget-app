@@ -202,16 +202,22 @@ async function addIncome() {
   isInvoice,
   created: new Date().toISOString()
 });
-    // Очищаем поля после добавления
+       // Очищаем поля после добавления
     document.getElementById('income-location').value = '';
     document.getElementById('income-date').value = '';
     document.getElementById('income-amount').value = '';
     document.getElementById('work-type').value = '';
     document.getElementById('is-invoice').checked = false;
 
+    setDefaultDateInputs();
+    setDefaultStudioInputs();
+
+    showCalendarToast('Доход добавлен!');
+
     // Перезагружаем историю
     loadHistory();
-await updateStats();
+    await updateStats();
+
   } catch (e) {
     alert('Ошибка при добавлении дохода: ' + e.message);
   }
@@ -486,15 +492,20 @@ async function addExpense() {  const location = document.getElementById('expense
   created: new Date().toISOString()
 });
 
-    // Очищаем поля после добавления
+     // Очищаем поля после добавления
     document.getElementById('expense-location').value = '';
     document.getElementById('expense-date').value = '';
     document.getElementById('expense-amount').value = '';
     document.getElementById('expense-type').value = '';
 
+    setDefaultDateInputs();
+    setDefaultStudioInputs();
+
+    showCalendarToast('Расход добавлен!');
+
     // Перезагружаем историю
     loadHistory();
-await updateStats();
+    await updateStats();
 
   } catch (e) {
     alert('Ошибка при добавлении расхода: ' + e.message);
