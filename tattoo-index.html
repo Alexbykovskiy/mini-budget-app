@@ -21,7 +21,23 @@
 <div id="worklife-balance"></div>
       </div>
     </header>
-  
+
+<div class="filter-panel" style="margin:30px 0 15px 0; padding:20px; background:#232b2d44; border-radius:16px;">
+  <label style="margin-right:14px;">
+    Студия:
+    <select id="filter-studio"><option value="">Все студии</option></select>
+  </label>
+  <label style="margin-right:14px;">
+    Период:
+    <input type="date" id="filter-from">
+    —
+    <input type="date" id="filter-to">
+  </label>
+  <label style="margin-right:14px;">
+    <input type="checkbox" id="filter-whole-year" checked> За весь год
+  </label>
+  <button id="apply-filter-btn">Применить</button>
+</div>
 
    <section class="block form-section">
   <h2>Добавить доход</h2>

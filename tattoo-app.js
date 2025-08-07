@@ -36,6 +36,44 @@ function renderStudioOptions() {
   }
 }
 
+function fillFilterStudios() {
+  const sel = document.getElementById('filter-studio');
+  sel.innerHTML = '<option value="">Все студии</option>';
+  studios.forEach(s => {
+    if (s.studio && sel.querySelector(`option[value="${s.studio}"]`) === null) {
+      sel.innerHTML += `<option value="${s.studio}">${s.studio}</option>`;
+    }
+  });
+}
+
+document.getElementById('filter-whole-year').addEventListener('change', function() {
+  document.getElementById('filter-from').disabled = this.checked;
+  document.getElementById('filter-to').disabled = this.checked;
+  if (this.checked) {
+    // Установить границы с 1 января по сегодня
+    const today = new Date();
+    const y = today.getFullYear();
+    document.getElementById('filter-from').value = `${y}-01-01`;
+    document.getElementById('filter-to').value = today.toISOString().slice(0, 10);
+  }
+});
+document.getElementById('apply-filter-btn').addEventListener('click', function() {
+  applyFilters();
+});
+
+function setDefaultFilterDates() {
+  const today = new Date();
+  const y = today.getFullYear();
+  document.getElementById('filter-from').value = `${y}-01-01`;
+  document.getElementById('filter-to').value = today.toISOString().slice(0, 10);
+  document.getElementById('filter-from').disabled = true;
+  document.getElementById('filter-to').disabled = true;
+  document.getElementById('filter-whole-year').checked = true;
+}
+// Вызвать сразу после DOMContentLoaded
+setDefaultFilterDates();
+
+
 function renderStudiosSummary() {
   const summary = document.getElementById('studios-summary');
   if (!summary) return;
@@ -228,6 +266,8 @@ let studios = [];
 function getStudioPriority(studio) {
   return studio.isDefault ? 1 : 2;
 }
+let allIncomeEntries = [];
+let allExpenseEntries = [];
 let trips = [];
 let currentTripId = null; // Для отслеживания, редактируем ли поездку
 let currentEdit = null; // {type: 'income'|'expense', id: '...'}
@@ -251,6 +291,44 @@ function updateCalendarInputsVisibility() {
     // ← Вот это важно! Показываем кнопку для guest spot-студии всегда
     document.getElementById('delete-trip-btn').style.display = "";
   }
+}
+
+function updateStatsFiltered(incomes, expenses) {
+  let totalIncome = 0;
+  let totalExpenses = 0;
+  let whiteIncome = 0;
+  let blackIncome = 0;
+  incomes.forEach(d => {
+    totalIncome += Number(d.amount) || 0;
+    if (d.isInvoice) whiteIncome += Number(d.amount) || 0;
+    else blackIncome += Number(d.amount) || 0;
+  });
+  expenses.forEach(d => {
+    totalExpenses += Number(d.amount) || 0;
+  });
+
+  const netIncome = totalIncome - totalExpenses;
+  document.getElementById('total-income').textContent = totalIncome.toLocaleString() + ' €';
+
+  const fakturCount = incomes.filter(e => e.isInvoice).length;
+  const fakturSum = incomes
+    .filter(e => e.isInvoice)
+    .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  document.getElementById('white-income').textContent =
+    fakturCount + ' ' + pluralizeFaktura(fakturCount) + ': ' + fakturSum.toLocaleString() + ' €';
+
+  document.getElementById('black-income').textContent = blackIncome.toLocaleString() + ' €';
+  document.getElementById('total-expenses').textContent = totalExpenses.toLocaleString() + ' €';
+  document.getElementById('net-income').textContent = netIncome.toLocaleString() + ' €';
+
+  // Баланс — только по отфильтрованным доходам!
+  const { workDaysCount, restDaysCount, percent, totalDays } = getWorkLifeBalance(incomes);
+  document.getElementById('worklife-balance').innerHTML = `
+    Баланс: <span style="color:#ff5a5a;font-weight:600;">${workDaysCount}</span>
+    /
+    <span style="color:#49f979;font-weight:600;">${restDaysCount}</span>
+    (${percent}% рабочих)
+  `;
 }
 
  function renderStudioSelect() {
@@ -1373,11 +1451,10 @@ async function updateStats() {
   let whiteIncome = 0;
   let blackIncome = 0;
   let totalExpenses = 0;
-  let allIncomeEntries = [];
-
-  incomeSnap.forEach(doc => {
-    const d = doc.data();
-    allIncomeEntries.push({ ...d });
+  allIncomeEntries = [];
+incomeSnap.forEach(doc => {
+  const d = doc.data();
+  allIncomeEntries.push({ ...d });
     totalIncome += Number(d.amount) || 0;
     if (d.isInvoice) whiteIncome += Number(d.amount) || 0;
     else blackIncome += Number(d.amount) || 0;
@@ -1444,6 +1521,7 @@ function pluralizeFaktura(n) {
   if (n1 == 1) return 'фактура';
   return 'фактур';
 }
+
 
 
 async function showTripModal(studioName, dateStart, dateEnd) {
@@ -1519,15 +1597,36 @@ const days = Math.max(1, Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1);
   `;
 }
 
-
+function applyFilters() {
+  // 1. Собираем значения фильтра
+  const studio = document.getElementById('filter-studio').value;
+  const fromDate = document.getElementById('filter-from').value;
+  const toDate = document.getElementById('filter-to').value;
+  // 2. Фильтруем доходы и расходы по этим полям
+  const incomesFiltered = allIncomeEntries.filter(e =>
+    (!studio || e.studio === studio) &&
+    e.date >= fromDate &&
+    e.date <= toDate
+  );
+  const expensesFiltered = allExpenseEntries.filter(e =>
+    (!studio || e.studio === studio) &&
+    e.date >= fromDate &&
+    e.date <= toDate
+  );
+  // 3. Передаём их в функции пересчёта (updateStatsFiltered, updateChartFiltered и т.п.)
+  updateStatsFiltered(incomesFiltered, expensesFiltered);
+  drawChartByMonths(incomesFiltered, expensesFiltered);
+}
 
 
 window.addEventListener('DOMContentLoaded', async () => {
   await loadStudios();
+fillFilterStudios();
   await loadTrips();
   await loadHistory();
   await updateStats();
   setDefaultDateInputs();
   attachDateInputHandlers();
+setDefaultFilterDates();
 });
 ;
