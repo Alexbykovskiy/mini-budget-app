@@ -1407,13 +1407,17 @@ async function updateStats() {
 
 function getWorkLifeBalance(incomes) {
   const year = new Date().getFullYear();
-  // Собираем все даты с доходами
+  // Оставляем только доходы с НЕпустыми studio, date и amount > 0
   const workDays = new Set(
     incomes
+      .filter(e =>
+        !!e.date && typeof e.date === 'string' && e.date.length >= 4 &&
+        !!e.studio && typeof e.studio === 'string' && e.studio.length > 0 &&
+        e.amount !== undefined && !isNaN(Number(e.amount)) && Number(e.amount) > 0
+      )
+      .filter(e => e.date.startsWith(year.toString()))
       .map(e => e.date)
-      .filter(date => date.startsWith(year.toString()))
   );
-  // Все дни года
   const firstDay = new Date(year, 0, 1);
   const lastDay = new Date(year, 11, 31);
   let allDays = [];
@@ -1426,7 +1430,6 @@ function getWorkLifeBalance(incomes) {
   const percent = Math.round((workDaysCount / totalDays) * 100);
   return { workDaysCount, restDaysCount, percent, totalDays };
 }
-
 
 async function showTripModal(studioName, dateStart, dateEnd) {
   const modal = document.getElementById('trip-modal');
