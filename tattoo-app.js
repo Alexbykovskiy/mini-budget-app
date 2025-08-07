@@ -957,7 +957,7 @@ function clearIncomeForm() {
   document.getElementById('income-location').value = '';
   document.getElementById('income-date').value = '';
   document.getElementById('income-amount').value = '';
-  document.getElementById('work-type').value = '';
+  document.getElementById('work-type').selectedIndex = 0;
   document.getElementById('is-invoice').checked = false;
   setDefaultDateInputs();
   setDefaultStudioInputs();
@@ -976,7 +976,7 @@ function clearExpenseForm() {
   document.getElementById('expense-location').value = '';
   document.getElementById('expense-date').value = '';
   document.getElementById('expense-amount').value = '';
-  document.getElementById('expense-type').value = '';
+  document.getElementById('expense-type').selectedIndex = 0;
   setDefaultDateInputs();
   setDefaultStudioInputs();
 }
