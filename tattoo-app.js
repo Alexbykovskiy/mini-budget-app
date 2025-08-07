@@ -1406,22 +1406,23 @@ async function updateStats() {
 
 
 function getWorkLifeBalance(incomes) {
-  const year = new Date().getFullYear();
-  // Оставляем только доходы с НЕпустыми studio, date и amount > 0
+  const today = new Date();
+  const year = today.getFullYear();
+  // Фильтруем только доходы с заполненными студией, датой, amount > 0
   const workDays = new Set(
     incomes
       .filter(e =>
         !!e.date && typeof e.date === 'string' && e.date.length >= 4 &&
         !!e.studio && typeof e.studio === 'string' && e.studio.length > 0 &&
-        e.amount !== undefined && !isNaN(Number(e.amount)) && Number(e.amount) > 0
+        e.amount !== undefined && !isNaN(Number(e.amount)) && Number(e.amount) > 0 &&
+        e.date >= `${year}-01-01` && e.date <= today.toISOString().slice(0,10)
       )
-      .filter(e => e.date.startsWith(year.toString()))
       .map(e => e.date)
   );
+  // Все дни с начала года до сегодня
   const firstDay = new Date(year, 0, 1);
-  const lastDay = new Date(year, 11, 31);
   let allDays = [];
-  for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
+  for (let d = new Date(firstDay); d <= today; d.setDate(d.getDate() + 1)) {
     allDays.push(d.toISOString().slice(0, 10));
   }
   const totalDays = allDays.length;
