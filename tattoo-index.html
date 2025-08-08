@@ -57,11 +57,22 @@
     </select>
   </div>
 
-<div class="switch-row">
+<div class="invoice-row">
   <label class="ios-switch">
-    <input type="checkbox" id="is-invoice">
+    <input type="checkbox" id="is-invoice" onchange="toggleInvoiceFileBtn(this)">
     <span class="ios-slider"></span>
-    <span class="switch-label">Фактура</span>
+  </label>
+  <span class="switch-label">Фактура</span>
+
+  <!-- Кнопка добавить файл -->
+  <label class="add-invoice-file-btn" id="add-invoice-file-btn" style="display:none;">
+    <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="handleInvoiceFile(this)">
+    <svg width="22" height="22" viewBox="0 0 24 24" style="margin-right:7px;vertical-align:middle;">
+      <path d="M17 16v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4" stroke="#ffa35c" stroke-width="2.1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline points="16 2 21 2 21 7" stroke="#ffa35c" stroke-width="2.1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="10" y1="14" x2="21" y2="3" stroke="#ffa35c" stroke-width="2.1" stroke-linecap="round"/>
+    </svg>
+    <span id="add-invoice-file-label">Добавить файл</span>
   </label>
 </div>
 

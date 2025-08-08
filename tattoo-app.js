@@ -1619,6 +1619,30 @@ function applyFilters() {
 }
 
 
+function toggleInvoiceFileBtn(checkbox) {
+  const btn = document.getElementById('add-invoice-file-btn');
+  btn.style.display = checkbox.checked ? 'inline-flex' : 'none';
+  // Сбросить имя файла если выключили свитч
+  if (!checkbox.checked) {
+    document.getElementById('add-invoice-file-label').textContent = 'Добавить файл';
+    btn.querySelector('input[type="file"]').value = '';
+  }
+}
+
+function handleInvoiceFile(input) {
+  const file = input.files[0];
+  const label = document.getElementById('add-invoice-file-label');
+  if (file) {
+    label.textContent = file.name.length > 20
+      ? file.name.slice(0, 8) + '...' + file.name.slice(-8)
+      : file.name;
+    // Здесь можно добавить загрузку на сервер/Firestore или предпросмотр
+  } else {
+    label.textContent = 'Добавить файл';
+  }
+}
+
+
 window.addEventListener('DOMContentLoaded', async () => {
   await loadStudios();
 fillFilterStudios();

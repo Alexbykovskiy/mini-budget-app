@@ -1326,3 +1326,55 @@ padding-left: 18px;
     linear-gradient(60deg, rgba(255,89,89,0.11) 0%, rgba(15,15,17,0.53) 100%),
     linear-gradient(45deg, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.03) 60%, rgba(255,255,255,0.00) 100%);
 }
+
+
+.invoice-row {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 12px;
+  margin-top: 3px;
+  min-height: 51px;
+}
+.invoice-row .ios-switch {
+  margin-right: 2px;
+}
+.invoice-row .switch-label {
+  margin-right: 10px;
+  font-size: 17px;
+}
+.add-invoice-file-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(36,40,47,0.26);
+  border-radius: 999px;
+  color: #ffa35c;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 11px 22px;
+  cursor: pointer;
+  border: 1.2px solid rgba(255,163,92,0.16);
+  box-shadow: 0 1px 7px 0 rgba(255,163,92,0.10) inset;
+  transition: background 0.13s, color 0.13s, border-color 0.13s;
+  margin-left: 10px;
+  user-select: none;
+  white-space: nowrap;
+}
+.add-invoice-file-btn:hover {
+  background: #ffa35c44;
+  color: #fff;
+  border-color: #ffa35c88;
+}
+.add-invoice-file-btn span {
+  pointer-events: none;
+}
+.add-invoice-file-btn input[type="file"] {
+  display: none;
+}
+.add-invoice-file-btn svg {
+  pointer-events: none;
+  margin-right: 6px;
+  margin-left: -2px;
+  vertical-align: middle;
+}
