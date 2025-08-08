@@ -1253,8 +1253,7 @@ padding-left: 18px;
   background: rgba(36, 40, 47, 0.21); /* тёмное стекло */
   color: #fff;
   border-radius: 999px !important;
-  border: 1.3px solid rgba(255,255,255,0.18);
-  backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   font-size: 16px;
   padding: 12px 18px !important;
@@ -1274,5 +1273,65 @@ padding-left: 18px;
 .block select option {
   background: #23292D;
   color: #fff;
+}
+
+.block input[type="text"],
+.block input[type="number"],
+.block input[type="date"],
+.block select,
+.block textarea {
+  position: relative;
+  z-index: 1;
+  background: rgba(36,40,47,0.21);
+  color: #fff;
+  border-radius: 999px !important;
+  border: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 16px;
+  padding: 12px 18px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10) inset, 0 1.5px 6px 0 rgba(0,0,0,0.09);
+  transition: box-shadow 0.18s, border-color 0.14s, background 0.12s;
+  outline: none;
+}
+/* Градиентная фаска-подсветка по бордеру */
+.block input[type="text"]:after,
+.block input[type="number"]:after,
+.block input[type="date"]:after,
+.block select:after,
+.block textarea:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 999px;
+  z-index: 2;
+  border: 1.7px solid transparent;
+  background: 
+    linear-gradient(135deg, 
+      rgba(255,255,255,0.34) 0%,    /* ← ярко слева сверху */
+      rgba(255,255,255,0.00) 84%    /* → растворяется вправо вниз */
+    ) border-box;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0) border-box;
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0) border-box;
+  mask-composite: exclude;
+}
+/* Фокус: фаска становится оранжевой */
+.block input[type="text"]:focus:after,
+.block input[type="number"]:focus:after,
+.block input[type="date"]:focus:after,
+.block select:focus:after,
+.block textarea:focus:after {
+  background:
+    linear-gradient(135deg, 
+      #FFA35C 0%,
+      rgba(255,163,92,0.12) 65%,
+      rgba(255,255,255,0.00) 92%
+    ) border-box;
 }
 
