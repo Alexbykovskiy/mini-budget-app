@@ -1627,7 +1627,7 @@ function toggleInvoiceFileBtn(checkbox) {
   } else {
     btn.style.opacity = '0';
     btn.style.pointerEvents = 'none';
-    document.getElementById('add-invoice-file-label').textContent = 'Добавить файл';
+    document.getElementById('add-invoice-file-label').textContent = '+ файл';
     btn.querySelector('input[type="file"]').value = '';
   }
 }
@@ -1639,12 +1639,10 @@ function handleInvoiceFile(input) {
     label.textContent = file.name.length > 20
       ? file.name.slice(0, 8) + '...' + file.name.slice(-8)
       : file.name;
-    // Здесь можно добавить загрузку на сервер/Firestore или предпросмотр
   } else {
-    label.textContent = 'Добавить файл';
+    label.textContent = '+ файл';
   }
 }
-
 
 window.addEventListener('DOMContentLoaded', async () => {
   await loadStudios();
