@@ -90,8 +90,7 @@ circle-action-btn {
 /* ОТМЕНА: белый крест на тёмном */
 .circle-action-btn.cancel-btn {
   background: rgba(27,29,32,0.50);
-  border-image: linear-gradient(135deg, #fff 69%, rgba(255,255,255,0.01) 100%) 1;
-}
+ }
 .circle-action-btn.cancel-btn svg {
   stroke: #fff;
   opacity: 1;
@@ -100,8 +99,7 @@ circle-action-btn {
 /* ПОДТВЕРДИТЬ: белый плюс на зелёном */
 .circle-action-btn.confirm-btn {
   background: rgba(56,180,105,0.52); /* ярко-зелёный, 52% прозрачности */
-  border-image: linear-gradient(135deg, #e3ffe3 63%, rgba(56,180,105,0.01) 100%) 1;
-}
+  }
 .circle-action-btn.confirm-btn svg {
   stroke: #fff;
   opacity: 1;
