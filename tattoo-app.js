@@ -1621,9 +1621,12 @@ function applyFilters() {
 
 function toggleInvoiceFileBtn(checkbox) {
   const btn = document.getElementById('add-invoice-file-btn');
-  btn.style.display = checkbox.checked ? 'inline-flex' : 'none';
-  // Сбросить имя файла если выключили свитч
-  if (!checkbox.checked) {
+  if (checkbox.checked) {
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+  } else {
+    btn.style.opacity = '0';
+    btn.style.pointerEvents = 'none';
     document.getElementById('add-invoice-file-label').textContent = 'Добавить файл';
     btn.querySelector('input[type="file"]').value = '';
   }

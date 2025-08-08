@@ -1387,3 +1387,25 @@ padding-left: 18px;
 .add-invoice-file-btn input[type="file"] {
   display: none;
 }
+
+.invoice-row .switch-label,
+.invoice-fields-row .left .switch-label {
+  margin-left: 15px; /* увеличь, если надо ещё больше */
+  margin-right: 10px;
+  font-size: 17px;
+}
+
+.add-invoice-file-btn {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.17s;
+  /* ...остальные стили как выше */
+}
+.add-invoice-file-btn[style*="opacity: 1"] {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+.invoice-fields-row, .invoice-row {
+  min-height: 54px; /* или твоя нужная высота — равная с кнопкой */
+  align-items: center;
+}
