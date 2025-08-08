@@ -1366,12 +1366,8 @@ padding-left: 18px;
   margin-left: 0;
   margin-right: 0;
   user-select: none;
-  display: none;
   align-items: center;
   justify-content: center;
-}
-.add-invoice-file-btn[style*="display: inline-flex"] {
-  display: flex !important;
 }
 .add-invoice-file-btn svg {
   margin-right: 7px;
