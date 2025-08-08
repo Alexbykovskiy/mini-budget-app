@@ -244,7 +244,7 @@ async function addIncome() {
     document.getElementById('income-location').value = '';
     document.getElementById('income-date').value = '';
     document.getElementById('income-amount').value = '';
-    document.getElementById('work-type').value = '';
+    document.getElementById('work-type').selectedIndex = 0;
     document.getElementById('is-invoice').checked = false;
 
     setDefaultDateInputs();
