@@ -1441,7 +1441,7 @@ padding-left: 18px;
   user-select: none;
 }
 
-.circle-action-btn {
+circle-action-btn {
   width: 68px;
   height: 68px;
   border-radius: 50%;
@@ -1452,16 +1452,16 @@ padding-left: 18px;
   outline: none;
   position: relative;
   font-size: 1em;
-  background: rgba(36, 40, 47, 0.53); /* тёмно-серый полупрозрачный */
+  background: rgba(36, 40, 47, 0.33); /* тёмно-серый, 33% прозрачности */
   transition: box-shadow 0.15s, background 0.14s;
   cursor: pointer;
   z-index: 1;
   box-shadow: 0 2px 8px rgba(0,0,0,0.13) inset;
   border-width: 2.5px;
   border-style: solid;
-  /* Фаска — белая градиентная обводка */
-  border-image: linear-gradient(135deg, #fff 72%, rgba(255,255,255,0.01) 100%) 1;
-  opacity: 0.50;
+  /* Фаска — белая градиентная обводка по кругу */
+  border-image: linear-gradient(135deg, #fff 74%, rgba(255,255,255,0.01) 100%) 1;
+  opacity: 0.5;
 }
 
 .circle-action-btn svg {
@@ -1476,8 +1476,8 @@ padding-left: 18px;
 
 /* ОТМЕНА: белый крест на тёмном */
 .circle-action-btn.cancel-btn {
-  background: rgba(27,29,32,0.59);
-  border-image: linear-gradient(135deg, #fff 67%, rgba(255,255,255,0.01) 100%) 1;
+  background: rgba(27,29,32,0.50);
+  border-image: linear-gradient(135deg, #fff 69%, rgba(255,255,255,0.01) 100%) 1;
 }
 .circle-action-btn.cancel-btn svg {
   stroke: #fff;
@@ -1486,8 +1486,8 @@ padding-left: 18px;
 
 /* ПОДТВЕРДИТЬ: белый плюс на зелёном */
 .circle-action-btn.confirm-btn {
-  background: rgba(56,180,105,0.52); /* ярко-зелёный с прозрачностью */
-  border-image: linear-gradient(135deg, #e3ffe3 55%, rgba(56,180,105,0.01) 100%) 1;
+  background: rgba(56,180,105,0.52); /* ярко-зелёный, 52% прозрачности */
+  border-image: linear-gradient(135deg, #e3ffe3 63%, rgba(56,180,105,0.01) 100%) 1;
 }
 .circle-action-btn.confirm-btn svg {
   stroke: #fff;
@@ -1495,6 +1495,6 @@ padding-left: 18px;
 }
 
 .circle-action-btn:active {
-  filter: brightness(0.92) blur(0.5px);
+  filter: brightness(0.90) blur(0.5px);
   opacity: 0.88;
 }
