@@ -538,8 +538,7 @@ if (expenseBlock) {
   expenseBlock.classList.add('editing');
   expenseBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
   expenseBlock.querySelector('#expense-amount')?.focus();
-}
-          });
+          }
         }
       };
     });
