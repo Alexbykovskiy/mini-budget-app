@@ -1302,26 +1302,29 @@ padding-left: 18px;
 }
 
 
-.sign-plus,
-.sign-minus {
-  display: inline-block;
-  padding: 0.05em 0.48em 0.11em 0.48em; /* по горизонтали — регулируй ширину */
-  font-size: 1.6em;     /* увеличить/уменьшить размер */
-  font-weight: 800;
-  line-height: 1.06;
-  border-radius: 18px;   /* чем больше — тем более пилюля */
-  border: 2.5px solid currentColor; /* обводка цвета самого знака */
-  color: #40c276;        /* плюс: зелёный, можно изменить */
-  margin-right: 12px;    /* отступ справа */
-  background: none;      /* без заливки */
-  box-shadow: none;
-  letter-spacing: 0.03em;
-  transition: color 0.14s, border-color 0.13s;
+
+
+.cute-sign {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 37px;
+  height: 37px;
   vertical-align: middle;
-  user-select: none;
+  margin-right: 10px;
+  /* можно добавить лёгкую тень, если хочется: */
+  /* filter: drop-shadow(0 2px 7px rgba(0,0,0,0.11)); */
 }
-.sign-minus {
-  color: #ff5a5a;        /* минус: красный */
+.cute-sign.plus svg {
+  color: #43c07c;
+}
+.cute-sign.minus svg {
+  color: #ff5959;
+}
+.cute-sign svg {
+  width: 37px;
+  height: 37px;
+  display: block;
 }
 .block h2 {
   text-align: center;
@@ -1333,4 +1336,3 @@ padding-left: 18px;
   gap: 10px;
   margin-bottom: 18px;
 }
-
