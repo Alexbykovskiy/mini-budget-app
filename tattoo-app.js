@@ -1118,15 +1118,14 @@ async function deleteExpenseEdit() {
     await db.collection('expenses').doc(currentEdit.id).delete();
     clearExpenseForm();
     currentEdit = null;
-    document.querySelectorAll('.block').forEach(block => {
-      if (block.querySelector('h2')?.textContent.includes('Добавить расход')) {
-        block.classList.remove('editing');
-      }
-    });
+    // --- Вот тут новый код ---
+    const expenseBlock = document.getElementById('expense-section');
+    if (expenseBlock) {
+      expenseBlock.classList.remove('editing');
+    }
     renderEditActions();
     loadHistory();
     await updateStats();
-
   } catch (e) {
     alert('Ошибка при удалении: ' + e.message);
   }
