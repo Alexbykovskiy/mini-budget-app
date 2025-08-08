@@ -64,6 +64,22 @@ circle-action-btn {
   border-image: linear-gradient(135deg, #fff 74%, rgba(255,255,255,0.01) 100%) 1;
   opacity: 0.5;
 }
+.circle-action-btn {
+  width: 68px !important;
+  height: 68px !important;
+  min-width: 68px !important;
+  min-height: 68px !important;
+  max-width: 68px !important;
+  max-height: 68px !important;
+  border-radius: 50% !important;
+  aspect-ratio: 1/1 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: none !important;
+}
 
 .circle-action-btn svg {
   width: 38px;
