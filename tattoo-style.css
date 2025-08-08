@@ -315,35 +315,6 @@ textarea {
   margin-top: 2px;
 }
 
-.round-btn.dark {
-  background: rgba(36, 40, 47, 0.76);
-  border-radius: 100%;
-  width: 51px;
-  height: 51px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.15), 0 1.5px 6px 0 rgba(0,0,0,0.12) inset;
-  border: 1.5px solid rgba(255,255,255,0.09);
-  cursor: pointer;
-  transition: background 0.13s, box-shadow 0.15s;
-  color: #eee;
-  font-size: 21px;
-  padding: 0;
-}
-
-.round-btn.dark:hover,
-.round-btn.dark:focus {
-  background: rgba(55, 58, 65, 0.92);
-  filter: brightness(1.13);
-}
-
-.round-btn.dark svg {
-  stroke: #ccc;
-  width: 27px;
-  height: 27px;
-  display: block;
-}
 
 .switch-row {
   display: flex;
@@ -1468,4 +1439,62 @@ padding-left: 18px;
   transition: background 0.21s;
   pointer-events: auto;
   user-select: none;
+}
+
+.circle-action-btn {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  outline: none;
+  position: relative;
+  font-size: 1em;
+  background: rgba(36, 40, 47, 0.53); /* тёмно-серый полупрозрачный */
+  transition: box-shadow 0.15s, background 0.14s;
+  cursor: pointer;
+  z-index: 1;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.13) inset;
+  border-width: 2.5px;
+  border-style: solid;
+  /* Фаска — белая градиентная обводка */
+  border-image: linear-gradient(135deg, #fff 72%, rgba(255,255,255,0.01) 100%) 1;
+  opacity: 0.50;
+}
+
+.circle-action-btn svg {
+  width: 38px;
+  height: 38px;
+  stroke-width: 2.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  display: block;
+}
+
+/* ОТМЕНА: белый крест на тёмном */
+.circle-action-btn.cancel-btn {
+  background: rgba(27,29,32,0.59);
+  border-image: linear-gradient(135deg, #fff 67%, rgba(255,255,255,0.01) 100%) 1;
+}
+.circle-action-btn.cancel-btn svg {
+  stroke: #fff;
+  opacity: 1;
+}
+
+/* ПОДТВЕРДИТЬ: белый плюс на зелёном */
+.circle-action-btn.confirm-btn {
+  background: rgba(56,180,105,0.52); /* ярко-зелёный с прозрачностью */
+  border-image: linear-gradient(135deg, #e3ffe3 55%, rgba(56,180,105,0.01) 100%) 1;
+}
+.circle-action-btn.confirm-btn svg {
+  stroke: #fff;
+  opacity: 1;
+}
+
+.circle-action-btn:active {
+  filter: brightness(0.92) blur(0.5px);
+  opacity: 0.88;
 }
