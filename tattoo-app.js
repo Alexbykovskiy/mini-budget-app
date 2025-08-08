@@ -1013,10 +1013,12 @@ renderEditActions();
 });
     clearExpenseForm();
     currentEdit = null;
-    document.querySelectorAll('.block').forEach(block => {
-      if (block.querySelector('h2')?.textContent.includes('Добавить расход')) {
-        block.classList.remove('editing');
-      }
+    const expenseBlock = document.getElementById('expense-section');
+if (expenseBlock) {
+  expenseBlock.classList.add('editing');
+  expenseBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  expenseBlock.querySelector('#expense-amount')?.focus();
+}
     });
     loadHistory();
 await updateStats();
