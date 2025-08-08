@@ -1408,3 +1408,53 @@ padding-left: 18px;
   min-height: 54px; /* или твоя нужная высота — равная с кнопкой */
   align-items: center;
 }
+
+.transfer-btn {
+  background: rgba(23,24,27,0.11);
+  border: none;
+  outline: none;
+  box-shadow: 0 0 0 1.7px #fff2 inset, 0 4px 15px 0 rgba(40,38,32,0.11);
+  border-radius: 50%;
+  width: 54px;
+  height: 54px;
+  margin: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: box-shadow 0.13s, background 0.12s, border 0.14s;
+  position: relative;
+  z-index: 2;
+}
+.transfer-btn svg {
+  display: block;
+  width: 31px;
+  height: 31px;
+  stroke: #191b1e;
+  stroke-width: 2.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  pointer-events: none;
+  margin: 0 auto;
+  opacity: 0.93;
+  transition: stroke 0.12s, opacity 0.14s;
+}
+.transfer-btn.confirm {
+  box-shadow: 0 0 0 2.4px #45c17b88 inset, 0 4px 15px 0 rgba(50,222,126,0.13);
+}
+.transfer-btn.confirm svg {
+  stroke: #41c478;
+  opacity: 0.97;
+}
+.transfer-btn.cancel {
+  box-shadow: 0 0 0 2.4px #fd676788 inset, 0 4px 15px 0 rgba(255,80,80,0.13);
+}
+.transfer-btn.cancel svg {
+  stroke: #fd6767;
+  opacity: 0.97;
+}
+.transfer-btn:active {
+  filter: brightness(0.98) blur(0.2px);
+  opacity: 0.96;
+}
