@@ -1336,3 +1336,36 @@ padding-left: 18px;
   gap: 10px;
   margin-bottom: 18px;
 }
+
+.corner-sign {
+  position: absolute;
+  left: 22px;    /* отступ слева = отступ сверху (см. .block padding) */
+  top: 22px;
+  z-index: 12;
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  pointer-events: none; /* чтобы не мешал кликам по форме */
+  user-select: none;
+}
+.form-section .corner-sign {
+  /* только для секции дохода, если нужно другой отступ */
+}
+.corner-sign.plus svg {
+  color: #43c07c;
+  width: 72px;
+  height: 72px;
+}
+.corner-sign.minus svg {
+  color: #ff5959;
+  width: 72px;
+  height: 72px;
+}
+.corner-sign svg {
+  display: block;
+}
+.block {
+  position: relative; /* нужно чтобы абсолютный .corner-sign позиционировался внутри блока */
+}
