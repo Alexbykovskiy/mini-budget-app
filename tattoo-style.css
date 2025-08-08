@@ -1328,53 +1328,62 @@ padding-left: 18px;
 }
 
 
-.invoice-row {
+.inline-fields.invoice-fields-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.invoice-fields-row .left {
+  flex: 1 1 0;
   display: flex;
   align-items: center;
-  gap: 13px;
-  margin-bottom: 12px;
-  margin-top: 3px;
-  min-height: 51px;
+  min-width: 0;
 }
-.invoice-row .ios-switch {
-  margin-right: 2px;
-}
-.invoice-row .switch-label {
-  margin-right: 10px;
-  font-size: 17px;
+.invoice-fields-row .right {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  justify-content: flex-end;
 }
 .add-invoice-file-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(36,40,47,0.26);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: 48px; /* подогнано под твои поля */
+  padding: 0 22px;
+  background: rgba(36,40,47,0.21);
   border-radius: 999px;
   color: #ffa35c;
   font-size: 16px;
   font-weight: 600;
-  padding: 11px 22px;
   cursor: pointer;
   border: 1.2px solid rgba(255,163,92,0.16);
   box-shadow: 0 1px 7px 0 rgba(255,163,92,0.10) inset;
   transition: background 0.13s, color 0.13s, border-color 0.13s;
-  margin-left: 10px;
+  margin-left: 0;
+  margin-right: 0;
   user-select: none;
-  white-space: nowrap;
+  display: none;
+  align-items: center;
+  justify-content: center;
 }
-.add-invoice-file-btn:hover {
-  background: #ffa35c44;
-  color: #fff;
-  border-color: #ffa35c88;
+.add-invoice-file-btn[style*="display: inline-flex"] {
+  display: flex !important;
+}
+.add-invoice-file-btn svg {
+  margin-right: 7px;
 }
 .add-invoice-file-btn span {
   pointer-events: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 80%;
+  display: inline-block;
 }
 .add-invoice-file-btn input[type="file"] {
   display: none;
-}
-.add-invoice-file-btn svg {
-  pointer-events: none;
-  margin-right: 6px;
-  margin-left: -2px;
-  vertical-align: middle;
 }

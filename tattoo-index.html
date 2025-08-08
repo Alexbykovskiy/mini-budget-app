@@ -57,25 +57,26 @@
     </select>
   </div>
 
-<div class="invoice-row">
-  <label class="ios-switch">
-    <input type="checkbox" id="is-invoice" onchange="toggleInvoiceFileBtn(this)">
-    <span class="ios-slider"></span>
-  </label>
-  <span class="switch-label">Фактура</span>
-
-  <!-- Кнопка добавить файл -->
-  <label class="add-invoice-file-btn" id="add-invoice-file-btn" style="display:none;">
-    <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="handleInvoiceFile(this)">
-    <svg width="22" height="22" viewBox="0 0 24 24" style="margin-right:7px;vertical-align:middle;">
-      <path d="M17 16v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4" stroke="#ffa35c" stroke-width="2.1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      <polyline points="16 2 21 2 21 7" stroke="#ffa35c" stroke-width="2.1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      <line x1="10" y1="14" x2="21" y2="3" stroke="#ffa35c" stroke-width="2.1" stroke-linecap="round"/>
-    </svg>
-    <span id="add-invoice-file-label">Добавить файл</span>
-  </label>
+<div class="inline-fields invoice-fields-row">
+  <div class="left">
+    <label class="ios-switch">
+      <input type="checkbox" id="is-invoice" onchange="toggleInvoiceFileBtn(this)">
+      <span class="ios-slider"></span>
+    </label>
+    <span class="switch-label">Фактура</span>
+  </div>
+  <div class="right">
+    <label class="add-invoice-file-btn" id="add-invoice-file-btn" style="display:none;">
+      <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="handleInvoiceFile(this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" style="margin-right:6px;">
+        <path d="M17 16v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4" stroke="#ffa35c" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <polyline points="16 2 21 2 21 7" stroke="#ffa35c" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="10" y1="14" x2="21" y2="3" stroke="#ffa35c" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span id="add-invoice-file-label">Добавить файл</span>
+    </label>
+  </div>
 </div>
-
 <div class="edit-action-row" id="income-edit-actions"></div>
 
   <!-- 4 строка: две кнопки по краям -->
