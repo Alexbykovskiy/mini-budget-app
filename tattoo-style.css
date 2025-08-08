@@ -1458,3 +1458,14 @@ padding-left: 18px;
   filter: brightness(0.98) blur(0.2px);
   opacity: 0.96;
 }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99998;
+  background: rgba(18,20,22,0.52); /* Чёрный, 52% — можешь сделать 0.5-0.7 по вкусу */
+  backdrop-filter: blur(1px);      /* Можно убрать или сделать мягче */
+  transition: background 0.21s;
+  pointer-events: auto;
+  user-select: none;
+}

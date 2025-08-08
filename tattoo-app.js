@@ -1678,6 +1678,12 @@ function showConfirmModal({
   cancelText = "Отменить"
 } = {}) {
   return new Promise((resolve) => {
+    // === ДОБАВЛЯЕМ BACKDROP ===
+    const backdrop = document.createElement("div");
+    backdrop.className = "modal-backdrop";
+    document.body.appendChild(backdrop);
+
+    // === САМА МОДАЛКА ===
     const modal = document.createElement("div");
     modal.className = "glass-modal";
     modal.style.cssText = `
@@ -1717,19 +1723,24 @@ function showConfirmModal({
       </div>
     `;
 
-    document.body.appendChild(modal);
+   document.body.appendChild(modal);
+
+    const closeModal = (result) => {
+      modal.remove();
+      backdrop.remove();
+      resolve(result);
+    };
 
     const cancelBtn = modal.querySelector('.transfer-btn.cancel');
     const confirmBtn = modal.querySelector('.transfer-btn.confirm');
 
-    cancelBtn.onclick = () => { modal.remove(); resolve(false); };
-    confirmBtn.onclick = () => { modal.remove(); resolve(true); };
+    cancelBtn.onclick = () => closeModal(false);
+    confirmBtn.onclick = () => closeModal(true);
 
     window.addEventListener("keydown", function handler(e) {
       if (e.key === "Escape") {
-        modal.remove();
+        closeModal(false);
         window.removeEventListener("keydown", handler);
-        resolve(false);
       }
     });
   });
