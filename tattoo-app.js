@@ -574,7 +574,8 @@ async function addExpense() {  const location = document.getElementById('expense
     document.getElementById('expense-location').value = '';
     document.getElementById('expense-date').value = '';
     document.getElementById('expense-amount').value = '';
-    document.getElementById('expense-type').value = '';
+    document.getElementById('expense-type').selectedIndex = 0;
+
 
     setDefaultDateInputs();
     setDefaultStudioInputs();
