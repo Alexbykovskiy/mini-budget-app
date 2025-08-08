@@ -1356,33 +1356,33 @@ padding-left: 18px;
   padding: 0 22px;
   background: rgba(36,40,47,0.21);
   border-radius: 999px;
-  color: #ffa35c;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
   border: 1.2px solid rgba(255,163,92,0.16);
   box-shadow: 0 1px 7px 0 rgba(255,163,92,0.10) inset;
-  transition: background 0.13s, color 0.13s, border-color 0.13s, opacity 0.17s;
-  margin-left: 0;
-  margin-right: 0;
+  cursor: pointer;
   user-select: none;
   align-items: center;
   justify-content: center;
-  /* display: none; ← удаляешь ЭТУ строку! */
+  display: flex;
   opacity: 0;
   pointer-events: none;
+  transition: background 0.13s, color 0.13s, border-color 0.13s, opacity 0.17s;
+  /* убери жирность! */
+  font-weight: 400;
+  /* сделай текст серым, как у placeholder */
+  color: #bfc8c8;
 }
-.add-invoice-file-btn svg {
-  margin-right: 7px;
-}
+
 .add-invoice-file-btn span {
+  width: 100%;
+  text-align: center;
+  font-weight: 400 !important;   /* не жирный */
+  color: #bfc8c8 !important;     /* светло-серый */
+  font-size: 16px !important;
+  letter-spacing: 0.02em;
   pointer-events: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 80%;
-  display: inline-block;
+  display: block;
 }
+
 .add-invoice-file-btn input[type="file"] {
   display: none;
 }
