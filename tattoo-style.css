@@ -67,8 +67,7 @@ circle-action-btn {
   min-height: 68px !important;
   max-width: 68px !important;
   max-height: 68px !important;
-  border-radius: 50% !important;
-  aspect-ratio: 1/1 !important;
+    aspect-ratio: 1/1 !important;
   padding: 0 !important;
   box-sizing: border-box !important;
   display: flex !important;
