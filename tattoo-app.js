@@ -1039,6 +1039,7 @@ function clearIncomeForm() {
   document.getElementById('is-invoice').checked = false;
   setDefaultDateInputs();
   setDefaultStudioInputs();
+  resetInvoiceSwitchAndBtn(); // ← добавить вот это!
 }
 function cancelExpense() {
   clearExpenseForm();
@@ -1641,6 +1642,27 @@ function handleInvoiceFile(input) {
       : file.name;
   } else {
     label.textContent = '+ файл';
+  }
+}
+
+function resetInvoiceSwitchAndBtn() {
+  const invoiceSwitch = document.getElementById('is-invoice');
+  const addFileBtn = document.getElementById('add-invoice-file-btn');
+  const fileLabel = document.getElementById('add-invoice-file-label');
+
+  if (invoiceSwitch) invoiceSwitch.checked = false;
+  if (addFileBtn) {
+    addFileBtn.style.opacity = '0';
+    addFileBtn.style.pointerEvents = 'none';
+  }
+  if (fileLabel) {
+    fileLabel.textContent = '+ файл';
+    fileLabel.style.color = '#bfc8c8';
+    fileLabel.style.fontWeight = 400;
+  }
+  // Также сбрось выбранный файл, если был выбран:
+  if (addFileBtn && addFileBtn.querySelector('input[type="file"]')) {
+    addFileBtn.querySelector('input[type="file"]').value = '';
   }
 }
 
