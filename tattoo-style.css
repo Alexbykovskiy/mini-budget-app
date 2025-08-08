@@ -645,8 +645,7 @@ textarea {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: 2.5px solid #fff7;
-  background: none;
+   background: none;
   cursor: pointer;
   box-shadow: 0 1.5px 6px 0 rgba(0,0,0,0.13);
   padding: 0;
