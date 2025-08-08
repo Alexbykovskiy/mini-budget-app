@@ -656,6 +656,25 @@ textarea {
 .color-circle::-webkit-color-swatch { border: none; border-radius: 50%; }
 
 
+.circle-action-btn.expense-confirm-btn {
+  background: rgba(236,52,52,0.48); /* красный с прозрачностью */
+  /* при желании можешь сделать ярче или темнее */
+}
+
+.circle-action-btn.expense-confirm-btn svg {
+  stroke: #fff;
+  opacity: 1;
+  width: 38px;
+  height: 38px;
+  stroke-width: 2.7;
+}
+
+.circle-action-btn.expense-confirm-btn:active {
+  filter: brightness(0.90) blur(0.5px);
+  opacity: 0.88;
+}
+
+
 .calendar-date-pill {
   border-radius: 999px;
   padding: 11px 15px;
