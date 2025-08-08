@@ -1352,7 +1352,7 @@ padding-left: 18px;
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  height: 48px; /* подогнано под твои поля */
+  height: 48px;
   padding: 0 22px;
   background: rgba(36,40,47,0.21);
   border-radius: 999px;
@@ -1362,12 +1362,15 @@ padding-left: 18px;
   cursor: pointer;
   border: 1.2px solid rgba(255,163,92,0.16);
   box-shadow: 0 1px 7px 0 rgba(255,163,92,0.10) inset;
-  transition: background 0.13s, color 0.13s, border-color 0.13s;
+  transition: background 0.13s, color 0.13s, border-color 0.13s, opacity 0.17s;
   margin-left: 0;
   margin-right: 0;
   user-select: none;
   align-items: center;
   justify-content: center;
+  /* display: none; ← удаляешь ЭТУ строку! */
+  opacity: 0;
+  pointer-events: none;
 }
 .add-invoice-file-btn svg {
   margin-right: 7px;
