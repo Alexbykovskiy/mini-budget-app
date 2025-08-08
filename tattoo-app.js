@@ -1090,14 +1090,14 @@ async function deleteIncomeEdit() {
     currentEdit = null;
     document.querySelector('.form-section').classList.remove('editing');
     renderEditActions();
+    // Скрыть саму форму, если надо
+    document.querySelector('.form-section').style.display = 'none';
     loadHistory();
-await updateStats();
-
+    await updateStats();
   } catch (e) {
     alert('Ошибка при удалении: ' + e.message);
   }
 }
-
 async function deleteExpenseEdit() {
   if (!currentEdit || currentEdit.type !== 'expense') return;
   if (!confirm('Удалить этот расход?')) return;
