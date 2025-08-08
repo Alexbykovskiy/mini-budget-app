@@ -1083,21 +1083,26 @@ function renderEditActions() {
 
 async function deleteIncomeEdit() {
   if (!currentEdit || currentEdit.type !== 'income') return;
-  if (!confirm('Удалить этот доход?')) return;
+  const ok = await showConfirmModal({
+    title: "Удалить доход?",
+    message: "Вы действительно хотите удалить этот доход?",
+    confirmText: "Да",
+    cancelText: "Нет"
+  });
+  if (!ok) return;
   try {
     await db.collection('incomes').doc(currentEdit.id).delete();
     clearIncomeForm();
     currentEdit = null;
     document.querySelector('.form-section').classList.remove('editing');
     renderEditActions();
-    // Скрыть саму форму, если надо
-    document.querySelector('.form-section').style.display = 'none';
     loadHistory();
     await updateStats();
   } catch (e) {
     alert('Ошибка при удалении: ' + e.message);
   }
 }
+
 async function deleteExpenseEdit() {
   if (!currentEdit || currentEdit.type !== 'expense') return;
   if (!confirm('Удалить этот расход?')) return;
@@ -1665,6 +1670,71 @@ function resetInvoiceSwitchAndBtn() {
     addFileBtn.querySelector('input[type="file"]').value = '';
   }
 }
+
+function showConfirmModal({
+  title = "Подтвердите действие",
+  message = "",
+  confirmText = "Подтвердить",
+  cancelText = "Отменить"
+} = {}) {
+  return new Promise((resolve) => {
+    const modal = document.createElement("div");
+    modal.className = "glass-modal";
+    modal.style.cssText = `
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 360px;
+      max-width: 98vw;
+      background: rgba(10,10,10,0.20);
+      color: #fff;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.26);
+      padding: 26px 26px 22px 26px;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    `;
+
+    modal.innerHTML = `
+      <h3 style="color:#fff; text-align:center; font-size:1.16em; font-weight:700; margin:0 0 12px 0;">${title}</h3>
+      <div style="color:#fff; text-align:center; font-size:1.04em; margin-bottom:18px;">${message}</div>
+      <div style="display:flex; justify-content:space-between; align-items:center; width:100%; padding:0 4px; margin-top: 12px;">
+        <button class="transfer-btn cancel" type="button" title="${cancelText}">
+          <svg width="32" height="32" viewBox="0 0 24 24">
+            <line x1="6" y1="6" x2="18" y2="18"/>
+            <line x1="18" y1="6" x2="6" y2="18"/>
+          </svg>
+        </button>
+        <button class="transfer-btn confirm" type="button" title="${confirmText}">
+          <svg width="32" height="32" viewBox="0 0 24 24">
+            <polyline points="5 13 10.5 18 19 7"/>
+          </svg>
+        </button>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const cancelBtn = modal.querySelector('.transfer-btn.cancel');
+    const confirmBtn = modal.querySelector('.transfer-btn.confirm');
+
+    cancelBtn.onclick = () => { modal.remove(); resolve(false); };
+    confirmBtn.onclick = () => { modal.remove(); resolve(true); };
+
+    window.addEventListener("keydown", function handler(e) {
+      if (e.key === "Escape") {
+        modal.remove();
+        window.removeEventListener("keydown", handler);
+        resolve(false);
+      }
+    });
+  });
+}
+
 
 window.addEventListener('DOMContentLoaded', async () => {
   await loadStudios();
