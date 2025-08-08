@@ -1302,3 +1302,35 @@ padding-left: 18px;
 }
 
 
+.sign-plus,
+.sign-minus {
+  display: inline-block;
+  padding: 0.05em 0.48em 0.11em 0.48em; /* по горизонтали — регулируй ширину */
+  font-size: 1.6em;     /* увеличить/уменьшить размер */
+  font-weight: 800;
+  line-height: 1.06;
+  border-radius: 18px;   /* чем больше — тем более пилюля */
+  border: 2.5px solid currentColor; /* обводка цвета самого знака */
+  color: #40c276;        /* плюс: зелёный, можно изменить */
+  margin-right: 12px;    /* отступ справа */
+  background: none;      /* без заливки */
+  box-shadow: none;
+  letter-spacing: 0.03em;
+  transition: color 0.14s, border-color 0.13s;
+  vertical-align: middle;
+  user-select: none;
+}
+.sign-minus {
+  color: #ff5a5a;        /* минус: красный */
+}
+.block h2 {
+  text-align: center;
+  font-size: 1.38em;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
