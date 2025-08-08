@@ -1105,7 +1105,13 @@ async function deleteIncomeEdit() {
 
 async function deleteExpenseEdit() {
   if (!currentEdit || currentEdit.type !== 'expense') return;
-  if (!confirm('Удалить этот расход?')) return;
+  const ok = await showConfirmModal({
+    title: "Удалить расход?",
+    message: "Вы действительно хотите удалить этот расход?",
+    confirmText: "Да",
+    cancelText: "Нет"
+  });
+  if (!ok) return;
   try {
     await db.collection('expenses').doc(currentEdit.id).delete();
     clearExpenseForm();
@@ -1117,7 +1123,7 @@ async function deleteExpenseEdit() {
     });
     renderEditActions();
     loadHistory();
-await updateStats();
+    await updateStats();
 
   } catch (e) {
     alert('Ошибка при удалении: ' + e.message);
