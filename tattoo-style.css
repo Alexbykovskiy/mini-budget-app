@@ -973,6 +973,7 @@ textarea {
   flex-direction: column;
   align-items: center;
   gap: 6px;
+margin-bottom: 4px; /* было больше — уменьшаем */
 }
 
 /* скрыть пустой левый chunk */
@@ -1033,6 +1034,10 @@ textarea {
   width: 12px; height: 12px;
   border-radius: 50%;
   background: currentColor;       /* можно заменить на #FFA35C, если хочешь оранжевую точку */
+}
+
+#calendar .fc-header-toolbar {
+  margin-top: 20px; /* увеличиваем (можно 24–28px, подбери по вкусу) */
 }
 
 
