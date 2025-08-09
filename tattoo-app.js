@@ -1324,8 +1324,9 @@ setTimeout(() => {
     selectable: true,
     events: trips,
     height: 'auto',
-    headerToolbar: { left: 'title', center: '', right: 'today prev,next' },
-    locale: 'ru',
+    headerToolbar: { left: 'prev today next', center: 'title', right: '' },
+buttonText: { today: '' }, // ← текст у "Сегодня" скрываем, будет кружок стилями
+locale: 'ru',
 firstDay: 1,
     eventClick: function(info) {
       const event = info.event;

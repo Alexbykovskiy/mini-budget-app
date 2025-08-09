@@ -883,6 +883,8 @@ textarea {
   margin: 0;
 }
 
+
+
 .fc .fc-col-header-cell {
   background: transparent !important;    /* ← главное изменение! */
   color: #111 !important;
@@ -964,6 +966,77 @@ textarea {
   color: #fff;
   letter-spacing: 0.01em;
 }
+
+/* === Calendar toolbar layout & look === */
+#calendar .fc-toolbar {
+  display: flex;
+  flex-wrap: wrap;            /* переносим заголовок на новую строку */
+  gap: 12px;
+  align-items: center;
+}
+
+/* 1‑й чанк тулбара (left): наши три кнопки в ряд */
+#calendar .fc-toolbar .fc-toolbar-chunk:nth-child(1) {
+  order: 1;
+  display: inline-flex;
+  gap: 10px;                  /* расстояние между кнопками */
+}
+
+/* 2‑й чанк тулбара (center): заголовок месяца на отдельной строке */
+#calendar .fc-toolbar .fc-toolbar-chunk:nth-child(2) {
+  order: 2;
+  flex-basis: 100%;           /* перенос на новую строку */
+}
+
+/* Сам текст заголовка — делаем компактнее и аккуратнее */
+#calendar .fc-toolbar-title {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  opacity: .9;
+  margin-top: 2px;
+}
+
+/* Круглые кнопки prev / today / next */
+#calendar .fc-button {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 2px 8px rgba(0,0,0,.25);
+  color: #fff;                /* чтобы иконки/точка были светлые */
+}
+
+/* Иконки стрелок по центру круга */
+#calendar .fc-button .fc-icon {
+  margin: 0;
+  transform: none;
+}
+
+/* Кнопка "Сегодня": без текста — рисуем точку */
+#calendar .fc-today-button { font-size: 0; }
+#calendar .fc-today-button::before {
+  content: '';
+  display: block;
+  width: 10px;                /* размер точки — можно 12–14 если хочешь крупнее */
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;   /* наследует цвет кнопки */
+}
+
+/* Ховеры/нажатия */
+#calendar .fc-button:hover { filter: brightness(1.1); }
+#calendar .fc-button:active { transform: translateY(1px); }
+#calendar .fc-button:disabled { opacity: .45; filter: none; cursor: default; }
+
+
 
 
 .history-studio { font-weight: 500; font-size: 16px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
