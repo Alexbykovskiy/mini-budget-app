@@ -469,15 +469,12 @@ textarea {
 }
 .round-btn.dark {
   background: rgba(36, 40, 47, 0.76);
-  border-radius: 100%;
-  width: 51px;
+    width: 51px;
   height: 51px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.15), 0 1.5px 6px 0 rgba(0,0,0,0.12) inset;
-  border: 1.5px solid rgba(255,255,255,0.09);
-  cursor: pointer;
+    cursor: pointer;
   transition: background 0.13s, box-shadow 0.15s;
   color: #eee;
   font-size: 21px;
@@ -615,15 +612,12 @@ textarea {
 }
 .round-btn.dark {
   background: rgba(36, 40, 47, 0.76);
-  border-radius: 100%;
-  width: 51px;
+    width: 51px;
   height: 51px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.15), 0 1.5px 6px 0 rgba(0,0,0,0.12) inset;
-  border: 1.5px solid rgba(255,255,255,0.09);
-  cursor: pointer;
+    cursor: pointer;
   transition: background 0.13s, box-shadow 0.15s;
   color: #eee;
   font-size: 21px;
