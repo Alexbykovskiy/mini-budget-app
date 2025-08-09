@@ -1325,14 +1325,11 @@ padding-left: 18px;
 .block textarea {
   background: rgba(36, 40, 47, 0.21); /* тёмное стекло */
   color: #fff;
-  border-radius: 999px !important;
-  border: 1.3px solid rgba(255,255,255,0.01);
-  backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   font-size: 16px;
   padding: 12px 18px !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.10) inset, 0 1.5px 6px 0 rgba(0,0,0,0.09);
-  transition: box-shadow 0.18s, border-color 0.14s, background 0.12s;
+   transition: box-shadow 0.18s, border-color 0.14s, background 0.12s;
   outline: none;
 }
 .block input[type="text"]:focus,
