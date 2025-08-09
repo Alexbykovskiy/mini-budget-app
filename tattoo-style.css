@@ -486,7 +486,9 @@ textarea {
   filter: brightness(1.13);
 }
 .round-btn.dark svg {
-  stroke: #ccc;
+  
+
+
   width: 27px;
   height: 27px;
   display: block;
@@ -1329,16 +1331,15 @@ padding-left: 18px;
   -webkit-backdrop-filter: blur(10px);
   font-size: 16px;
   padding: 12px 18px !important;
-   transition: box-shadow 0.18s, border-color 0.14s, background 0.12s;
-  outline: none;
+     outline: none;
 }
 .block input[type="text"]:focus,
 .block input[type="number"]:focus,
 .block input[type="date"]:focus,
 .block select:focus,
 .block textarea:focus {
-  border-color: #FFA35C;
-  box-shadow: 0 0 0 2.5px rgba(255,163,92,0.22);
+  border: none;
+box-shadow: none;
   background: rgba(55, 32, 0, 0.22);
 }
 .block select option {
