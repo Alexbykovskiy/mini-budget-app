@@ -1547,24 +1547,81 @@ padding-left: 18px;
   user-select: none;
 }
 
-
+/* Полный сброс рамок/обводок/теней + единый стиль под тёмное стекло */
 input[type="text"],
 input[type="number"],
 input[type="date"],
 select,
-textarea {
+textarea,
+button {
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+
+  /* Стиль как на скрине */
+  background: rgba(36, 40, 47, 0.21) !important; /* тёмный фон */
+  color: #ccc !important;                        /* светло-серый текст */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 16px;
+  padding: 12px 18px !important;
+  border-radius: 999px !important;
 }
 
+/* Цвет плейсхолдера */
+input::placeholder,
+textarea::placeholder {
+  color: #ccc !important;
+  opacity: 0.8;
+}
+
+/* При фокусе оставляем тот же фон */
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+select:focus,
+textarea:focus,
+button:focus,
+input[type="text"]:focus-visible,
+input[type="number"]:focus-visible,
+input[type="date"]:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: rgba(36, 40, 47, 0.21) !important; /* без изменений при фокусе */
+}
+
+/* У календарных кнопок убираем рамку и «фаску» */
+#calendar .fc-button {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* При фокусе — оранжевая подсветка */
 input[type="text"]:focus,
 input[type="number"]:focus,
 input[type="date"]:focus,
 select:focus,
 textarea:focus {
+  background: rgba(36, 40, 47, 0.21) !important;
+  color: #ccc !important;
+  box-shadow: 0 0 0 2px rgba(255, 163, 92, 0.9) !important; /* оранжевая рамка */
   border: none !important;
   outline: none !important;
-  box-shadow: none !important;
+  transition: box-shadow 0.18s ease, background 0.18s ease;
+}
+
+/* Для плавного эффекта у всех полей */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select,
+textarea {
+  transition: box-shadow 0.18s ease, background 0.18s ease;
 }
 
