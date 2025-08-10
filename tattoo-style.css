@@ -1616,6 +1616,14 @@ textarea:focus {
   transition: box-shadow 0.18s ease, background 0.18s ease;
 }
 
+/* Поднятие и уменьшение отступа для кнопок в блоках доходов и расходов */
+.form-section.income-glow .pill-row,
+#expense-section .pill-row {
+  position: relative;
+  bottom: 30%; /* поднимаем на 30% высоты контейнера */
+  margin-bottom: 8px !important; /* было ~16px, теперь в 2 раза меньше */
+}
+
 /* Для плавного эффекта у всех полей */
 input[type="text"],
 input[type="number"],
