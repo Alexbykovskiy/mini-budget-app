@@ -723,6 +723,7 @@ textarea {
   
   z-index: 3;
 }
+
 .edit-entry-btn:hover {
   background: #FFA35C;
   color: #fff;
@@ -1645,5 +1646,21 @@ textarea {
 .form-section.income-glow .pill-row,
 #expense-section .pill-row {
   margin-top: -20px; /* поднимаем примерно на 30% высоты кнопки */
-  margin-bottom: 1px; /* уменьшаем нижний отступ в 2 раза */
+  margin-bottom: -5px; /* уменьшаем нижний отступ в 2 раза */
 }
+
+
+/* Индивидуальный стиль для кнопки редактирования студии */
+.edit-studio-btn {
+  background: rgba(36, 40, 47, 0.86) !important; /* чуть более тёмный фон */
+}
+
+.edit-studio-btn svg {
+  width: 38px !important;   /* в 2 раза больше, чем 27px */
+  height: 38px !important;
+  stroke: #ffa35c;
+}
+.edit-studio-btn:hover {
+  background: rgba(55, 58, 65, 0.95) !important;
+}
+
