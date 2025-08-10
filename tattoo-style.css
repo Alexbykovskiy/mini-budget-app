@@ -1652,15 +1652,15 @@ textarea {
 
 /* Индивидуальный стиль для кнопки редактирования студии */
 .edit-studio-btn {
-  background: rgba(36, 40, 47, 0.86) !important; /* чуть более тёмный фон */
+  background: rgba(0, 0, 0, 0.4) !important; /* чуть более тёмный фон */
 }
 
 .edit-studio-btn {
   width: 38px !important;   /* в 2 раза больше, чем 27px */
   height: 38px !important;
-  stroke: #ffa35c;
+  
 }
 .edit-studio-btn:hover {
-  background: rgba(55, 58, 65, 0.95) !important;
+  background: rgba(255, 255, 255, 0.4) !important;
 }
 
