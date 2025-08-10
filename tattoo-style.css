@@ -1561,7 +1561,7 @@ button {
   appearance: none !important;
 
   /* Стиль как на скрине */
-  background: rgba(0, 0, 0, 0.7) !important; /* тёмный фон */
+  background: rgba(0, 0, 0, 0.6) !important; /* тёмный фон */
   color: #ccc !important;                        /* светло-серый текст */
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -1593,7 +1593,7 @@ button:focus-visible {
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
-  background: rgba(0, 0, 0, 0.7) !important; /* без изменений при фокусе */
+  background: rgba(0, 0, 0, 0.6) !important; /* без изменений при фокусе */
 }
 
 /* У календарных кнопок убираем рамку и «фаску» */
@@ -1608,7 +1608,7 @@ input[type="number"]:focus,
 input[type="date"]:focus,
 select:focus,
 textarea:focus {
-  background: rgba(0, 0, 0, 0.7) !important;
+  background: rgba(0, 0, 0, 0.6) !important;
   color: #ccc !important;
   box-shadow: 0 0 0 2px rgba(255, 163, 92, 0.9) !important; /* оранжевая рамка */
   border: none !important;
