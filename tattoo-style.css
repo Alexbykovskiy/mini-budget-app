@@ -1629,8 +1629,7 @@ textarea {
 select {
   background: rgba(36, 40, 47, 0.95) !important; /* тёмный фон */
   color: #ccc !important;                        /* светло-серый текст */
-  border-radius: 12px !important;                /* скруглённые углы у списка */
-  border: none !important;
+    border: none !important;
   outline: none !important;
 }
 
