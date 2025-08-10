@@ -1626,18 +1626,6 @@ textarea {
 }
 
 
-select {
-  background: rgba(36, 40, 47, 0.95) !important; /* тёмный фон */
-  color: #ccc !important;                        /* светло-серый текст */
-    border: none !important;
-  outline: none !important;
-}
-
-
-/* Чтобы при фокусе у select была оранжевая подсветка */
-select:focus {
-  box-shadow: 0 0 0 2px rgba(255, 163, 92, 0.9) !important;
-}
 
 /* Центровка текста в полях */
 input[type="text"],
