@@ -1561,7 +1561,7 @@ button {
   appearance: none !important;
 
   /* Стиль как на скрине */
-  background: rgba(36, 40, 47, 0.21) !important; /* тёмный фон */
+  background: rgba(36, 40, 47, 0.50) !important; /* тёмный фон */
   color: #ccc !important;                        /* светло-серый текст */
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -1593,7 +1593,7 @@ button:focus-visible {
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
-  background: rgba(36, 40, 47, 0.21) !important; /* без изменений при фокусе */
+  background: rgba(36, 40, 47, 0.50) !important; /* без изменений при фокусе */
 }
 
 /* У календарных кнопок убираем рамку и «фаску» */
@@ -1625,3 +1625,32 @@ textarea {
   transition: box-shadow 0.18s ease, background 0.18s ease;
 }
 
+
+select {
+  background: rgba(36, 40, 47, 0.95) !important; /* тёмный фон */
+  color: #ccc !important;                        /* светло-серый текст */
+  border-radius: 12px !important;                /* скруглённые углы у списка */
+  border: none !important;
+  outline: none !important;
+}
+
+/* Стиль для самих опций */
+select option {
+  background: rgba(36, 40, 47, 0.95) !important;
+  color: #ccc !important;
+  border-radius: 12px !important;
+}
+
+/* Чтобы при фокусе у select была оранжевая подсветка */
+select:focus {
+  box-shadow: 0 0 0 2px rgba(255, 163, 92, 0.9) !important;
+}
+
+/* Центровка текста в полях */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select,
+textarea {
+  text-align: center !important;
+}
