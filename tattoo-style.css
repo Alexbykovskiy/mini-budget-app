@@ -1591,43 +1591,4 @@ box-shadow: none;
   user-select: none;
 }
 
-/* === Универсальный стиль кнопок как в календаре === */
-button,
-input[type="button"],
-input[type="submit"] {
-  border: none !important;
-  box-shadow: none !important;
-  border-radius: 50% !important;
-  background: rgba(255,255,255,.06) !important;
-  padding: 0 !important;
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
-  color: #fff !important;
-  cursor: pointer;
-}
-
-button:hover,
-input[type="button"]:hover,
-input[type="submit"]:hover {
-  filter: brightness(1.1);
-}
-
-/* === Поля ввода в стиле календарных кнопок, но не круги === */
-input[type="text"],
-input[type="number"],
-input[type="date"],
-select,
-textarea {
-  border: none !important;
-  box-shadow: none !important;
-  border-radius: 12px !important;
-  background: rgba(255,255,255,.06) !important;
-  color: #fff !important;
-  padding: 10px 14px !important;
-  display: inline-flex;
-  align-items: center;
-}
 
