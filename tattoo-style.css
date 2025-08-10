@@ -1655,7 +1655,7 @@ textarea {
   background: rgba(36, 40, 47, 0.86) !important; /* чуть более тёмный фон */
 }
 
-.edit-studio-btn svg {
+.edit-studio-btn {
   width: 38px !important;   /* в 2 раза больше, чем 27px */
   height: 38px !important;
   stroke: #ffa35c;
