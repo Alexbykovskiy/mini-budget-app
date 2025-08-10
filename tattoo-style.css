@@ -1634,12 +1634,6 @@ select {
   outline: none !important;
 }
 
-/* Стиль для самих опций */
-select option {
-  background: rgba(36, 40, 47, 0.95) !important;
-  color: #ccc !important;
-  border-radius: 12px !important;
-}
 
 /* Чтобы при фокусе у select была оранжевая подсветка */
 select:focus {
