@@ -100,7 +100,9 @@ circle-action-btn {
   background: rgba(56,180,105,0.52); /* ярко-зелёный, 52% прозрачности */
   }
 .circle-action-btn.confirm-btn svg {
-  stroke: #fff;
+    width: 76px;
+  height: 76px;
+stroke: #fff;
   opacity: 1;
 }
 
@@ -1121,8 +1123,8 @@ padding-left: 18px;
   padding: 0;
 }
 .edit-entry-btn-mini svg {
-  width: 20px !important;
-  height: 20px !important;
+  width: 40px !important;
+  height: 40px !important;
   stroke: #ffa35c;
   display: block;
 }
