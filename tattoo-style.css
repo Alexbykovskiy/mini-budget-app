@@ -1688,3 +1688,17 @@ textarea {
   stroke-width: 2.2;
   display: block;
 }
+
+/* Выравнивание кнопки "Редактировать" по вертикали с полем выбора */
+.studio-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.studio-edit-row select {
+  flex: 1;
+  height: 44px; /* подгоняем под кнопку */
+  padding: 0 10px;
+  box-sizing: border-box;
+}
