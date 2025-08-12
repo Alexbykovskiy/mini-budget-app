@@ -1696,3 +1696,38 @@ margin-top: 8px;
   stroke-width: 2.2;
   display: block;
 }
+
+
+.action-btn-circle {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  border-radius: 50% !important;
+  background: rgba(0, 0, 0, 0.4) !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+
+  border: none !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.action-btn-circle:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  transform: scale(1.05);
+}
+
+.action-btn-circle svg {
+  width: 22px !important;
+  height: 22px !important;
+  stroke: #fff;
+  fill: none;
+  stroke-width: 2.2;
+  display: block;
+}

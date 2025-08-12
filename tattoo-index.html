@@ -179,19 +179,21 @@
   </label>
 </div>
       <div class="studio-modal-actions">
-        <button type="button" id="delete-studio-btn" class="round-btn dark" style="display:none;">
-          <!-- SVG крестик -->
-          <svg width="27" height="27" viewBox="0 0 27 27" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="7" y1="7" x2="20" y2="20"/>
-            <line x1="20" y1="7" x2="7" y2="20"/>
-          </svg>
-        </button>
-        <button type="submit" class="round-btn dark">
-          <!-- SVG галочка -->
-          <svg width="27" height="27" viewBox="0 0 27 27" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6,15 12,21 21,8"/>
-          </svg>
-        </button>
+        <button id="delete-studio-btn" class="action-btn-circle" title="Удалить студию">
+  <svg viewBox="0 0 24 24">
+    <path d="M3 6h18" />
+    <path d="M8 6V4h8v2" />
+    <path d="M19 6l-1 14H6L5 6" />
+    <path d="M10 11v6" />
+    <path d="M14 11v6" />
+  </svg>
+</button>
+
+<button id="confirm-studio-btn" class="action-btn-circle" title="Подтвердить">
+  <svg viewBox="0 0 24 24">
+    <path d="M20 6L9 17l-5-5" />
+  </svg>
+</button>
       </div>
     </form>
   </div>
