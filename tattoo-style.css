@@ -1649,28 +1649,35 @@ textarea {
   margin-bottom: -5px; /* уменьшаем нижний отступ в 2 раза */
 }
 
-/* Универсальный стиль для круглой кнопки редактирования */
+.studio-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.studio-edit-row select {
+  flex: 1;
+  height: 44px;
+  padding: 0 10px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center; /* текст по центру */
+}
+
 .edit-btn-circle {
   width: 44px !important;
   height: 44px !important;
   min-width: 44px !important;
   min-height: 44px !important;
-  max-width: 44px !important;
-  max-height: 44px !important;
-  aspect-ratio: 1/1 !important;
-  
   border-radius: 50% !important;
   background: rgba(0, 0, 0, 0.4) !important;
-  
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   padding: 0 !important;
   margin: 0 !important;
-  
   border: none !important;
   box-shadow: none !important;
-  
   cursor: pointer;
   transition: background 0.15s ease, transform 0.15s ease;
 }
@@ -1687,18 +1694,4 @@ textarea {
   fill: none;
   stroke-width: 2.2;
   display: block;
-}
-
-/* Выравнивание кнопки "Редактировать" по вертикали с полем выбора */
-.studio-edit-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.studio-edit-row select {
-  flex: 1;
-  height: 44px; /* подгоняем под кнопку */
-  padding: 0 10px;
-  box-sizing: border-box;
 }
