@@ -1649,29 +1649,40 @@ textarea {
   margin-bottom: -5px; /* уменьшаем нижний отступ в 2 раза */
 }
 
-
-/* Единый стиль для кнопок "Редактировать" */
+/* Универсальный стиль для круглой кнопки редактирования */
 .edit-btn-circle {
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  min-height: 44px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.4); /* чёрный с 40% прозрачностью */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  max-width: 44px !important;
+  max-height: 44px !important;
+  aspect-ratio: 1/1 !important;
+  
+  border-radius: 50% !important;
+  background: rgba(0, 0, 0, 0.4) !important;
+  
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  
+  border: none !important;
+  box-shadow: none !important;
+  
   cursor: pointer;
   transition: background 0.15s ease, transform 0.15s ease;
 }
+
 .edit-btn-circle:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.2) !important;
   transform: scale(1.05);
 }
+
 .edit-btn-circle svg {
-  width: 24px;
-  height: 24px;
+  width: 22px !important;
+  height: 22px !important;
   stroke: #fff;
   fill: none;
   stroke-width: 2.2;
