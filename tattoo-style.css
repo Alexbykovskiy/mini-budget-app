@@ -1731,3 +1731,22 @@ margin-top: 8px;
   stroke-width: 2.2;
   display: block;
 }
+
+/* Trip buttons (поверх базового .action-btn-circle) */
+.action-btn-circle--ok svg {
+  width: 28px !important;
+  height: 28px !important;
+  stroke-width: 2.6 !important;
+}
+
+.action-btn-circle--del svg {
+  width: 26px !important;
+  height: 26px !important;
+  stroke-width: 2.4 !important;
+}
+
+/* Ч/б стиль без цветных фонов — оставляем общий полупрозрачный чёрный */
+.action-btn-circle--ok,
+.action-btn-circle--del {
+  background: rgba(0, 0, 0, 0.4) !important;
+}
