@@ -1740,13 +1740,45 @@ margin-top: 8px;
 }
 
 .action-btn-circle--del svg {
-  width: 26px !important;
-  height: 26px !important;
-  stroke-width: 2.4 !important;
+  width: 21px !important;
+  height: 21px !important;
+  stroke-width: 2.3 !important;
 }
-
 /* Ч/б стиль без цветных фонов — оставляем общий полупрозрачный чёрный */
 .action-btn-circle--ok,
 .action-btn-circle--del {
   background: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Блок дат — опорный для абсолютного позиционирования кнопок */
+#dates-block {
+  position: relative;
+  padding-bottom: 64px; /* место под две круглые кнопки */
+}
+
+/* Оставляем запас снизу под две круглые кнопки */
+#dates-block {
+  position: relative;
+  padding-bottom: 64px; /* можно 60–72px по вкусу */
+}
+
+/* Кнопки по углам внутри #dates-block */
+#dates-block > #delete-trip-btn {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  margin: 0 !important;
+}
+#dates-block > .action-btn-circle--ok {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  margin: 0 !important;
+}
+
+/* Корзину делаем ещё меньше (~20% от текущего визуала) */
+.action-btn-circle--del svg {
+  width: 18px !important;   /* если нужно ещё меньше — поставим 17px */
+  height: 18px !important;
+  stroke-width: 2.3 !important;
 }
