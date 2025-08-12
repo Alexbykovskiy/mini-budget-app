@@ -1661,6 +1661,7 @@ textarea {
   padding: 0 10px;
   box-sizing: border-box;
   display: flex;
+margin-top: 10px;
   align-items: center; /* текст по центру */
 }
 
@@ -1676,7 +1677,6 @@ textarea {
   justify-content: center !important;
   padding: 0 !important;
   margin: 0 !important;
- margin-top: 10px;
   border: none !important;
   box-shadow: none !important;
   cursor: pointer;
