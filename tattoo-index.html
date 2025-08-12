@@ -218,12 +218,13 @@
   <!-- Строка выбора студии и кнопка “редактировать” -->
   <div style="margin-bottom:17px; display:flex; align-items:center; gap:14px;">
     <select id="studio-select" style="flex:1"></select>
-    <button class="edit-studio-btn" style="min-width:51px" onclick="showStudioModal()">
-      <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M16.7 5.3l2 2c.4.4.4 1 0 1.4l-8.5 8.5c-.2.2-.4.3-.7.3H7v-2.5c0-.3.1-.5.3-.7l8.5-8.5a1 1 0 0 1 1.4 0z"/>
-        <path d="M13.5 7.5l3 3"/>
-      </svg>
-    </button>
+    <button class="edit-btn-circle" onclick="showStudioModal()" title="Редактировать студию">
+  <svg viewBox="0 0 24 24">
+    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/>
+    <path d="M20.71 7.04a1.003 1.003 0 0 0 0-1.42l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/>
+  </svg>
+</button>
+
   </div>
 
   <!-- Кнопка “Заполнить ковер” для дефолт-студии -->

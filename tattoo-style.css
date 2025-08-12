@@ -1650,17 +1650,30 @@ textarea {
 }
 
 
-/* Индивидуальный стиль для кнопки редактирования студии */
-.edit-studio-btn {
-  background: rgba(0, 0, 0, 0.4) !important; /* чуть более тёмный фон */
+/* Единый стиль для кнопок "Редактировать" */
+.edit-btn-circle {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4); /* чёрный с 40% прозрачностью */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
 }
-
-.edit-studio-btn {
-  width: 38px !important;   /* в 2 раза больше, чем 27px */
-  height: 38px !important;
-  
+.edit-btn-circle:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
 }
-.edit-studio-btn:hover {
-  background: rgba(255, 255, 255, 0.4) !important;
+.edit-btn-circle svg {
+  width: 24px;
+  height: 24px;
+  stroke: #fff;
+  fill: none;
+  stroke-width: 2.2;
+  display: block;
 }
-
