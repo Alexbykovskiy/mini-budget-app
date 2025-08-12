@@ -336,7 +336,7 @@ select,
 button,
 textarea {
   border-radius: 999px !important; /* максимальное скругление — настоящая пилюля */
-  padding: 12px 18px !important;
+  padding: 0px 12px !important;
   margin: 0 0 10px 0;
   box-sizing: border-box;
 }
