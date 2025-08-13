@@ -899,6 +899,7 @@ currentTripId = null;
       end: addDays(dateTo, 1),
       created: new Date().toISOString()
     });
+showCalendarToast('Период добавлен!');   // ← добавили
   }
   // Обновить календарь
   if (window.fcInstance) {
