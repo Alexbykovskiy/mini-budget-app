@@ -246,13 +246,14 @@
 <div class="pill-row studio-action-row">
   <!-- Слева: Удалить студию -->
   <button
-    type="button"
-    id="delete-trip-btn"
-    class="circle-action-btn cancel-btn"
-    title="Удалить"
-    aria-label="Удалить"
-    style="display:none"
-  >
+  type="button"
+  id="delete-trip-btn"
+  class="circle-action-btn cancel-btn"
+  title="Удалить"
+  aria-label="Удалить"
+  style="display:none"
+  onclick="onTripDeleteOrReset()"
+>
     <!-- Иконка корзины -->
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
          stroke-linecap="round" stroke-linejoin="round">
@@ -264,12 +265,13 @@
   </button>
 
   <!-- Справа: Добавить/Сохранить студию -->
-  <button
-    type="submit"
-    class="circle-action-btn confirm-btn"
-    title="Добавить студию"
-    aria-label="Добавить студию"
-  >
+ <button
+  type="button"
+  class="circle-action-btn confirm-btn"
+  title="Применить"
+  aria-label="Применить"
+  onclick="addTripByDates()"
+>
      <!-- ГАЛОЧКА (не плюс) -->
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
          stroke-linecap="round" stroke-linejoin="round">

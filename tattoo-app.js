@@ -923,35 +923,36 @@ function addDays(dateStr, days) {
 
 async function deleteTripById() {
   if (!currentTripId) return;
-  if (!confirm('Удалить поездку?')) return;
 
-  // 1. Получаем диапазон удаляемой поездки
+  const ok = await showConfirmModal({
+    title: "Удалить период?",
+    message: "Вы действительно хотите удалить выбранный период?",
+    confirmText: "Да",
+    cancelText: "Нет"
+  });
+  if (!ok) return;
+
+  // 1) Получаем диапазон удаляемой поездки (не обязательно, но пусть будет)
   const docSnap = await db.collection('trips').doc(currentTripId).get();
   const data = docSnap.exists ? docSnap.data() : null;
-  const start = data ? data.start : null;
-  const end = data ? data.end : null;
-  const studioName = data ? data.studio : null;
 
-  // 2. Удаляем поездку
+  // 2) Удаляем
   await db.collection('trips').doc(currentTripId).delete();
+  showCalendarToast('Период удалён!');
 
-showCalendarToast('Период удалён!');
-
- 
-  // === Вот тут обновление календаря! ===
+  // 3) Обновляем календарь
   if (window.fcInstance) {
     await loadTrips();
     window.fcInstance.removeAllEvents();
     trips.forEach(event => window.fcInstance.addEvent(event));
   }
 
-  // Очистить всё
+  // 4) Сброс UI
   document.getElementById('trip-date-from').value = '';
   document.getElementById('trip-date-to').value = '';
   currentTripId = null;
   document.getElementById('delete-trip-btn').style.display = "none";
 }
-
 function onIncomeConfirm() {
   if (currentEdit && currentEdit.type === 'income') {
     saveIncomeEdit();
