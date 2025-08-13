@@ -1649,6 +1649,12 @@ textarea {
   margin-bottom: -5px; /* уменьшаем нижний отступ в 2 раза */
 }
 
+/* Те же отступы для кнопок в "Редакторе студий" */
+#dates-block .pill-row {
+  margin-top: -20px;   /* подтягиваем кнопки выше */
+  margin-bottom: -5px; /* итоговый "зазор" снизу = 22 - 5 = ~17px */
+}
+
 .studio-edit-row {
   display: flex;
   align-items: center;
