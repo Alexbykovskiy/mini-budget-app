@@ -243,38 +243,41 @@
     <input type="date" id="trip-date-from" class="calendar-date-pill" placeholder="От">
     <input type="date" id="trip-date-to" class="calendar-date-pill" placeholder="До">
   </div>
+<div class="pill-row studio-action-row">
+  <!-- Слева: Удалить студию -->
   <button
-  type="button"
-  id="delete-trip-btn"
-  class="action-btn-circle action-btn-circle--del"
-  style="display:none;"
-  onclick="onTripDeleteOrReset()"
-  title="Удалить поездку"
-  aria-label="Удалить поездку"
->
-  <!-- Иконка корзины (белая, ч/б) -->
-  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"
-       stroke-linecap="round" stroke-linejoin="round">
-    <polyline points="3 6 5 6 21 6"></polyline>
-    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
-    <path d="M10 11v6M14 11v6"></path>
-    <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
-  </svg>
-</button>
+    type="button"
+    id="delete-studio-btn"
+    class="circle-action-btn cancel-btn"
+    title="Удалить студию"
+    aria-label="Удалить студию"
+    style="display:none"
+  >
+    <!-- Иконка корзины -->
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="3 6 5 6 21 6"></polyline>
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+      <path d="M10 11v6M14 11v6"></path>
+      <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+    </svg>
+  </button>
 
-<button
-  type="button"
-  class="action-btn-circle action-btn-circle--ok"
-  onclick="addTripByDates()"
-  title="Добавить поездку"
-  aria-label="Добавить поездку"
->
-  <!-- Иконка галочки (белая, ч/б) -->
-  <svg viewBox="0 0 27 27" stroke="currentColor" fill="none"
-       stroke-linecap="round" stroke-linejoin="round">
-    <polyline points="6,15 12,21 21,8"></polyline>
-  </svg>
-</button>
+  <!-- Справа: Добавить/Сохранить студию -->
+  <button
+    type="submit"
+    class="circle-action-btn confirm-btn"
+    title="Добавить студию"
+    aria-label="Добавить студию"
+  >
+    <!-- Иконка «плюс» -->
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="5"  x2="12" y2="19"></line>
+      <line x1="5"  y1="12" x2="19" y2="12"></line>
+    </svg>
+  </button>
+</div>
   </div>
 </div>
 

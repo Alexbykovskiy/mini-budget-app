@@ -1782,3 +1782,37 @@ margin-top: 8px;
   height: 18px !important;
   stroke-width: 2.3 !important;
 }
+
+/* Кнопки в модалке студии — как в блоках доход/расход */
+#studio-modal .studio-action-row {
+  /* та же геометрия ряда, что у .pill-row в блоках */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+
+  /* как в формах: поднять ряд и дать такой же нижний отступ */
+  margin-top: -20px;
+  /* у .block: bottom = 22, у .modal-content: bottom = 24
+     чтобы получить те же 17px до низа, даём -7px (24 - 7 = 17) */
+  margin-bottom: -7px;
+
+  /* у модалки по бокам padding 18px, в .block — 20px.
+     Дадим -2px, чтобы визуально было ровно как в блоках. */
+  margin-left: -2px;
+  margin-right: -2px;
+}
+
+/* Размеры иконок уже как в доход/расход: 38×38 из .circle-action-btn */
+.circle-action-btn { /* уже есть в твоём CSS: 68×68 кнопка */ }
+
+/* Перебиваем старое оформление #delete-studio-btn, чтобы кружок не ломался */
+#delete-studio-btn.circle-action-btn {
+  background: rgba(27,29,32,0.50) !important; /* как cancel-btn */
+  color: #fff !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+}
+
+/* На всякий — в модалке уберём центровку старого контейнера, если осталась */
+#studio-modal .studio-modal-actions { display: none !important; }
