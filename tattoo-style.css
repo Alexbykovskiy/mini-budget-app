@@ -1874,8 +1874,17 @@ margin-top: 8px;
 #studio-editor-section.is-collapsed::after {
   border-radius: 999px !important;
 }
-/* в свернутом состоянии заголовок со свитчем без доп. отступов */
+#studio-editor-section.is-collapsed {
+  border-radius: 999px !important;
+  padding: 12px 20px !important;
+}
+
+/* Оставляем флекс у заголовка в свернутом виде */
 #studio-editor-section.is-collapsed .studio-toggle-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100%;
   margin: 0 !important;
 }
 
