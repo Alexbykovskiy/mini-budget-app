@@ -1864,7 +1864,7 @@ margin-top: 8px;
 /* Свернуто: сам блок — “пилюля” (без изменения дисплея) */
 #studio-editor-section.is-collapsed {
   border-radius: 24px !important;
-  padding: -10px 20px !important;
+  padding: 12px 20px !important;
 }
 
 /* Шапка остаётся флекс‑строкой и тянется на всю ширину в обоих состояниях */
@@ -1897,7 +1897,7 @@ margin-top: 8px;
 
 /* Чтоб обводка/бликовый слой не выпирали за края в свернутом состоянии */
 #studio-editor-section.is-collapsed {
-  padding: -10px 20px !important;  /* вертикальные паддинги */
+  padding: 12px 20px !important;  /* вертикальные паддинги */
   overflow: hidden;
 }
 #studio-editor-section.block::after { border-radius: inherit !important; }
