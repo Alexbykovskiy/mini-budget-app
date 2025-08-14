@@ -1482,28 +1482,28 @@ function onTripDeleteOrReset() {
     // Можно также обновить UI, если нужно
   }
 }
-async function updateStats() {
-  const [incomeSnap, expenseSnap] = await Promise.all([
-    db.collection('incomes').get(),
-    db.collection('expenses').get()
-  ]);
+let totalIncome = 0;
+let whiteIncome = 0;
+let blackIncome = 0;
+let totalExpenses = 0;
 
-  let totalIncome = 0;
-  let whiteIncome = 0;
-  let blackIncome = 0;
-  let totalExpenses = 0;
-  allIncomeEntries = [];
+// ← ВАЖНО: обнуляем оба массива перед перечитыванием
+allIncomeEntries = [];
+allExpenseEntries = [];
+
 incomeSnap.forEach(doc => {
   const d = doc.data();
-  allIncomeEntries.push({ ...d });
-    totalIncome += Number(d.amount) || 0;
-    if (d.isInvoice) whiteIncome += Number(d.amount) || 0;
-    else blackIncome += Number(d.amount) || 0;
-  });
-  expenseSnap.forEach(doc => {
-    const d = doc.data();
-    totalExpenses += Number(d.amount) || 0;
-  });
+  allIncomeEntries.push({ ...d });               // сохраняем для фильтров
+  totalIncome += Number(d.amount) || 0;
+  if (d.isInvoice) whiteIncome += Number(d.amount) || 0;
+  else             blackIncome += Number(d.amount) || 0;
+});
+
+expenseSnap.forEach(doc => {
+  const d = doc.data();
+  allExpenseEntries.push({ ...d });              // ← добавили: сохраняем расходы для фильтров
+  totalExpenses += Number(d.amount) || 0;
+});
 
   const netIncome = totalIncome - totalExpenses;
 
