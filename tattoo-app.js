@@ -293,68 +293,6 @@ function updateCalendarInputsVisibility() {
   }
 }
 
-async function updateStats() {
-  // 1) Читаем доходы и расходы
-  const [incomeSnap, expenseSnap] = await Promise.all([
-    db.collection('incomes').get(),
-    db.collection('expenses').get()
-  ]);
-
-  // 2) Счётчики и источники для фильтров
-  let totalIncome = 0;
-  let whiteIncome = 0;
-  let blackIncome = 0;
-  let totalExpenses = 0;
-
-  // Всегда пересоздаём массивы (важно для фильтров)
-  allIncomeEntries = [];
-  allExpenseEntries = [];
-
-  // Доходы
-  incomeSnap.forEach(doc => {
-    const d = doc.data();
-    allIncomeEntries.push({ ...d });
-    const amt = Number(d.amount) || 0;
-    totalIncome += amt;
-    if (d.isInvoice) whiteIncome += amt;
-    else blackIncome += amt;
-  });
-
-  // Расходы
-  expenseSnap.forEach(doc => {
-    const d = doc.data();
-    allExpenseEntries.push({ ...d }); // ← раньше этого не было
-    totalExpenses += Number(d.amount) || 0;
-  });
-
-  // 3) Итоги
-  const netIncome = totalIncome - totalExpenses;
-
-  // 4) Отрисовка карточек
-  document.getElementById('total-income').textContent    = totalIncome.toLocaleString() + ' €';
-
-  const fakturCount = allIncomeEntries.filter(e => e.isInvoice).length;
-  const fakturSum   = allIncomeEntries
-    .filter(e => e.isInvoice)
-    .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
-
-  document.getElementById('white-income').textContent =
-    `${fakturCount} ${pluralizeFaktura(fakturCount)}: ${fakturSum.toLocaleString()} €`;
-
-  document.getElementById('black-income').textContent   = blackIncome.toLocaleString() + ' €';
-  document.getElementById('total-expenses').textContent = totalExpenses.toLocaleString() + ' €';
-  document.getElementById('net-income').textContent     = netIncome.toLocaleString() + ' €';
-
-  // Баланс (по доходам)
-  const { workDaysCount, restDaysCount, percent } = getWorkLifeBalance(allIncomeEntries);
-  document.getElementById('worklife-balance').innerHTML = `
-    Баланс: <span style="font-weight:600;color:#ff5a5a">${workDaysCount}</span>
-    /
-    <span style="font-weight:600;color:#49f979">${restDaysCount}</span>
-    (${percent}% рабочих)
-  `;
-}
-
 function updateStatsFiltered(incomes, expenses) {
   let totalIncome = 0;
   let totalExpenses = 0;
@@ -1544,28 +1482,28 @@ function onTripDeleteOrReset() {
     // Можно также обновить UI, если нужно
   }
 }
-let totalIncome = 0;
-let whiteIncome = 0;
-let blackIncome = 0;
-let totalExpenses = 0;
+async function updateStats() {
+  const [incomeSnap, expenseSnap] = await Promise.all([
+    db.collection('incomes').get(),
+    db.collection('expenses').get()
+  ]);
 
-// ← ВАЖНО: обнуляем оба массива перед перечитыванием
-allIncomeEntries = [];
-allExpenseEntries = [];
-
+  let totalIncome = 0;
+  let whiteIncome = 0;
+  let blackIncome = 0;
+  let totalExpenses = 0;
+  allIncomeEntries = [];
 incomeSnap.forEach(doc => {
   const d = doc.data();
-  allIncomeEntries.push({ ...d });               // сохраняем для фильтров
-  totalIncome += Number(d.amount) || 0;
-  if (d.isInvoice) whiteIncome += Number(d.amount) || 0;
-  else             blackIncome += Number(d.amount) || 0;
-});
-
-expenseSnap.forEach(doc => {
-  const d = doc.data();
-  allExpenseEntries.push({ ...d });              // ← добавили: сохраняем расходы для фильтров
-  totalExpenses += Number(d.amount) || 0;
-});
+  allIncomeEntries.push({ ...d });
+    totalIncome += Number(d.amount) || 0;
+    if (d.isInvoice) whiteIncome += Number(d.amount) || 0;
+    else blackIncome += Number(d.amount) || 0;
+  });
+  expenseSnap.forEach(doc => {
+    const d = doc.data();
+    totalExpenses += Number(d.amount) || 0;
+  });
 
   const netIncome = totalIncome - totalExpenses;
 
@@ -1586,7 +1524,7 @@ document.getElementById('white-income').textContent =
     <span style="color:#49f979;font-weight:600;">${restDaysCount}</span>
     (${percent}% рабочих)
   `;
-
+}
 
 
 function getWorkLifeBalance(incomes) {
@@ -1596,11 +1534,11 @@ function getWorkLifeBalance(incomes) {
   const workDays = new Set(
     incomes
       .filter(e =>
-  !!e.date && typeof e.date === 'string' && e.date.length >= 4 &&
-  !!e.studio && typeof e.studio === 'string' && e.studio.length > 0 &&
-  e.amount !== undefined && !isNaN(Number(e.amount)) && Number(e.amount) > 0 &&
-  e.date >= `${year}-01-01` && e.date <= today.toISOString().slice(0,10)
-)
+        !!e.date && typeof e.date === 'string' && e.date.length >= 4 &&
+        !!e.studio && typeof e.studio === 'string' && e.studio.length > 0 &&
+        e.amount !== undefined && !isNaN(Number(e.amount)) && Number(e.amount) > 0 &&
+        e.date >= `${year}-01-01` && e.date <= today.toISOString().slice(0,10)
+      )
       .map(e => e.date)
   );
   // Все дни с начала года до сегодня
