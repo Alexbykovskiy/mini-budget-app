@@ -1767,7 +1767,10 @@ function showConfirmModal({
     const expanded = saved ? saved === '1' : false; // по умолчанию свернуто
     toggle.checked = expanded;
     section.classList.toggle('is-collapsed', !expanded);
-
+if (exp) {
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+toggle.setAttribute('aria-expanded', exp ? 'true' : 'false');
     toggle.addEventListener('change', () => {
       const exp = toggle.checked;
       section.classList.toggle('is-collapsed', !exp);
