@@ -1863,7 +1863,7 @@ margin-top: 8px;
 
 /* Свернуто: сам блок — “пилюля” (без изменения дисплея) */
 #studio-editor-section.is-collapsed {
-  border-radius: 999px !important;
+  border-radius: 24px !important;
   padding: 2px 20px !important;
 }
 
@@ -1892,7 +1892,7 @@ margin-top: 8px;
 #studio-editor-section.is-collapsed,
 #studio-editor-section.is-collapsed::before,
 #studio-editor-section.is-collapsed::after {
-  border-radius: 999px !important;
+  border-radius: 24px !important;
 }
 
 /* Чтоб обводка/бликовый слой не выпирали за края в свернутом состоянии */
