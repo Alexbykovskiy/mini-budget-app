@@ -1493,6 +1493,7 @@ async function updateStats() {
   let blackIncome = 0;
   let totalExpenses = 0;
   allIncomeEntries = [];
+allExpenseEntries = []; // нужен заполненный список расходов для фильтрации
 incomeSnap.forEach(doc => {
   const d = doc.data();
   allIncomeEntries.push({ ...d });
@@ -1500,10 +1501,11 @@ incomeSnap.forEach(doc => {
     if (d.isInvoice) whiteIncome += Number(d.amount) || 0;
     else blackIncome += Number(d.amount) || 0;
   });
-  expenseSnap.forEach(doc => {
-    const d = doc.data();
-    totalExpenses += Number(d.amount) || 0;
-  });
+ expenseSnap.forEach(doc => {
+  const d = doc.data();
+  allExpenseEntries.push({ ...d });     // ← добавили
+  totalExpenses += Number(d.amount) || 0;
+});
 
   const netIncome = totalIncome - totalExpenses;
 
