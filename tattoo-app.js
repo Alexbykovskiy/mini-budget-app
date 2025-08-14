@@ -294,19 +294,19 @@ function updateCalendarInputsVisibility() {
 }
 
 async function updateStats() {
-  // 1) Забираем снимки коллеций (root: incomes/expenses)
+  // 1) Читаем доходы и расходы
   const [incomeSnap, expenseSnap] = await Promise.all([
     db.collection('incomes').get(),
     db.collection('expenses').get()
   ]);
 
-  // 2) Счётчики и массивы для фильтров
+  // 2) Счётчики и источники для фильтров
   let totalIncome = 0;
   let whiteIncome = 0;
   let blackIncome = 0;
   let totalExpenses = 0;
 
-  // ВАЖНО: всегда пересоздаём массивы-источники для фильтров
+  // Всегда пересоздаём массивы (важно для фильтров)
   allIncomeEntries = [];
   allExpenseEntries = [];
 
@@ -323,7 +323,7 @@ async function updateStats() {
   // Расходы
   expenseSnap.forEach(doc => {
     const d = doc.data();
-    allExpenseEntries.push({ ...d }); // ← это и нужно фильтрам
+    allExpenseEntries.push({ ...d }); // ← раньше этого не было
     totalExpenses += Number(d.amount) || 0;
   });
 
@@ -331,25 +331,26 @@ async function updateStats() {
   const netIncome = totalIncome - totalExpenses;
 
   // 4) Отрисовка карточек
-  document.getElementById('total-income').textContent   = totalIncome.toLocaleString() + ' €';
+  document.getElementById('total-income').textContent    = totalIncome.toLocaleString() + ' €';
 
   const fakturCount = allIncomeEntries.filter(e => e.isInvoice).length;
   const fakturSum   = allIncomeEntries
     .filter(e => e.isInvoice)
     .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
-  document.getElementById('white-income').textContent =
-    fakturCount + ' ' + pluralizeFaktura(fakturCount) + ': ' + fakturSum.toLocaleString() + ' €';
 
-  document.getElementById('black-income').textContent  = blackIncome.toLocaleString() + ' €';
+  document.getElementById('white-income').textContent =
+    `${fakturCount} ${pluralizeFaktura(fakturCount)}: ${fakturSum.toLocaleString()} €`;
+
+  document.getElementById('black-income').textContent   = blackIncome.toLocaleString() + ' €';
   document.getElementById('total-expenses').textContent = totalExpenses.toLocaleString() + ' €';
   document.getElementById('net-income').textContent     = netIncome.toLocaleString() + ' €';
 
-  // Баланс (только по доходам)
+  // Баланс (по доходам)
   const { workDaysCount, restDaysCount, percent } = getWorkLifeBalance(allIncomeEntries);
   document.getElementById('worklife-balance').innerHTML = `
-    Баланс: <span style="color:#ff5a5a;font-weight:600;">${workDaysCount}</span>
+    Баланс: <span style="font-weight:600;color:#ff5a5a">${workDaysCount}</span>
     /
-    <span style="color:#49f979;font-weight:600;">${restDaysCount}</span>
+    <span style="font-weight:600;color:#49f979">${restDaysCount}</span>
     (${percent}% рабочих)
   `;
 }
