@@ -1355,6 +1355,30 @@ firstDay: 1,
         currentTripId = null;
         document.getElementById('delete-trip-btn').style.display = "none";
       }
+
+
+ // --- Автораскрытие и автоскролл к редактору студий ---
+  const section = document.getElementById('studio-editor-section');
+  const toggle  = document.getElementById('studio-editor-toggle');
+
+  if (section && toggle) {
+    // Развернуть, если свернут
+    if (!toggle.checked) {
+      toggle.checked = true;
+      section.classList.remove('is-collapsed');
+      // запомним состояние
+      try { localStorage.setItem('studioEditorExpanded', '1'); } catch (e) {}
+    }
+
+    // Небольшая задержка, чтобы лэйаут обновился (особенно с анимацией)
+    setTimeout(() => {
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Поставим фокус в поле «Дата от», чтобы сразу было видно, что подставилось
+      const from = document.getElementById('trip-date-from');
+      if (from) from.focus({ preventScroll: true });
+    }, 50);
+  }
+
     }
   });
   window.fcInstance.render();
