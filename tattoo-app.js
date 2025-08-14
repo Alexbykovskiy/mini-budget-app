@@ -1757,6 +1757,23 @@ function showConfirmModal({
   });
 }
 
+ // --- Сворачивание/разворачивание "Редактора студий" ---
+  (function initStudioEditorToggle(){
+    const section = document.getElementById('studio-editor-section');
+    const toggle  = document.getElementById('studio-editor-toggle');
+    if (!section || !toggle) return;
+
+    const saved = localStorage.getItem('studioEditorExpanded');
+    const expanded = saved ? saved === '1' : false; // по умолчанию свернуто
+    toggle.checked = expanded;
+    section.classList.toggle('is-collapsed', !expanded);
+
+    toggle.addEventListener('change', () => {
+      const exp = toggle.checked;
+      section.classList.toggle('is-collapsed', !exp);
+      localStorage.setItem('studioEditorExpanded', exp ? '1' : '0');
+    });
+  })();
 
 window.addEventListener('DOMContentLoaded', async () => {
   await loadStudios();
