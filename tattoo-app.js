@@ -1534,11 +1534,11 @@ function getWorkLifeBalance(incomes) {
   const workDays = new Set(
     incomes
       .filter(e =>
-        !!e.date && typeof e.date === 'string' && e.date.length >= 4 &&
-        !!e.studio && typeof e.studio === 'string' && e.studio.length > 0 &&
-        e.amount !== undefined && !isNaN(Number(e.amount)) && Number(e.amount) > 0 &&
-        e.date >= `${year}-01-01` && e.date <= today.toISOString().slice(0,10)
-      )
+  !!e.date && typeof e.date === 'string' && e.date.length >= 4 &&
+  !!e.studio && typeof e.studio === 'string' && e.studio.length > 0 &&
+  e.amount !== undefined && !isNaN(Number(e.amount)) && Number(e.amount) > 0 &&
+  e.date >= `${year}-01-01` && e.date <= today.toISOString().slice(0,10)
+)
       .map(e => e.date)
   );
   // Все дни с начала года до сегодня
