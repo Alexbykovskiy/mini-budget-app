@@ -1878,3 +1878,8 @@ margin-top: 8px;
 #studio-editor-section.is-collapsed .studio-toggle-head {
   margin: 0 !important;
 }
+
+/* Свитч в редакторе студий — прижать к правому краю блока */
+#studio-editor-section .studio-toggle-head .ios-switch {
+  margin-left: auto;
+}
