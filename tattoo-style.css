@@ -1881,3 +1881,23 @@ margin-top: 8px;
 #studio-editor-section .studio-toggle-head .ios-switch {
   margin-left: auto;
 }
+
+/* Пилюля у "Редактор студий": радиус должен наследоваться и у псевдо‑слоёв */
+#studio-editor-section::before,
+#studio-editor-section::after {
+  border-radius: inherit !important;
+}
+
+/* В свернутом режиме у блока и у его псевдо‑элементов одинаковый огромный радиус */
+#studio-editor-section.is-collapsed,
+#studio-editor-section.is-collapsed::before,
+#studio-editor-section.is-collapsed::after {
+  border-radius: 999px !important;
+}
+
+/* Чтоб обводка/бликовый слой не выпирали за края в свернутом состоянии */
+#studio-editor-section.is-collapsed {
+  overflow: hidden;
+}
+
+#studio-editor-section.block::after { border-radius: inherit !important; }
