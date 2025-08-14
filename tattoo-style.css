@@ -1842,41 +1842,33 @@ margin-top: 8px;
   margin-top: 0.4em; /* без резких прыжков и дублей отступов */
 }
 
-/* 1) Шапка редактора — без «пилюли», просто строка внутри блока */
-#studio-editor-section .studio-toggle-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  /* убираем фон/рамки/тени, если где-то были */
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  margin: 0 0 12px 0 !important;
-}
-#studio-editor-section .studio-toggle-head h2 {
-  margin: 0;
+/* --- Стабильное плавное раскрытие/сворачивание --- */
+#studio-editor-section .studio-editor-body {
+  overflow: hidden;                 /* чтобы содержимое не вылезало */
+  max-height: 1200px;               /* заведомо больше фактической высоты */
+  opacity: 1;
+  transition:
+    max-height .32s ease,
+    opacity .24s ease,
+    margin-top .28s ease;
+  margin-top: 12px;                 /* нормальный зазор от заголовка */
 }
 
-/* 2) Свернутый режим: скрываем тело и делаем ВЕСЬ блок «пилюлей» */
-#studio-editor-section.is-collapsed {
-  display: flex;
-  align-items: center;
-  /* компактная «пилюля» как на скриншоте */
-  padding: 12px 20px !important;
-  border-radius: 999px !important;
+/* Свернуто: тело схлопывается, растворяется и убирает зазор */
+#studio-editor-section.is-collapsed .studio-editor-body {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0 !important;
 }
-/* у .block:after свой радиус — перебьём, чтобы край тоже был «пилюлей» */
-#studio-editor-section.is-collapsed::after {
-  border-radius: 999px !important;
-}
+
+/* Свернуто: сам блок — “пилюля” (без изменения дисплея) */
 #studio-editor-section.is-collapsed {
   border-radius: 999px !important;
   padding: 12px 20px !important;
 }
 
-/* Оставляем флекс у заголовка в свернутом виде */
+/* Шапка остаётся флекс‑строкой и тянется на всю ширину в обоих состояниях */
+#studio-editor-section .studio-toggle-head,
 #studio-editor-section.is-collapsed .studio-toggle-head {
   display: flex !important;
   align-items: center !important;
@@ -1885,8 +1877,7 @@ margin-top: 8px;
   margin: 0 !important;
 }
 
-/* Свитч в редакторе студий — прижать к правому краю блока */
+/* Прижимаем свитч вправо (и в свернутом, и в развернутом виде одинаково) */
 #studio-editor-section .studio-toggle-head .ios-switch {
   margin-left: auto;
 }
-
