@@ -1864,7 +1864,7 @@ margin-top: 8px;
 /* Свернуто: сам блок — “пилюля” (без изменения дисплея) */
 #studio-editor-section.is-collapsed {
   border-radius: 999px !important;
-  padding: 12px 20px !important;
+  padding: 2px 2px !important;
 }
 
 /* Шапка остаётся флекс‑строкой и тянется на всю ширину в обоих состояниях */
