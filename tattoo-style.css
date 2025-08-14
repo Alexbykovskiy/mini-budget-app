@@ -1901,3 +1901,32 @@ margin-top: 8px;
   overflow: hidden;
 }
 #studio-editor-section.block::after { border-radius: inherit !important; }
+
+
+/* Свернутый редактор: делаем его именно "пилюлей" фикс-высоты */
+#studio-editor-section.is-collapsed {
+  border-radius: 24px !important;
+  padding: 8px 16px !important;     /* аккуратные вертикальные паддинги */
+  overflow: hidden;
+}
+
+/* Шапка внутри — одна строка фиксированной высоты */
+#studio-editor-section .studio-toggle-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;                 /* итоговая высота "пилюли" */
+}
+
+/* Убираем нижний margin у заголовка, чтобы он не раздувал высоту */
+#studio-editor-section .studio-toggle-head h2 {
+  margin: 0 !important;             /* важное: гасим дефолтный margin-bottom */
+  line-height: 1.1;
+  font-size: 20px;                  /* можно подправить по вкусу */
+}
+
+/* Свитч прижат вправо и не влияет на расчёт ширины текста */
+#studio-editor-section .studio-toggle-head .ios-switch {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
