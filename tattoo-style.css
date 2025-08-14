@@ -1897,7 +1897,7 @@ margin-top: 8px;
 
 /* Чтоб обводка/бликовый слой не выпирали за края в свернутом состоянии */
 #studio-editor-section.is-collapsed {
+  padding: 12px 20px !important;  /* вертикальные паддинги */
   overflow: hidden;
 }
-
 #studio-editor-section.block::after { border-radius: inherit !important; }
