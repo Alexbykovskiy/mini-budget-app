@@ -1915,7 +1915,7 @@ margin-top: 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 40px;                 /* итоговая высота "пилюли" */
+  min-height: 24px;                 /* итоговая высота "пилюли" */
 }
 
 /* Убираем нижний margin у заголовка, чтобы он не раздувал высоту */
