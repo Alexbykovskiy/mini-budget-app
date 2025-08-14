@@ -1890,35 +1890,3 @@ margin-top: 8px;
   margin-left: auto;
 }
 
-/* Плавное сворачивание/разворачивание тела редактора */
-#studio-editor-section .studio-editor-body {
-  display: grid;                 /* ключевой трюк */
-  grid-template-rows: 1fr;       /* высота по контенту */
-  transition:
-    grid-template-rows .28s ease,
-    opacity .24s ease;
-  opacity: 1;
-}
-#studio-editor-section .studio-editor-body > * {
-  overflow: hidden;              /* чтобы края аккуратно маскировались */
-}
-
-#studio-editor-section.is-collapsed .studio-editor-body {
-  grid-template-rows: 0fr;       /* плавно схлопываем высоту */
-  opacity: 0;                    /* мягкое затухание */
-}
-
-/* Чуть сгладим переход формы блока в «пилюлю» */
-#studio-editor-section {
-  transition: border-radius .28s ease, padding .28s ease, box-shadow .28s ease;
-}
-
-/* Поддержка «уменьшить движение» */
-@media (prefers-reduced-motion: reduce) {
-  #studio-editor-section .studio-editor-body {
-    transition: none;
-  }
-  #studio-editor-section {
-    transition: none;
-  }
-}
