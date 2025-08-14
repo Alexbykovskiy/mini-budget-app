@@ -1524,7 +1524,7 @@ document.getElementById('white-income').textContent =
     <span style="color:#49f979;font-weight:600;">${restDaysCount}</span>
     (${percent}% рабочих)
   `;
-}
+
 
 
 function getWorkLifeBalance(incomes) {
