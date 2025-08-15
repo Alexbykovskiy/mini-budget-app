@@ -675,7 +675,7 @@ defaultSwitch.onclick = function() {
   if (defaultSwitch.disabled) {
     const currentDefaultStudio = studios.find(s => s.isDefault);
     if (currentDefaultStudio) {
-      alert('Студия по умолчанию: "' + currentDefaultstudio.studio + '"');
+      alert('Студия по умолчанию: "' + currentDefaultStudio.studio + '"');
     }
     return false;
   }
@@ -1260,7 +1260,7 @@ async function fillDefaultCoverGaps() {
   if (rangeStart) intervals.push({ start: rangeStart, end: addDays(globalEnd,1) });
 
   const oldCovers = await db.collection('trips')
-    .where('studio', '==', def.name)
+    .where('studio', '==', def.studio)
     .where('isDefaultCover', '==', true)
     .get();
   const batch = db.batch();
@@ -1272,8 +1272,8 @@ async function fillDefaultCoverGaps() {
     batch.set(ref, {
       studio: def.name,
       color: def.color,
-      start: range.start,
-      end: range.end,
+      start: startStr,
+      end: endStr,
       isDefaultCover: true,
       created: new Date().toISOString()
     });
@@ -1512,11 +1512,6 @@ incomeSnap.forEach(doc => {
     totalExpenses += Number(d.amount) || 0;
   });
 
- expenseSnap.forEach(doc => {
-  const d = doc.data();
-  allExpenseEntries.push({ ...d });     // ← добавили
-  totalExpenses += Number(d.amount) || 0;
-});
 
   const netIncome = totalIncome - totalExpenses;
 
@@ -1675,18 +1670,7 @@ function applyFilters() {
   drawChartByStudios(incomesFiltered, expensesFiltered);   // <— ДОБАВИТЬ
 }
 
-  // 3. Передаём их в функции пересчёта (updateStatsFiltered, updateChartFiltered и т.п.)
-  updateStatsFiltered(incomesFiltered, expensesFiltered);
-
-  if (typeof drawChartByMonths === 'function') {
-    drawChartByMonths(incomesFiltered, expensesFiltered);
-  }
-  if (typeof drawChartByStudios === 'function') {
-    drawChartByStudios(incomesFiltered, expensesFiltered);
-  }
-  drawChartByMonths(incomesFiltered, expensesFiltered);
-}
-
+  
 
 function toggleInvoiceFileBtn(checkbox) {
   const btn = document.getElementById('add-invoice-file-btn');
