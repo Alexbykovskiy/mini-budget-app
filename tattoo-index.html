@@ -10,17 +10,50 @@
 <body>
 <div class="background-fixed"></div>
   <div class="container">
-    <header class="block info-panel">
-      <h1>Статистика</h1>
-      <div class="stats">
-        <div>Общий доход: <span id="total-income">0 €</span></div>
-<div><span id="white-income">0</span></div>
-        <div>Серый доход: <span id="black-income">0 €</span></div>
-        <div>Общие расходы: <span id="total-expenses">0 €</span></div>
-        <div>Чистый доход: <span id="net-income">0 €</span></div>
-<div id="worklife-balance"></div>
-      </div>
-    </header>
+  
+
+  <header class="block info-panel wide">
+  <h1>Статистика</h1>
+
+  <div class="cards-grid">
+    <article class="kpi-card">
+      <div class="kpi-title">Общий доход</div>
+      <div class="kpi-value" id="total-income">0 €</div>
+      <div class="kpi-sub" id="white-income">—</div>
+      <div class="kpi-sub">Серый: <span id="black-income">0 €</span></div>
+    </article>
+
+    <article class="kpi-card">
+      <div class="kpi-title">Расходы</div>
+      <div class="kpi-value negative" id="total-expenses">0 €</div>
+    </article>
+
+    <article class="kpi-card highlight">
+      <div class="kpi-title">Чистый доход</div>
+      <div class="kpi-value" id="net-income">0 €</div>
+    </article>
+
+    <article class="kpi-card">
+      <div class="kpi-title">Баланс дней</div>
+      <div class="kpi-value small" id="worklife-balance">—</div>
+    </article>
+  </div>
+</header>
+
+
+<section class="block charts wide" id="charts-section">
+  <div class="cards-grid charts-grid">
+    <article class="kpi-card chart-card">
+      <div class="kpi-title">Доходы / Расходы по месяцам</div>
+      <div class="chart-wrap"><canvas id="chart-months" height="220"></canvas></div>
+    </article>
+
+    <article class="kpi-card chart-card">
+      <div class="kpi-title">Чистый доход по студиям</div>
+      <div class="chart-wrap"><canvas id="chart-studios" height="220"></canvas></div>
+    </article>
+  </div>
+</section>
 
 <div class="filter-panel" style="margin:30px 0 15px 0; padding:20px; background:#232b2d44; border-radius:16px;">
   <label style="margin-right:14px;">
@@ -345,6 +378,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="tattoo-app.js"></script>
 
 <div id="calendar-toast"

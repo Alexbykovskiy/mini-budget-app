@@ -1658,6 +1658,13 @@ function applyFilters() {
   );
   // 3. Передаём их в функции пересчёта (updateStatsFiltered, updateChartFiltered и т.п.)
   updateStatsFiltered(incomesFiltered, expensesFiltered);
+
+  if (typeof drawChartByMonths === 'function') {
+    drawChartByMonths(incomesFiltered, expensesFiltered);
+  }
+  if (typeof drawChartByStudios === 'function') {
+    drawChartByStudios(incomesFiltered, expensesFiltered);
+  }
   drawChartByMonths(incomesFiltered, expensesFiltered);
 }
 
@@ -1800,6 +1807,86 @@ function showConfirmModal({
       localStorage.setItem('studioEditorExpanded', exp ? '1' : '0');
     });
   })();
+
+let chartMonths = null;
+let chartStudios = null;
+
+function monthIndex(dateStr) {
+  if (!dateStr || dateStr.length < 7) return 0;
+  const m = parseInt(dateStr.slice(5, 7), 10);
+  return Math.max(0, Math.min(11, (isNaN(m) ? 1 : m) - 1));
+}
+
+function drawChartByMonths(incomes = [], expenses = []) {
+  const el = document.getElementById('chart-months');
+  if (!el) return;
+
+  const labels = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+  const inc = Array(12).fill(0);
+  const exp = Array(12).fill(0);
+
+  incomes.forEach(i => inc[monthIndex(i.date)] += Number(i.amount) || 0);
+  expenses.forEach(e => exp[monthIndex(e.date)] += Number(e.amount) || 0);
+
+  if (chartMonths) chartMonths.destroy();
+  chartMonths = new Chart(el.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Доходы',  data: inc, backgroundColor: 'rgba(101,255,160,0.70)', borderRadius: 6 },
+        { label: 'Расходы', data: exp, backgroundColor: 'rgba(255,136,136,0.70)', borderRadius: 6 }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#e7ecec' } } },
+      scales: {
+        x: { ticks: { color: '#d6d9dc' }, grid: { display: false } },
+        y: { beginAtZero: true, ticks: { color: '#d6d9dc' }, grid: { color: 'rgba(255,255,255,0.08)' } }
+      }
+    }
+  });
+}
+
+function drawChartByStudios(incomes = [], expenses = []) {
+  const el = document.getElementById('chart-studios');
+  if (!el) return;
+
+  const netByStudio = {}; // студия -> чистый доход
+  incomes.forEach(i => {
+    const s = i.studio || '—';
+    netByStudio[s] = (netByStudio[s] || 0) + (Number(i.amount) || 0);
+  });
+  expenses.forEach(e => {
+    const s = e.studio || '—';
+    netByStudio[s] = (netByStudio[s] || 0) - (Number(e.amount) || 0);
+  });
+
+  const labels = Object.keys(netByStudio);
+  const data = labels.map(k => netByStudio[k]);
+
+  if (chartStudios) chartStudios.destroy();
+  chartStudios = new Chart(el.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ label: 'Чистый доход', data, backgroundColor: 'rgba(255,210,128,0.80)', borderRadius: 6 }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { beginAtZero: true, ticks: { color: '#d6d9dc' }, grid: { color: 'rgba(255,255,255,0.08)' } },
+        y: { ticks: { color: '#d6d9dc' }, grid: { display: false } }
+      }
+    }
+  });
+}
+
 
 window.addEventListener('DOMContentLoaded', async () => {
   await loadStudios();

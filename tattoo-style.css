@@ -1930,3 +1930,40 @@ margin-top: 8px;
   margin-left: auto;
   flex: 0 0 auto;
 }
+
+
+
+
+/* Широкие блоки (для шапки статистики и графиков) */
+.block.wide { width: 100%; max-width: 1100px; }
+
+/* Сетка карточек */
+.cards-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 680px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 980px) { .cards-grid { grid-template-columns: repeat(4, 1fr); } }
+
+/* KPI-карточка */
+.kpi-card {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(14px);
+  border-radius: 18px;
+  padding: 14px 16px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+}
+.kpi-title { font-size: 13px; opacity: .85; margin-bottom: 6px; }
+.kpi-value { font-size: 24px; font-weight: 800; letter-spacing: .2px; }
+.kpi-value.small { font-size: 18px; font-weight: 700; }
+.kpi-value.negative { color: #ffb2b2; }
+.kpi-card.highlight .kpi-value { color: #ffe4a3; }
+.kpi-sub { font-size: 13px; opacity: .85; margin-top: 4px; }
+
+/* Карточки-графики */
+.charts-grid { grid-template-columns: 1fr; }
+@media (min-width: 980px) { .charts-grid { grid-template-columns: 2fr 2fr; } }
+.chart-card { padding: 12px 14px; }
+.chart-wrap { position: relative; height: 220px; }
+.chart-wrap canvas { width: 100% !important; height: 100% !important; }
