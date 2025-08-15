@@ -12,33 +12,28 @@
   <div class="container">
   
 
-  <header class="block info-panel wide">
-  <h1>Статистика</h1>
-
-  <div class="cards-grid">
+ <!-- KPI cards (вместо <header class="block info-panel">...</header>) -->
+<section class="block kpi-panel">
+  <div class="kpi-grid">
     <article class="kpi-card">
-      <div class="kpi-title">Общий доход</div>
+      <div class="kpi-label">Общий доход</div>
       <div class="kpi-value" id="total-income">0 €</div>
-      <div class="kpi-sub" id="white-income">—</div>
+      <div class="kpi-sub" id="white-income">0</div>
       <div class="kpi-sub">Серый: <span id="black-income">0 €</span></div>
     </article>
 
     <article class="kpi-card">
-      <div class="kpi-title">Расходы</div>
-      <div class="kpi-value negative" id="total-expenses">0 €</div>
-    </article>
-
-    <article class="kpi-card highlight">
-      <div class="kpi-title">Чистый доход</div>
-      <div class="kpi-value" id="net-income">0 €</div>
+      <div class="kpi-label">Расходы</div>
+      <div class="kpi-value" id="total-expenses">0 €</div>
     </article>
 
     <article class="kpi-card">
-      <div class="kpi-title">Баланс дней</div>
-      <div class="kpi-value small" id="worklife-balance">—</div>
+      <div class="kpi-label">Чистый доход</div>
+      <div class="kpi-value" id="net-income">0 €</div>
+      <div class="kpi-sub" id="worklife-balance"></div>
     </article>
   </div>
-</header>
+</section>
 
 
 <section class="block charts wide" id="charts-section">
@@ -53,6 +48,18 @@
       <div class="chart-wrap"><canvas id="chart-studios" height="220"></canvas></div>
     </article>
   </div>
+</section>
+
+<!-- График: Доходы/Расходы по месяцам -->
+<section class="block chart-block">
+  <h2 class="chart-title">Доходы / Расходы по месяцам</h2>
+  <canvas id="chart-months" height="240"></canvas>
+</section>
+
+<!-- График: Чистый доход по студиям -->
+<section class="block chart-block">
+  <h2 class="chart-title">Чистый доход по студиям</h2>
+  <canvas id="chart-studios" height="240"></canvas>
 </section>
 
 <div class="filter-panel" style="margin:30px 0 15px 0; padding:20px; background:#232b2d44; border-radius:16px;">
@@ -378,7 +385,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="tattoo-app.js"></script>
 
 <div id="calendar-toast"

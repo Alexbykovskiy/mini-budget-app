@@ -1967,3 +1967,31 @@ margin-top: 8px;
 .chart-card { padding: 12px 14px; }
 .chart-wrap { position: relative; height: 220px; }
 .chart-wrap canvas { width: 100% !important; height: 100% !important; }
+
+
+/* --- KPI cards --- */
+.kpi-panel { padding: 14px 14px 10px 14px; }
+.kpi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr; /* три маленькие карточки в ряд */
+  gap: 10px;
+}
+.kpi-card {
+  border-radius: 18px;
+  background: rgba(255,255,255,0.10);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.14);
+  padding: 10px 12px;
+  min-height: 92px;
+}
+.kpi-label { font-size: 12px; opacity: .85; margin-bottom: 4px; }
+.kpi-value { font-size: 22px; line-height: 1; font-weight: 800; letter-spacing: .3px; }
+.kpi-sub   { font-size: 12px; opacity: .8; margin-top: 6px; }
+
+/* --- Charts: по одному в строке и на всю ширину блока (.block = 360px) --- */
+.chart-block { padding: 14px 14px 12px 14px; }
+.chart-title { font-size: 14px; font-weight: 600; opacity: .9; margin: 0 0 8px 0; }
+.chart-block canvas { width: 100% !important; height: 240px !important; }
+
+/* На всякий: если где-то остался h1 в info-panel — прячем */
+.info-panel > h1 { display: none !important; }

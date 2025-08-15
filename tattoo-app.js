@@ -329,6 +329,9 @@ function updateStatsFiltered(incomes, expenses) {
     <span style="color:#49f979;font-weight:600;">${restDaysCount}</span>
     (${percent}% рабочих)
   `;
+drawChartByMonths(allIncomeEntries, allExpenseEntries);
+drawChartByStudios(allIncomeEntries, allExpenseEntries);
+}
 }
 
  function renderStudioSelect() {
@@ -1501,6 +1504,14 @@ incomeSnap.forEach(doc => {
     if (d.isInvoice) whiteIncome += Number(d.amount) || 0;
     else blackIncome += Number(d.amount) || 0;
   });
+
+ allExpenseEntries = [];                       // <— ДОБАВЛЕНО
+  expenseSnap.forEach(doc => {
+    const d = doc.data();
+    allExpenseEntries.push({ ...d });          // <— ДОБАВЛЕНО
+    totalExpenses += Number(d.amount) || 0;
+  });
+
  expenseSnap.forEach(doc => {
   const d = doc.data();
   allExpenseEntries.push({ ...d });     // ← добавили
@@ -1526,7 +1537,9 @@ document.getElementById('white-income').textContent =
     <span style="color:#49f979;font-weight:600;">${restDaysCount}</span>
     (${percent}% рабочих)
   `;
+
 }
+
 
 
 function getWorkLifeBalance(incomes) {
@@ -1656,6 +1669,12 @@ function applyFilters() {
     e.date >= fromDate &&
     e.date <= toDate
   );
+
+ updateStatsFiltered(incomesFiltered, expensesFiltered);
+  drawChartByMonths(incomesFiltered, expensesFiltered);
+  drawChartByStudios(incomesFiltered, expensesFiltered);   // <— ДОБАВИТЬ
+}
+
   // 3. Передаём их в функции пересчёта (updateStatsFiltered, updateChartFiltered и т.п.)
   updateStatsFiltered(incomesFiltered, expensesFiltered);
 
@@ -1692,6 +1711,75 @@ function handleInvoiceFile(input) {
   } else {
     label.textContent = '+ файл';
   }
+}
+
+let monthsChart, studiosChart;
+
+function drawChartByMonths(incomes = [], expenses = []) {
+  const el = document.getElementById('chart-months');
+  if (!el) return;
+
+  const labels = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+
+  const sumByMonth = (arr) => {
+    const res = new Array(12).fill(0);
+    arr.forEach(e => {
+      if (!e?.date) return;
+      const m = Math.max(0, Math.min(11, parseInt(e.date.slice(5,7),10)-1));
+      res[m] += Number(e.amount) || 0;
+    });
+    return res;
+  };
+
+  const inc = sumByMonth(incomes);
+  const exp = sumByMonth(expenses);
+
+  if (monthsChart) monthsChart.destroy();
+  monthsChart = new Chart(el, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Доходы',  data: inc, borderColor: '#5bffaa', backgroundColor: 'rgba(91,255,170,.45)', borderWidth: 2 },
+        { label: 'Расходы', data: exp, borderColor: '#ffa35c', backgroundColor: 'rgba(255,163,92,.40)', borderWidth: 2 }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: { y: { beginAtZero: true } },
+      plugins: {
+        legend: { labels: { font: { size: 11 }, boxWidth: 10 } },
+        tooltip: { mode: 'index', intersect: false }
+      }
+    }
+  });
+}
+
+function drawChartByStudios(incomes = [], expenses = []) {
+  const el = document.getElementById('chart-studios');
+  if (!el) return;
+
+  const netByStudio = new Map();
+  incomes.forEach(e => netByStudio.set(e.studio || '—', (netByStudio.get(e.studio || '—') || 0) + (Number(e.amount)||0)));
+  expenses.forEach(e => netByStudio.set(e.studio || '—', (netByStudio.get(e.studio || '—') || 0) - (Number(e.amount)||0)));
+
+  const sorted = Array.from(netByStudio.entries()).sort((a,b) => b[1]-a[1]).slice(0, 8);
+  const labels = sorted.map(([s]) => s);
+  const data   = sorted.map(([,v]) => v);
+
+  if (studiosChart) studiosChart.destroy();
+  studiosChart = new Chart(el, {
+    type: 'bar',
+    data: { labels, datasets: [{ label: 'Чистый доход', data, borderColor: '#fff7a0', backgroundColor: 'rgba(255,255,160,.55)', borderWidth: 2 }] },
+    options: {
+      indexAxis: 'y',                      // горизонтальные бары — читаемее для студий
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: { x: { beginAtZero: true } },
+      plugins: { legend: { display: false } }
+    }
+  });
 }
 
 function resetInvoiceSwitchAndBtn() {
