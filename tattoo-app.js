@@ -1825,34 +1825,22 @@ function monthIndex(dateStr) {
   return Math.max(0, Math.min(11, (isNaN(m) ? 1 : m) - 1));
 }
 
-// Один столбик на месяц: Доход (зел), Расход (красн), Чистый (жёлт)
 function drawChartByMonths(incomes = [], expenses = []) {
   const el = document.getElementById('chart-months');
   if (!el) return;
 
-  // переключатель: если true — расход будет отрицательным (идёт вниз)
-  const EXPENSES_DOWN = false;
-
   const labels = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
-
-  const inc = Array(12).fill(0);
-  const exp = Array(12).fill(0);
-
-  const mIdx = (iso) => {
+  const mIdx = iso => {
     if (!iso || iso.length < 7) return 0;
-    const m = parseInt(iso.slice(5,7), 10);
+    const m = parseInt(iso.slice(5,7),10);
     return Math.max(0, Math.min(11, (isNaN(m)?1:m)-1));
   };
 
+  const inc = Array(12).fill(0);
+  const exp = Array(12).fill(0);
   incomes.forEach(i => inc[mIdx(i.date)] += Number(i.amount) || 0);
   expenses.forEach(e => exp[mIdx(e.date)] += Number(e.amount) || 0);
-
-  const net = inc.map((v, i) => v - exp[i]);
-
-  // если складываем всё в одну «кирпичку» (вверх), не даём отрицательных сегментов
-  const incData = inc;
-  const expData = EXPENSES_DOWN ? exp.map(v => -v) : exp;
-  const netData = EXPENSES_DOWN ? net : net.map(v => Math.max(0, v));
+  const net = inc.map((v,i) => v - exp[i]);
 
   if (chartMonths) chartMonths.destroy();
   chartMonths = new Chart(el.getContext('2d'), {
@@ -1860,39 +1848,66 @@ function drawChartByMonths(incomes = [], expenses = []) {
     data: {
       labels,
       datasets: [
-        { label: 'Доход', data: incData,
-          backgroundColor: 'rgba(91,255,170,0.60)', borderColor: 'rgba(91,255,170,1)', borderWidth: 1,
-          stack: 'total' },
-        { label: 'Расход', data: expData,
-          backgroundColor: 'rgba(255,120,120,0.60)', borderColor: 'rgba(255,120,120,1)', borderWidth: 1,
-          stack: 'total' },
-        { label: 'Чистый', data: netData,
-          backgroundColor: 'rgba(255,230,120,0.70)', borderColor: 'rgba(255,230,120,1)', borderWidth: 1,
-          stack: 'total' },
+        // Рисуем СНАЧАЛА доход (самый высокий), он будет на «фоне»
+        {
+          label: 'Доход',
+          data: inc,
+          grouped: false,            // <— главное: накладывать, а не группировать
+          order: 1,                  // рисуем первым
+          barThickness: 18,
+          borderRadius: 6,
+          backgroundColor: 'rgba(91,255,170,.55)',
+          borderColor: 'rgba(91,255,170,1)', borderWidth: 1
+        },
+        // Затем чистый доход (жёлтый), чуть меньше, поверх
+        {
+          label: 'Чистый',
+          data: net,
+          grouped: false,
+          order: 2,
+          barThickness: 18,
+          borderRadius: 6,
+          backgroundColor: 'rgba(255,230,120,.70)',
+          borderColor: 'rgba(255,230,120,1)', borderWidth: 1
+        },
+        // И сверху расход (красный)
+        {
+          label: 'Расход',
+          data: exp,
+          grouped: false,
+          order: 3,                  // рисуем последним — будет «наверх»
+          barThickness: 18,
+          borderRadius: 6,
+          backgroundColor: 'rgba(255,120,120,.65)',
+          borderColor: 'rgba(255,120,120,1)', borderWidth: 1
+        }
       ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      // ВАЖНО: никаких stacked = true — иначе снова станет «стэком»
       scales: {
-        x: { stacked: true, ticks: { color: '#d6d9dc' }, grid: { display: false } },
-        y: { stacked: true, beginAtZero: true,
-             ticks: { color: '#d6d9dc',
-               callback: v => (Number(v)||0).toLocaleString('ru-RU') + ' €' },
-             grid: { color: 'rgba(255,255,255,0.08)' } }
+        x: { ticks: { color: '#d6d9dc' }, grid: { display: false } },
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#d6d9dc', callback: v => (Number(v)||0).toLocaleString('ru-RU') + ' €' },
+          grid: { color: 'rgba(255,255,255,0.08)' }
+        }
       },
       plugins: {
         legend: { labels: { color: '#e7ecec', boxWidth: 10, font: { size: 11 } } },
         tooltip: {
           mode: 'index', intersect: false,
           callbacks: {
-            label: (ctx) => `${ctx.dataset.label}: ${(ctx.parsed.y ?? ctx.parsed._custom ?? 0).toLocaleString('ru-RU')} €`
+            label: (ctx) => `${ctx.dataset.label}: ${(ctx.parsed.y??0).toLocaleString('ru-RU')} €`
           }
         }
       }
     }
   });
 }
+
 function drawChartByStudios(incomes = [], expenses = []) {
   const el = document.getElementById('chart-studios');
   if (!el) return;
