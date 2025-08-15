@@ -1825,6 +1825,10 @@ function monthIndex(dateStr) {
   return Math.max(0, Math.min(11, (isNaN(m) ? 1 : m) - 1));
 }
 
+
+
+
+// Оверлей: один слот на месяц, три накладывающихся бара (зел/жёлт/красн)
 function drawChartByMonths(incomes = [], expenses = []) {
   const el = document.getElementById('chart-months');
   if (!el) return;
@@ -1840,7 +1844,7 @@ function drawChartByMonths(incomes = [], expenses = []) {
   const exp = Array(12).fill(0);
   incomes.forEach(i => inc[mIdx(i.date)] += Number(i.amount) || 0);
   expenses.forEach(e => exp[mIdx(e.date)] += Number(e.amount) || 0);
-  const net = inc.map((v,i) => v - exp[i]);
+  const net = inc.map((v,i) => Math.max(0, v - exp[i])); // чистый не уводим ниже 0 в оверлее
 
   if (chartMonths) chartMonths.destroy();
   chartMonths = new Chart(el.getContext('2d'), {
@@ -1848,57 +1852,73 @@ function drawChartByMonths(incomes = [], expenses = []) {
     data: {
       labels,
       datasets: [
-        // Рисуем СНАЧАЛА доход (самый высокий), он будет на «фоне»
+        // 1) Доход — зелёный, самый широкий, рисуем первым (на «фоне»)
         {
           label: 'Доход',
           data: inc,
-          grouped: false,            // <— главное: накладывать, а не группировать
-          order: 1,                  // рисуем первым
-          barThickness: 18,
+          grouped: false,
+          order: 1,
+          barThickness: 22,          // ширина
           borderRadius: 6,
-          backgroundColor: 'rgba(91,255,170,.55)',
-          borderColor: 'rgba(91,255,170,1)', borderWidth: 1
+          backgroundColor: 'rgba(91,255,170,0.65)',
+          borderColor: '#3AE18F',
+          borderWidth: 1
         },
-        // Затем чистый доход (жёлтый), чуть меньше, поверх
+        // 2) Чистый — жёлтый, уже и поверх зелёного
         {
           label: 'Чистый',
           data: net,
           grouped: false,
           order: 2,
-          barThickness: 18,
+          barThickness: 16,
           borderRadius: 6,
-          backgroundColor: 'rgba(255,230,120,.70)',
-          borderColor: 'rgba(255,230,120,1)', borderWidth: 1
+          backgroundColor: 'rgba(255,230,120,0.85)',
+          borderColor: '#FFD262',
+          borderWidth: 1
         },
-        // И сверху расход (красный)
+        // 3) Расход — красный, самый узкий и сверху
         {
           label: 'Расход',
           data: exp,
           grouped: false,
-          order: 3,                  // рисуем последним — будет «наверх»
-          barThickness: 18,
+          order: 3,
+          barThickness: 10,
           borderRadius: 6,
-          backgroundColor: 'rgba(255,120,120,.65)',
-          borderColor: 'rgba(255,120,120,1)', borderWidth: 1
+          backgroundColor: 'rgba(255,120,120,0.75)',
+          borderColor: '#FF6F6F',
+          borderWidth: 1
         }
       ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      // ВАЖНО: никаких stacked = true — иначе снова станет «стэком»
       scales: {
-        x: { ticks: { color: '#d6d9dc' }, grid: { display: false } },
+        // показываем ВСЕ месяцы
+        x: {
+          ticks: {
+            color: '#d6d9dc',
+            autoSkip: false,    // <— не пропускать подписи
+            maxRotation: 0,
+            minRotation: 0,
+            font: { size: 11 }
+          },
+          grid: { display: false }
+        },
         y: {
           beginAtZero: true,
-          ticks: { color: '#d6d9dc', callback: v => (Number(v)||0).toLocaleString('ru-RU') + ' €' },
+          ticks: {
+            color: '#d6d9dc',
+            callback: v => (Number(v)||0).toLocaleString('ru-RU') + ' €'
+          },
           grid: { color: 'rgba(255,255,255,0.08)' }
         }
       },
       plugins: {
         legend: { labels: { color: '#e7ecec', boxWidth: 10, font: { size: 11 } } },
         tooltip: {
-          mode: 'index', intersect: false,
+          mode: 'index',
+          intersect: false,
           callbacks: {
             label: (ctx) => `${ctx.dataset.label}: ${(ctx.parsed.y??0).toLocaleString('ru-RU')} €`
           }
