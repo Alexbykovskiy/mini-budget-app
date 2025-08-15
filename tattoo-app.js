@@ -1826,7 +1826,6 @@ function monthIndex(dateStr) {
 }
 
 // Один столбик на месяц: Доход (зел), Расход (красн), Чистый (жёлт)
-let chartMonths = null;
 function drawChartByMonths(incomes = [], expenses = []) {
   const el = document.getElementById('chart-months');
   if (!el) return;
