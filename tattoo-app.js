@@ -1885,7 +1885,7 @@ function drawChartByMonths(incomes = [], expenses = []) {
       responsive: true,
       maintainAspectRatio: false,
       // узкие столбики и отступы между группами
-     datasets: { bar: { barPercentage: 1.5, categoryPercentage: 0.9, borderRadius: 6 } },
+     datasets: { bar: { barPercentage: 0.625, categoryPercentage: 0.9, borderRadius: 6 } },
       // именно ГРУППИРОВАНИЕ (не stacked, не overlay)
       scales: {
         x: {
