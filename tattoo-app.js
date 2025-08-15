@@ -332,7 +332,7 @@ function updateStatsFiltered(incomes, expenses) {
 drawChartByMonths(allIncomeEntries, allExpenseEntries);
 drawChartByStudios(allIncomeEntries, allExpenseEntries);
 }
-}
+
 
  function renderStudioSelect() {
   const sel = document.getElementById('studio-select');
