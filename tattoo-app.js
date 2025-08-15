@@ -1834,55 +1834,49 @@ function drawChartByMonths(incomes = [], expenses = []) {
   if (!el) return;
 
   const labels = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
-  const mIdx = iso => {
+  const idx = iso => {
     if (!iso || iso.length < 7) return 0;
-    const m = parseInt(iso.slice(5,7),10);
-    return Math.max(0, Math.min(11, (isNaN(m)?1:m)-1));
+    const m = parseInt(iso.slice(5,7), 10);
+    return Math.max(0, Math.min(11, (isNaN(m) ? 1 : m) - 1));
   };
 
-  // агрегируем
+  // агрегаты
   const inc = Array(12).fill(0);
   const exp = Array(12).fill(0);
-  incomes.forEach(i => inc[mIdx(i.date)] += Number(i.amount) || 0);
-  expenses.forEach(e => exp[mIdx(e.date)] += Number(e.amount) || 0);
-  const net = inc.map((v,i) => v - exp[i]); // чистый может быть отрицательным — это ок
+  incomes.forEach(i => inc[idx(i.date)] += Number(i.amount) || 0);
+  expenses.forEach(e => exp[idx(e.date)] += Number(e.amount) || 0);
+  const net = inc.map((v, i) => v - exp[i]);
+
+  // цвета массивами (перебьют любые глобальные дефолты)
+  const G = Array(12).fill('#22C55E'); // green
+  const Y = Array(12).fill('#FACC15'); // yellow
+  const R = Array(12).fill('#EF4444'); // red
 
   if (chartMonths) chartMonths.destroy();
-  const ctx = el.getContext('2d');
-
-  chartMonths = new Chart(ctx, {
+  chartMonths = new Chart(el.getContext('2d'), {
     type: 'bar',
     data: {
       labels,
       datasets: [
-        // 1) Доход — зелёный — рисуем ПЕРВЫМ (будет «задний слой»)
         {
           label: 'Доход',
           data: inc,
-          grouped: false,           // ← один x-слот, накладываемся
-          order: 1,                 // ← рисуем первым
-          backgroundColor: '#22C55E', // зелёный (непрозрачно)
-          borderColor: '#22C55E',
+          backgroundColor: G,
+          borderColor: G,
           borderWidth: 0
         },
-        // 2) Чистый — жёлтый — поверх зелёного
         {
           label: 'Чистый',
           data: net,
-          grouped: false,
-          order: 2,
-          backgroundColor: '#FACC15', // жёлтый (непрозрачно)
-          borderColor: '#FACC15',
+          backgroundColor: Y,
+          borderColor: Y,
           borderWidth: 0
         },
-        // 3) Расход — красный — сверху всех
         {
           label: 'Расход',
           data: exp,
-          grouped: false,
-          order: 3,                   // ← рисуем последним (самый верхний слой)
-          backgroundColor: '#EF4444', // красный (непрозрачно)
-          borderColor: '#EF4444',
+          backgroundColor: R,
+          borderColor: R,
           borderWidth: 0
         }
       ]
@@ -1890,14 +1884,17 @@ function drawChartByMonths(incomes = [], expenses = []) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      // одинаковая ширина для всех трёх слоёв
-      datasets: { bar: { barThickness: 20, borderRadius: 6 } },
+      // узкие столбики и отступы между группами
+      datasets: { bar: { barPercentage: 0.25, categoryPercentage: 0.7, borderRadius: 6 } },
+      // именно ГРУППИРОВАНИЕ (не stacked, не overlay)
       scales: {
         x: {
+          stacked: false,
           ticks: { color: '#d6d9dc', autoSkip: false, maxRotation: 0, minRotation: 0, font: { size: 11 } },
           grid: { display: false }
         },
         y: {
+          stacked: false,
           beginAtZero: true,
           ticks: { color: '#d6d9dc', callback: v => (Number(v)||0).toLocaleString('ru-RU') + ' €' },
           grid: { color: 'rgba(255,255,255,0.08)' }
@@ -1906,16 +1903,16 @@ function drawChartByMonths(incomes = [], expenses = []) {
       plugins: {
         legend: { labels: { color: '#e7ecec', boxWidth: 10, font: { size: 11 } } },
         tooltip: {
-          mode: 'index', intersect: false,
+          mode: 'index',
+          intersect: false,
           callbacks: {
-            label: (ctx) => `${ctx.dataset.label}: ${(ctx.parsed.y??0).toLocaleString('ru-RU')} €`
+            label: (ctx) => `${ctx.dataset.label}: ${(ctx.parsed.y ?? 0).toLocaleString('ru-RU')} €`
           }
         }
       }
     }
   });
 }
-
 
 function drawChartByStudios(incomes = [], expenses = []) {
   const el = document.getElementById('chart-studios');
