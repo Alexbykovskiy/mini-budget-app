@@ -2121,5 +2121,6 @@ fillFilterStudios();
   setDefaultDateInputs();
   attachDateInputHandlers();
 setDefaultFilterDates();
+applyFilters();  
 });
 ;
