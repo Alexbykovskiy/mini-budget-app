@@ -1991,7 +1991,11 @@ margin-top: 8px;
 /* --- Charts: по одному в строке и на всю ширину блока (.block = 360px) --- */
 .chart-block { padding: 14px 14px 12px 14px; }
 .chart-title { font-size: 14px; font-weight: 600; opacity: .9; margin: 0 0 8px 0; }
-.chart-block canvas { width: 100% !important; height: 240px !important; }
+/* месячный график — фиксированная высота */
+#chart-months { width: 100% !important; height: 240px !important; }
+
+/* студийный график — высоту даст JS */
+#chart-studios { width: 100% !important; height: auto !important; }
 
 /* На всякий: если где-то остался h1 в info-panel — прячем */
 .info-panel > h1 { display: none !important; }

@@ -1925,22 +1925,22 @@ function drawChartByStudios(incomes = [], expenses = []) {
   if (!el) return;
 
   const HIDE = new Set(['Оборудование', '-', '—', '']);
-  const netByStudio = {};
-  const norm = (s) => ((s ?? '') + '').trim();
+  const by = {};
+  const norm = s => ((s ?? '') + '').trim();
 
-  incomes.forEach(i => { const s = norm(i.studio); if (!HIDE.has(s)) netByStudio[s] = (netByStudio[s] || 0) + (+i.amount || 0); });
-  expenses.forEach(e => { const s = norm(e.studio); if (!HIDE.has(s)) netByStudio[s] = (netByStudio[s] || 0) - (+e.amount || 0); });
+  incomes.forEach(i => { const s = norm(i.studio); if (!HIDE.has(s)) by[s] = (by[s] || 0) + (+i.amount || 0); });
+  expenses.forEach(e => { const s = norm(e.studio); if (!HIDE.has(s)) by[s] = (by[s] || 0) - (+e.amount || 0); });
 
-  const entries = Object.entries(netByStudio).filter(([n]) => n.length).sort((a,b)=>b[1]-a[1]);
+  const entries = Object.entries(by).filter(([n]) => n.length).sort((a,b)=>b[1]-a[1]);
   const labels = entries.map(([s]) => s);
   const data   = entries.map(([,v]) => v);
 
-  // >>> добавь это: компактная высота под число строк
-  const ROW_H = 14;          // высота на строку (супер-плотно)
-  const PADDING = 18;        // сверху/снизу чуть воздуха
-  const h = Math.max(100, labels.length * ROW_H + PADDING);
-  el.style.height = h + 'px';  // CSS-высота
-  el.height = h;               // буфер канваса
+  // >>> компактная высота: ровно под число строк (почти без зазоров)
+  const ROW_H = 14;         // высота на одну студию (бар+зазор)
+  const MIN_H = 90;         // нижний предел
+  const H = Math.max(MIN_H, labels.length * ROW_H);
+  el.style.height = H + 'px';
+  el.height = H;
 
   if (chartStudios) chartStudios.destroy();
   chartStudios = new Chart(el.getContext('2d'), {
@@ -1953,18 +1953,20 @@ function drawChartByStudios(incomes = [], expenses = []) {
         backgroundColor: '#FFD262',
         borderColor: '#FFD262',
         borderWidth: 1,
-        borderRadius: 8,
-        barThickness: 6       // тонкие полосы
+        borderRadius: 4,
+        barThickness: 6               // тонкие полоски
       }]
     },
     options: {
       indexAxis: 'y',
       responsive: true,
       maintainAspectRatio: false,
-      datasets: { bar: { categoryPercentage: 1, barPercentage: 1, borderRadius: 4 } },
+      // максимально сжать категории
+      datasets: { bar: { categoryPercentage: 1, barPercentage: 1 } },
+      layout: { padding: { top: 4, bottom: 4 } },
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: { label: (ctx) => `Чистый доход: ${(ctx.parsed.x ?? 0).toLocaleString('ru-RU')} €` } }
+        tooltip: { callbacks: { label: c => `Чистый доход: ${(c.parsed.x ?? 0).toLocaleString('ru-RU')} €` } }
       },
       scales: {
         x: {
