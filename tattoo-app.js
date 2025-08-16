@@ -1935,59 +1935,51 @@ function drawChartByStudios(incomes = [], expenses = []) {
   const labels = entries.map(([s]) => s);
   const data   = entries.map(([,v]) => v);
 
-  // --- КЛЮЧЕВОЕ: автокомпактная высота под число строк ---
-  const ROW_H = 18;                 // высота строки (бар + минимальный зазор)
+  // >>> добавь это: компактная высота под число строк
+  const ROW_H = 14;          // высота на строку (супер-плотно)
+  const PADDING = 18;        // сверху/снизу чуть воздуха
+  const h = Math.max(100, labels.length * ROW_H + PADDING);
+  el.style.height = h + 'px';  // CSS-высота
+  el.height = h;               // буфер канваса
 
-  el.height = Math.max(labels.length * ROW_H, 90);   // минимально 90px, дальше по числу строк
- 
- if (chartStudios) chartStudios.destroy();
+  if (chartStudios) chartStudios.destroy();
   chartStudios = new Chart(el.getContext('2d'), {
     type: 'bar',
     data: {
       labels,
       datasets: [{
-  label: 'Чистый доход',
-  data,
-  backgroundColor: '#FFD262',
-  borderColor: '#FFD262',
-  borderWidth: 1,
-  borderRadius: 8,
-  barThickness: 8,           // ← ширина полосы (~1.5 раза толще; подгони 22–28 при желании)
-}]
+        label: 'Чистый доход',
+        data,
+        backgroundColor: '#FFD262',
+        borderColor: '#FFD262',
+        borderWidth: 1,
+        borderRadius: 8,
+        barThickness: 6       // тонкие полосы
+      }]
     },
     options: {
-  indexAxis: 'y',
-  responsive: true,
-  maintainAspectRatio: false,
-
-  // тонкие бары и минимальные зазоры между категориями
-  datasets: { bar: { barThickness: 8, categoryPercentage: 1, barPercentage: 1, borderRadius: 4 } },
-
-  plugins: {
-    legend: { display: false },
-    tooltip: {
-      callbacks: { label: (ctx) => `Чистый доход: ${(ctx.parsed.x ?? 0).toLocaleString('ru-RU')} €` }
-    }
-  },
-  scales: {
-    x: {
-      beginAtZero: true,
-      ticks: { color: '#d6d9dc', callback: v => (v||0).toLocaleString('ru-RU') + ' €' },
-      grid: { color: 'rgba(255,255,255,0.08)' }
-    },
-    y: {
-      ticks: {
-        color: '#fff',             // названия студий белым
-        autoSkip: false,
-        padding: 2,                // минимальный отступ от оси
-        font: { size: 11, weight: 600 }
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      datasets: { bar: { categoryPercentage: 1, barPercentage: 1, borderRadius: 4 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: (ctx) => `Чистый доход: ${(ctx.parsed.x ?? 0).toLocaleString('ru-RU')} €` } }
       },
-      grid: { display: false }
+      scales: {
+        x: {
+          beginAtZero: true,
+          ticks: { color: '#d6d9dc', callback: v => (v||0).toLocaleString('ru-RU') + ' €' },
+          grid: { color: 'rgba(255,255,255,0.08)' }
+        },
+        y: {
+          ticks: { color: '#fff', autoSkip: false, padding: 2, font: { size: 11, weight: 600 } },
+          grid: { display: false }
         }
       }
-    } // ← закрываем options
-  }); // ← закрываем new Chart(...)
-}     // ← закрываем функцию drawChartByStudios
+    }
+  });
+}
 
 window.addEventListener('DOMContentLoaded', async () => {
   await loadStudios();
