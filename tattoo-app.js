@@ -1486,6 +1486,40 @@ function onTripDeleteOrReset() {
     // Можно также обновить UI, если нужно
   }
 }
+
+// KPI: расшифровка расходов по типам (для карточки "Расходы")
+function renderExpenseBreakdown(expenses) {
+  const box = document.getElementById('expense-breakdown');
+  if (!box) return;
+
+  if (!expenses || !expenses.length) {
+    box.innerHTML = '';
+    return;
+  }
+
+  // В БД поле называется "expenseType" (см. addExpense), + сумма "amount"
+  const byType = expenses.reduce((acc, e) => {
+    const t = (e.expenseType || e.type || 'Прочее').trim();
+    const v = Number(e.amount) || 0;
+    acc[t] = (acc[t] || 0) + v;
+    return acc;
+  }, {});
+
+  const items = Object.entries(byType).sort((a, b) => b[1] - a[1]);
+  const MAX_ROWS = 6; // показываем до 6 строк + "Прочее"
+  const rows = items.slice(0, MAX_ROWS).map(([name, sum]) =>
+    `<div class="row"><span class="muted">${name}</span><b>${sum.toLocaleString()} €</b></div>`
+  );
+
+  if (items.length > MAX_ROWS) {
+    const rest = items.slice(MAX_ROWS).reduce((s, [, v]) => s + v, 0);
+    rows.push(`<div class="row"><span class="muted">Прочее</span><b>${rest.toLocaleString()} €</b></div>`);
+  }
+
+  box.innerHTML = rows.join('');
+}
+
+
 async function updateStats() {
   const [incomeSnap, expenseSnap] = await Promise.all([
     db.collection('incomes').get(),
@@ -1526,6 +1560,7 @@ document.getElementById('white-income').textContent =
   document.getElementById('total-expenses').textContent = totalExpenses.toLocaleString() + ' €';
 renderExpenseBreakdown(expenses);
   document.getElementById('net-income').textContent = netIncome.toLocaleString() + ' €';
+renderExpenseBreakdown(allExpenseEntries);
 
   const { workDaysCount, restDaysCount, percent, totalDays } = getWorkLifeBalance(allIncomeEntries);
   document.getElementById('worklife-balance').innerHTML = `
