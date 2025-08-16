@@ -1995,3 +1995,6 @@ margin-top: 8px;
 
 /* На всякий: если где-то остался h1 в info-panel — прячем */
 .info-panel > h1 { display: none !important; }
+
+
+#chart-studios { height: auto !important; }

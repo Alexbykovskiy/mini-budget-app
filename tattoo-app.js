@@ -1924,34 +1924,23 @@ function drawChartByStudios(incomes = [], expenses = []) {
   const el = document.getElementById('chart-studios');
   if (!el) return;
 
-  const HIDE = new Set(['Оборудование', '-', '—', '']); // что скрываем
-
+  const HIDE = new Set(['Оборудование', '-', '—', '']);
   const netByStudio = {};
   const norm = (s) => ((s ?? '') + '').trim();
 
-  incomes.forEach(i => {
-    const s = norm(i.studio);
-    if (HIDE.has(s)) return;               // ← пропускаем
-    netByStudio[s] = (netByStudio[s] || 0) + (Number(i.amount) || 0);
-  });
+  incomes.forEach(i => { const s = norm(i.studio); if (!HIDE.has(s)) netByStudio[s] = (netByStudio[s] || 0) + (+i.amount || 0); });
+  expenses.forEach(e => { const s = norm(e.studio); if (!HIDE.has(s)) netByStudio[s] = (netByStudio[s] || 0) - (+e.amount || 0); });
 
-  expenses.forEach(e => {
-    const s = norm(e.studio);
-    if (HIDE.has(s)) return;               // ← пропускаем
-    netByStudio[s] = (netByStudio[s] || 0) - (Number(e.amount) || 0);
-  });
-
-  // если вдруг что-то залетело раньше — подчистим
-  ['Оборудование','-','—',''].forEach(k => delete netByStudio[k]);
-
-  const entries = Object.entries(netByStudio)
-    .filter(([name]) => name.length)       // без пустых
-    .sort((a,b) => b[1] - a[1]);           // по убыванию
-
+  const entries = Object.entries(netByStudio).filter(([n]) => n.length).sort((a,b)=>b[1]-a[1]);
   const labels = entries.map(([s]) => s);
   const data   = entries.map(([,v]) => v);
 
-  if (chartStudios) chartStudios.destroy();
+  // --- КЛЮЧЕВОЕ: автокомпактная высота под число строк ---
+  const ROW_H = 18;                 // высота строки (бар + минимальный зазор)
+
+  el.height = Math.max(labels.length * ROW_H, 90);   // минимально 90px, дальше по числу строк
+ 
+ if (chartStudios) chartStudios.destroy();
   chartStudios = new Chart(el.getContext('2d'), {
     type: 'bar',
     data: {
@@ -1967,26 +1956,33 @@ function drawChartByStudios(incomes = [], expenses = []) {
 }]
     },
     options: {
-      indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false },
-        tooltip: { callbacks: { label: (ctx) =>
-          `Чистый доход: ${(ctx.parsed.x ?? 0).toLocaleString('ru-RU')} €` } }
+  indexAxis: 'y',
+  responsive: true,
+  maintainAspectRatio: false,
+
+  // тонкие бары и минимальные зазоры между категориями
+  datasets: { bar: { barThickness: 8, categoryPercentage: 1, barPercentage: 1, borderRadius: 4 } },
+
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      callbacks: { label: (ctx) => `Чистый доход: ${(ctx.parsed.x ?? 0).toLocaleString('ru-RU')} €` }
+    }
+  },
+  scales: {
+    x: {
+      beginAtZero: true,
+      ticks: { color: '#d6d9dc', callback: v => (v||0).toLocaleString('ru-RU') + ' €' },
+      grid: { color: 'rgba(255,255,255,0.08)' }
+    },
+    y: {
+      ticks: {
+        color: '#fff',             // названия студий белым
+        autoSkip: false,
+        padding: 2,                // минимальный отступ от оси
+        font: { size: 11, weight: 600 }
       },
-      scales: {
-        x: {
-          beginAtZero: true,
-          ticks: { color: '#d6d9dc', callback: v => (v||0).toLocaleString('ru-RU') + ' €' },
-          grid: { color: 'rgba(255,255,255,0.08)' }
-        },
-        y: {
-          ticks: {
-            color: '#fff',
-            autoSkip: false,
-            font: { size: 12, weight: 600 }
-          },
-          grid: { display: false }
+      grid: { display: false }
         }
       }
     } // ← закрываем options
