@@ -1957,13 +1957,14 @@ function drawChartByStudios(incomes = [], expenses = []) {
     data: {
       labels,
       datasets: [{
-        label: 'Чистый доход',
-        data,
-        backgroundColor: '#FFD262',  // жёлтый плотный
-        borderColor: '#FFD262',
-        borderWidth: 1,
-        borderRadius: 6,
-      }]
+  label: 'Чистый доход',
+  data,
+  backgroundColor: '#FFD262',
+  borderColor: '#FFD262',
+  borderWidth: 1,
+  borderRadius: 8,
+  barThickness: 8,           // ← ширина полосы (~1.5 раза толще; подгони 22–28 при желании)
+}]
     },
     options: {
       indexAxis: 'y',
@@ -1974,10 +1975,20 @@ function drawChartByStudios(incomes = [], expenses = []) {
           `Чистый доход: ${(ctx.parsed.x ?? 0).toLocaleString('ru-RU')} €` } }
       },
       scales: {
-        x: { beginAtZero: true, ticks: { callback: v => (v||0).toLocaleString('ru-RU') + ' €' } },
-        y: { ticks: { autoSkip: false } }
-      }
-    }
+  x: {
+    beginAtZero: true,
+    ticks: { color: '#d6d9dc', callback: v => (v||0).toLocaleString('ru-RU') + ' €' },
+    grid: { color: 'rgba(255,255,255,0.08)' }
+  },
+  y: {
+    ticks: {
+      color: '#fff',          // ← названия студий белым
+      autoSkip: false,
+      font: { size: 12, weight: 600 }
+    },
+    grid: { display: false }
+  }
+}
   });
 }
 
