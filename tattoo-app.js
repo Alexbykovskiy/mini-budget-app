@@ -1888,10 +1888,16 @@ function drawChartByMonths(incomes = [], expenses = []) {
      datasets: { bar: { barPercentage: 0.625, categoryPercentage: 0.9, borderRadius: 6 } },
       // именно ГРУППИРОВАНИЕ (не stacked, не overlay)
       scales: {
-        x: {
-          stacked: false,
-          ticks: { color: '#d6d9dc', autoSkip: false, maxRotation: 0, minRotation: 0, font: { size: 11 } },
-          grid: { display: false }
+  x: {
+    ticks: {
+      color: '#d6d9dc',
+      autoSkip: false,      // оставляем, чтобы были все 12 месяцев
+      maxRotation: 45,      // ← поворот подписи
+      minRotation: 45,      // ← фиксируем именно 45°
+      padding: 6,           // чуть больше места от оси
+      font: { size: 11 }
+    },
+    grid: { display: false }
         },
         y: {
           stacked: false,
