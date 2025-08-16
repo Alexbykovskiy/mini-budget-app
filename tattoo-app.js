@@ -1924,39 +1924,62 @@ function drawChartByStudios(incomes = [], expenses = []) {
   const el = document.getElementById('chart-studios');
   if (!el) return;
 
-  const netByStudio = {}; // студия -> чистый доход
+  const HIDE = new Set(['Оборудование', '-', '—', '']); // что скрываем
+
+  const netByStudio = {};
+  const norm = (s) => ((s ?? '') + '').trim();
+
   incomes.forEach(i => {
-    const s = i.studio || '—';
+    const s = norm(i.studio);
+    if (HIDE.has(s)) return;               // ← пропускаем
     netByStudio[s] = (netByStudio[s] || 0) + (Number(i.amount) || 0);
   });
+
   expenses.forEach(e => {
-    const s = e.studio || '—';
+    const s = norm(e.studio);
+    if (HIDE.has(s)) return;               // ← пропускаем
     netByStudio[s] = (netByStudio[s] || 0) - (Number(e.amount) || 0);
   });
 
-  const labels = Object.keys(netByStudio);
-  const data = labels.map(k => netByStudio[k]);
+  // если вдруг что-то залетело раньше — подчистим
+  ['Оборудование','-','—',''].forEach(k => delete netByStudio[k]);
+
+  const entries = Object.entries(netByStudio)
+    .filter(([name]) => name.length)       // без пустых
+    .sort((a,b) => b[1] - a[1]);           // по убыванию
+
+  const labels = entries.map(([s]) => s);
+  const data   = entries.map(([,v]) => v);
 
   if (chartStudios) chartStudios.destroy();
   chartStudios = new Chart(el.getContext('2d'), {
     type: 'bar',
     data: {
       labels,
-      datasets: [{ label: 'Чистый доход', data, backgroundColor: 'rgba(255,210,128,0.80)', borderRadius: 6 }]
+      datasets: [{
+        label: 'Чистый доход',
+        data,
+        backgroundColor: '#FFD262',  // жёлтый плотный
+        borderColor: '#FFD262',
+        borderWidth: 1,
+        borderRadius: 6,
+      }]
     },
     options: {
       indexAxis: 'y',
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: (ctx) =>
+          `Чистый доход: ${(ctx.parsed.x ?? 0).toLocaleString('ru-RU')} €` } }
+      },
       scales: {
-        x: { beginAtZero: true, ticks: { color: '#d6d9dc' }, grid: { color: 'rgba(255,255,255,0.08)' } },
-        y: { ticks: { color: '#d6d9dc' }, grid: { display: false } }
+        x: { beginAtZero: true, ticks: { callback: v => (v||0).toLocaleString('ru-RU') + ' €' } },
+        y: { ticks: { autoSkip: false } }
       }
     }
   });
 }
-
 
 window.addEventListener('DOMContentLoaded', async () => {
   await loadStudios();
