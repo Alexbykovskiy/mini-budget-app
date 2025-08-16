@@ -318,8 +318,9 @@ function updateStatsFiltered(incomes, expenses) {
     fakturCount + ' ' + pluralizeFaktura(fakturCount) + ': ' + fakturSum.toLocaleString() + ' €';
 
   document.getElementById('black-income').textContent = blackIncome.toLocaleString() + ' €';
+document.getElementById('total-expenses').textContent = totalExpenses.toLocaleString() + ' €';
   document.getElementById('total-expenses').textContent = totalExpenses.toLocaleString() + ' €';
-renderExpenseBreakdown(allExpenseEntries);
+renderExpenseBreakdown(expenses);
   document.getElementById('net-income').textContent = netIncome.toLocaleString() + ' €';
 
   // Баланс — только по отфильтрованным доходам!
@@ -1556,8 +1557,10 @@ const fakturSum = allIncomeEntries
   .filter(e => e.isInvoice)
   .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
 document.getElementById('white-income').textContent =
-  fakturCount + ' ' + pluralizeFaktura(fakturCount) + ': ' + fakturSum.toLocaleString() + ' €';  document.getElementById('black-income').textContent = blackIncome.toLocaleString() + ' €';
+  fakturCount + ' ' + pluralizeFaktura(fakturCount) + ': ' + fakturSum.toLocaleString() + ' €'; 
+ document.getElementById('black-income').textContent = blackIncome.toLocaleString() + ' €';
 
+document.getElementById('total-expenses').textContent = totalExpenses.toLocaleString() + ' €';
   document.getElementById('net-income').textContent = netIncome.toLocaleString() + ' €';
 renderExpenseBreakdown(allExpenseEntries);
 

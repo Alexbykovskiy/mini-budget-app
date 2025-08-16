@@ -2010,3 +2010,23 @@ margin-top: 8px;
 .kpi-breakdown .muted { opacity: .7; }
 .kpi-breakdown b { font-weight: 700; }
 
+
+/* KPI: разбивка расходов */
+.kpi-breakdown { margin-top: 6px; }
+.kpi-breakdown .row{
+  display:flex;
+  flex-direction:column;     /* <-- в столбик */
+  align-items:flex-start;
+  gap:2px;                   /* маленький промежуток между названием и суммой */
+  padding:3px 0;
+}
+.kpi-breakdown .label{
+  color:#cfd6d9;             /* подпись бледнее */
+  font-size:0.95rem;
+  line-height:1.05rem;
+}
+.kpi-breakdown .value{
+  color:#fff;                /* сумма ярче */
+  font-size:1.02rem;
+  line-height:1.1rem;
+}
