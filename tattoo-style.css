@@ -2033,12 +2033,12 @@ margin-top: 8px;
 
 /* Expenses card — compact breakdown (x2 tighter) */
 #expense-breakdown { 
-  margin-top: 3px !important;              /* было 6px */
+  margin-top: 0.5px !important;              /* было 6px */
 }
 #expense-breakdown .row {
-  padding: 1.5px 0 !important;             /* было 3px 0 */
+  padding: 0.5px 0 !important;             /* было 3px 0 */
   gap: 1px !important;                      /* было 2px */
 }
 #expense-breakdown .row + .row {
-  margin-top: 1px !important;               /* было 2px */
+  margin-top: 0.5px !important;               /* было 2px */
 }
