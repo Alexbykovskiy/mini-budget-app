@@ -2042,3 +2042,18 @@ margin-top: 8px;
 #expense-breakdown .row + .row {
   margin-top: 0.5px !important;               /* было 2px */
 }
+
+/* Expenses card — shrink fonts to 75% */
+#expense-breakdown { font-size: 75% !important; }
+
+/* если внутри были явные rem — перебьём их точечно */
+#expense-breakdown .label { font-size: 0.71rem !important; line-height: 1.05rem !important; }
+#expense-breakdown .value { font-size: 0.76rem !important; line-height: 1.10rem !important; }
+
+/* на случай старой разметки без .label/.value */
+#expense-breakdown .row,
+#expense-breakdown .row span,
+#expense-breakdown .row b {
+  font-size: 75% !important;
+  line-height: 1.15 !important;
+}
