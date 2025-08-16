@@ -319,6 +319,7 @@ function updateStatsFiltered(incomes, expenses) {
 
   document.getElementById('black-income').textContent = blackIncome.toLocaleString() + ' €';
   document.getElementById('total-expenses').textContent = totalExpenses.toLocaleString() + ' €';
+renderExpenseBreakdown(allExpenseEntries);
   document.getElementById('net-income').textContent = netIncome.toLocaleString() + ' €';
 
   // Баланс — только по отфильтрованным доходам!
@@ -1523,6 +1524,7 @@ const fakturSum = allIncomeEntries
 document.getElementById('white-income').textContent =
   fakturCount + ' ' + pluralizeFaktura(fakturCount) + ': ' + fakturSum.toLocaleString() + ' €';  document.getElementById('black-income').textContent = blackIncome.toLocaleString() + ' €';
   document.getElementById('total-expenses').textContent = totalExpenses.toLocaleString() + ' €';
+renderExpenseBreakdown(expenses);
   document.getElementById('net-income').textContent = netIncome.toLocaleString() + ' €';
 
   const { workDaysCount, restDaysCount, percent, totalDays } = getWorkLifeBalance(allIncomeEntries);
@@ -1982,6 +1984,29 @@ function drawChartByStudios(incomes = [], expenses = []) {
     }
   });
 }
+
+function renderExpenseBreakdownList(expenses = []) {
+  // Группируем по типам расходов
+  const totals = expenses.reduce((acc, e) => {
+    const key = (e.expenseType || 'Прочее').trim();
+    acc[key] = (acc[key] || 0) + (Number(e.amount) || 0);
+    return acc;
+  }, {});
+
+  // Сорт по убыванию и ограничение строк (топ-5 + Остальное)
+  const ordered = Object.entries(totals).sort((a,b) => b[1]-a[1]);
+  const top = ordered.slice(0, 5);
+  const rest = ordered.slice(5).reduce((s, [,v]) => s + v, 0);
+
+  const row = (name, sum, extraClass='') =>
+    `<div class="row ${extraClass}"><span>${name}</span><b>${sum.toLocaleString('ru-RU')} €</b></div>`;
+
+  let html = top.map(([name, sum]) => row(name, sum)).join('');
+  if (rest > 0) html += row('Остальное', rest, 'muted');
+
+  return html || `<div class="row muted">— нет расходов —</div>`;
+}
+
 
 window.addEventListener('DOMContentLoaded', async () => {
   await loadStudios();

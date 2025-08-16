@@ -1995,9 +1995,18 @@ margin-top: 8px;
 #chart-months { width: 100% !important; height: 240px !important; }
 
 /* студийный график — высоту даст JS */
-#chart-studios { width: 100% !important; height: 120px !important; }
+#chart-studios { width: 100% !important; height: 150px !important; }
 
 /* На всякий: если где-то остался h1 в info-panel — прячем */
 .info-panel > h1 { display: none !important; }
 
+
+.kpi-breakdown { margin-top: 6px; }
+.kpi-breakdown .row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12px; line-height: 1.3; opacity: .9; gap: 10px;
+}
+.kpi-breakdown .row + .row { margin-top: 2px; }
+.kpi-breakdown .muted { opacity: .7; }
+.kpi-breakdown b { font-weight: 700; }
 
