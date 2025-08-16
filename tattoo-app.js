@@ -314,8 +314,8 @@ function updateStatsFiltered(incomes, expenses) {
   const fakturSum = incomes
     .filter(e => e.isInvoice)
     .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
-  document.getElementById('white-income').textContent =
-    fakturCount + ' ' + pluralizeFaktura(fakturCount) + ': ' + fakturSum.toLocaleString() + ' €';
+  document.getElementById('white-income').innerHTML =
+  `${fakturCount} ${pluralizeFaktura(fakturCount)}<br><b>${fakturSum.toLocaleString()} €</b>`;
 
   document.getElementById('black-income').textContent = blackIncome.toLocaleString() + ' €';
 document.getElementById('total-expenses').textContent = totalExpenses.toLocaleString() + ' €';
@@ -1556,8 +1556,8 @@ const fakturCount = allIncomeEntries.filter(e => e.isInvoice).length;
 const fakturSum = allIncomeEntries
   .filter(e => e.isInvoice)
   .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
-document.getElementById('white-income').textContent =
-  fakturCount + ' ' + pluralizeFaktura(fakturCount) + ': ' + fakturSum.toLocaleString() + ' €'; 
+document.getElementById('white-income').innerHTML =
+  `${fakturCount} ${pluralizeFaktura(fakturCount)}<br><b>${fakturSum.toLocaleString()} €</b>`;
  document.getElementById('black-income').textContent = blackIncome.toLocaleString() + ' €';
 
 document.getElementById('total-expenses').textContent = totalExpenses.toLocaleString() + ' €';
@@ -1566,10 +1566,11 @@ renderExpenseBreakdown(allExpenseEntries);
 
   const { workDaysCount, restDaysCount, percent, totalDays } = getWorkLifeBalance(allIncomeEntries);
   document.getElementById('worklife-balance').innerHTML = `
-    Баланс: <span style="color:#ff5a5a;font-weight:600;">${workDaysCount}</span>
-    /
-    <span style="color:#49f979;font-weight:600;">${restDaysCount}</span>
-    (${percent}% рабочих)
+  Баланс<br>
+  <span style="color:#ff5a5a;font-weight:600;">${workDaysCount}</span>
+  /
+  <span style="color:#49f979;font-weight:600;">${restDaysCount}</span>
+  (${percent}% рабочих)
   `;
 
 drawChartByMonths(allIncomeEntries, allExpenseEntries);
