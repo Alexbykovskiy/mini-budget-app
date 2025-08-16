@@ -61,6 +61,69 @@ document.getElementById('apply-filter-btn').addEventListener('click', function()
   applyFilters();
 });
 
+// === Фильтры: поведение карточки и кнопок ===
+(function initFiltersUI(){
+  const section   = document.getElementById('filters-section');
+  const toggle    = document.getElementById('filters-toggle');
+  const wholeYear = document.getElementById('filter-whole-year');
+  const fromInp   = document.getElementById('filter-from');
+  const toInp     = document.getElementById('filter-to');
+  const resetBtn  = document.getElementById('reset-filter-btn');
+  const applyBtn  = document.getElementById('apply-filter-btn'); // уже используется в вашем коде
+  const studioSel = document.getElementById('filter-studio');
+
+  if (!section) return;
+
+  // Сворачивание/раскрытие
+  if (toggle){
+    const syncCollapsed = () =>
+      section.classList.toggle('is-collapsed', !toggle.checked);
+    toggle.addEventListener('change', syncCollapsed);
+    syncCollapsed();
+  }
+
+  // «За весь год» — блокируем даты и подставляем границы года
+  function syncWholeYearUI(){
+    const today = toInp.value ? new Date(toInp.value) : new Date();
+    const y = today.getFullYear();
+    if (wholeYear.checked){
+      fromInp.disabled = true;
+      toInp.disabled   = true;
+      // 01.01.y — today (или 31.12.y, если так вам логичнее)
+      const pad = n => String(n).padStart(2,'0');
+      const to   = `${y}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
+      const from = `${y}-01-01`;
+      fromInp.value = from;
+      toInp.value   = to;
+    } else {
+      fromInp.disabled = false;
+      toInp.disabled   = false;
+      // Оставляем пользователю редактирование
+    }
+  }
+  if (wholeYear){
+    wholeYear.addEventListener('change', syncWholeYearUI);
+    syncWholeYearUI();
+  }
+
+  // Сброс: «все студии», текущий год, и перерисовать
+  if (resetBtn){
+    resetBtn.addEventListener('click', () => {
+      if (studioSel) studioSel.value = '';
+      if (wholeYear){
+        wholeYear.checked = true;
+        syncWholeYearUI();
+      } else {
+        fromInp.value = '';
+        toInp.value = '';
+      }
+      // триггерим ваш существующий обработчик «Применить»
+      applyBtn?.click();
+    });
+  }
+})();
+
+
 function setDefaultFilterDates() {
   const today = new Date();
   const y = today.getFullYear();

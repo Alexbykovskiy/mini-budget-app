@@ -50,22 +50,57 @@
   <canvas id="chart-studios" height="240"></canvas>
 </section>
 
-<div class="filter-panel" style="margin:30px 0 15px 0; padding:20px; background:#232b2d44; border-radius:16px;">
-  <label style="margin-right:14px;">
-    Студия:
-    <select id="filter-studio"><option value="">Все студии</option></select>
-  </label>
-  <label style="margin-right:14px;">
-    Период:
-    <input type="date" id="filter-from">
-    —
-    <input type="date" id="filter-to">
-  </label>
-  <label style="margin-right:14px;">
-    <input type="checkbox" id="filter-whole-year" checked> За весь год
-  </label>
-  <button id="apply-filter-btn">Применить</button>
-</div>
+<!-- Фильтры (сворачиваемая карточка как у редактора студий) -->
+<section id="filters-section" class="block">
+  <div class="filters-toggle-head">
+    <h2>Фильтры</h2>
+    <label class="ios-switch">
+      <input type="checkbox" id="filters-toggle" checked>
+      <span class="ios-slider"></span>
+    </label>
+  </div>
+
+  <div class="filters-body">
+    <!-- 1 строка: студия -->
+    <div class="inline-fields">
+      <select id="filter-studio">
+        <option value="">Все студии</option>
+      </select>
+    </div>
+
+    <!-- 2 строка: даты от/до -->
+    <div class="inline-fields">
+      <input type="date" id="filter-from" class="calendar-date-pill" placeholder="От">
+      <input type="date" id="filter-to" class="calendar-date-pill" placeholder="До">
+    </div>
+
+    <!-- 3 строка: свитч "За весь год" -->
+    <div class="switch-row">
+      <label class="ios-switch">
+        <input type="checkbox" id="filter-whole-year" checked>
+        <span class="ios-slider"></span>
+      </label>
+      <span class="switch-label">За весь год</span>
+    </div>
+
+    <!-- 4 строка: круглые кнопки — отмена/применить -->
+    <div class="pill-row">
+      <button type="button" id="reset-filter-btn" class="circle-action-btn cancel-btn" title="Сбросить">
+        <svg viewBox="0 0 24 24">
+          <line x1="6" y1="6" x2="18" y2="18"/>
+          <line x1="18" y1="6" x2="6" y2="18"/>
+        </svg>
+      </button>
+
+      <button type="button" id="apply-filter-btn" class="circle-action-btn confirm-btn" title="Применить">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="5 13 10 18 19 7"></polyline>
+        </svg>
+      </button>
+    </div>
+  </div>
+</section>
 
 <section class="block form-section income-glow">
   <!-- 2 строка: студия + дата -->

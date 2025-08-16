@@ -2044,3 +2044,49 @@ margin-top: 8px;
 }
 
 
+
+/* === Фильтры: сворачиваемая пилюля как у редактора студий === */
+#filters-section .filters-toggle-head {
+  display:flex; align-items:center; justify-content:space-between;
+  width:100%; margin:0;
+}
+#filters-section .filters-toggle-head h2 {
+  margin:0; line-height:1.1; font-size:20px;
+}
+#filters-section .filters-toggle-head .ios-switch { margin-left:auto; }
+
+#filters-section .filters-body{
+  overflow:hidden;
+  max-height:1200px;        /* «раскрыто» */
+  opacity:1;
+  transition:max-height .32s ease, opacity .24s ease, margin-top .28s ease;
+  margin-top:12px;
+}
+#filters-section.is-collapsed .filters-body{
+  max-height:0; opacity:0; margin-top:0;  /* «свернуто» */
+}
+#filters-section.is-collapsed,
+#filters-section.is-collapsed::before,
+#filters-section.is-collapsed::after{
+  border-radius:24px !important;
+}
+
+/* Подтянуть круглые кнопки как в других формах */
+#filters-section .pill-row{
+  margin-top:-8px;
+  margin-bottom:-6px;
+}
+
+/* Чуть компактнее поля в фильтрах */
+#filters-section .inline-fields{ gap:10px; margin-bottom:10px; }
+#filters-section input[type="date"],
+#filters-section select{ height:44px; }
+
+/* Делает карточку такого же «стеклянного» вида, как и остальные */
+#filters-section.block{
+  background:
+    linear-gradient(120deg, rgba(255,255,255,0.06) 8%, rgba(0,0,0,0.06) 100%),
+    rgba(0,0,0,0.50);
+}
+
+
