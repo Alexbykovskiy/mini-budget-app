@@ -1975,21 +1975,23 @@ function drawChartByStudios(incomes = [], expenses = []) {
           `Чистый доход: ${(ctx.parsed.x ?? 0).toLocaleString('ru-RU')} €` } }
       },
       scales: {
-  x: {
-    beginAtZero: true,
-    ticks: { color: '#d6d9dc', callback: v => (v||0).toLocaleString('ru-RU') + ' €' },
-    grid: { color: 'rgba(255,255,255,0.08)' }
-  },
-  y: {
-    ticks: {
-      color: '#fff',          // ← названия студий белым
-      autoSkip: false,
-      font: { size: 12, weight: 600 }
-    },
-    grid: { display: false }
-  }
-}
- }
+        x: {
+          beginAtZero: true,
+          ticks: { color: '#d6d9dc', callback: v => (v||0).toLocaleString('ru-RU') + ' €' },
+          grid: { color: 'rgba(255,255,255,0.08)' }
+        },
+        y: {
+          ticks: {
+            color: '#fff',
+            autoSkip: false,
+            font: { size: 12, weight: 600 }
+          },
+          grid: { display: false }
+        }
+      }
+    } // ← закрываем options
+  }); // ← закрываем new Chart(...)
+}     // ← закрываем функцию drawChartByStudios
 
 window.addEventListener('DOMContentLoaded', async () => {
   await loadStudios();
