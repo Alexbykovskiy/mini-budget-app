@@ -1989,8 +1989,7 @@ function drawChartByStudios(incomes = [], expenses = []) {
     grid: { display: false }
   }
 }
-  });
-}
+ }
 
 window.addEventListener('DOMContentLoaded', async () => {
   await loadStudios();
