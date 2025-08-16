@@ -76,11 +76,14 @@ document.getElementById('apply-filter-btn').addEventListener('click', function()
 
   // Сворачивание/раскрытие
   if (toggle){
-    const syncCollapsed = () =>
-      section.classList.toggle('is-collapsed', !toggle.checked);
-    toggle.addEventListener('change', syncCollapsed);
-    syncCollapsed();
-  }
+  const syncCollapsed = () =>
+    section.classList.toggle('is-collapsed', !toggle.checked);
+  toggle.addEventListener('change', syncCollapsed);
+
+  // по умолчанию – свернуто
+  toggle.checked = false;
+  syncCollapsed();
+}
 
   // «За весь год» — блокируем даты и подставляем границы года
   function syncWholeYearUI(){
