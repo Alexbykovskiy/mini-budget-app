@@ -557,7 +557,7 @@ let isGroupStart = !isGroupedWithPrev; // ← новая переменная!
 }
 
     // === Весь обработчик редактирования — после цикла, только один раз! ===
-    document.querySelectorAll('.edit-entry-btn-mini').forEach(btn => {
+    document.querySelectorAll('.edit-btn-circle').forEach(btn => {
       btn.onclick = async function() {
         const type = btn.getAttribute('data-type');
         const id = btn.getAttribute('data-id');
