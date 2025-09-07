@@ -420,7 +420,7 @@ async function saveClientFromDialog(){
   // 🚀 сохраняем на Диск
   try {
     if (isNew) {
-      await YD.createClientSkeleton(id, client);
+      await YD.createClientSkeleton(id, client);   // создаём папку + profile.json + photos
     } else {
       await YD.putJSON(`disk:/TattooCRM/clients/${id}/profile.json`, client);
     }
