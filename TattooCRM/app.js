@@ -66,38 +66,44 @@ function bindHeader(){
 // ---------- Onboarding ----------
 function bindOnboarding(){
   // ---- Войти через Яндекс (OAuth через GitHub Pages) ----
-  const CLIENT_ID    = '585ee292320847a79577540872e38b00'; // твой ClientID
-  const TOKEN_ORIGIN = 'https://alexbykovskiy.github.io';
-  const REDIRECT_URI = 'https://alexbykovskiy.github.io/mini-budget-app/TattooCRM/oauth-callback.html';
+const CLIENT_ID    = '585ee292320847a79577540872e38b00';
+const TOKEN_ORIGIN = 'https://alexbykovskiy.github.io';
+const REDIRECT_URI = 'https://alexbykovskiy.github.io/mini-budget-app/TattooCRM/oauth-callback.html';
 
-  if (window.YaAuthSuggest) {
-    window.YaAuthSuggest
-      .init(
-        { client_id: CLIENT_ID, response_type: 'token', redirect_uri: REDIRECT_URI },
-        TOKEN_ORIGIN,
-        { view: 'button', parentId: 'yandexLogin', buttonView: 'main', buttonSize: 'l', buttonTheme: 'light', buttonBorderRadius: 12 }
-      )
-      // Если хочешь, чтобы попап открывался сам — оставь handler(); 
-      // если по клику на кнопку — УДАЛИ следующую строку:
-      .then(() => {/* рендерим кнопку, запуск по клику */})
-      .then(async (data) => {
-        const token = data?.access_token;
-        if (!token) throw new Error('Нет access_token от Яндекса');
-        YD.setToken(token);
-        await YD.ensureLibrary();
-        await loadSettings();
-        AppState.connected = true;
-        showPage('todayPage');
-        toast('Авторизованы через Яндекс. Библиотека готова');
-        setupAutoSync();
-        renderToday();
-      })
-      .catch((err) => {
-        console.error(err);
-        // Ручной ввод токена оставляем как запасной вариант
-        toast('Не удалось авторизоваться через Яндекс');
+if (window.YaAuthSuggest) {
+  window.YaAuthSuggest
+    .init(
+      { client_id: CLIENT_ID, response_type: 'token', redirect_uri: REDIRECT_URI },
+      TOKEN_ORIGIN,
+      { view: 'button', parentId: 'yandexLogin', buttonView: 'main', buttonSize: 'l', buttonTheme: 'light', buttonBorderRadius: 12 }
+    )
+    .then(({ handler }) => {
+      // открываем попап строго по клику по нашей области кнопки
+      const root = document.getElementById('yandexLogin');
+      root?.addEventListener('click', async () => {
+        try {
+          const data = await handler();                 // <- тут появится access_token
+          const token = data?.access_token;
+          if (!token) return;                           // пользователь отменил вход
+          YD.setToken(token);
+          await YD.ensureLibrary();
+          await loadSettings();
+          AppState.connected = true;
+          showPage('todayPage');
+         toast('Авторизованы через Яндекс. Библиотека готова');
+setupAutoSync();
+await syncNow();       // ← сразу подгружаем клиентов/данные
+        } catch (e) {
+          console.error(e);
+          toast('Вход отменён или ошибка авторизации');
+        }
       });
-  }
+    })
+    .catch((err) => {
+      console.error(err);
+      toast('Не удалось инициализировать вход через Яндекс');
+    });
+}
 
   $('#bootstrapBtn').addEventListener('click', async () => {
     try{
@@ -130,36 +136,6 @@ function bindOnboarding(){
   });
 }
 
- // ---- Войти через Яндекс (OAuth через GitHub Pages) ----
-  const CLIENT_ID = '585ee292320847a79577540872e38b00'; // твой новый ClientID
-  const TOKEN_ORIGIN = 'https://alexbykovskiy.github.io';
-  const REDIRECT_URI  = 'https://alexbykovskiy.github.io/mini-budget-app/TattooCRM/oauth-callback.html';
-
-  if (window.YaAuthSuggest) {
-    window.YaAuthSuggest
-      .init(
-        { client_id: CLIENT_ID, response_type: 'token', redirect_uri: REDIRECT_URI },
-        TOKEN_ORIGIN,
-        { view: 'button', parentId: 'yandexLogin', buttonView: 'main', buttonSize: 'l', buttonTheme: 'light', buttonBorderRadius: 12 }
-      )
-      .then(({ handler }) => handler())
-      .then(async (data) => {
-        const token = data?.access_token;
-        if (!token) throw new Error('Нет access_token от Яндекса');
-        YD.setToken(token);
-        await YD.ensureLibrary();
-        await loadSettings();
-        AppState.connected = true;
-        showPage('todayPage');
-        toast('Авторизованы через Яндекс. Библиотека готова');
-        setupAutoSync();
-        renderToday();
-      })
-      .catch((err) => {
-        console.error(err);
-        toast('Не удалось авторизоваться через Яндекс');
-      });
-  }
 
 async function startWithDisk(){
   try{
@@ -180,6 +156,8 @@ async function loadSettings(){
   const s = await YD.getJSON('disk:/TattooCRM/settings.json');
   AppState.settings = s || demoSettings();
 }
+
+
 
 // ---------- Sync ----------
 async function syncNow(){

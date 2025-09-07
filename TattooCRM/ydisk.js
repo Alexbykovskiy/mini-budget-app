@@ -51,6 +51,19 @@ const YD = (() => {
     return await jfetch(url, { headers: authHeaders() }); // returns meta with _embedded.items
   }
 
+// создаёт папку только если её нет (убирает 409 в консоли)
+async function ensureDir(path) {
+  try {
+    await list(path);           // 200 — папка уже есть
+  } catch (e) {
+    if (String(e).includes('404')) {
+      await createDir(path);    // нет — создаём
+    } else {
+      throw e;
+    }
+  }
+}
+
   async function getDownloadUrl(path) {
     const url = `${API}/resources/download?path=${encodeURIComponent(path)}`;
     const { href } = await jfetch(url, { headers: authHeaders() });
@@ -99,39 +112,39 @@ const YD = (() => {
   }
 
   // ---- high-level ----
-  async function ensureLibrary() {
-    await ping(); // валидируем токен
+ async function ensureLibrary() {
+  await ping(); // валидируем токен
 
-    await createDir('disk:/TattooCRM');
-    await createDir(`${ROOT}/clients`);
-    await createDir(`${ROOT}/appointments`);
-    await createDir(`${ROOT}/reminders`);
-    await createDir(`${ROOT}/supplies`);
-    await createDir(`${ROOT}/marketing`);
-    await createDir(`${ROOT}/exports`);
+  await ensureDir('disk:/TattooCRM');
+  await ensureDir(`${ROOT}/clients`);
+  await ensureDir(`${ROOT}/appointments`);
+  await ensureDir(`${ROOT}/reminders`);
+  await ensureDir(`${ROOT}/supplies`);
+  await ensureDir(`${ROOT}/marketing`);
+  await ensureDir(`${ROOT}/exports`);
 
-    const settingsPath = `${ROOT}/settings.json`;
-    const existing = await getJSON(settingsPath).catch(()=> null);
-    if (!existing) {
-      await putJSON(settingsPath, {
-        sources: [], styles: [], zones: [], supplies: [],
-        defaultReminder: '', syncInterval: 60, language: 'ru'
-      });
-    }
-    return true;
+  const settingsPath = `${ROOT}/settings.json`;
+  const existing = await getJSON(settingsPath).catch(()=> null);
+  if (!existing) {
+    await putJSON(settingsPath, {
+      sources: [], styles: [], zones: [], supplies: [],
+      defaultReminder: '', syncInterval: 60, language: 'ru'
+    });
   }
+  return true;
+}
 
   async function createClientSkeleton(clientId, profile) {
     const base = `${ROOT}/clients/${clientId}`;
-    await createDir(base);
-    await putJSON(`${base}/profile.json`, profile);
-    await createDir(`${base}/photos`);
+await ensureDir(base);
+await putJSON(`${base}/profile.json`, profile);
+await ensureDir(`${base}/photos`);
   }
 
   async function ensureSessionFolder(clientId, isoDate) {
     const day = isoDate.split('T')[0];
-    await createDir(`${ROOT}/clients/${clientId}/photos/${day}`);
-    return day;
+await ensureDir(`${ROOT}/clients/${clientId}/photos/${day}`);
+return day;
   }
 
   return {
