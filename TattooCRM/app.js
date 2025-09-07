@@ -65,48 +65,43 @@ function bindHeader(){
 
 // ---------- Onboarding ----------
 function bindOnboarding(){
-  // ---- Войти через Яндекс (OAuth через GitHub Pages) ----
-const CLIENT_ID    = '585ee292320847a79577540872e38b00';
-const TOKEN_ORIGIN = 'https://alexbykovskiy.github.io';
-const REDIRECT_URI = 'https://alexbykovskiy.github.io/mini-budget-app/TattooCRM/oauth-callback.html';
+  // --- Войти через Яндекс без SDK (чистый OAuth) ---
+  const CLIENT_ID    = '585ee292320847a79577540872e38b00';
+  const TOKEN_ORIGIN = 'https://alexbykovskiy.github.io';
+  const REDIRECT_URI = 'https://alexbykovskiy.github.io/mini-budget-app/TattooCRM/oauth-callback.html';
+  const OAUTH_URL =
+    `https://oauth.yandex.ru/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
 
-if (window.YaAuthSuggest) {
-  window.YaAuthSuggest
-    .init(
-      { client_id: CLIENT_ID, response_type: 'token', redirect_uri: REDIRECT_URI },
-      TOKEN_ORIGIN,
-      { view: 'button', parentId: 'yandexLogin', buttonView: 'main', buttonSize: 'l', buttonTheme: 'light', buttonBorderRadius: 12 }
-    )
-    .then(({ handler }) => {
-      // открываем попап строго по клику по нашей области кнопки
-      const root = document.getElementById('yandexLogin');
-      root?.addEventListener('click', async () => {
-        try {
-          const data = await handler();                 // <- тут появится access_token
-          const token = data?.access_token;
-          if (!token) return;                           // пользователь отменил вход
-          YD.setToken(token);
-          await YD.ensureLibrary();
-          await loadSettings();
-          AppState.connected = true;
-          showPage('todayPage');
-         toast('Авторизованы через Яндекс. Библиотека готова');
-setupAutoSync();
-await syncNow();       // ← сразу подгружаем клиентов/данные
-        } catch (e) {
-          console.error(e);
-          toast('Вход отменён или ошибка авторизации');
-      }
-    } finally {
-      authBusy = false;
+  // Рисуем нашу кнопку
+  const yroot = document.getElementById('yandexLogin');
+  if (yroot) {
+    yroot.innerHTML = '<button class="btn primary w-100">Войти с Яндекс ID</button>';
+    yroot.querySelector('button').addEventListener('click', () => {
+      const w = window.open(OAUTH_URL, 'yd_oauth', 'width=600,height=700');
+      if (!w) location.href = OAUTH_URL; // если попап заблокирован
+    });
+  }
+
+  // Получаем токен с oauth-callback.html
+  window.addEventListener('message', async (ev) => {
+    if (ev.origin !== TOKEN_ORIGIN) return;
+    const token = ev.data?.access_token;
+    if (!token) return;
+    try {
+      YD.setToken(token);
+      await YD.ensureLibrary();
+      await loadSettings();
+      AppState.connected = true;
+      showPage('todayPage');
+      toast('Авторизованы через Яндекс. Библиотека готова');
+      setupAutoSync();
+      await syncNow();
+    } catch (e) {
+      console.error(e);
+      toast('Ошибка после авторизации');
     }
   });
-})
-    .catch((err) => {
-      console.error(err);
-      toast('Не удалось инициализировать вход через Яндекс');
-    });
-}
+
 
   $('#bootstrapBtn').addEventListener('click', async () => {
     try{
