@@ -28,6 +28,11 @@ window.addEventListener('DOMContentLoaded', () => {
   bindClientsModal();
   bindSettings();
 
+  // Синхронизация при клике в любом месте
+  document.addEventListener('click', () => {
+    if (AppState.connected) syncNow();
+  });
+
   // Restore token -> auto enter
   const token = YD.getToken();
   if (token) {
@@ -36,7 +41,6 @@ window.addEventListener('DOMContentLoaded', () => {
     showPage('onboarding');
   }
 });
-
 // ---------- Tabs ----------
 function bindTabbar(){
   $$('.tabbar .tab').forEach(btn => {
@@ -553,3 +557,5 @@ async function fetchClientsFromDisk(){
   }
   return clients;
 }
+
+
