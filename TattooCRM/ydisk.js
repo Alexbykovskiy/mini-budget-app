@@ -92,6 +92,31 @@ async function ensureDir(path) {
   throw new Error('download failed: CORS');
 }
 
+// Универсальный вызов Cloud API
+async function yaApi(endpoint, { method='GET', params={}, headers={}, body=null } = {}) {
+  const url = new URL('https://cloud-api.yandex.net/v1/disk/' + endpoint);
+  Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
+  const res = await fetch(url.toString(), {
+    method,
+    headers: { 'Authorization': `OAuth ${TOKEN}`, ...headers },
+    body
+  });
+  if (!res.ok) {
+    const msg = await res.text().catch(()=>res.statusText);
+    throw new Error(`Yandex API ${res.status}: ${msg}`);
+  }
+  // некоторые PUT не возвращают json
+  try { return await res.json(); } catch { return {}; }
+}
+
+// Публикация папки и возврат публичной ссылки
+async function publishFolder(path) {
+  await yaApi('resources/publish', { method:'PUT', params:{ path } });
+  const meta = await yaApi('resources', { params:{ path } });
+  if (!meta.public_url) throw new Error('Нет public_url у опубликованной папки');
+  return meta.public_url;
+}
+
   async function getUploadUrl(path) {
     const url = `${API}/resources/upload?path=${encodeURIComponent(path)}&overwrite=true`;
     return await jfetch(url, { headers: authHeaders() }); // {href, method}

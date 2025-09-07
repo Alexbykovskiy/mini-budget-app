@@ -194,35 +194,65 @@ function renderToday(){
   sch.innerHTML = '';
   rem.innerHTML = '';
 
-  // простая витрина
   const today = new Date().toISOString().slice(0,10);
-  const items = [
-    { time:'09:00–13:00', title:'Иван Петров', type:'Сеанс' },
-    { time:'15:00–16:00', title:'Анастасия', type:'Консультация' },
-  ];
-  items.forEach(it => {
-    const el = document.createElement('div');
-    el.className='row card-client glass';
-    el.innerHTML = `<div><b>${it.time}</b> — ${it.title} <span class="badge">${it.type}</span></div>`;
-    sch.appendChild(el);
-  });
 
-  AppState.reminders.forEach(r => {
+  // показываем клиентов с назначенной датой на сегодня
+  const todays = (AppState.clients || [])
+    .filter(c => (c.nextDate || '').slice(0,10) === today)
+    .sort((a,b) => a.nextDate.localeCompare(b.nextDate));
+
+  if (!todays.length) {
+    const el = document.createElement('div');
+    el.className = 'row card-client glass';
+    el.textContent = 'На сегодня записей нет';
+    sch.appendChild(el);
+  } else {
+    todays.forEach(c => {
+      const time = c.nextDate.slice(11,16) || '';
+      const el = document.createElement('div');
+      el.className='row card-client glass';
+      el.innerHTML = `<div><b>${time ? time : '—'}</b> — ${c.displayName} <span class="badge">${c.status||'Сеанс'}</span></div>`;
+      sch.appendChild(el);
+    });
+  }
+
+  // напоминания, если будут — берём из AppState.reminders
+  (AppState.reminders || []).forEach(r => {
     const el = document.createElement('div');
     el.className='row card-client glass';
     el.innerHTML = `<div>🔔 <b>${r.date}</b> — ${r.title}</div>`;
     rem.appendChild(el);
   });
 }
-
 // ---------- Clients ----------
 function bindClientsModal(){
   $('#addClientBtn').addEventListener('click', () => openClientDialog());
-
+$('#fNextDate').value = c?.nextDate ? c.nextDate.slice(0,16) : '';
   $('#attachPhotosBtn').addEventListener('click', (e)=>{
     e.preventDefault();
     $('#photoInput').click();
-  });
+// Открыть папку клиента в интерфейсе Яндекс.Диска (без публикации)
+$('#openFolderBtn').addEventListener('click', () => {
+  const id = $('#clientDialog').dataset.id;
+  const ui = 'https://disk.yandex.ru/client/disk/' +
+             encodeURIComponent(`TattooCRM/clients/${id}/photos`);
+  window.open(ui, '_blank');
+});
+
+// Поделиться папкой: публикуем и копируем публичную ссылку в буфер
+$('#shareFolderBtn').addEventListener('click', async () => {
+  try{
+    const id = $('#clientDialog').dataset.id;
+    const ypath = `disk:/TattooCRM/clients/${id}/photos`;
+    const link = await YD.publishFolder(ypath);       // функция ниже в ydisk.js
+    await navigator.clipboard.writeText(link);
+    toast('Ссылка на папку скопирована в буфер');
+  }catch(e){
+    console.error(e);
+    toast('Не удалось получить публичную ссылку');
+  }
+});
+  
 
   $('#photoInput').addEventListener('change', async (e) => {
     const files = Array.from(e.target.files || []);
@@ -327,31 +357,31 @@ function openClientDialog(c = null){
 
 async function saveClientFromDialog(){
   const id = $('#clientDialog').dataset.id;
-  const c = {
-    id,
-    displayName: $('#fName').value.trim(),
-    phone: $('#fPhone').value.trim(),
-    link: $('#fLink').value.trim(),
-    source: $('#fSource').value,
-    first: $('#fFirst').value === 'true',
-    type: $('#fType').value,
-    styles: splitTags($('#fStyles').value),
-    zones: splitTags($('#fZones').value),
-    status: $('#fStatus').value,
-    qual: $('#fQual').value,
-    deposit: Number($('#fDeposit').value||0),
-    amount: Number($('#fAmount').value||0),
-    notes: $('#fNotes').value.trim(),
-    updatedAt: new Date().toISOString()
-  };
+  const client = {
+  id,
+  displayName: $('#fName').value.trim(),
+  phone: $('#fPhone').value.trim(),
+  link: $('#fLink').value.trim(),
+  source: $('#fSource').value.trim(),
+  first: $('#fFirst').checked,
+  type: $('#fType').value.trim(),
+  styles: splitTags($('#fStyles').value),
+  zones: splitTags($('#fZones').value),
+  status: $('#fStatus').value,
+  qual: $('#fQual').value,
+  deposit: Number($('#fDeposit').value || 0),
+  amount: Number($('#fAmount').value || 0),
+  notes: $('#fNotes').value.trim(),
+  nextDate: ($('#fNextDate').value || ''),           // <-- НОВОЕ
+  updatedAt: new Date().toISOString()
+};
 
-  // локально
-  const idx = AppState.clients.findIndex(x => x.id === id);
-  if (idx === -1) AppState.clients.push(c); else AppState.clients[idx] = c;
+// локально в список
+const i = AppState.clients.findIndex(x => x.id === id);
+if (i >= 0) AppState.clients[i] = client; else AppState.clients.push(client);
 
-  // диск: профиль и базовая структура
-  try{
-    await YD.createClientSkeleton(id, c);
+// на Диск
+await YD.putJSON(`disk:/TattooCRM/clients/${id}/profile.json`, client);
   }catch(e){
     console.warn('createClientSkeleton', e);
   }
@@ -503,13 +533,7 @@ function demoClients(){
      deposit:0, amount:0, notes:''}
   ];
 }
-function demoReminders(){
-  const d = new Date().toISOString().slice(0,10);
-  return [
-    {date:d, title:'Иван Петров — спросить, как зажило'},
-    {date:d, title:'Анастасия — уточнить эскиз'},
-  ];
-}
+function demoReminders(){ return []; }
 
 async function fetchClientsFromDisk(){
   const dir = await YD.list('disk:/TattooCRM/clients').catch(()=>null);
