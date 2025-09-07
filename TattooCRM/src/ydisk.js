@@ -1,4 +1,4 @@
-/* ydisk.js — REST API с токеном в URL (без CORS-префлайта) */
+/* ydisk.js — REST API, устойчиво к CORS и 401 в ping */
 const YD = (() => {
   const API = 'https://cloud-api.yandex.net/v1/disk';
 
@@ -6,8 +6,8 @@ const YD = (() => {
   function setToken(t){ if (t) localStorage.setItem('ydisk_token', t); }
   function clearToken(){ localStorage.removeItem('ydisk_token'); }
 
-  // Собираем URL с токеном
-  function u(path, qs = '') {
+  // URL с токеном (без preflight)
+  function urlWithToken(path, qs = '') {
     const sep = qs ? '&' : '';
     const token = getToken();
     if (!token) throw new Error('Нет OAuth-токена Яндекс.Диска');
@@ -15,12 +15,12 @@ const YD = (() => {
   }
 
   async function createDir(path){
-    const r = await fetch(u('/resources', `path=${encodeURIComponent(path)}`), { method: 'PUT' });
+    const r = await fetch(urlWithToken('/resources', `path=${encodeURIComponent(path)}`), { method: 'PUT' });
     if (![201,409].includes(r.status)) throw new Error(`Создание папки "${path}" не удалось (${r.status})`);
   }
 
   async function uploadBlob(path, blob){
-    const r1 = await fetch(u('/resources/upload', `path=${encodeURIComponent(path)}&overwrite=true`));
+    const r1 = await fetch(urlWithToken('/resources/upload', `path=${encodeURIComponent(path)}&overwrite=true`));
     if (!r1.ok) throw new Error(`Upload URL для "${path}" не выдан (${r1.status})`);
     const { href, method } = await r1.json();
     const r2 = await fetch(href, { method: method || 'PUT', body: blob });
@@ -33,7 +33,7 @@ const YD = (() => {
   }
 
   async function getJSON(path){
-    const r = await fetch(u('/resources/download', `path=${encodeURIComponent(path)}`));
+    const r = await fetch(urlWithToken('/resources/download', `path=${encodeURIComponent(path)}`));
     if (r.status === 404) return null;
     if (!r.ok) throw new Error(`Download URL для "${path}" не выдан (${r.status})`);
     const { href } = await r.json();
@@ -44,15 +44,28 @@ const YD = (() => {
   }
 
   async function list(path){
-    const r = await fetch(u('/resources', `path=${encodeURIComponent(path)}&limit=200`));
+    const r = await fetch(urlWithToken('/resources', `path=${encodeURIComponent(path)}&limit=200`));
     if (!r.ok) throw new Error(`LIST "${path}" не удался (${r.status})`);
-    return await r.json();
+    return await r.json(); // _embedded.items
   }
 
+  // ✔️ Починка: пробуем и URL-токен, и заголовок Authorization
   async function ping(){
-    const r = await fetch(u('/', 'fields=total_space,used_space'));
-    if (!r.ok) throw new Error(`Токен не принят (${r.status})`);
-    return await r.json();
+    // 1) токен в URL
+    let r = await fetch(urlWithToken('/', 'fields=total_space,used_space'));
+    if (r.ok) return await r.json();
+
+    // 2) при 401 — повтор через Authorization
+    if (r.status === 401) {
+      const t = getToken();
+      r = await fetch(`${API}/?fields=total_space,used_space`, {
+        headers: { 'Authorization': `OAuth ${t}` }
+      });
+      if (r.ok) return await r.json();
+    }
+
+    const text = await r.text().catch(()=> '');
+    throw new Error(`Токен не принят (${r.status}). ${text}`);
   }
 
   // High-level
@@ -66,6 +79,7 @@ const YD = (() => {
     await createDir(`${base}/supplies`);
     await createDir(`${base}/marketing`);
     await createDir(`${base}/exports`);
+
     const setPath = `${base}/settings.json`;
     const existing = await getJSON(setPath).catch(()=>null);
     if (!existing){
@@ -97,7 +111,9 @@ const YD = (() => {
 
   async function putFile(path, file){ await uploadBlob(path, file); }
 
-  return { getToken,setToken,clearToken,
-    ensureLibrary,createClientSkeleton,ensureSessionFolder,
-    putJSON,getJSON,putFile,list,ping };
+  return {
+    getToken, setToken, clearToken,
+    ensureLibrary, createClientSkeleton, ensureSessionFolder,
+    putJSON, getJSON, putFile, list, ping
+  };
 })();

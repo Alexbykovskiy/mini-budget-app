@@ -102,6 +102,7 @@ async function startWithDisk(){
     AppState.connected = true;
     showPage('todayPage');
     setupAutoSync();
+await syncNow();
     renderToday();
   }catch(e){
     console.warn('Auto connect failed', e);
@@ -118,17 +119,21 @@ async function loadSettings(){
 async function syncNow(){
   $('#syncBtnText').textContent = 'Синхронизация…';
   try{
-    // Здесь ты добавишь реальную загрузку клиентов/записей/напоминаний из индекс-файлов.
-    // Для MVP подгружаем демо, если пусто:
-    if (!AppState.clients.length) AppState.clients = demoClients();
-    if (!AppState.reminders.length) AppState.reminders = demoReminders();
+    // настройки — с Диска
+    await loadSettings();
+
+    // клиенты — с Диска
+    AppState.clients = await fetchClientsFromDisk();
+
+    // (напоминания/записи добьём позже — в этом MVP пусто)
+    AppState.reminders = AppState.reminders || [];
 
     renderToday();
     renderClients();
     toast('Синхронизировано');
   } catch(e){
     console.error(e);
-    toast('Ошибка синхронизации');
+    toast('Ошибка синхронизации: ' + (e?.message || 'неизвестно'));
   } finally {
     $('#syncBtnText').textContent = 'Синхронизировать';
   }
@@ -462,4 +467,18 @@ function demoReminders(){
     {date:d, title:'Иван Петров — спросить, как зажило'},
     {date:d, title:'Анастасия — уточнить эскиз'},
   ];
+}
+
+async function fetchClientsFromDisk(){
+  const dir = await YD.list('TattooCRM/clients').catch(()=>null);
+  const items = dir?._embedded?.items || [];
+  const clients = [];
+  // грузим profile.json из каждой папки-клиента
+  for (const it of items){
+    if (it.type === 'dir'){
+      const prof = await YD.getJSON(`TattooCRM/clients/${it.name}/profile.json`).catch(()=>null);
+      if (prof) clients.push(prof);
+    }
+  }
+  return clients;
 }
