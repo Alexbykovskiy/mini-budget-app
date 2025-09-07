@@ -8,8 +8,16 @@
 </head>
 <body>
 <script>
-  // Возвращаем токен на origin GitHub Pages
-  YaSendSuggestToken('https://alexbykovskiy.github.io', { app: 'TattooCRM' });
-</script>
-</body>
+  (function(){
+    const h = new URLSearchParams(location.hash.slice(1));
+    const token = h.get('access_token');
+    if (window.opener && token) {
+      window.opener.postMessage({ access_token: token }, 'https://alexbykovskiy.github.io');
+      window.close();
+    } else {
+      // fallback — вернуть в приложение
+      location.replace('https://alexbykovskiy.github.io/mini-budget-app/TattooCRM/');
+    }
+  })();
+</script></body>
 </html>
