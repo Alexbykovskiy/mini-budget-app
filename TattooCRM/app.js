@@ -163,27 +163,40 @@ async function loadSettings(){
 
 // ---------- Sync ----------
 async function syncNow(){
+  if (syncInProgress) return;
+  syncInProgress = true;
   $('#syncBtnText').textContent = 'Синхронизация…';
-  try{
-    // настройки — с Диска
+
+  try {
+    // настройки
     await loadSettings();
 
-    // клиенты — с Диска
-    AppState.clients = await fetchClientsFromDisk();
+    // клиенты
+    const fresh = await fetchClientsFromDisk();
 
-    // (напоминания/записи добьём позже — в этом MVP пусто)
-    AppState.reminders = AppState.reminders || [];
+    // вместо полного обнуления → обновляем
+    for (const fc of fresh) {
+      const i = AppState.clients.findIndex(c => c.id === fc.id);
+      if (i >= 0) {
+        // обновляем, если есть новые данные
+        AppState.clients[i] = { ...AppState.clients[i], ...fc };
+      } else {
+        AppState.clients.push(fc);
+      }
+    }
 
     renderToday();
     renderClients();
     toast('Синхронизировано');
-  } catch(e){
+  } catch(e) {
     console.error(e);
     toast('Ошибка синхронизации: ' + (e?.message || 'неизвестно'));
   } finally {
     $('#syncBtnText').textContent = 'Синхронизировать';
+    syncInProgress = false;
   }
 }
+
 
 function setupAutoSync(){
   clearInterval(AppState.autoSyncTimer);
