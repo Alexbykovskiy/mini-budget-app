@@ -83,6 +83,7 @@ function bindOnboarding(){
 }
   });
 
+
   // демо без диска
   $('#demoBtn').addEventListener('click', () => {
     AppState.connected = false;
@@ -94,6 +95,37 @@ function bindOnboarding(){
     renderClients();
   });
 }
+
+ // ---- Войти через Яндекс (OAuth через GitHub Pages) ----
+  const CLIENT_ID = '585ee292320847a79577540872e38b00'; // твой новый ClientID
+  const TOKEN_ORIGIN = 'https://alexbykovskiy.github.io';
+  const REDIRECT_URI  = 'https://alexbykovskiy.github.io/mini-budget-app/TattooCRM/oauth-callback.html';
+
+  if (window.YaAuthSuggest) {
+    window.YaAuthSuggest
+      .init(
+        { client_id: CLIENT_ID, response_type: 'token', redirect_uri: REDIRECT_URI },
+        TOKEN_ORIGIN,
+        { view: 'button', parentId: 'yandexLogin', buttonView: 'main', buttonSize: 'l', buttonTheme: 'light', buttonBorderRadius: 12 }
+      )
+      .then(({ handler }) => handler())
+      .then(async (data) => {
+        const token = data?.access_token;
+        if (!token) throw new Error('Нет access_token от Яндекса');
+        YD.setToken(token);
+        await YD.ensureLibrary();
+        await loadSettings();
+        AppState.connected = true;
+        showPage('todayPage');
+        toast('Авторизованы через Яндекс. Библиотека готова');
+        setupAutoSync();
+        renderToday();
+      })
+      .catch((err) => {
+        console.error(err);
+        toast('Не удалось авторизоваться через Яндекс');
+      });
+  }
 
 async function startWithDisk(){
   try{
@@ -111,7 +143,7 @@ await syncNow();
 }
 
 async function loadSettings(){
-  const s = await YD.getJSON('TattooCRM/settings.json');
+  const s = await YD.getJSON('disk:/TattooCRM/settings.json');
   AppState.settings = s || demoSettings();
 }
 
@@ -188,7 +220,7 @@ function bindClientsModal(){
     const id = $('#clientDialog').dataset.id;
     const day = await YD.ensureSessionFolder(id, new Date().toISOString());
     for (const f of files) {
-      await YD.putFile(`TattooCRM/clients/${id}/photos/${day}/${f.name}`, f);
+      await YD.putFile(`disk:/TattooCRM/clients/${id}/photos/${day}/${f.name}`, f);
     }
     toast(`Загружено: ${files.length} фото`);
     $('#photosEmptyNote').style.display = 'none';
@@ -425,7 +457,7 @@ async function saveSettings(){
   };
   AppState.settings = s;
   try{
-    await YD.putJSON('TattooCRM/settings.json', s);
+    await YD.putJSON('disk:/TattooCRM/settings.json', s);
     setupAutoSync();
     toast('Настройки сохранены');
   }catch(e){
@@ -470,13 +502,13 @@ function demoReminders(){
 }
 
 async function fetchClientsFromDisk(){
-  const dir = await YD.list('TattooCRM/clients').catch(()=>null);
+  const dir = await YD.list('disk:/TattooCRM/clients').catch(()=>null);
   const items = dir?._embedded?.items || [];
   const clients = [];
   // грузим profile.json из каждой папки-клиента
   for (const it of items){
     if (it.type === 'dir'){
-      const prof = await YD.getJSON(`TattooCRM/clients/${it.name}/profile.json`).catch(()=>null);
+      const prof = await YD.getJSON(`disk:/TattooCRM/clients/${it.name}/profile.json`).catch(()=>null);
       if (prof) clients.push(prof);
     }
   }
