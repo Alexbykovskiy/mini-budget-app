@@ -28,11 +28,7 @@ window.addEventListener('DOMContentLoaded', () => {
   bindClientsModal();
   bindSettings();
 
-  // Синхронизация при клике в любом месте
-  document.addEventListener('click', () => {
-    if (AppState.connected) syncNow();
-  });
-
+ 
   // Restore token -> auto enter
   const token = YD.getToken();
   if (token) {
