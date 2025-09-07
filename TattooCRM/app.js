@@ -20,6 +20,8 @@ const AppState = {
   autoSyncTimer: null
 };
 
+let syncInProgress = false;
+
 // ---------- Init ----------
 window.addEventListener('DOMContentLoaded', () => {
   bindTabbar();
@@ -410,14 +412,14 @@ async function saveClientFromDialog(){
     updatedAt: new Date().toISOString()
   };
 
-  // ⚡ обновляем локально сразу
+  // ⚡ локальное обновление
   const i = AppState.clients.findIndex(x => x.id === id);
   if (i >= 0) AppState.clients[i] = client;
   else AppState.clients.push(client);
 
   renderClients();
 
-  // 🚀 сохраняем на Диск
+  // 🚀 сохранение на Диск
   try {
     if (isNew) {
       await YD.createClientSkeleton(id, client);   // создаём папку + profile.json + photos

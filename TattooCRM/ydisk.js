@@ -71,10 +71,9 @@ async function ensureDir(path) {
     return href;
   }
 
- async function getJSON(path) {
-  const href = await getDownloadUrl(path); // ссылка на downloader.disk.yandex.ru
+async function getJSON(path) {
+  const href = await getDownloadUrl(path);
   const tries = [
-    href, // прямой (скорее всего CORS заблокирует — пойдём дальше)
     'https://cors.isomorphic-git.org/' + href,
     'https://api.allorigins.win/raw?url=' + encodeURIComponent(href),
     'https://thingproxy.freeboard.io/fetch/' + href,
@@ -91,7 +90,6 @@ async function ensureDir(path) {
   }
   throw new Error('download failed: CORS');
 }
-
 // Универсальный вызов Cloud API
 async function yaApi(endpoint, { method='GET', params={}, headers={}, body=null } = {}) {
   const url = new URL('https://cloud-api.yandex.net/v1/disk/' + endpoint);
