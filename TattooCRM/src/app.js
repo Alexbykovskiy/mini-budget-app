@@ -79,7 +79,7 @@ function bindOnboarding(){
       )
       // Если хочешь, чтобы попап открывался сам — оставь handler(); 
       // если по клику на кнопку — УДАЛИ следующую строку:
-      .then(({ handler }) => handler())
+      .then(() => {/* рендерим кнопку, запуск по клику */})
       .then(async (data) => {
         const token = data?.access_token;
         if (!token) throw new Error('Нет access_token от Яндекса');
