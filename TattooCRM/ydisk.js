@@ -51,6 +51,7 @@ const YD = (() => {
     return await jfetch(url, { headers: authHeaders() }); // returns meta with _embedded.items
   }
 
+
 // создаёт папку только если её нет (убирает 409 в консоли)
 async function ensureDir(path) {
   try {
@@ -71,17 +72,24 @@ async function ensureDir(path) {
   }
 
  async function getJSON(path) {
-  try {
-    const href = await getDownloadUrl(path);        // даёт ссылку на downloader.disk.yandex.ru
-    const proxied = CORS_PROXY + encodeURIComponent(href);
-    const r = await fetch(proxied);                 // читаем через прокси
-    if (r.status === 404) return null;
-    if (!r.ok) throw new Error(`download ${r.status}`);
-    return await r.json();
-  } catch (e) {
-    if (String(e).includes('404')) return null;
-    throw e;
+  const href = await getDownloadUrl(path); // ссылка на downloader.disk.yandex.ru
+  const tries = [
+    href, // прямой (скорее всего CORS заблокирует — пойдём дальше)
+    'https://cors.isomorphic-git.org/' + href,
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent(href),
+    'https://thingproxy.freeboard.io/fetch/' + href,
+  ];
+  for (const u of tries) {
+    try {
+      const r = await fetch(u);
+      if (r.status === 404) return null;
+      if (!r.ok) throw new Error(`download ${r.status}`);
+      return await r.json();
+    } catch (e) {
+      // пробуем следующий
+    }
   }
+  throw new Error('download failed: CORS');
 }
 
   async function getUploadUrl(path) {
