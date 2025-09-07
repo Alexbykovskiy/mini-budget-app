@@ -3,6 +3,10 @@
    — Авторизация только заголовком Authorization: OAuth <token>.
    — Подписанные ссылки для upload/download без заголовка (как требует API).
 */
+
+// ⚠️ на проде лучше заменить на свой Cloudflare Worker
+const CORS_PROXY = 'https://cors.isomorphic-git.org/';
+
 const YD = (() => {
   const API = 'https://cloud-api.yandex.net/v1/disk';
   const ROOT = 'disk:/TattooCRM';
@@ -53,19 +57,19 @@ const YD = (() => {
     return href;
   }
 
-  async function getJSON(path) {
-    try {
-      const href = await getDownloadUrl(path);
-      const r = await fetch(href);
-      if (r.status === 404) return null;
-      if (!r.ok) throw new Error(`download ${r.status}`);
-      return await r.json();
-    } catch (e) {
-      // 404 на этапе выдачи ссылки
-      if (String(e).includes('404')) return null;
-      throw e;
-    }
+ async function getJSON(path) {
+  try {
+    const href = await getDownloadUrl(path);        // даёт ссылку на downloader.disk.yandex.ru
+    const proxied = CORS_PROXY + encodeURIComponent(href);
+    const r = await fetch(proxied);                 // читаем через прокси
+    if (r.status === 404) return null;
+    if (!r.ok) throw new Error(`download ${r.status}`);
+    return await r.json();
+  } catch (e) {
+    if (String(e).includes('404')) return null;
+    throw e;
   }
+}
 
   async function getUploadUrl(path) {
     const url = `${API}/resources/upload?path=${encodeURIComponent(path)}&overwrite=true`;
