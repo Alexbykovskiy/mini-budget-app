@@ -4,19 +4,16 @@
   <meta charset="utf-8">
   <title>Авторизация…</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  </head>
+</head>
 <body>
-<script>
-  (function(){
-    const h = new URLSearchParams(location.hash.slice(1));
-    const token = h.get('access_token');
-    if (window.opener && token) {
-      window.opener.postMessage({ access_token: token }, 'https://alexbykovskiy.github.io');
-      window.close();
-    } else {
-      // fallback — вернуть в приложение
-      location.replace('https://alexbykovskiy.github.io/mini-budget-app/TattooCRM/');
-    }
-  })();
-</script></body>
+  <p style="font-family:sans-serif; text-align:center; margin-top:40px;">
+    Возврат в приложение…
+  </p>
+  <script>
+    // Этот файл используется как заглушка.
+    // Для Firebase Auth он не нужен, так как signInWithPopup работает напрямую.
+    // Если пользователь сюда попал случайно — вернём на главную страницу.
+    location.replace('./index.html');
+  </script>
+</body>
 </html>
