@@ -389,7 +389,8 @@ async function saveClientFromDialog(){
   const nameForFolder = ($('#fName').value.trim() || 'Без_имени').replace(/\s+/g,'_');
 
   // если новый клиент — создаём id с именем
-  if (!id || !id.startsWith('cl_')) {
+  const isNew = !id || !id.startsWith('cl_');
+  if (isNew) {
     id = `cl_${crypto.randomUUID().slice(0,8)}__${nameForFolder}`;
     $('#clientDialog').dataset.id = id;
   }
@@ -418,15 +419,20 @@ async function saveClientFromDialog(){
   if (i >= 0) AppState.clients[i] = client;
   else AppState.clients.push(client);
 
-  renderClients();   // мгновенное обновление в UI
+  renderClients();
 
-  // 🚀 сохраняем на Диск в фоне
-  YD.putJSON(`disk:/TattooCRM/clients/${id}/profile.json`, client)
-    .then(()=> toast('Сохранено на Диск'))
-    .catch(e=>{
-      console.warn('saveClientFromDialog', e);
-      toast('Не удалось сохранить на Диск');
-    });
+  // 🚀 сохраняем на Диск
+  try {
+    if (isNew) {
+      await YD.createClientSkeleton(id, client);
+    } else {
+      await YD.putJSON(`disk:/TattooCRM/clients/${id}/profile.json`, client);
+    }
+    toast('Сохранено на Диск');
+  } catch(e) {
+    console.warn('saveClientFromDialog', e);
+    toast('Не удалось сохранить на Диск');
+  }
 
   $('#clientDialog').close();
 }
