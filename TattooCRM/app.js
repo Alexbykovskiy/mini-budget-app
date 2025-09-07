@@ -239,7 +239,15 @@ function bindClientsModal(){
 
   // Открыть папку клиента в интерфейсе Яндекс.Диска (без публикации)
   $('#openFolderBtn').addEventListener('click', () => {
-    const id = $('#clientDialog').dataset.id;
+    let id = $('#clientDialog').dataset.id;
+const nameForFolder = ($('#fName').value.trim() || 'Без_имени').replace(/\s+/g,'_');
+
+if (!id.startsWith('cl_')) {
+  // новый клиент → создаём id
+  id = `cl_${crypto.randomUUID().slice(0,8)}__${nameForFolder}`;
+  $('#clientDialog').dataset.id = id;
+}
+
     const ui = 'https://disk.yandex.ru/client/disk/' +
                encodeURIComponent(`TattooCRM/clients/${id}/photos`);
     window.open(ui, '_blank');
@@ -362,42 +370,52 @@ function openClientDialog(c = null){
 }
 
 async function saveClientFromDialog(){
-  const id = $('#clientDialog').dataset.id;
+  let id = $('#clientDialog').dataset.id;
+
+  // имя для папки (Алексей Быковский -> Алексей_Быковский)
+  const nameForFolder = ($('#fName').value.trim() || 'Без_имени').replace(/\s+/g,'_');
+
+  // если новый клиент — создаём id с именем
+  if (!id || !id.startsWith('cl_')) {
+    id = `cl_${crypto.randomUUID().slice(0,8)}__${nameForFolder}`;
+    $('#clientDialog').dataset.id = id;
+  }
+
   const client = {
-  id,
-  displayName: $('#fName').value.trim(),
-  phone: $('#fPhone').value.trim(),
-  link: $('#fLink').value.trim(),
-  source: $('#fSource').value.trim(),
-  first: $('#fFirst').checked,
-  type: $('#fType').value.trim(),
-  styles: splitTags($('#fStyles').value),
-  zones: splitTags($('#fZones').value),
-  status: $('#fStatus').value,
-  qual: $('#fQual').value,
-  deposit: Number($('#fDeposit').value || 0),
-  amount: Number($('#fAmount').value || 0),
-  notes: $('#fNotes').value.trim(),
-  nextDate: ($('#fNextDate').value || ''),           // <-- НОВОЕ
-  updatedAt: new Date().toISOString()
-};
+    id,
+    displayName: $('#fName').value.trim(),
+    phone: $('#fPhone').value.trim(),
+    link: $('#fLink').value.trim(),
+    source: $('#fSource').value.trim(),
+    first: $('#fFirst').checked,
+    type: $('#fType').value.trim(),
+    styles: splitTags($('#fStyles').value),
+    zones: splitTags($('#fZones').value),
+    status: $('#fStatus').value,
+    qual: $('#fQual').value,
+    deposit: Number($('#fDeposit').value || 0),
+    amount: Number($('#fAmount').value || 0),
+    notes: $('#fNotes').value.trim(),
+    nextDate: ($('#fNextDate').value || ''),
+    updatedAt: new Date().toISOString()
+  };
 
-try{
-  // локально в список
+  // ⚡ обновляем локально сразу
   const i = AppState.clients.findIndex(x => x.id === id);
-  if (i >= 0) AppState.clients[i] = client; else AppState.clients.push(client);
+  if (i >= 0) AppState.clients[i] = client;
+  else AppState.clients.push(client);
 
-  // на Диск
-  await YD.putJSON(`disk:/TattooCRM/clients/${id}/profile.json`, client);
-}catch(e){
-  console.warn('saveClientFromDialog', e);
-  toast('Не удалось сохранить клиента на Диск');
-}
+  renderClients();   // мгновенное обновление в UI
 
-toast('Сохранено');
-$('#clientDialog').close();
-renderClients();
+  // 🚀 сохраняем на Диск в фоне
+  YD.putJSON(`disk:/TattooCRM/clients/${id}/profile.json`, client)
+    .then(()=> toast('Сохранено на Диск'))
+    .catch(e=>{
+      console.warn('saveClientFromDialog', e);
+      toast('Не удалось сохранить на Диск');
+    });
 
+  $('#clientDialog').close();
 }
 
 async function deleteClientFromDialog(){
@@ -548,14 +566,30 @@ async function fetchClientsFromDisk(){
   const dir = await YD.list('disk:/TattooCRM/clients').catch(()=>null);
   const items = dir?._embedded?.items || [];
   const clients = [];
-  // грузим profile.json из каждой папки-клиента
+
   for (const it of items){
-    if (it.type === 'dir'){
-      const prof = await YD.getJSON(`disk:/TattooCRM/clients/${it.name}/profile.json`).catch(()=>null);
-      if (prof) clients.push(prof);
+    if (it.type !== 'dir') continue;
+
+    const id = it.name;
+    let displayName = id;
+    if (id.includes('__')) {
+      displayName = decodeURIComponent(id.split('__')[1]).replace(/_/g, ' ');
     }
+
+    // placeholder клиент
+    const placeholder = { id, displayName, status: '...', amount: 0 };
+    clients.push(placeholder);
+
+    // грузим профиль.json в фоне
+    YD.getJSON(`disk:/TattooCRM/clients/${id}/profile.json`).then(prof=>{
+      if (prof) {
+        const idx = AppState.clients.findIndex(c=>c.id===id);
+        if (idx >= 0) AppState.clients[idx] = prof;
+        else AppState.clients.push(prof);
+        renderClients();
+      }
+    }).catch(()=>{});
   }
+
   return clients;
 }
-
-
