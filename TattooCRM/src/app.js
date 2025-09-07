@@ -77,10 +77,10 @@ function bindOnboarding(){
       toast('Библиотека готова');
       setupAutoSync();
       renderToday();
-    }catch(e){
-      console.error(e);
-      toast('Ошибка запуска: проверьте токен');
-    }
+   } catch(e){
+  console.error(e);
+  toast('Ошибка запуска: ' + (e?.message || 'неизвестно'));
+}
   });
 
   // демо без диска
