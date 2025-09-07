@@ -28,11 +28,6 @@ window.addEventListener('DOMContentLoaded', () => {
   bindClientsModal();
   bindSettings();
 
-  // Синхронизация при клике в любом месте
-  document.addEventListener('click', () => {
-    if (AppState.connected) syncNow();
-  });
-
   // Restore token -> auto enter
   const token = YD.getToken();
   if (token) {
@@ -41,6 +36,7 @@ window.addEventListener('DOMContentLoaded', () => {
     showPage('onboarding');
   }
 });
+
 // ---------- Tabs ----------
 function bindTabbar(){
   $$('.tabbar .tab').forEach(btn => {
@@ -69,44 +65,6 @@ function bindHeader(){
 
 // ---------- Onboarding ----------
 function bindOnboarding(){
-  // --- Войти через Яндекс без SDK (чистый OAuth) ---
-  const CLIENT_ID    = '585ee292320847a79577540872e38b00';
-  const TOKEN_ORIGIN = 'https://alexbykovskiy.github.io';
-  const REDIRECT_URI = 'https://alexbykovskiy.github.io/mini-budget-app/TattooCRM/oauth-callback.html';
-  const OAUTH_URL =
-    `https://oauth.yandex.ru/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
-
-  // Рисуем нашу кнопку
-  const yroot = document.getElementById('yandexLogin');
-  if (yroot) {
-    yroot.innerHTML = '<button class="btn primary w-100">Войти с Яндекс ID</button>';
-    yroot.querySelector('button').addEventListener('click', () => {
-      const w = window.open(OAUTH_URL, 'yd_oauth', 'width=600,height=700');
-      if (!w) location.href = OAUTH_URL; // если попап заблокирован
-    });
-  }
-
-  // Получаем токен с oauth-callback.html
-  window.addEventListener('message', async (ev) => {
-    if (ev.origin !== TOKEN_ORIGIN) return;
-    const token = ev.data?.access_token;
-    if (!token) return;
-    try {
-      YD.setToken(token);
-      await YD.ensureLibrary();
-      await loadSettings();
-      AppState.connected = true;
-      showPage('todayPage');
-      toast('Авторизованы через Яндекс. Библиотека готова');
-      setupAutoSync();
-      await syncNow();
-    } catch (e) {
-      console.error(e);
-      toast('Ошибка после авторизации');
-    }
-  });
-
-
   $('#bootstrapBtn').addEventListener('click', async () => {
     try{
       const token = $('#ydToken').value.trim();
@@ -119,12 +77,11 @@ function bindOnboarding(){
       toast('Библиотека готова');
       setupAutoSync();
       renderToday();
-   } catch(e){
-  console.error(e);
-  toast('Ошибка запуска: ' + (e?.message || 'неизвестно'));
-}
+    }catch(e){
+      console.error(e);
+      toast('Ошибка запуска: проверьте токен');
+    }
   });
-
 
   // демо без диска
   $('#demoBtn').addEventListener('click', () => {
@@ -138,7 +95,6 @@ function bindOnboarding(){
   });
 }
 
-
 async function startWithDisk(){
   try{
     await YD.ensureLibrary();
@@ -146,7 +102,6 @@ async function startWithDisk(){
     AppState.connected = true;
     showPage('todayPage');
     setupAutoSync();
-await syncNow();
     renderToday();
   }catch(e){
     console.warn('Auto connect failed', e);
@@ -155,31 +110,25 @@ await syncNow();
 }
 
 async function loadSettings(){
-  const s = await YD.getJSON('disk:/TattooCRM/settings.json');
+  const s = await YD.getJSON('TattooCRM/settings.json');
   AppState.settings = s || demoSettings();
 }
-
-
 
 // ---------- Sync ----------
 async function syncNow(){
   $('#syncBtnText').textContent = 'Синхронизация…';
   try{
-    // настройки — с Диска
-    await loadSettings();
-
-    // клиенты — с Диска
-    AppState.clients = await fetchClientsFromDisk();
-
-    // (напоминания/записи добьём позже — в этом MVP пусто)
-    AppState.reminders = AppState.reminders || [];
+    // Здесь ты добавишь реальную загрузку клиентов/записей/напоминаний из индекс-файлов.
+    // Для MVP подгружаем демо, если пусто:
+    if (!AppState.clients.length) AppState.clients = demoClients();
+    if (!AppState.reminders.length) AppState.reminders = demoReminders();
 
     renderToday();
     renderClients();
     toast('Синхронизировано');
   } catch(e){
     console.error(e);
-    toast('Ошибка синхронизации: ' + (e?.message || 'неизвестно'));
+    toast('Ошибка синхронизации');
   } finally {
     $('#syncBtnText').textContent = 'Синхронизировать';
   }
@@ -198,36 +147,27 @@ function renderToday(){
   sch.innerHTML = '';
   rem.innerHTML = '';
 
+  // простая витрина
   const today = new Date().toISOString().slice(0,10);
-
-  // показываем клиентов с назначенной датой на сегодня
-  const todays = (AppState.clients || [])
-    .filter(c => (c.nextDate || '').slice(0,10) === today)
-    .sort((a,b) => a.nextDate.localeCompare(b.nextDate));
-
-  if (!todays.length) {
+  const items = [
+    { time:'09:00–13:00', title:'Иван Петров', type:'Сеанс' },
+    { time:'15:00–16:00', title:'Анастасия', type:'Консультация' },
+  ];
+  items.forEach(it => {
     const el = document.createElement('div');
-    el.className = 'row card-client glass';
-    el.textContent = 'На сегодня записей нет';
+    el.className='row card-client glass';
+    el.innerHTML = `<div><b>${it.time}</b> — ${it.title} <span class="badge">${it.type}</span></div>`;
     sch.appendChild(el);
-  } else {
-    todays.forEach(c => {
-      const time = c.nextDate.slice(11,16) || '';
-      const el = document.createElement('div');
-      el.className='row card-client glass';
-      el.innerHTML = `<div><b>${time ? time : '—'}</b> — ${c.displayName} <span class="badge">${c.status||'Сеанс'}</span></div>`;
-      sch.appendChild(el);
-    });
-  }
+  });
 
-  // напоминания, если будут — берём из AppState.reminders
-  (AppState.reminders || []).forEach(r => {
+  AppState.reminders.forEach(r => {
     const el = document.createElement('div');
     el.className='row card-client glass';
     el.innerHTML = `<div>🔔 <b>${r.date}</b> — ${r.title}</div>`;
     rem.appendChild(el);
   });
 }
+
 // ---------- Clients ----------
 function bindClientsModal(){
   $('#addClientBtn').addEventListener('click', () => openClientDialog());
@@ -235,28 +175,6 @@ function bindClientsModal(){
   $('#attachPhotosBtn').addEventListener('click', (e)=>{
     e.preventDefault();
     $('#photoInput').click();
-  }); // ← закрыли обработчик клика
-
-  // Открыть папку клиента в интерфейсе Яндекс.Диска (без публикации)
-  $('#openFolderBtn').addEventListener('click', () => {
-    const id = $('#clientDialog').dataset.id;
-    const ui = 'https://disk.yandex.ru/client/disk/' +
-               encodeURIComponent(`TattooCRM/clients/${id}/photos`);
-    window.open(ui, '_blank');
-  });
-
-  // Поделиться папкой
-  $('#shareFolderBtn').addEventListener('click', async () => {
-    try{
-      const id = $('#clientDialog').dataset.id;
-      const ypath = `disk:/TattooCRM/clients/${id}/photos`;
-      const link = await YD.publishFolder(ypath);
-      await navigator.clipboard.writeText(link);
-      toast('Ссылка на папку скопирована в буфер');
-    }catch(e){
-      console.error(e);
-      toast('Не удалось получить публичную ссылку');
-    }
   });
 
   $('#photoInput').addEventListener('change', async (e) => {
@@ -265,7 +183,7 @@ function bindClientsModal(){
     const id = $('#clientDialog').dataset.id;
     const day = await YD.ensureSessionFolder(id, new Date().toISOString());
     for (const f of files) {
-      await YD.putFile(`disk:/TattooCRM/clients/${id}/photos/${day}/${f.name}`, f);
+      await YD.putFile(`TattooCRM/clients/${id}/photos/${day}/${f.name}`, f);
     }
     toast(`Загружено: ${files.length} фото`);
     $('#photosEmptyNote').style.display = 'none';
@@ -274,7 +192,6 @@ function bindClientsModal(){
   $('#saveClientBtn').addEventListener('click', saveClientFromDialog);
   $('#deleteClientBtn').addEventListener('click', deleteClientFromDialog);
 }
-
 
 function renderClients(){
   const wrap = $('#clientsList');
@@ -294,10 +211,11 @@ function renderClients(){
   }
 
   // фильтрация
-  let arr = [...AppState.clients];     // ← вот так
+  let arr = [...AppState.clients];
   if (term) arr = arr.filter(c => [c.displayName,c.phone,(c.styles||[]).join(',')].join(' ').toLowerCase().includes(term));
   if (src)  arr = arr.filter(c => c.source === src);
   if (st)   arr = arr.filter(c => c.status === st);
+
   // карточки
   arr.forEach(c=>{
     const card = document.createElement('div');
@@ -353,8 +271,7 @@ function openClientDialog(c = null){
   $('#fDeposit').value= c?.deposit || '';
   $('#fAmount').value = c?.amount || '';
   $('#fNotes').value  = c?.notes || '';
-// ↓ добавьте вот это:
-  $('#fNextDate').value = c?.nextDate ? c.nextDate.slice(0,16) : '';
+
   // фото-пусто
   $('#photosEmptyNote').style.display = 'block';
 
@@ -363,41 +280,38 @@ function openClientDialog(c = null){
 
 async function saveClientFromDialog(){
   const id = $('#clientDialog').dataset.id;
-  const client = {
-  id,
-  displayName: $('#fName').value.trim(),
-  phone: $('#fPhone').value.trim(),
-  link: $('#fLink').value.trim(),
-  source: $('#fSource').value.trim(),
-  first: $('#fFirst').checked,
-  type: $('#fType').value.trim(),
-  styles: splitTags($('#fStyles').value),
-  zones: splitTags($('#fZones').value),
-  status: $('#fStatus').value,
-  qual: $('#fQual').value,
-  deposit: Number($('#fDeposit').value || 0),
-  amount: Number($('#fAmount').value || 0),
-  notes: $('#fNotes').value.trim(),
-  nextDate: ($('#fNextDate').value || ''),           // <-- НОВОЕ
-  updatedAt: new Date().toISOString()
-};
+  const c = {
+    id,
+    displayName: $('#fName').value.trim(),
+    phone: $('#fPhone').value.trim(),
+    link: $('#fLink').value.trim(),
+    source: $('#fSource').value,
+    first: $('#fFirst').value === 'true',
+    type: $('#fType').value,
+    styles: splitTags($('#fStyles').value),
+    zones: splitTags($('#fZones').value),
+    status: $('#fStatus').value,
+    qual: $('#fQual').value,
+    deposit: Number($('#fDeposit').value||0),
+    amount: Number($('#fAmount').value||0),
+    notes: $('#fNotes').value.trim(),
+    updatedAt: new Date().toISOString()
+  };
 
-try{
-  // локально в список
-  const i = AppState.clients.findIndex(x => x.id === id);
-  if (i >= 0) AppState.clients[i] = client; else AppState.clients.push(client);
+  // локально
+  const idx = AppState.clients.findIndex(x => x.id === id);
+  if (idx === -1) AppState.clients.push(c); else AppState.clients[idx] = c;
 
-  // на Диск
-  await YD.putJSON(`disk:/TattooCRM/clients/${id}/profile.json`, client);
-}catch(e){
-  console.warn('saveClientFromDialog', e);
-  toast('Не удалось сохранить клиента на Диск');
-}
+  // диск: профиль и базовая структура
+  try{
+    await YD.createClientSkeleton(id, c);
+  }catch(e){
+    console.warn('createClientSkeleton', e);
+  }
 
-toast('Сохранено');
-$('#clientDialog').close();
-renderClients();
-
+  toast('Сохранено');
+  $('#clientDialog').close();
+  renderClients();
 }
 
 async function deleteClientFromDialog(){
@@ -506,7 +420,7 @@ async function saveSettings(){
   };
   AppState.settings = s;
   try{
-    await YD.putJSON('disk:/TattooCRM/settings.json', s);
+    await YD.putJSON('TattooCRM/settings.json', s);
     setupAutoSync();
     toast('Настройки сохранены');
   }catch(e){
@@ -542,20 +456,10 @@ function demoClients(){
      deposit:0, amount:0, notes:''}
   ];
 }
-function demoReminders(){ return []; }
-
-async function fetchClientsFromDisk(){
-  const dir = await YD.list('disk:/TattooCRM/clients').catch(()=>null);
-  const items = dir?._embedded?.items || [];
-  const clients = [];
-  // грузим profile.json из каждой папки-клиента
-  for (const it of items){
-    if (it.type === 'dir'){
-      const prof = await YD.getJSON(`disk:/TattooCRM/clients/${it.name}/profile.json`).catch(()=>null);
-      if (prof) clients.push(prof);
-    }
-  }
-  return clients;
+function demoReminders(){
+  const d = new Date().toISOString().slice(0,10);
+  return [
+    {date:d, title:'Иван Петров — спросить, как зажило'},
+    {date:d, title:'Анастасия — уточнить эскиз'},
+  ];
 }
-
-
