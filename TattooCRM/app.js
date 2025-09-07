@@ -394,6 +394,8 @@ toast('Сохранено');
 $('#clientDialog').close();
 renderClients();
 
+}
+
 async function deleteClientFromDialog(){
   // Для MVP: просто скрыть (реальное удаление через WebDAV DELETE можно добавить позже)
   const id = $('#clientDialog').dataset.id;
