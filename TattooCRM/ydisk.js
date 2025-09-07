@@ -98,14 +98,13 @@ async function yaApi(endpoint, { method='GET', params={}, headers={}, body=null 
   Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
   const res = await fetch(url.toString(), {
     method,
-    headers: { 'Authorization': `OAuth ${TOKEN}`, ...headers },
+    headers: { ...authHeaders(), ...headers },   // ← используем твой authHeaders()
     body
   });
   if (!res.ok) {
     const msg = await res.text().catch(()=>res.statusText);
     throw new Error(`Yandex API ${res.status}: ${msg}`);
   }
-  // некоторые PUT не возвращают json
   try { return await res.json(); } catch { return {}; }
 }
 

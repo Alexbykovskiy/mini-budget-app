@@ -254,7 +254,7 @@ $('#shareFolderBtn').addEventListener('click', async () => {
 });
   
 
-  $('#photoInput').addEventListener('change', async (e) => {
+   $('#photoInput').addEventListener('change', async (e) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
     const id = $('#clientDialog').dataset.id;
@@ -263,7 +263,7 @@ $('#shareFolderBtn').addEventListener('click', async () => {
       await YD.putFile(`disk:/TattooCRM/clients/${id}/photos/${day}/${f.name}`, f);
     }
     toast(`Загружено: ${files.length} фото`);
-    $('#photosEmptyNote').style.display = 'none';
+    $('#photosEmptyNote').style.display = 'none';   // ← вот этой строки не хватало
   });
 
   $('#saveClientBtn').addEventListener('click', saveClientFromDialog);
@@ -288,11 +288,10 @@ function renderClients(){
   }
 
   // фильтрация
-  let arr = [...AppState.clients];
+  let arr = [...AppState.clients];     // ← вот так
   if (term) arr = arr.filter(c => [c.displayName,c.phone,(c.styles||[]).join(',')].join(' ').toLowerCase().includes(term));
   if (src)  arr = arr.filter(c => c.source === src);
   if (st)   arr = arr.filter(c => c.status === st);
-
   // карточки
   arr.forEach(c=>{
     const card = document.createElement('div');
