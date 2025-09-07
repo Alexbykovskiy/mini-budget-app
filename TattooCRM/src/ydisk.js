@@ -1,115 +1,134 @@
-/* ydisk.js — REST API, устойчиво к CORS и 401 в ping */
+/* ydisk.js — REST API Яндекс.Диска
+   — Всегда используем path с префиксом `disk:/...`.
+   — Авторизация только заголовком Authorization: OAuth <token>.
+   — Подписанные ссылки для upload/download без заголовка (как требует API).
+*/
 const YD = (() => {
   const API = 'https://cloud-api.yandex.net/v1/disk';
+  const ROOT = 'disk:/TattooCRM';
 
-  function getToken(){ return localStorage.getItem('ydisk_token') || ''; }
-  function setToken(t){ if (t) localStorage.setItem('ydisk_token', t); }
-  function clearToken(){ localStorage.removeItem('ydisk_token'); }
+  // ---- token store ----
+  const getToken = () => localStorage.getItem('ydisk_token') || '';
+  const setToken = (t) => t && localStorage.setItem('ydisk_token', t);
+  const clearToken = () => localStorage.removeItem('ydisk_token');
 
-  // URL с токеном (без preflight)
-  function urlWithToken(path, qs = '') {
-    const sep = qs ? '&' : '';
-    const token = getToken();
-    if (!token) throw new Error('Нет OAuth-токена Яндекс.Диска');
-    return `${API}${path}?${qs}${sep}oauth_token=${encodeURIComponent(token)}`;
+  const authHeaders = () => {
+    const t = getToken();
+    if (!t) throw new Error('Нет OAuth-токена Яндекс.Диска');
+    return { 'Authorization': `OAuth ${t}`, 'Accept': 'application/json' };
+  };
+
+  // small fetch helper with better errors
+  async function jfetch(url, opts = {}) {
+    const r = await fetch(url, opts);
+    if (!r.ok) {
+      let msg = '';
+      try { const e = await r.json(); msg = (e.description || e.message || JSON.stringify(e)); }
+      catch { msg = await r.text().catch(()=> ''); }
+      throw new Error(`${r.status}: ${msg}`);
+    }
+    if (r.status === 204) return null;
+    return await r.json();
   }
 
-  async function createDir(path){
-    const r = await fetch(urlWithToken('/resources', `path=${encodeURIComponent(path)}`), { method: 'PUT' });
-    if (![201,409].includes(r.status)) throw new Error(`Создание папки "${path}" не удалось (${r.status})`);
+  // ---- base ops ----
+  async function createDir(path) {
+    const url = `${API}/resources?path=${encodeURIComponent(path)}`;
+    const r = await fetch(url, { method: 'PUT', headers: authHeaders() });
+    if (![201,409].includes(r.status)) {
+      let t = '';
+      try { const e = await r.json(); t = e.description || e.message || JSON.stringify(e); } catch {}
+      throw new Error(`${r.status}: ${t || 'createDir failed'}`);
+    }
   }
 
-  async function uploadBlob(path, blob){
-    const r1 = await fetch(urlWithToken('/resources/upload', `path=${encodeURIComponent(path)}&overwrite=true`));
-    if (!r1.ok) throw new Error(`Upload URL для "${path}" не выдан (${r1.status})`);
-    const { href, method } = await r1.json();
-    const r2 = await fetch(href, { method: method || 'PUT', body: blob });
-    if (!r2.ok) throw new Error(`Загрузка "${path}" не удалась (${r2.status})`);
+  async function list(path) {
+    const url = `${API}/resources?path=${encodeURIComponent(path)}&limit=1000`;
+    return await jfetch(url, { headers: authHeaders() }); // returns meta with _embedded.items
   }
 
-  async function putJSON(path, obj){
-    const blob = new Blob([JSON.stringify(obj,null,2)], { type:'application/json' });
+  async function getDownloadUrl(path) {
+    const url = `${API}/resources/download?path=${encodeURIComponent(path)}`;
+    const { href } = await jfetch(url, { headers: authHeaders() });
+    return href;
+  }
+
+  async function getJSON(path) {
+    try {
+      const href = await getDownloadUrl(path);
+      const r = await fetch(href);
+      if (r.status === 404) return null;
+      if (!r.ok) throw new Error(`download ${r.status}`);
+      return await r.json();
+    } catch (e) {
+      // 404 на этапе выдачи ссылки
+      if (String(e).includes('404')) return null;
+      throw e;
+    }
+  }
+
+  async function getUploadUrl(path) {
+    const url = `${API}/resources/upload?path=${encodeURIComponent(path)}&overwrite=true`;
+    return await jfetch(url, { headers: authHeaders() }); // {href, method}
+  }
+
+  async function uploadBlob(path, blob) {
+    const { href, method } = await getUploadUrl(path);
+    const r = await fetch(href, { method: method || 'PUT', body: blob });
+    if (!r.ok) {
+      const t = await r.text().catch(()=> '');
+      throw new Error(`upload ${r.status}: ${t}`);
+    }
+  }
+
+  async function putJSON(path, data) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     await uploadBlob(path, blob);
   }
 
-  async function getJSON(path){
-    const r = await fetch(urlWithToken('/resources/download', `path=${encodeURIComponent(path)}`));
-    if (r.status === 404) return null;
-    if (!r.ok) throw new Error(`Download URL для "${path}" не выдан (${r.status})`);
-    const { href } = await r.json();
-    const file = await fetch(href);
-    if (file.status === 404) return null;
-    if (!file.ok) throw new Error(`GET "${path}" (${file.status})`);
-    return await file.json();
+  async function putFile(path, file) { await uploadBlob(path, file); }
+
+  // ---- healthcheck ----
+  async function ping() {
+    const url = `${API}/?fields=total_space,used_space`;
+    return await jfetch(url, { headers: authHeaders() });
   }
 
-  async function list(path){
-    const r = await fetch(urlWithToken('/resources', `path=${encodeURIComponent(path)}&limit=200`));
-    if (!r.ok) throw new Error(`LIST "${path}" не удался (${r.status})`);
-    return await r.json(); // _embedded.items
-  }
+  // ---- high-level ----
+  async function ensureLibrary() {
+    await ping(); // валидируем токен
 
-  // ✔️ Починка: пробуем и URL-токен, и заголовок Authorization
-  async function ping(){
-    // 1) токен в URL
-    let r = await fetch(urlWithToken('/', 'fields=total_space,used_space'));
-    if (r.ok) return await r.json();
+    await createDir('disk:/TattooCRM');
+    await createDir(`${ROOT}/clients`);
+    await createDir(`${ROOT}/appointments`);
+    await createDir(`${ROOT}/reminders`);
+    await createDir(`${ROOT}/supplies`);
+    await createDir(`${ROOT}/marketing`);
+    await createDir(`${ROOT}/exports`);
 
-    // 2) при 401 — повтор через Authorization
-    if (r.status === 401) {
-      const t = getToken();
-      r = await fetch(`${API}/?fields=total_space,used_space`, {
-        headers: { 'Authorization': `OAuth ${t}` }
-      });
-      if (r.ok) return await r.json();
-    }
-
-    const text = await r.text().catch(()=> '');
-    throw new Error(`Токен не принят (${r.status}). ${text}`);
-  }
-
-  // High-level
-  async function ensureLibrary(){
-    await ping();
-    const base = 'TattooCRM';
-    await createDir(base);
-    await createDir(`${base}/clients`);
-    await createDir(`${base}/appointments`);
-    await createDir(`${base}/reminders`);
-    await createDir(`${base}/supplies`);
-    await createDir(`${base}/marketing`);
-    await createDir(`${base}/exports`);
-
-    const setPath = `${base}/settings.json`;
-    const existing = await getJSON(setPath).catch(()=>null);
-    if (!existing){
-      await putJSON(setPath, {
-        sources:["Instagram","TikTok","VK","Google","Сарафан"],
-        styles:["Реализм","Ч/Б","Цвет","Олдскул"],
-        zones:["Рука","Нога","Спина"],
-        supplies:["Краски","Иглы","Химия"],
-        defaultReminder:"Через 14 дней — Спросить про заживление",
-        syncInterval:60,
-        language:"ru"
+    const settingsPath = `${ROOT}/settings.json`;
+    const existing = await getJSON(settingsPath).catch(()=> null);
+    if (!existing) {
+      await putJSON(settingsPath, {
+        sources: [], styles: [], zones: [], supplies: [],
+        defaultReminder: '', syncInterval: 60, language: 'ru'
       });
     }
     return true;
   }
 
-  async function createClientSkeleton(clientId, profile){
-    const base = `TattooCRM/clients/${clientId}`;
+  async function createClientSkeleton(clientId, profile) {
+    const base = `${ROOT}/clients/${clientId}`;
     await createDir(base);
     await putJSON(`${base}/profile.json`, profile);
     await createDir(`${base}/photos`);
   }
 
-  async function ensureSessionFolder(clientId, isoDate){
+  async function ensureSessionFolder(clientId, isoDate) {
     const day = isoDate.split('T')[0];
-    await createDir(`TattooCRM/clients/${clientId}/photos/${day}`);
+    await createDir(`${ROOT}/clients/${clientId}/photos/${day}`);
     return day;
   }
-
-  async function putFile(path, file){ await uploadBlob(path, file); }
 
   return {
     getToken, setToken, clearToken,
