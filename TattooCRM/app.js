@@ -227,34 +227,35 @@ function renderToday(){
 // ---------- Clients ----------
 function bindClientsModal(){
   $('#addClientBtn').addEventListener('click', () => openClientDialog());
-$('#fNextDate').value = c?.nextDate ? c.nextDate.slice(0,16) : '';
+
   $('#attachPhotosBtn').addEventListener('click', (e)=>{
     e.preventDefault();
     $('#photoInput').click();
-// Открыть папку клиента в интерфейсе Яндекс.Диска (без публикации)
-$('#openFolderBtn').addEventListener('click', () => {
-  const id = $('#clientDialog').dataset.id;
-  const ui = 'https://disk.yandex.ru/client/disk/' +
-             encodeURIComponent(`TattooCRM/clients/${id}/photos`);
-  window.open(ui, '_blank');
-});
+  }); // ← закрыли обработчик клика
 
-// Поделиться папкой: публикуем и копируем публичную ссылку в буфер
-$('#shareFolderBtn').addEventListener('click', async () => {
-  try{
+  // Открыть папку клиента в интерфейсе Яндекс.Диска (без публикации)
+  $('#openFolderBtn').addEventListener('click', () => {
     const id = $('#clientDialog').dataset.id;
-    const ypath = `disk:/TattooCRM/clients/${id}/photos`;
-    const link = await YD.publishFolder(ypath);       // функция ниже в ydisk.js
-    await navigator.clipboard.writeText(link);
-    toast('Ссылка на папку скопирована в буфер');
-  }catch(e){
-    console.error(e);
-    toast('Не удалось получить публичную ссылку');
-  }
-});
-  
+    const ui = 'https://disk.yandex.ru/client/disk/' +
+               encodeURIComponent(`TattooCRM/clients/${id}/photos`);
+    window.open(ui, '_blank');
+  });
 
-   $('#photoInput').addEventListener('change', async (e) => {
+  // Поделиться папкой
+  $('#shareFolderBtn').addEventListener('click', async () => {
+    try{
+      const id = $('#clientDialog').dataset.id;
+      const ypath = `disk:/TattooCRM/clients/${id}/photos`;
+      const link = await YD.publishFolder(ypath);
+      await navigator.clipboard.writeText(link);
+      toast('Ссылка на папку скопирована в буфер');
+    }catch(e){
+      console.error(e);
+      toast('Не удалось получить публичную ссылку');
+    }
+  });
+
+  $('#photoInput').addEventListener('change', async (e) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
     const id = $('#clientDialog').dataset.id;
@@ -263,12 +264,13 @@ $('#shareFolderBtn').addEventListener('click', async () => {
       await YD.putFile(`disk:/TattooCRM/clients/${id}/photos/${day}/${f.name}`, f);
     }
     toast(`Загружено: ${files.length} фото`);
-    $('#photosEmptyNote').style.display = 'none';   // ← вот этой строки не хватало
+    $('#photosEmptyNote').style.display = 'none';
   });
 
   $('#saveClientBtn').addEventListener('click', saveClientFromDialog);
   $('#deleteClientBtn').addEventListener('click', deleteClientFromDialog);
 }
+
 
 function renderClients(){
   const wrap = $('#clientsList');
@@ -347,7 +349,8 @@ function openClientDialog(c = null){
   $('#fDeposit').value= c?.deposit || '';
   $('#fAmount').value = c?.amount || '';
   $('#fNotes').value  = c?.notes || '';
-
+// ↓ добавьте вот это:
+  $('#fNextDate').value = c?.nextDate ? c.nextDate.slice(0,16) : '';
   // фото-пусто
   $('#photosEmptyNote').style.display = 'block';
 
@@ -375,20 +378,21 @@ async function saveClientFromDialog(){
   updatedAt: new Date().toISOString()
 };
 
-// локально в список
-const i = AppState.clients.findIndex(x => x.id === id);
-if (i >= 0) AppState.clients[i] = client; else AppState.clients.push(client);
+try{
+  // локально в список
+  const i = AppState.clients.findIndex(x => x.id === id);
+  if (i >= 0) AppState.clients[i] = client; else AppState.clients.push(client);
 
-// на Диск
-await YD.putJSON(`disk:/TattooCRM/clients/${id}/profile.json`, client);
-  }catch(e){
-    console.warn('createClientSkeleton', e);
-  }
-
-  toast('Сохранено');
-  $('#clientDialog').close();
-  renderClients();
+  // на Диск
+  await YD.putJSON(`disk:/TattooCRM/clients/${id}/profile.json`, client);
+}catch(e){
+  console.warn('saveClientFromDialog', e);
+  toast('Не удалось сохранить клиента на Диск');
 }
+
+toast('Сохранено');
+$('#clientDialog').close();
+renderClients();
 
 async function deleteClientFromDialog(){
   // Для MVP: просто скрыть (реальное удаление через WebDAV DELETE можно добавить позже)
