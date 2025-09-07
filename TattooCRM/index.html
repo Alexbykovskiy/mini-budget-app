@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tattoo CRM — Clients · Calendar · Marketing</title>
+  <link rel="icon" href="./public/favicon.svg">
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="app-header glass">
+    <div class="brand">
+      <img src="./public/logo.svg" alt="" class="logo">
+      <div class="titles">
+        <h1>Tattoo CRM</h1>
+        <div class="subtitle">Сегодня · Клиенты · Маркетинг · Расходники</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="syncBtn" class="btn primary">
+        <span class="btn-icon">⟳</span><span id="syncBtnText">Синхронизировать</span>
+      </button>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- Стартовый мастер (подключение к Я.Диску) -->
+    <section id="onboarding" class="page is-active">
+      <div class="card glass">
+        <h2>Добро пожаловать</h2>
+        <p>Подключите Яндекс.Диск, чтобы хранить клиентов, записи и фото.</p>
+
+        <div class="y-16"></div>
+        <div class="stack gap-8">
+          <label class="field">
+            <span>OAuth-токен Яндекс.Диска</span>
+            <input type="password" id="ydToken" placeholder="вставьте OAuth-токен">
+          </label>
+          <div class="hint">
+            Токен хранится только на вашем устройстве (LocalStorage). Его можно в любой момент удалить в Настройках.
+          </div>
+        </div>
+
+        <div class="y-16"></div>
+        <button id="bootstrapBtn" class="btn success wide">Запустить библиотеку</button>
+
+        <div class="y-12"></div>
+        <button id="demoBtn" class="btn ghost">Запустить демо без Диска</button>
+      </div>
+    </section>
+
+    <!-- Вкладка: Сегодня -->
+    <section id="todayPage" class="page">
+      <div class="section">
+        <h2>Сегодня</h2>
+        <div id="todaySchedule" class="list"></div>
+      </div>
+
+      <div class="section">
+        <h3>Напоминания</h3>
+        <div id="todayReminders" class="list"></div>
+      </div>
+    </section>
+
+    <!-- Вкладка: Клиенты -->
+    <section id="clientsPage" class="page">
+      <div class="toolbar glass">
+        <input id="searchInput" class="search" placeholder="Поиск: имя, телефон, стиль…" />
+        <button id="addClientBtn" class="btn success">+ Клиент</button>
+      </div>
+
+      <div class="filters-row">
+        <select id="filterSource" class="chip">
+          <option value="">Источник: все</option>
+        </select>
+        <select id="filterStatus" class="chip">
+          <option value="">Статус: все</option>
+          <option>Лид</option><option>Консультация</option>
+          <option>Сеанс</option><option>Отменил</option><option>Слился</option>
+        </select>
+      </div>
+
+      <div id="clientsList" class="cards-grid"></div>
+
+      <!-- Карточка клиента (модал) -->
+      <dialog id="clientDialog" class="modal">
+        <form method="dialog" class="modal-body glass">
+          <div class="modal-head">
+            <h3 id="clientModalTitle">Клиент</h3>
+            <button class="btn icon" value="cancel" title="Закрыть">✕</button>
+          </div>
+
+          <div class="grid two">
+            <label class="field"><span>Имя</span><input id="fName" /></label>
+            <label class="field"><span>Телефон</span><input id="fPhone" /></label>
+            <label class="field"><span>Контакт (ссылка)</span><input id="fLink" placeholder="instagram / tg / vk ссылка"/></label>
+            <label class="field"><span>Источник</span>
+              <select id="fSource"></select>
+            </label>
+            <label class="field"><span>Первая тату?</span>
+              <select id="fFirst"><option value="true">Да</option><option value="false">Нет</option></select>
+            </label>
+            <label class="field"><span>Тип</span>
+              <select id="fType">
+                <option>Новая</option><option>Перекрытие</option><option>Коррекция</option>
+              </select>
+            </label>
+            <label class="field"><span>Стиль (теги)</span><input id="fStyles" placeholder="realism, ч/б"/></label>
+            <label class="field"><span>Зоны</span><input id="fZones" placeholder="forearm, calf"/></label>
+            <label class="field"><span>Статус</span>
+              <select id="fStatus">
+                <option>Лид</option><option>Консультация</option><option>Сеанс</option>
+                <option>Отменил</option><option>Слился</option>
+              </select>
+            </label>
+            <label class="field"><span>Квалификация</span>
+              <select id="fQual"><option>Целевой</option><option>Условно целевой</option><option>Нецелевой</option></select>
+            </label>
+            <label class="field"><span>Депозит (€)</span><input id="fDeposit" type="number" step="1"/></label>
+            <label class="field"><span>Сумма (€)</span><input id="fAmount" type="number" step="1"/></label>
+          </div>
+
+          <label class="field"><span>Заметка</span><textarea id="fNotes" rows="3" placeholder="особенности, пожелания…"></textarea></label>
+
+          <div class="panel">
+            <div class="stack">
+              <div class="subtle">Фото</div>
+              <div id="photosEmptyNote" class="empty-note">У этого клиента пока нет фотографий.</div>
+              <div class="row gap-8">
+                <input id="photoInput" type="file" multiple accept="image/*" hidden/>
+                <button id="attachPhotosBtn" class="btn">+ Прикрепить фотографии</button>
+                <button id="openFolderBtn" class="btn ghost">Открыть папку</button>
+                <button id="shareFolderBtn" class="btn ghost">Поделиться папкой</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-foot">
+            <button class="btn danger" id="deleteClientBtn" type="button">Удалить</button>
+            <div class="spacer"></div>
+            <button class="btn" value="cancel">Отмена</button>
+            <button class="btn primary" id="saveClientBtn" type="button">Сохранить</button>
+          </div>
+        </form>
+      </dialog>
+    </section>
+
+    <!-- Вкладка: Маркетинг -->
+    <section id="marketingPage" class="page">
+      <div class="section">
+        <h2>Маркетинг (за период)</h2>
+        <div id="mkHighlites" class="metrics-grid"></div>
+        <div id="mkTable" class="table glass"></div>
+
+        <div class="export-row">
+          <button class="btn">Экспорт CSV</button>
+          <button class="btn">Экспорт XLSX</button>
+          <button class="btn">Экспорт графика (PNG)</button>
+          <button class="btn">Экспорт PDF</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Вкладка: Расходники -->
+    <section id="suppliesPage" class="page">
+      <div class="toolbar glass">
+        <select id="supFilter" class="chip">
+          <option value="">Категория: все</option>
+        </select>
+        <button id="addSupplyBtn" class="btn">+ Позиция</button>
+      </div>
+      <div id="suppliesList" class="cards-grid"></div>
+    </section>
+
+    <!-- Вкладка: Настройки -->
+    <section id="settingsPage" class="page">
+      <div class="section">
+        <h2>Настройки</h2>
+
+        <div class="grid two">
+          <label class="field"><span>Источники клиентов</span>
+            <textarea id="setSources" rows="2" placeholder="Instagram, TikTok, VK, Сарафан"></textarea>
+          </label>
+          <label class="field"><span>Стили (теги)</span>
+            <textarea id="setStyles" rows="2" placeholder="Реализм, Ч/Б, Цвет"></textarea>
+          </label>
+          <label class="field"><span>Зоны тела</span>
+            <textarea id="setZones" rows="2" placeholder="Рука, Нога, Спина"></textarea>
+          </label>
+          <label class="field"><span>Категории расходников</span>
+            <textarea id="setSupplies" rows="2" placeholder="Краски, Иглы, Химия"></textarea>
+          </label>
+
+          <label class="field"><span>Напоминание по умолчанию</span>
+            <input id="setDefaultReminder" placeholder="Через 14 дней — Спросить про заживление">
+          </label>
+          <label class="field"><span>Интервал авто-синхронизации (сек)</span>
+            <input id="setSyncInterval" type="number" min="15" step="15" />
+          </label>
+        </div>
+
+        <div class="y-12"></div>
+        <div class="row gap-8">
+          <button id="saveSettingsBtn" class="btn primary">Сохранить настройки</button>
+          <button id="logoutBtn" class="btn danger ghost">Отключить Яндекс.Диск</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabbar glass">
+    <button data-tab="todayPage" class="tab is-active">Сегодня</button>
+    <button data-tab="clientsPage" class="tab">Клиенты</button>
+    <button data-tab="marketingPage" class="tab">Маркетинг</button>
+    <button data-tab="suppliesPage" class="tab">Расходники</button>
+    <button data-tab="settingsPage" class="tab">Настройки</button>
+  </nav>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="./src/ydisk.js"></script>
+  <script src="./src/app.js"></script>
+</body>
+</html>
