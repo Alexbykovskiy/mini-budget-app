@@ -1,4 +1,4 @@
-/* app.js — SPA controller */
+/* app.js — SPA controller (Firestore + Google Drive) */
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -13,15 +13,15 @@ const toast = (msg) => {
 const AppState = {
   connected: false,
   settings: null,
-  clients: [],       // [{id, displayName, phone, link, source, first, type, styles[], zones[], status, qual, deposit, amount, notes}]
-  reminders: [],     // simplified for MVP
-  appointments: [],  // simplified for MVP
-  supplies: [],      // simplified for MVP
+  clients: [],
+  reminders: [],
+  appointments: [],
+  supplies: [],
   autoSyncTimer: null
-let syncInProgress = false; // можешь оставить, но синк теперь «реалтайм»
-let currentUser = null;     // Firebase user
-let driveReady = false;     // флаг готовности gapi c токеном
 };
+let syncInProgress = false;
+let currentUser = null;
+let driveReady = false;
 
 // ---------- Init ----------
 window.addEventListener('DOMContentLoaded', () => {
@@ -31,19 +31,9 @@ window.addEventListener('DOMContentLoaded', () => {
   bindClientsModal();
   bindSettings();
 
-  // Синхронизация при клике в любом месте
-  document.addEventListener('click', () => {
-    if (AppState.connected) syncNow();
-  });
-
-  // Restore token -> auto enter
-  const token = YD.getToken();
-  if (token) {
-    startWithDisk();
-  } else {
-    showPage('onboarding');
-  }
+  showPage('onboarding'); // всегда стартуем с экрана входа
 });
+
 // ---------- Tabs ----------
 function bindTabbar(){
   $$('.tabbar .tab').forEach(btn => {
@@ -67,15 +57,15 @@ function showPage(id){
 
 // ---------- Header ----------
 function bindHeader(){
-  $('#syncBtn').addEventListener('click', syncNow);
+  $('#syncBtn').addEventListener('click', () => {
+    toast('Все данные синхронизируются автоматически');
+  });
 }
 
 // ---------- Onboarding ----------
 function bindOnboarding(){
-  // Кнопка "Запустить библиотеку" -> вход через Google + подготовка Drive
   $('#bootstrapBtn').addEventListener('click', async () => {
     try {
-      // Вход через Google с нужным скоупом для Drive
       const provider = new firebase.auth.GoogleAuthProvider();
       provider.addScope('profile');
       provider.addScope('email');
@@ -84,23 +74,19 @@ function bindOnboarding(){
       const cred = await FB.auth.signInWithPopup(provider);
       currentUser = cred.user;
 
-      // Токен для Google API
       const accessToken = cred.credential.accessToken;
 
-      // gapi
       await Drive.loadGapi();
       await Drive.setAuthToken(accessToken);
       await Drive.ensureLibrary();
       driveReady = true;
 
-      // Загрузка настроек из Firestore
       await loadSettings();
       AppState.connected = true;
 
       showPage('todayPage');
       toast('Вход выполнен. Firestore + Drive готовы.');
 
-      // Реалтайм-слушатель клиентов
       listenClientsRealtime();
       renderToday();
     } catch (e) {
@@ -109,7 +95,6 @@ function bindOnboarding(){
     }
   });
 
-  // демо без аккаунта
   $('#demoBtn').addEventListener('click', () => {
     AppState.connected = false;
     AppState.settings = demoSettings();
@@ -119,21 +104,6 @@ function bindOnboarding(){
     renderToday();
     renderClients();
   });
-}
-
-async function startWithDisk(){
-  try{
-    await YD.ensureLibrary();
-    await loadSettings();
-    AppState.connected = true;
-    showPage('todayPage');
-    setupAutoSync();
-await syncNow();
-    renderToday();
-  }catch(e){
-    console.warn('Auto connect failed', e);
-    showPage('onboarding');
-  }
 }
 
 function listenClientsRealtime(){
@@ -150,6 +120,16 @@ function listenClientsRealtime(){
     });
 }
 
+async function loadSettings(){
+  try {
+    const docRef = FB.db.collection('TattooCRM').doc('settings').collection('global').doc('default');
+    const doc = await docRef.get();
+    AppState.settings = doc.exists ? doc.data() : demoSettings();
+  } catch(e) {
+    console.warn(e);
+    AppState.settings = demoSettings();
+  }
+}
 
 async function saveSettings(){
   const s = {
@@ -172,37 +152,6 @@ async function saveSettings(){
   }
 }
 
-
-// ---------- Sync ----------
-async function syncNow(){
-  $('#syncBtnText').textContent = 'Синхронизация…';
-  try{
-    // настройки — с Диска
-    await loadSettings();
-
-    // клиенты — с Диска
-    AppState.clients = await fetchClientsFromDisk();
-
-    // (напоминания/записи добьём позже — в этом MVP пусто)
-    AppState.reminders = AppState.reminders || [];
-
-    renderToday();
-    renderClients();
-    toast('Синхронизировано');
-  } catch(e){
-    console.error(e);
-    toast('Ошибка синхронизации: ' + (e?.message || 'неизвестно'));
-  } finally {
-    $('#syncBtnText').textContent = 'Синхронизировать';
-  }
-}
-
-function setupAutoSync(){
-  clearInterval(AppState.autoSyncTimer);
-  const interval = Math.max(15, Number(AppState?.settings?.syncInterval || 60)) * 1000;
-  AppState.autoSyncTimer = setInterval(syncNow, interval);
-}
-
 // ---------- Today ----------
 function renderToday(){
   const sch = $('#todaySchedule');
@@ -212,7 +161,6 @@ function renderToday(){
 
   const today = new Date().toISOString().slice(0,10);
 
-  // показываем клиентов с назначенной датой на сегодня
   const todays = (AppState.clients || [])
     .filter(c => (c.nextDate || '').slice(0,10) === today)
     .sort((a,b) => a.nextDate.localeCompare(b.nextDate));
@@ -227,12 +175,11 @@ function renderToday(){
       const time = c.nextDate.slice(11,16) || '';
       const el = document.createElement('div');
       el.className='row card-client glass';
-      el.innerHTML = `<div><b>${time ? time : '—'}</b> — ${c.displayName} <span class="badge">${c.status||'Сеанс'}</span></div>`;
+      el.innerHTML = `<div><b>${time||'—'}</b> — ${c.displayName} <span class="badge">${c.status||'Сеанс'}</span></div>`;
       sch.appendChild(el);
     });
   }
 
-  // напоминания, если будут — берём из AppState.reminders
   (AppState.reminders || []).forEach(r => {
     const el = document.createElement('div');
     el.className='row card-client glass';
@@ -240,6 +187,7 @@ function renderToday(){
     rem.appendChild(el);
   });
 }
+
 // ---------- Clients ----------
 function bindClientsModal(){
   $('#addClientBtn').addEventListener('click', () => openClientDialog());
@@ -247,60 +195,58 @@ function bindClientsModal(){
   $('#attachPhotosBtn').addEventListener('click', (e)=>{
     e.preventDefault();
     $('#photoInput').click();
-  }); // ← закрыли обработчик клика
+  });
 
   $('#openFolderBtn').addEventListener('click', async () => {
-  const id = $('#clientDialog').dataset.id;
-  const doc = await FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id).get();
-  const folderId = doc.data()?.driveFolderId;
-  if (!folderId) return toast('Папка ещё не создана');
-  const link = `https://drive.google.com/drive/folders/${folderId}`;
-  window.open(link, '_blank');
-});
-
-  $('#shareFolderBtn').addEventListener('click', async () => {
-  try{
     const id = $('#clientDialog').dataset.id;
     const doc = await FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id).get();
     const folderId = doc.data()?.driveFolderId;
     if (!folderId) return toast('Папка ещё не создана');
+    const link = `https://drive.google.com/drive/folders/${folderId}`;
+    window.open(link, '_blank');
+  });
 
-    const link = await Drive.shareFolderPublic(folderId);
-    await navigator.clipboard.writeText(link);
-    toast('Ссылка на папку скопирована');
-  }catch(e){
-    console.error(e);
-    toast('Не удалось поделиться папкой');
-  }
-});
+  $('#shareFolderBtn').addEventListener('click', async () => {
+    try{
+      const id = $('#clientDialog').dataset.id;
+      const doc = await FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id).get();
+      const folderId = doc.data()?.driveFolderId;
+      if (!folderId) return toast('Папка ещё не создана');
 
- $('#photoInput').addEventListener('change', async (e) => {
-  try{
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
-    const id = $('#clientDialog').dataset.id;
-
-    const doc = await FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id).get();
-    let folderId = doc.data()?.driveFolderId;
-
-    if (!folderId) {
-      // если клиента создали раньше, но папка ещё не создана
-      folderId = await Drive.createClientFolder(id, $('#fName').value.trim());
-      await FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id).update({ driveFolderId: folderId });
+      const link = await Drive.shareFolderPublic(folderId);
+      await navigator.clipboard.writeText(link);
+      toast('Ссылка на папку скопирована');
+    }catch(e){
+      console.error(e);
+      toast('Не удалось поделиться папкой');
     }
+  });
 
-    for (const f of files) {
-      await Drive.uploadToFolder(folderId, f);
+  $('#photoInput').addEventListener('change', async (e) => {
+    try{
+      const files = Array.from(e.target.files || []);
+      if (!files.length) return;
+      const id = $('#clientDialog').dataset.id;
+
+      const doc = await FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id).get();
+      let folderId = doc.data()?.driveFolderId;
+
+      if (!folderId) {
+        folderId = await Drive.createClientFolder(id, $('#fName').value.trim());
+        await FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id).update({ driveFolderId: folderId });
+      }
+
+      for (const f of files) {
+        await Drive.uploadToFolder(folderId, f);
+      }
+      toast(`Загружено: ${files.length} файл(ов)`);
+      $('#photosEmptyNote').style.display = 'none';
+    }catch(e){
+      console.error(e);
+      toast('Ошибка загрузки в Google Drive');
     }
-    toast(`Загружено: ${files.length} файл(ов)`);
-    $('#photosEmptyNote').style.display = 'none';
-  } catch(e){
-    console.error(e);
-    toast('Ошибка загрузки в Google Drive');
-  }
-});
-
-
+  });
+}
 
 function renderClients(){
   const wrap = $('#clientsList');
@@ -310,7 +256,6 @@ function renderClients(){
   const src = $('#filterSource').value || '';
   const st  = $('#filterStatus').value || '';
 
-  // заполняем источники из настроек
   const srcSel = $('#filterSource');
   if (!srcSel.dataset.filled){
     (AppState.settings?.sources || []).forEach(s=>{
@@ -319,12 +264,11 @@ function renderClients(){
     srcSel.dataset.filled = '1';
   }
 
-  // фильтрация
-  let arr = [...AppState.clients];     // ← вот так
+  let arr = [...AppState.clients];
   if (term) arr = arr.filter(c => [c.displayName,c.phone,(c.styles||[]).join(',')].join(' ').toLowerCase().includes(term));
   if (src)  arr = arr.filter(c => c.source === src);
   if (st)   arr = arr.filter(c => c.status === st);
-  // карточки
+
   arr.forEach(c=>{
     const card = document.createElement('div');
     card.className = 'card-client glass';
@@ -345,7 +289,6 @@ function renderClients(){
     wrap.appendChild(card);
   });
 
-  // поиск input live
   $('#searchInput').oninput = () => renderClients();
   $('#filterSource').onchange = () => renderClients();
   $('#filterStatus').onchange = () => renderClients();
@@ -358,14 +301,12 @@ function openClientDialog(c = null){
   dlg.dataset.id = id;
   $('#clientModalTitle').textContent = isNew ? 'Новый клиент' : c.displayName || 'Клиент';
 
-  // заполнить источники
   const fSource = $('#fSource');
   fSource.innerHTML = '';
   (AppState.settings?.sources || []).forEach(s=>{
     const o = document.createElement('option'); o.textContent = s; fSource.appendChild(o);
   });
 
-  // заполнение полей
   $('#fName').value   = c?.displayName || '';
   $('#fPhone').value  = c?.phone || '';
   $('#fLink').value   = c?.link || '';
@@ -379,9 +320,7 @@ function openClientDialog(c = null){
   $('#fDeposit').value= c?.deposit || '';
   $('#fAmount').value = c?.amount || '';
   $('#fNotes').value  = c?.notes || '';
-// ↓ добавьте вот это:
   $('#fNextDate').value = c?.nextDate ? c.nextDate.slice(0,16) : '';
-  // фото-пусто
   $('#photosEmptyNote').style.display = 'block';
 
   dlg.showModal();
@@ -391,8 +330,6 @@ async function saveClientFromDialog(){
   let id = $('#clientDialog').dataset.id;
 
   const displayName = $('#fName').value.trim();
-  const nameForFolder = (displayName || 'Без_имени').replace(/\s+/g,'_');
-
   const isNew = !id || !id.startsWith('cl_');
   if (isNew) {
     id = `cl_${crypto.randomUUID().slice(0,8)}`;
@@ -418,18 +355,15 @@ async function saveClientFromDialog(){
     updatedAt: new Date().toISOString()
   };
 
-  // ⚡ локально сразу
   const i = AppState.clients.findIndex(x => x.id === id);
   if (i >= 0) AppState.clients[i] = client;
   else AppState.clients.push(client);
   renderClients();
 
   try {
-    // Firestore
     const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
     await ref.set(client, { merge:true });
 
-    // Drive: для новых — создать папку клиента (TattooCRM/clients/cl_xxx__Имя_Фамилия)
     if (isNew && driveReady) {
       const folderId = await Drive.createClientFolder(id, displayName);
       await ref.update({ driveFolderId: folderId });
@@ -445,14 +379,13 @@ async function saveClientFromDialog(){
 }
 
 async function deleteClientFromDialog(){
-  // Для MVP: просто скрыть (реальное удаление через WebDAV DELETE можно добавить позже)
   const id = $('#clientDialog').dataset.id;
   AppState.clients = AppState.clients.filter(x => x.id !== id);
   $('#clientDialog').close();
   renderClients();
 }
 
-// ---------- Marketing (stub) ----------
+// ---------- Marketing ----------
 function renderMarketing(){
   const hi = $('#mkHighlites');
   const tb = $('#mkTable');
@@ -486,7 +419,7 @@ function renderMarketing(){
   `).join('');
 }
 
-// ---------- Supplies (stub) ----------
+// ---------- Supplies ----------
 function renderSupplies(){
   const list = $('#suppliesList'); list.innerHTML = '';
   AppState.supplies = AppState.supplies?.length ? AppState.supplies : [
@@ -513,11 +446,12 @@ function renderSupplies(){
 function bindSettings(){
   $('#saveSettingsBtn').addEventListener('click', saveSettings);
   $('#logoutBtn').addEventListener('click', ()=>{
-    YD.clearToken();
-    toast('Доступ к Диску отключён');
+    FB.auth.signOut();
+    toast('Вы вышли из аккаунта');
     location.reload();
   });
 }
+
 function fillSettingsForm(){
   const s = AppState.settings || demoSettings();
   $('#setSources').value  = (s.sources||[]).join(', ');
@@ -527,7 +461,6 @@ function fillSettingsForm(){
   $('#setDefaultReminder').value = s.defaultReminder || '';
   $('#setSyncInterval').value = s.syncInterval ?? 60;
 
-  // заполнить фильтры «источник» в Клиентах
   const sel = $('#filterSource');
   const have = Array.from(sel.options).map(o=>o.value);
   (s.sources||[]).forEach(src=>{
@@ -536,27 +469,6 @@ function fillSettingsForm(){
       sel.appendChild(o);
     }
   });
-}
-
-async function saveSettings(){
-  const s = {
-    sources: splitTags($('#setSources').value),
-    styles: splitTags($('#setStyles').value),
-    zones: splitTags($('#setZones').value),
-    supplies: splitTags($('#setSupplies').value),
-    defaultReminder: $('#setDefaultReminder').value.trim(),
-    syncInterval: Math.max(15, Number($('#setSyncInterval').value||60)),
-    language: 'ru'
-  };
-  AppState.settings = s;
-  try{
-    await YD.putJSON('disk:/TattooCRM/settings.json', s);
-    setupAutoSync();
-    toast('Настройки сохранены');
-  }catch(e){
-    console.warn(e);
-    toast('Не удалось сохранить на Диск — сохранено только локально');
-  }
 }
 
 // ---------- Utils ----------
@@ -571,35 +483,4 @@ function demoSettings(){
     styles:["Реализм","Ч/Б","Цвет","Олдскул"],
     zones:["Рука","Нога","Спина"],
     supplies:["Краски","Иглы","Химия"],
-    defaultReminder:"Через 14 дней — Спросить про заживление",
-    syncInterval:60,
-    language:"ru"
-  };
-}
-function demoClients(){
-  return [
-    {id:'cl_ivan', displayName:'Иван Петров', phone:'+421...', link:'instagram.com/ivan', source:'Instagram',
-     first:true, type:'Перекрытие', styles:['realism','ч/б'], zones:['forearm'], status:'Сеанс', qual:'Целевой',
-     deposit:50, amount:450, notes:'перекрыть надпись', updatedAt: new Date().toISOString()},
-    {id:'cl_ana', displayName:'Анастасия Смирнова', phone:'+421...', link:'vk.com/ana', source:'VK',
-     first:false, type:'Новая', styles:['минимализм'], zones:['wrist'], status:'Консультация', qual:'Целевой',
-     deposit:0, amount:0, notes:''}
-  ];
-}
-function demoReminders(){ return []; }
-
-async function fetchClientsFromDisk(){
-  const dir = await YD.list('disk:/TattooCRM/clients').catch(()=>null);
-  const items = dir?._embedded?.items || [];
-  const clients = [];
-  // грузим profile.json из каждой папки-клиента
-  for (const it of items){
-    if (it.type === 'dir'){
-      const prof = await YD.getJSON(`disk:/TattooCRM/clients/${it.name}/profile.json`).catch(()=>null);
-      if (prof) clients.push(prof);
-    }
-  }
-  return clients;
-}
-
-
+    defaultReminder:"Через 
