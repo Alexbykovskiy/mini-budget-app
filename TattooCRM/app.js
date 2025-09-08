@@ -71,36 +71,40 @@ function bindOnboarding(){
       provider.addScope('email');
       provider.addScope('https://www.googleapis.com/auth/drive.file');
 
-      // Важно: это открывается строго по клику пользователя (OK для popup)
+      // только редирект
       await FB.auth.signInWithRedirect(provider);
-const cred = await FB.auth.getRedirectResult();
-
-if (!cred.user) throw new Error("Не удалось войти");
-currentUser = cred.user;
-
-const accessToken = cred.credential && cred.credential.accessToken;
-      if (!accessToken) {
-        throw new Error('Google accessToken не получен');
-      }
-
-      await Drive.loadGapi();
-      await Drive.setAuthToken(accessToken);
-      await Drive.ensureLibrary();
-      driveReady = true;
-
-      await loadSettings();
-      AppState.connected = true;
-
-      showPage('todayPage');
-      toast('Вход выполнен. Firestore + Drive готовы.');
-
-      listenClientsRealtime();
-      renderToday();
     } catch (e) {
       console.error(e);
-      toast('Ошибка входа/инициализации');
+      toast('Ошибка входа');
     }
   });
+
+  // обработка результата редиректа при загрузке
+  FB.auth.getRedirectResult().then(async (cred) => {
+    if (!cred.user) return; // пользователь ещё не логинился
+    currentUser = cred.user;
+
+    const accessToken = cred.credential && cred.credential.accessToken;
+    if (!accessToken) throw new Error('Google accessToken не получен');
+
+    await Drive.loadGapi();
+    await Drive.setAuthToken(accessToken);
+    await Drive.ensureLibrary();
+    driveReady = true;
+
+    await loadSettings();
+    AppState.connected = true;
+
+    showPage('todayPage');
+    toast('Вход выполнен. Firestore + Drive готовы.');
+
+    listenClientsRealtime();
+    renderToday();
+  }).catch((e)=>{
+    console.error(e);
+    toast('Ошибка инициализации после входа');
+  });
+}
 
   $('#demoBtn').addEventListener('click', () => {
     AppState.connected = false;
