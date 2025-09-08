@@ -178,8 +178,37 @@ async function uploadResumable(folderId, file) {
     return res.result.files || [];
   }
 
+// Пометить файл/папку как "в корзине"
+async function moveToTrash(fileId) {
+  await gapi.client.drive.files.update({
+    fileId,
+    resource: { trashed: true }
+  });
+}
+
+// Рекурсивно отправить в корзину все содержимое папки и саму папку
+async function deleteFolderRecursive(folderId) {
+  // сначала дочерние элементы
+  const res = await gapi.client.drive.files.list({
+    q: `'${folderId}' in parents and trashed = false`,
+    fields: 'files(id,mimeType)'
+  });
+  const items = res.result.files || [];
+  for (const it of items) {
+    const isFolder = it.mimeType === 'application/vnd.google-apps.folder';
+    if (isFolder) {
+      await deleteFolderRecursive(it.id);
+    } else {
+      await moveToTrash(it.id);
+    }
+  }
+  // затем сама папка
+  await moveToTrash(folderId);
+}
+
   return {
     loadGapi,
+deleteFolderRecursive, // <-- добавить в экспорт
     setAuthToken,
     ensureLibrary,
     createClientFolder,

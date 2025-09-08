@@ -482,11 +482,37 @@ async function saveClientFromDialog(){
 
 async function deleteClientFromDialog(){
   const id = $('#clientDialog').dataset.id;
-  AppState.clients = AppState.clients.filter(x => x.id !== id);
-  $('#clientDialog').close();
-  renderClients();
-}
+  if (!id) return;
 
+  // Подтверждение (как вы и хотели — обязательно спрашивать)
+  const ok = confirm('Удалить клиента и его папку в Google Drive?');
+  if (!ok) return;
+
+  try {
+    const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
+    const snap = await ref.get();
+    const folderId = snap.exists ? (snap.data()?.driveFolderId || null) : null;
+
+    // 1) Удаляем документ в Firestore
+    await ref.delete();
+
+    // 2) Удаляем папку в Google Drive (рекурсивно в корзину), если была создана
+    if (driveReady && folderId) {
+      await Drive.deleteFolderRecursive(folderId);
+    }
+
+    toast('Клиент удалён');
+
+  } catch (e) {
+    console.error('deleteClientFromDialog', e);
+    toast('Не удалось удалить клиента');
+  } finally {
+    // Локально сразу убираем из списка
+    AppState.clients = AppState.clients.filter(x => x.id !== id);
+    $('#clientDialog').close();
+    renderClients();
+  }
+}
 // ---------- Marketing ----------
 function renderMarketing(){
   const hi = $('#mkHighlites');
