@@ -130,16 +130,10 @@ async function afterLogin(cred) {
 // ---------- Firestore realtime ----------
 function listenClientsRealtime(){
   FB.db.collection('TattooCRM').doc('app').collection('clients')
-    // без orderBy, чтобы не требовать композитного индекса
+    .orderBy('updatedAt', 'desc')
     .onSnapshot((qs)=>{
       AppState.clients = [];
-      qs.forEach(d => {
-        const c = d.data();
-        if (c.deleted === true) return; // скрываем мягко удалённых
-        AppState.clients.push(c);
-      });
-      // сортируем по updatedAt уже на клиенте
-      AppState.clients.sort((a,b)=> String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')));
+      qs.forEach(d => AppState.clients.push(d.data()));
       renderClients();
       renderToday();
     }, (err)=> {
@@ -147,7 +141,6 @@ function listenClientsRealtime(){
       toast('Ошибка чтения клиентов');
     });
 }
-
 
 // ---------- Settings load/save ----------
 async function loadSettings(){
@@ -273,22 +266,14 @@ $('#photoInput').addEventListener('change', async (e) => {
     const name = ($('#fName').value || 'Без имени').trim();
     const clientRef = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
     const snap = await clientRef.get();
-if (!snap.exists || snap.data()?.deleted === true) {
-  toast('Сначала сохраните клиента (или создайте заново) — этот удалён.');
-  return;
-}
+
     let folderId = snap.exists ? (snap.data()?.driveFolderId || null) : null;
     await Drive.ensureLibrary();
 
     if (!folderId) {
       folderId = await Drive.createClientFolder(id, name);
       await clientRef.set({ id, displayName: name, driveFolderId: folderId, updatedAt: new Date().toISOString() }, { merge: true });
-} else {
-    toast('Этот клиент удалён — загрузка фото недоступна');
-    return;
-  }
-}    
-
+    }
 
     for (const f of files) {
       await Drive.uploadToFolder(folderId, f);
@@ -460,9 +445,7 @@ async function saveClientFromDialog(){
     amount: Number($('#fAmount').value || 0),
     notes: $('#fNotes').value.trim(),
     nextDate: ($('#fNextDate').value || ''),
-        updatedAt: new Date().toISOString(),
-  deleted: false,                           // <— клиент активен
-  ownerUid: currentUser?.uid || null        // <— на будущее для правил
+    updatedAt: new Date().toISOString()
   };
 
   const i = AppState.clients.findIndex(x => x.id === id);
@@ -499,39 +482,11 @@ async function saveClientFromDialog(){
 
 async function deleteClientFromDialog(){
   const id = $('#clientDialog').dataset.id;
-  if (!id) return;
-
-  if (!confirm('Удалить клиента и его папку в Google Drive?')) return;
-
-  try {
-    const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
-    const snap = await ref.get();
-    const data = snap.exists ? (snap.data() || {}) : {};
-    const folderId = data.driveFolderId || null;
-
-    // 1) Мягко помечаем как удалённого (tombstone)
-    await ref.set({
-      deleted: true,
-      updatedAt: new Date().toISOString()
-    }, { merge: true });
-
-    // 2) Удаляем папку клиента в Google Drive (рекурсивно — в корзину)
-    if (driveReady && folderId && Drive.deleteFolderRecursive) {
-      await Drive.deleteFolderRecursive(folderId);
-    }
-
-    toast('Клиент удалён');
-
-  } catch (e) {
-    console.error('deleteClientFromDialog', e);
-    toast('Не удалось удалить клиента');
-  } finally {
-    // локально убираем из списка
-    AppState.clients = (AppState.clients || []).filter(x => x.id !== id);
-    $('#clientDialog').close();
-    renderClients();
-  }
+  AppState.clients = AppState.clients.filter(x => x.id !== id);
+  $('#clientDialog').close();
+  renderClients();
 }
+
 // ---------- Marketing ----------
 function renderMarketing(){
   const hi = $('#mkHighlites');
