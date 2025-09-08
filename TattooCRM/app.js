@@ -63,7 +63,17 @@ function bindHeader(){
 }
 
 // ---------- Onboarding ----------
-function bindOnboarding(){
+function bindOnboarding() {
+  // 1) Обработка результата redirect – запускается при каждой загрузке
+  FB.auth.getRedirectResult().then(async (cred) => {
+    if (!cred.user) return; // redirect ещё не выполнялся
+    await afterLogin(cred);
+  }).catch((e) => {
+    console.error('redirect result error', e);
+    toast('Ошибка инициализации после входа');
+  });
+
+  // 2) Клик по кнопке – пробуем popup, при неудаче fallback в redirect
   $('#bootstrapBtn').addEventListener('click', async () => {
     try {
       const provider = new firebase.auth.GoogleAuthProvider();
@@ -71,19 +81,30 @@ function bindOnboarding(){
       provider.addScope('email');
       provider.addScope('https://www.googleapis.com/auth/drive.file');
 
-      // только редирект
-      await FB.auth.signInWithRedirect(provider);
+      // Сначала POPUP
+      const cred = await FB.auth.signInWithPopup(provider);
+      await afterLogin(cred);
+
     } catch (e) {
-      console.error(e);
-      toast('Ошибка входа');
+      console.warn('popup auth failed, fallback to redirect', e?.code || e);
+
+      // Частые коды для fallback:
+      // auth/popup-blocked, auth/popup-closed-by-user, auth/cancelled-popup-request
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.addScope('profile');
+      provider.addScope('email');
+      provider.addScope('https://www.googleapis.com/auth/drive.file');
+
+      await FB.auth.signInWithRedirect(provider);
+      // Дальше вернёмся сюда после редиректа, и блок getRedirectResult() выше отработает
     }
   });
+}
 
-  // обработка результата редиректа при загрузке
-  FB.auth.getRedirectResult().then(async (cred) => {
-    if (!cred.user) return; // пользователь ещё не логинился
+// Общая пост-инициализация после входа
+async function afterLogin(cred) {
+  try {
     currentUser = cred.user;
-
     const accessToken = cred.credential && cred.credential.accessToken;
     if (!accessToken) throw new Error('Google accessToken не получен');
 
@@ -100,20 +121,10 @@ function bindOnboarding(){
 
     listenClientsRealtime();
     renderToday();
-  }).catch((e)=>{
-    console.error(e);
-    toast('Ошибка инициализации после входа');
-  });
-
-  $('#demoBtn').addEventListener('click', () => {
-    AppState.connected = false;
-    AppState.settings = demoSettings();
-    AppState.clients = demoClients();
-    AppState.reminders = demoReminders();
-    showPage('todayPage');
-    renderToday();
-    renderClients();
-  });
+  } catch (e) {
+    console.error('afterLogin error', e);
+    toast('Ошибка входа/инициализации');
+  }
 }
 
 // ---------- Firestore realtime ----------
