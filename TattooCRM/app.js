@@ -232,31 +232,47 @@ function bindClientsModal(){
     }
   });
 
-  $('#photoInput').addEventListener('change', async (e) => {
-    try{
-      const files = Array.from(e.target.files || []);
-      if (!files.length) return;
-      const id = $('#clientDialog').dataset.id;
-      if (!id) return;
+  // Загрузка фото в Google Drive (создаём папку и док в Firestore, если их ещё нет)
+$('#photoInput').addEventListener('change', async (e) => {
+  try {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
 
-      const doc = await FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id).get();
-      let folderId = doc.data()?.driveFolderId;
+    const id = $('#clientDialog').dataset.id;
+    if (!id) { toast('Сначала откройте карточку клиента'); return; }
 
-      if (!folderId) {
-        folderId = await Drive.createClientFolder(id, $('#fName').value.trim());
-        await FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id).update({ driveFolderId: folderId });
-      }
+    const name = ($('#fName').value || 'Без имени').trim();
 
-      for (const f of files) {
-        await Drive.uploadToFolder(folderId, f);
-      }
-      toast(`Загружено: ${files.length} файл(ов)`);
-      $('#photosEmptyNote').style.display = 'none';
-    }catch(e){
-      console.error(e);
-      toast('Ошибка загрузки в Google Drive');
+    const clientRef = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
+    const snap = await clientRef.get();
+
+    // 1) Берём/создаём папку на Drive
+    let folderId = snap.exists ? (snap.data()?.driveFolderId || null) : null;
+    await Drive.ensureLibrary();
+    if (!folderId) {
+      folderId = await Drive.createClientFolder(id, name);
+      // 2) Гарантированно пишем ссылку в Firestore (set с merge, а не update)
+      await clientRef.set({
+        id, displayName: name, driveFolderId: folderId, updatedAt: new Date().toISOString()
+      }, { merge: true });
     }
-  });
+
+    // 3) Грузим все выбранные файлы
+    for (const f of files) {
+      await Drive.uploadToFolder(folderId, f);
+    }
+
+    toast(`Загружено: ${files.length} файл(ов)`);
+    $('#photosEmptyNote').style.display = 'none';
+
+  } catch (err) {
+    console.error(err);
+    toast('Ошибка загрузки в Google Drive');
+  } finally {
+    // очищаем input, чтобы повторный выбор тех же файлов снова триггерил change
+    e.target.value = '';
+  }
+});
 
   // ВАЖНО: обработчики сохранения/удаления
   $('#saveClientBtn').addEventListener('click', saveClientFromDialog);
