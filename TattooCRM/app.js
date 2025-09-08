@@ -200,11 +200,15 @@ function renderToday(){
 function bindClientsModal(){
   $('#addClientBtn').addEventListener('click', () => openClientDialog());
 
-  $('#attachPhotosBtn').addEventListener('click', (e)=>{
-    e.preventDefault();
-    $('#photoInput').click();
-await refreshClientPhotos(id);
-  });
+ $('#attachPhotosBtn').addEventListener('click', async (e)=>{
+  e.preventDefault();
+  $('#photoInput').click();
+
+  const id = $('#clientDialog').dataset.id;
+  if (id) {
+    await refreshClientPhotos(id);
+  }
+});
 
   $('#openFolderBtn').addEventListener('click', async () => {
     const id = $('#clientDialog').dataset.id;
