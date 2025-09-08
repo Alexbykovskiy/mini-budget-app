@@ -72,10 +72,13 @@ function bindOnboarding(){
       provider.addScope('https://www.googleapis.com/auth/drive.file');
 
       // Важно: это открывается строго по клику пользователя (OK для popup)
-      const cred = await FB.auth.signInWithPopup(provider);
-      currentUser = cred.user;
+      await FB.auth.signInWithRedirect(provider);
+const cred = await FB.auth.getRedirectResult();
 
-      const accessToken = cred.credential && cred.credential.accessToken;
+if (!cred.user) throw new Error("Не удалось войти");
+currentUser = cred.user;
+
+const accessToken = cred.credential && cred.credential.accessToken;
       if (!accessToken) {
         throw new Error('Google accessToken не получен');
       }
