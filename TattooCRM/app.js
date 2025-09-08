@@ -31,7 +31,7 @@ window.addEventListener('DOMContentLoaded', () => {
   bindClientsModal();
   bindSettings();
 
-  showPage('onboarding'); // всегда стартуем с экрана входа
+  showPage('onboarding'); // стартуем со страницы входа
 });
 
 // ---------- Tabs ----------
@@ -71,10 +71,14 @@ function bindOnboarding(){
       provider.addScope('email');
       provider.addScope('https://www.googleapis.com/auth/drive.file');
 
+      // Важно: это открывается строго по клику пользователя (OK для popup)
       const cred = await FB.auth.signInWithPopup(provider);
       currentUser = cred.user;
 
-      const accessToken = cred.credential.accessToken;
+      const accessToken = cred.credential && cred.credential.accessToken;
+      if (!accessToken) {
+        throw new Error('Google accessToken не получен');
+      }
 
       await Drive.loadGapi();
       await Drive.setAuthToken(accessToken);
@@ -106,6 +110,7 @@ function bindOnboarding(){
   });
 }
 
+// ---------- Firestore realtime ----------
 function listenClientsRealtime(){
   FB.db.collection('TattooCRM').doc('app').collection('clients')
     .orderBy('updatedAt', 'desc')
@@ -120,6 +125,7 @@ function listenClientsRealtime(){
     });
 }
 
+// ---------- Settings load/save ----------
 async function loadSettings(){
   try {
     const docRef = FB.db.collection('TattooCRM').doc('settings').collection('global').doc('default');
@@ -163,7 +169,7 @@ function renderToday(){
 
   const todays = (AppState.clients || [])
     .filter(c => (c.nextDate || '').slice(0,10) === today)
-    .sort((a,b) => a.nextDate.localeCompare(b.nextDate));
+    .sort((a,b) => (cTime(a) || '').localeCompare(cTime(b) || ''));
 
   if (!todays.length) {
     const el = document.createElement('div');
@@ -172,7 +178,7 @@ function renderToday(){
     sch.appendChild(el);
   } else {
     todays.forEach(c => {
-      const time = c.nextDate.slice(11,16) || '';
+      const time = (c.nextDate || '').slice(11,16) || '';
       const el = document.createElement('div');
       el.className='row card-client glass';
       el.innerHTML = `<div><b>${time||'—'}</b> — ${c.displayName} <span class="badge">${c.status||'Сеанс'}</span></div>`;
@@ -186,6 +192,8 @@ function renderToday(){
     el.innerHTML = `<div>🔔 <b>${r.date}</b> — ${r.title}</div>`;
     rem.appendChild(el);
   });
+
+  function cTime(c){ return (c.nextDate||''); }
 }
 
 // ---------- Clients ----------
@@ -199,6 +207,7 @@ function bindClientsModal(){
 
   $('#openFolderBtn').addEventListener('click', async () => {
     const id = $('#clientDialog').dataset.id;
+    if (!id) return;
     const doc = await FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id).get();
     const folderId = doc.data()?.driveFolderId;
     if (!folderId) return toast('Папка ещё не создана');
@@ -209,6 +218,7 @@ function bindClientsModal(){
   $('#shareFolderBtn').addEventListener('click', async () => {
     try{
       const id = $('#clientDialog').dataset.id;
+      if (!id) return;
       const doc = await FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id).get();
       const folderId = doc.data()?.driveFolderId;
       if (!folderId) return toast('Папка ещё не создана');
@@ -227,6 +237,7 @@ function bindClientsModal(){
       const files = Array.from(e.target.files || []);
       if (!files.length) return;
       const id = $('#clientDialog').dataset.id;
+      if (!id) return;
 
       const doc = await FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id).get();
       let folderId = doc.data()?.driveFolderId;
@@ -246,6 +257,10 @@ function bindClientsModal(){
       toast('Ошибка загрузки в Google Drive');
     }
   });
+
+  // ВАЖНО: обработчики сохранения/удаления
+  $('#saveClientBtn').addEventListener('click', saveClientFromDialog);
+  $('#deleteClientBtn').addEventListener('click', deleteClientFromDialog);
 }
 
 function renderClients(){
@@ -256,6 +271,7 @@ function renderClients(){
   const src = $('#filterSource').value || '';
   const st  = $('#filterStatus').value || '';
 
+  // заполняем источники в фильтре один раз
   const srcSel = $('#filterSource');
   if (!srcSel.dataset.filled){
     (AppState.settings?.sources || []).forEach(s=>{
@@ -264,7 +280,7 @@ function renderClients(){
     srcSel.dataset.filled = '1';
   }
 
-  let arr = [...AppState.clients];
+  let arr = [...(AppState.clients || [])];
   if (term) arr = arr.filter(c => [c.displayName,c.phone,(c.styles||[]).join(',')].join(' ').toLowerCase().includes(term));
   if (src)  arr = arr.filter(c => c.source === src);
   if (st)   arr = arr.filter(c => c.status === st);
@@ -299,7 +315,7 @@ function openClientDialog(c = null){
   const isNew = !c;
   const id = c?.id || `cl_${crypto.randomUUID().slice(0,8)}`;
   dlg.dataset.id = id;
-  $('#clientModalTitle').textContent = isNew ? 'Новый клиент' : c.displayName || 'Клиент';
+  $('#clientModalTitle').textContent = isNew ? 'Новый клиент' : (c?.displayName || 'Клиент');
 
   const fSource = $('#fSource');
   fSource.innerHTML = '';
@@ -311,7 +327,7 @@ function openClientDialog(c = null){
   $('#fPhone').value  = c?.phone || '';
   $('#fLink').value   = c?.link || '';
   $('#fSource').value = c?.source || (AppState.settings?.sources?.[0] || '');
-  $('#fFirst').value  = String(c?.first ?? true);
+  $('#fFirst').value  = String(c?.first ?? true);      // это select!
   $('#fType').value   = c?.type || 'Новая';
   $('#fStyles').value = (c?.styles || []).join(', ');
   $('#fZones').value  = (c?.zones || []).join(', ');
@@ -342,7 +358,7 @@ async function saveClientFromDialog(){
     phone: $('#fPhone').value.trim(),
     link: $('#fLink').value.trim(),
     source: $('#fSource').value.trim(),
-    first: $('#fFirst').checked,
+    first: ($('#fFirst').value === 'true'),           // <-- fix: это select
     type: $('#fType').value.trim(),
     styles: splitTags($('#fStyles').value),
     zones: splitTags($('#fZones').value),
@@ -356,8 +372,7 @@ async function saveClientFromDialog(){
   };
 
   const i = AppState.clients.findIndex(x => x.id === id);
-  if (i >= 0) AppState.clients[i] = client;
-  else AppState.clients.push(client);
+  if (i >= 0) AppState.clients[i] = client; else AppState.clients.push(client);
   renderClients();
 
   try {
@@ -483,4 +498,19 @@ function demoSettings(){
     styles:["Реализм","Ч/Б","Цвет","Олдскул"],
     zones:["Рука","Нога","Спина"],
     supplies:["Краски","Иглы","Химия"],
-    defaultReminder:"Через 
+    defaultReminder:"Через 14 дней — Спросить про заживление",
+    syncInterval:60,
+    language:"ru"
+  };
+}
+function demoClients(){
+  return [
+    {id:'cl_ivan', displayName:'Иван Петров', phone:'+421...', link:'instagram.com/ivan', source:'Instagram',
+     first:true, type:'Перекрытие', styles:['реализм','ч/б'], zones:['предплечье'], status:'Сеанс', qual:'Целевой',
+     deposit:50, amount:450, notes:'перекрыть надпись', updatedAt: new Date().toISOString()},
+    {id:'cl_ana', displayName:'Анастасия Смирнова', phone:'+421...', link:'vk.com/ana', source:'VK',
+     first:false, type:'Новая', styles:['минимализм'], zones:['кисть'], status:'Консультация', qual:'Целевой',
+     deposit:0, amount:0, notes:'', updatedAt: new Date().toISOString()}
+  ];
+}
+function demoReminders(){ return []; }
