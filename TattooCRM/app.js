@@ -234,7 +234,7 @@ function bindClientsModal(){
 
   // Загрузка фото в Google Drive (создаём папку и док в Firestore, если их ещё нет)
 $('#photoInput').addEventListener('change', async (e) => {
-  try {
+  try{
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
 
@@ -242,22 +242,17 @@ $('#photoInput').addEventListener('change', async (e) => {
     if (!id) { toast('Сначала откройте карточку клиента'); return; }
 
     const name = ($('#fName').value || 'Без имени').trim();
-
     const clientRef = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
     const snap = await clientRef.get();
 
-    // 1) Берём/создаём папку на Drive
     let folderId = snap.exists ? (snap.data()?.driveFolderId || null) : null;
     await Drive.ensureLibrary();
+
     if (!folderId) {
       folderId = await Drive.createClientFolder(id, name);
-      // 2) Гарантированно пишем ссылку в Firestore (set с merge, а не update)
-      await clientRef.set({
-        id, displayName: name, driveFolderId: folderId, updatedAt: new Date().toISOString()
-      }, { merge: true });
+      await clientRef.set({ id, displayName: name, driveFolderId: folderId, updatedAt: new Date().toISOString() }, { merge: true });
     }
 
-    // 3) Грузим все выбранные файлы
     for (const f of files) {
       await Drive.uploadToFolder(folderId, f);
     }
@@ -265,11 +260,13 @@ $('#photoInput').addEventListener('change', async (e) => {
     toast(`Загружено: ${files.length} файл(ов)`);
     $('#photosEmptyNote').style.display = 'none';
 
-  } catch (err) {
-    console.error(err);
+    // обновить превью
+    await refreshClientPhotos(id);
+
+  }catch(e){
+    console.error(e);
     toast('Ошибка загрузки в Google Drive');
   } finally {
-    // очищаем input, чтобы повторный выбор тех же файлов снова триггерил change
     e.target.value = '';
   }
 });
@@ -326,6 +323,45 @@ function renderClients(){
   $('#filterStatus').onchange = () => renderClients();
 }
 
+async function refreshClientPhotos(clientId){
+  try{
+    const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(clientId);
+    const snap = await ref.get();
+    const folderId = snap.data()?.driveFolderId;
+    const grid = $('#photosGrid');
+
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    if (!folderId) {
+      $('#photosEmptyNote').style.display = 'block';
+      return;
+    }
+
+    const files = await Drive.listFilesInFolder(folderId, 200);
+    if (!files.length) {
+      $('#photosEmptyNote').style.display = 'block';
+      return;
+    }
+    $('#photosEmptyNote').style.display = 'none';
+
+    files.forEach(f => {
+      const div = document.createElement('div');
+      div.className = 'thumb';
+      const thumb = f.thumbnailLink || f.iconLink;
+      div.innerHTML = `
+        <img src="${thumb}" alt="${f.name}">
+        <div class="thumb-meta" title="${f.name}">${f.name}</div>
+      `;
+      div.addEventListener('click', ()=> window.open(f.webViewLink || `https://drive.google.com/file/d/${f.id}/view`, '_blank'));
+      grid.appendChild(div);
+    });
+  }catch(e){
+    console.error(e);
+  }
+}
+
+
 function openClientDialog(c = null){
   const dlg = $('#clientDialog');
   const isNew = !c;
@@ -354,7 +390,9 @@ function openClientDialog(c = null){
   $('#fNotes').value  = c?.notes || '';
   $('#fNextDate').value = c?.nextDate ? c.nextDate.slice(0,16) : '';
   $('#photosEmptyNote').style.display = 'block';
-
+// очистим и подгрузим превью, если есть папка
+$('#photosGrid').innerHTML = '';
+refreshClientPhotos($('#clientDialog').dataset.id);
   dlg.showModal();
 }
 
@@ -374,7 +412,7 @@ async function saveClientFromDialog(){
     phone: $('#fPhone').value.trim(),
     link: $('#fLink').value.trim(),
     source: $('#fSource').value.trim(),
-    first: ($('#fFirst').value === 'true'),           // <-- fix: это select
+    first: ($('#fFirst').value === 'true'),
     type: $('#fType').value.trim(),
     styles: splitTags($('#fStyles').value),
     zones: splitTags($('#fZones').value),
@@ -393,11 +431,21 @@ async function saveClientFromDialog(){
 
   try {
     const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
+    // 1) Сохраняем клиента
     await ref.set(client, { merge:true });
 
-    if (isNew && driveReady) {
-      const folderId = await Drive.createClientFolder(id, displayName);
-      await ref.update({ driveFolderId: folderId });
+    // 2) Автосоздание папки, если ещё нет
+    if (driveReady) {
+      const snap = await ref.get();
+      let folderId = snap.data()?.driveFolderId || null;
+      if (!folderId) {
+        folderId = await Drive.createClientFolder(id, displayName || 'Без имени');
+        await ref.set({ driveFolderId: folderId, updatedAt: new Date().toISOString() }, { merge: true });
+      }
+      // 3) Обновим превью фоток (если модалка ещё открыта)
+      if ($('#clientDialog').open) {
+        await refreshClientPhotos(id);
+      }
     }
 
     toast('Сохранено');

@@ -141,3 +141,40 @@ main{padding: 12px; padding-bottom: 84px;}
 .y-12{height:12px}
 .y-16{height:16px}
 .spacer{flex:1}
+
+
+/* Thumbs grid */
+.thumbs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.thumb {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  aspect-ratio: 1/1;
+  cursor: pointer;
+}
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display:block;
+}
+.thumb .thumb-meta {
+  position:absolute;
+  left:6px; right:6px; bottom:6px;
+  font-size: 11px;
+  line-height: 1.2;
+  color: #eaeaea;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
