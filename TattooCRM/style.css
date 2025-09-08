@@ -178,3 +178,95 @@ main{padding: 12px; padding-bottom: 84px;}
   pointer-events: none;
 }
 
+/* Tattoo-style адаптация */
+body {
+  margin: 0;
+  color: #fff;
+  font-family: -apple-system, sans-serif;
+  position: relative;
+}
+
+.background-fixed {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: 0;
+  background: url('envelopes-background.jpg') center center / cover no-repeat;
+  pointer-events: none;
+  user-select: none;
+}
+
+.container {
+  max-width: 360px;
+  margin: 0 auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Переписываем карточки/панели под tattoo-style */
+.glass, .card, .card-client, .modal-body, .toolbar, .tabbar {
+  background: rgba(0,0,0,0.45) !important;
+  backdrop-filter: blur(16px) saturate(1.1);
+  -webkit-backdrop-filter: blur(16px) saturate(1.1);
+  border-radius: 24px !important;
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  color: #eee !important;
+}
+
+/* Оранжевые акценты */
+.btn.primary, .btn.success {
+  background: linear-gradient(120deg, #ffa35c 60%, #f8d8b4 100%) !important;
+  color: #222 !important;
+  border: none !important;
+}
+.btn:hover {
+  filter: brightness(1.08);
+}
+.badge {
+  background: rgba(255,163,92,0.25) !important;
+  border: 1px solid rgba(255,163,92,0.5) !important;
+  color: #ffa35c !important;
+}
+
+/* Инпуты и поля */
+.field > input, .field > select, .field > textarea, .search, .chip {
+  background: rgba(0,0,0,0.4) !important;
+  color: #ccc !important;
+  border: none !important;
+  border-radius: 999px !important;
+  padding: 12px 16px !important;
+  text-align: center;
+}
+.field > input::placeholder, .field > textarea::placeholder {
+  color: #aaa !important;
+}
+.field > input:focus, .field > select:focus, .field > textarea:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(255,163,92,0.7);
+}
+
+/* Таббар */
+.tabbar {
+  background: rgba(255,255,255,0.1) !important;
+  backdrop-filter: blur(14px);
+  border-radius: 999px !important;
+  padding: 6px !important;
+}
+.tab.is-active {
+  background: rgba(255,163,92,0.25) !important;
+  color: #ffa35c !important;
+}
+
+/* Карточки клиентов */
+.card-client {
+  padding: 14px;
+  border-radius: 22px !important;
+  background: rgba(255,255,255,0.08) !important;
+  backdrop-filter: blur(14px) !important;
+  color: #fff !important;
+}
