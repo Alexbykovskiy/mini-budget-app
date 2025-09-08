@@ -104,7 +104,6 @@ function bindOnboarding(){
     console.error(e);
     toast('Ошибка инициализации после входа');
   });
-}
 
   $('#demoBtn').addEventListener('click', () => {
     AppState.connected = false;
