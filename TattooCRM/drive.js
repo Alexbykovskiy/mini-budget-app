@@ -62,42 +62,97 @@ const Drive = (() => {
   }
 
   // Загрузка файла (multipart). Вернём id/name/links для последующего UI.
-  async function uploadToFolder(folderId, file) {
-    const metadata = {
+  // Было: async function uploadToFolder(folderId, file) { ...multipart... }
+async function uploadToFolder(folderId, file) {
+  // Если больше 4 МБ — используем резюмируемый аплоад
+  if (file.size > 4 * 1024 * 1024) {
+    return uploadResumable(folderId, file);
+  }
+
+  // ----- существующая multipart-реализация ниже (оставь как было) -----
+  const metadata = { name: file.name, parents: [folderId] };
+  const boundary = '-------314159265358979323846';
+  const delimiter = `\r\n--${boundary}\r\n`;
+  const closeDelim = `\r\n--${boundary}--`;
+
+  const buf = await file.arrayBuffer();
+  const contentType = file.type || 'application/octet-stream';
+  const base64Data = btoa(String.fromCharCode(...new Uint8Array(buf)));
+
+  const body =
+    delimiter + 'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+    JSON.stringify(metadata) +
+    delimiter + `Content-Type: ${contentType}\r\n` +
+    'Content-Transfer-Encoding: base64\r\n\r\n' +
+    base64Data + closeDelim;
+
+  const res = await gapi.client.request({
+    path: '/upload/drive/v3/files',
+    method: 'POST',
+    params: { uploadType: 'multipart' },
+    headers: { 'Content-Type': `multipart/related; boundary="${boundary}"` },
+    body
+  });
+
+  const meta = await gapi.client.drive.files.get({
+    fileId: res.result.id,
+    fields: 'id,name,mimeType,thumbnailLink,webViewLink,iconLink'
+  });
+  return meta.result;
+}
+
+// ВНИМАНИЕ: вставь это в drive.js рядом с другими функциями
+
+async function uploadResumable(folderId, file) {
+  // 1) Инициируем сессию
+  const token = gapi.client.getToken()?.access_token;
+  if (!token) throw new Error('No OAuth token for Drive');
+
+  const initRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json; charset=UTF-8',
+      'X-Upload-Content-Type': file.type || 'application/octet-stream',
+      'X-Upload-Content-Length': String(file.size),
+    },
+    body: JSON.stringify({
       name: file.name,
       parents: [folderId]
-    };
+    })
+  });
 
-    const boundary = '-------314159265358979323846';
-    const delimiter = `\r\n--${boundary}\r\n`;
-    const closeDelim = `\r\n--${boundary}--`;
-
-    const buf = await file.arrayBuffer();
-    const contentType = file.type || 'application/octet-stream';
-    const base64Data = btoa(String.fromCharCode(...new Uint8Array(buf)));
-
-    const body =
-      delimiter + 'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
-      JSON.stringify(metadata) +
-      delimiter + `Content-Type: ${contentType}\r\n` +
-      'Content-Transfer-Encoding: base64\r\n\r\n' +
-      base64Data + closeDelim;
-
-    const res = await gapi.client.request({
-      path: '/upload/drive/v3/files',
-      method: 'POST',
-      params: { uploadType: 'multipart' },
-      headers: { 'Content-Type': `multipart/related; boundary="${boundary}"` },
-      body
-    });
-
-    // Запросим нужные поля для превью (thumbnail может появиться не мгновенно, но чаще есть сразу)
-    const meta = await gapi.client.drive.files.get({
-      fileId: res.result.id,
-      fields: 'id,name,mimeType,thumbnailLink,webViewLink,iconLink'
-    });
-    return meta.result; // {id,name,mimeType,thumbnailLink,webViewLink,iconLink}
+  if (!initRes.ok) {
+    const txt = await initRes.text().catch(()=> '');
+    throw new Error('Init resumable failed: ' + txt);
   }
+  const uploadUrl = initRes.headers.get('Location');
+  if (!uploadUrl) throw new Error('No resumable upload URL');
+
+  // 2) Отправляем файл одной порцией (можно нарезать на чанки, но обычно хватает)
+  const buf = await file.arrayBuffer();
+  const putRes = await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': file.type || 'application/octet-stream',
+      'Content-Length': String(file.size),
+    },
+    body: buf
+  });
+
+  if (!putRes.ok) {
+    const txt = await putRes.text().catch(()=> '');
+    throw new Error('Resumable PUT failed: ' + txt);
+  }
+  const info = await putRes.json();
+
+  // 3) Дотягиваем мету (thumbnailLink/webViewLink)
+  const meta = await gapi.client.drive.files.get({
+    fileId: info.id,
+    fields: 'id,name,mimeType,thumbnailLink,webViewLink,iconLink'
+  });
+  return meta.result;
+}
 
   // Дать доступ к папке “по ссылке – чтение”
   async function shareFolderPublic(folderId){

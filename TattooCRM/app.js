@@ -203,6 +203,7 @@ function bindClientsModal(){
   $('#attachPhotosBtn').addEventListener('click', (e)=>{
     e.preventDefault();
     $('#photoInput').click();
+await refreshClientPhotos(id);
   });
 
   $('#openFolderBtn').addEventListener('click', async () => {
@@ -392,6 +393,7 @@ function openClientDialog(c = null){
   $('#photosEmptyNote').style.display = 'block';
 // очистим и подгрузим превью, если есть папка
 $('#photosGrid').innerHTML = '';
+$('#photosEmptyNote').style.display = 'block';
 refreshClientPhotos($('#clientDialog').dataset.id);
   dlg.showModal();
 }
