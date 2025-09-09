@@ -158,9 +158,11 @@ FB.auth.onAuthStateChanged(async (user) => {
   // boot: проверка сессии
   try { BOOT.set(2,'ok', user ? 'Найдена активная сессия' : 'Гость (нет сессии)'); } catch(_) {}
 
-  if (user) {
-    currentUser = user;
-    try {
+ if (user) {
+  currentUser = user;
+  setDeviceTrusted(user);
+  touchDeviceTrust();
+  try {
       // Инициализируем Drive + получаем токен бесшумно
       await initDriveStack({ forceConsent: false });
 
@@ -254,7 +256,9 @@ function bindOnboarding() {
 async function afterLogin(cred) {
   try {
     currentUser = cred.user;
-
+    setDeviceTrusted(currentUser);
+    touchDeviceTrust();
+    await loadSettings();
     await loadSettings();
     AppState.connected = true;
 
@@ -833,12 +837,12 @@ function ensureDriveAccessToken({ forceConsent = false } = {}) {
       if (resp && resp.access_token) {
         driveAccessToken = resp.access_token;
         // expires_in обычно ~3600 с; поставим запас -60 с
-        const sec = Number(resp.expires_in || 3600);
-        driveTokenExpTs = Date.now() + (sec - 60) * 1000;
+      const sec = Number(resp.expires_in || 3600);
+driveTokenExpTs = Date.now() + (sec - 60) * 1000;
 
-        // Пробрасываем токен в gapi
-        gapi.client.setToken({ access_token: driveAccessToken });
-        return resolve(driveAccessToken);
+gapi.client.setToken({ access_token: driveAccessToken });
+saveAccessToken(driveAccessToken, sec);
+return resolve(driveAccessToken);
       }
       reject(new Error('No access_token from GIS'));
     };
@@ -910,6 +914,38 @@ function getSavedAccessToken() {
   } catch (e) {
     return null;
   }
+}
+
+// --- Trusted device (моментальный старт) ---
+const TRUST_KEY = 'tcrm_device';
+
+function setDeviceTrusted(user) {
+  try {
+    localStorage.setItem(TRUST_KEY, JSON.stringify({
+      uid: user?.uid || null,
+      ts: Date.now()
+    }));
+  } catch(_) {}
+}
+
+function isDeviceTrusted(maxAgeDays = 14) {
+  try {
+    const raw = localStorage.getItem(TRUST_KEY);
+    if (!raw) return false;
+    const { uid, ts } = JSON.parse(raw);
+    if (!ts) return false;
+    return (Date.now() - ts) < maxAgeDays * 24 * 60 * 60 * 1000;
+  } catch(_) { return false; }
+}
+
+function touchDeviceTrust(){
+  try {
+    const raw = localStorage.getItem(TRUST_KEY);
+    if (!raw) return;
+    const obj = JSON.parse(raw);
+    obj.ts = Date.now();
+    localStorage.setItem(TRUST_KEY, JSON.stringify(obj));
+  } catch(_) {}
 }
 
 
