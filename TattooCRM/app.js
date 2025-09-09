@@ -108,6 +108,21 @@ async function ensureAuthPersistence() {
   } catch(_) {}
 }
 
+// --- Env flags (Safari / A2HS) ---
+const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+const isStandalone = !!(window.navigator && window.navigator.standalone);
+const isSafariA2HS = isIOS && isSafari && isStandalone;
+
+// Обёртка-таймаут для обещаний
+function withTimeout(promise, ms = 3000, label = 'timeout') {
+  return new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error(label)), ms);
+    promise.then(v => { clearTimeout(t); resolve(v); },
+                 e => { clearTimeout(t); reject(e); });
+  });
+}
+
 
 // ---------- State ----------
 const AppState = {
@@ -141,6 +156,33 @@ try { if (window.firebase && window.FB) BOOT.set(1,'ok'); } catch(_) {}
 // Ускоряем инициализацию Auth на iOS/Safari — выбираем быструю персистенцию
 await ensureAuthPersistence();
 
+// --- QuickStart: если девайс доверенный и есть кэш токена Drive — показываем UI сразу
+try {
+  const trusted = isDeviceTrusted();
+  const cachedTok = getSavedAccessToken();
+  if (trusted && cachedTok) {
+    // Мгновенно показываем «Сегодня» (с демо-настройками до прихода реальных)
+    if (!AppState.settings) AppState.settings = demoSettings();
+    showPage('todayPage');
+    renderToday();
+    try { BOOT.set(6,'ok','Кэш'); BOOT.set(7,'ok'); BOOT.hide(); } catch(_) {}
+    toast('Быстрый старт · восстанавливаем сессию в фоне');
+
+    // Подцепим gapi и подложим сохранённый токен, чтобы Drive был готов
+    (async () => {
+      try {
+        await waitFor(() => window.gapi);
+        gapi.client.setToken({ access_token: cachedTok });
+        driveReady = true;
+        // Инициируем полноценную инициализацию + тихое обновление токена
+        initDriveStack({ forceConsent: false }).catch(console.warn);
+      } catch(e){ console.warn('quickStart drive', e); }
+    })();
+  }
+} catch(e){ console.warn('quickStart', e); }
+
+
+
 // Не показываем экран входа сразу — ждём состояние сессии
 // Не ждём бесконечно: если за 3с нет ответа — показываем гостя, UI не висит
 let __authResolved = false;
@@ -163,11 +205,21 @@ FB.auth.onAuthStateChanged(async (user) => {
   setDeviceTrusted(user);
   touchDeviceTrust();
   try {
-      // Инициализируем Drive + получаем токен бесшумно
-      await initDriveStack({ forceConsent: false });
+     // Инициализация Drive
+if (!isSafariA2HS) {
+  // Стартуем в фоне — UI не ждёт
+  const driveInit = initDriveStack({ forceConsent: false })
+    .catch(e => {
+      console.warn('Drive init (bg) failed', e);
+      try { BOOT.set(5,'err','Drive отложен'); } catch(_) {}
+    });
+} else {
+  // В Safari A2HS вообще не трогаем Drive на старте
+  try { BOOT.set(5,'err','Drive отложен (Safari A2HS)'); } catch(_) {}
+}
 
-      await loadSettings();
-      AppState.connected = true;
+await loadSettings();
+AppState.connected = true;
 
       showPage('todayPage');
       listenClientsRealtime();
@@ -259,8 +311,7 @@ async function afterLogin(cred) {
     setDeviceTrusted(currentUser);
     touchDeviceTrust();
     await loadSettings();
-    await loadSettings();
-    AppState.connected = true;
+        AppState.connected = true;
 
     showPage('todayPage');
     toast('Вход выполнен. Firestore готов.');
@@ -440,7 +491,14 @@ $('#photoInput').addEventListener('change', async (e) => {
     if (!files.length) return;
 
     const id = $('#clientDialog').dataset.id;
-    if (!id) { toast('Сначала откройте карточку клиента'); return; }
+   if (!id) { toast('Сначала откройте карточку клиента'); return; }
+
+if (!driveReady) {
+  await initDriveStack({ forceConsent: isSafariA2HS ? true : false }).catch(() => {
+    toast('Подключите Google Drive и повторите');
+    throw new Error('Drive not ready');
+  });
+}
 
     const name = ($('#fName').value || 'Без имени').trim();
     const clientRef = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
@@ -773,10 +831,24 @@ function bindSettings(){
     FB.auth.signOut();
     toast('Вы вышли из аккаунта');
     location.reload();
+});
+
+const btnCD = $('#btnConnectDrive');
+if (btnCD) {
+  btnCD.addEventListener('click', async () => {
+    try {
+      await initDriveStack({ forceConsent: true });
+      $('#driveStatus').textContent = 'Drive: онлайн';
+      toast('Google Drive подключён');
+    } catch (e) {
+      console.warn(e);
+      $('#driveStatus').textContent = 'Drive: оффлайн';
+      toast('Не удалось подключить Drive');
+    }
   });
 }
-
-function fillSettingsForm(){
+} // ← закрыли bindSettings()
+ function fillSettingsForm(){
   const s = AppState.settings || demoSettings();
   $('#setSources').value  = (s.sources||[]).join(', ');
   $('#setStyles').value   = (s.styles||[]).join(', ');
@@ -866,12 +938,31 @@ async function initDriveStack({ forceConsent = false } = {}) {
     try { BOOT.set(3,'ok'); } catch(_) {}
 
     // 4) gapi client
-    await waitFor(() => window.gapi);
-    await Drive.loadGapi();
-    try { BOOT.set(4,'ok'); } catch(_) {}
+await waitFor(() => window.gapi);
+await Drive.loadGapi();
+try { BOOT.set(4,'ok'); } catch(_) {}
 
-    // 4.5) access token
-    await ensureDriveAccessToken({ forceConsent });
+// 4.5) access token — сначала из кэша, иначе с таймаутом
+const cachedTok = (typeof getSavedAccessToken === 'function') && getSavedAccessToken();
+if (cachedTok) {
+  driveAccessToken = cachedTok;
+  gapi.client.setToken({ access_token: driveAccessToken });
+} else {
+  await withTimeout(ensureDriveAccessToken({ forceConsent }), 3000, 'gis_token_timeout');
+}
+
+// 5) Drive library (папки)
+try {
+  await Drive.ensureLibrary();
+  driveReady = true;
+  try { BOOT.set(5,'ok'); } catch(_) {}
+  // фоновое обновление токена (не ждём)
+  ensureDriveAccessToken({ forceConsent: false }).catch(console.warn);
+} catch (e) {
+  console.warn('Drive library skipped', e);
+  try { BOOT.set(5,'err','Drive отложен'); } catch(_) {}
+}
+
 
     // 5) Drive library (папки)
     await Drive.ensureLibrary();
