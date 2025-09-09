@@ -600,7 +600,7 @@ function fillSettingsForm(){
 // ---------- Google Identity Services token manager ----------
 // ВАЖНО: замени CLIENT_ID на свой из Firebase Console:
 // Firebase Console → Authentication → Sign-in method → Google → Web SDK configuration (или GCP → Credentials)
-cconst GOOGLE_CLIENT_ID = '306275735842-9iebq4vtv2pv9t6isia237os0r1u3eoi.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = '306275735842-9iebq4vtv2pv9t6isia237os0r1u3eoi.apps.googleusercontent.com';
 
 const OAUTH_SCOPES = 'https://www.googleapis.com/auth/drive.file openid email profile';
 
