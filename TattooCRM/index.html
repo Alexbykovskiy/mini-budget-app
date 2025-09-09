@@ -105,6 +105,18 @@
             <label class="field"><span>Депозит (€)</span><input id="fDeposit" type="number" step="1"/></label>
             <label class="field"><span>Сумма (€)</span><input id="fAmount" type="number" step="1"/></label>
             <label class="field"><span>Дата сеанса</span><input id="fNextDate" type="datetime-local" /></label>
+<label class="field"><span>Напоминание</span>
+  <div class="row gap-8">
+    <select id="fReminderTpl" class="chip" style="flex:1">
+      <option value="">— шаблон —</option>
+    </select>
+    <select id="fReminderAfter" class="chip" title="Когда напомнить">
+      <option value="">дни</option>
+    </select>
+  </div>
+  <input id="fReminderTitle" placeholder="Свой текст напоминания (необязательно)"/>
+</label>
+
           </div>
 
           <label class="field"><span>Заметка</span><textarea id="fNotes" rows="3" placeholder="особенности, пожелания…"></textarea></label>
@@ -182,6 +194,13 @@
           <label class="field"><span>Напоминание по умолчанию</span>
             <input id="setDefaultReminder" placeholder="Через 14 дней — Спросить про заживление">
           </label>
+<label class="field"><span>Шаблоны напоминаний</span>
+  <textarea id="setReminderTemplates" rows="2" placeholder="Попросить отзыв, Спросить про заживление, Отправить инструкции по уходу"></textarea>
+</label>
+<label class="field"><span>Шаблоны сроков (дни)</span>
+  <input id="setReminderDelays" placeholder="14, 30, 180"/>
+</label>
+
           <label class="field"><span>Интервал авто-синхронизации (сек)</span>
             <input id="setSyncInterval" type="number" min="15" step="15" />
           </label>

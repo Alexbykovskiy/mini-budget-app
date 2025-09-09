@@ -46,6 +46,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
         showPage('todayPage');
         listenClientsRealtime();
+listenRemindersRealtime();
         renderToday();
         toast('Добро пожаловать обратно 👋');
       } catch (e) {
@@ -137,6 +138,7 @@ async function afterLogin(cred) {
     toast('Вход выполнен. Firestore готов.');
 
     listenClientsRealtime();
+listenRemindersRealtime();
     renderToday();
 
     // Запускаем GIS чуть позже, чтобы не конфликтовало с popup Firebase
@@ -170,6 +172,17 @@ function listenClientsRealtime(){
     });
 }
 
+function listenRemindersRealtime(){
+  FB.db.collection('TattooCRM').doc('app').collection('reminders')
+    .orderBy('date', 'asc')
+    .onSnapshot((qs)=>{
+      AppState.reminders = [];
+      qs.forEach(d => AppState.reminders.push(d.data()));
+      renderToday();
+    }, (err)=> console.error('reminders', err));
+}
+
+
 // ---------- Settings load/save ----------
 async function loadSettings(){
   try {
@@ -191,6 +204,11 @@ async function saveSettings(){
     defaultReminder: $('#setDefaultReminder').value.trim(),
     syncInterval: Math.max(15, Number($('#setSyncInterval').value||60)),
     language: 'ru'
+reminderTemplates: splitTags($('#setReminderTemplates').value),
+reminderDelays: ($('#setReminderDelays').value||'')
+  .split(',')
+  .map(n => Number(n.trim()))
+  .filter(n => !isNaN(n) && n > 0),
   };
   AppState.settings = s;
   try{
@@ -439,7 +457,23 @@ function openClientDialog(c = null){
   $('#fAmount').value = c?.amount || '';
   $('#fNotes').value  = c?.notes || '';
   $('#fNextDate').value = c?.nextDate ? c.nextDate.slice(0,16) : '';
-  $('#photosEmptyNote').style.display = 'block';
+// --- напоминания: шаблоны и сроки
+const tplSel = $('#fReminderTpl');
+tplSel.innerHTML = '<option value="">— шаблон —</option>';
+(AppState.settings?.reminderTemplates || []).forEach(t=>{
+  const o = document.createElement('option'); o.value = t; o.textContent = t; tplSel.appendChild(o);
+});
+
+const afterSel = $('#fReminderAfter');
+afterSel.innerHTML = '<option value="">дни</option>';
+(AppState.settings?.reminderDelays || []).forEach(d=>{
+  const o = document.createElement('option'); o.value = String(d); o.textContent = `через ${d}`;
+  afterSel.appendChild(o);
+});
+
+// очистить поле своего текста
+$('#fReminderTitle').value = '';  
+$('#photosEmptyNote').style.display = 'block';
 // очистим и подгрузим превью, если есть папка
 $('#photosGrid').innerHTML = '';
 $('#photosEmptyNote').style.display = 'block';
@@ -484,6 +518,33 @@ async function saveClientFromDialog(){
     const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
     // 1) Сохраняем клиента
     await ref.set(client, { merge:true });
+// --- авто-создание напоминания, если задано
+try {
+  const tplTitle = $('#fReminderTpl').value.trim();
+  const customTitle = $('#fReminderTitle').value.trim();
+  const daysStr = $('#fReminderAfter').value.trim();
+
+  const title = customTitle || tplTitle || (AppState.settings?.defaultReminder || '');
+  const days = Number(daysStr || 0);
+
+  if (client.nextDate && title && days > 0) {
+    const base = new Date(client.nextDate); // дата сеанса
+    const remindDate = new Date(base.getTime() + days*24*60*60*1000);
+    const rid = `r_${crypto.randomUUID().slice(0,8)}`;
+
+    const r = {
+      id: rid,
+      clientId: client.id,
+      clientName: client.displayName || 'Клиент',
+      title,
+      date: remindDate.toISOString().slice(0,10) // YYYY-MM-DD
+    };
+
+    await FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(rid).set(r, { merge:true });
+  }
+} catch(e) {
+  console.warn('create reminder failed', e);
+}
 
     // 2) Автосоздание папки, если ещё нет
     if (driveReady) {
@@ -589,6 +650,8 @@ function fillSettingsForm(){
   $('#setZones').value    = (s.zones||[]).join(', ');
   $('#setSupplies').value = (s.supplies||[]).join(', ');
   $('#setDefaultReminder').value = s.defaultReminder || '';
+$('#setReminderTemplates').value = (s.reminderTemplates||[]).join(', ');
+$('#setReminderDelays').value = (s.reminderDelays||[]).join(', ');
   $('#setSyncInterval').value = s.syncInterval ?? 60;
 
   const sel = $('#filterSource');
@@ -718,6 +781,8 @@ function demoSettings(){
     defaultReminder:"Через 14 дней — Спросить про заживление",
     syncInterval:60,
     language:"ru"
+reminderTemplates:["Спросить про заживление","Попросить отзыв","Отправить инструкцию по уходу"],
+reminderDelays:[14,30,180],
   };
 }
 function demoClients(){
