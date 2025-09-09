@@ -290,3 +290,22 @@ body {
 .boot-step.ok{border-color:rgba(24,102,99,.5)}
 .boot-step.err{border-color:rgba(200,80,60,.6); background:rgba(200,80,60,.08)}
 .boot-hint{margin-top:10px; font-size:12px; opacity:.8}
+
+
+/* выровнять блок действий вправо */
+.app-header .header-actions { margin-left: auto; display:flex; align-items:center; gap:10px; }
+
+/* круглая иконка «Настройки» */
+.icon-btn{
+  width:40px; height:40px; padding:0;
+  border-radius:9999px;
+  display:inline-flex; align-items:center; justify-content:center;
+  background: rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.08);
+  backdrop-filter: blur(6px);
+  cursor:pointer;
+  transition: transform .12s ease, background .12s ease, opacity .12s ease;
+}
+.icon-btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.1); }
+.icon-btn:active{ transform: translateY(0); opacity:.9; }
+.icon-btn svg{ pointer-events:none; }

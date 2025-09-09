@@ -261,25 +261,32 @@ function showPage(id){
 
 // ---------- Header ----------
 function bindHeader(){
-  const btn = $('#btnConnectDrive');
-  if (!btn) return;
+  // Подключить Drive
+  const btnDrive = $('#btnConnectDrive');
+  if (btnDrive) {
+    btnDrive.addEventListener('click', async () => {
+      try {
+        await initDriveStack({ forceConsent: true });
+        const ds = $('#driveStatus'); if (ds) ds.textContent = 'Drive: онлайн';
+        toast('Google Drive подключён');
+      } catch (e) {
+        console.warn('connect drive failed', e);
+        const ds = $('#driveStatus'); if (ds) ds.textContent = 'Drive: оффлайн';
+        toast('Не удалось подключить Drive');
+      }
+    });
+  }
 
-  btn.addEventListener('click', async () => {
-    try {
-      // Явно просим consent, чтобы показать окно и выдать токен/права Drive
-      await initDriveStack({ forceConsent: true });
-
-      const ds = $('#driveStatus');
-      if (ds) ds.textContent = 'Drive: онлайн';
-
-      toast('Google Drive подключён');
-    } catch (e) {
-      console.warn('connect drive failed', e);
-      const ds = $('#driveStatus');
-      if (ds) ds.textContent = 'Drive: оффлайн';
-      toast('Не удалось подключить Drive');
-    }
-  });
+  // Кнопка настроек (шестерёнка)
+  const btnSettings = $('#btnSettings');
+  if (btnSettings) {
+    btnSettings.addEventListener('click', () => {
+      // откроем страницу настроек
+      showPage('settingsPage'); // если у тебя другой id — подставь его сюда
+      // (опционально) проскроллим к началу
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
 }
 // ---------- Onboarding ----------
 function bindOnboarding() {
