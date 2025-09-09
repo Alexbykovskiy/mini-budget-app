@@ -9,6 +9,68 @@ const toast = (msg) => {
   setTimeout(() => t.classList.remove('show'), 1800);
 };
 
+// --- Boot overlay utils ---
+const BOOT = {
+  steps: [
+    'DOM готов',
+    'Firebase SDK',
+    'Проверка сессии',
+    'Google Identity (GIS)',
+    'Google API (gapi)',
+    'Drive готов',
+    'Firestore (настройки)',
+    'UI готова'
+  ],
+  el: null, list: null, hint: null, progressEl: null,
+  state: [],
+  show(){
+    this.el = this.el || document.getElementById('bootOverlay');
+    this.list = this.list || document.getElementById('bootSteps');
+    this.hint = this.hint || document.getElementById('bootHint');
+    this.progressEl = this.progressEl || document.getElementById('bootProgress');
+    if (!this.el || !this.list) return; // если оверлея нет в HTML — просто тихо выходим
+    this.list.innerHTML = '';
+    this.state = this.steps.map(_ => 'wait');
+    this.steps.forEach((t,i)=>{
+      const li = document.createElement('div');
+      li.className = 'boot-step wait';
+      li.dataset.idx = String(i);
+      li.innerHTML = `<span class="mark">…</span><span>${t}</span>`;
+      this.list.appendChild(li);
+    });
+    this.el.classList.remove('hidden');
+    this.updateProgress();
+  },
+  set(i, status, note=''){
+    if (!this.list) return;
+    const row = this.list.querySelector(`.boot-step[data-idx="${i}"]`);
+    if(!row) return;
+    row.classList.remove('wait','ok','err');
+    row.classList.add(status);
+    row.querySelector('.mark').textContent = status==='ok' ? '✓' : (status==='err' ? '!' : '…');
+    this.state[i] = status;
+    if(note && this.hint) this.hint.textContent = note;
+    this.updateProgress();
+  },
+  hide(){ this.el?.classList.add('hidden'); },
+  updateProgress(){
+    const ok = this.state.filter(s=>s==='ok').length;
+    const pct = Math.round(ok / this.steps.length * 100);
+    if (this.progressEl) this.progressEl.textContent = `${pct}%`;
+  }
+};
+
+// «ожидалка» появления глобалов/состояния
+async function waitFor(getter, timeout=10000, step=50){
+  const t0 = Date.now();
+  while(!getter()){
+    if(Date.now()-t0 > timeout) throw new Error('timeout: ' + getter.toString());
+    await new Promise(r => setTimeout(r, step));
+  }
+}
+
+
+
 // ---------- State ----------
 const AppState = {
   connected: false,
@@ -27,14 +89,21 @@ let driveReady = false;
 // ---------- Init ----------
 // ---------- Init ----------
 window.addEventListener('DOMContentLoaded', () => {
-  bindTabbar();
-  bindHeader();
+  // boot: DOM
+  try { BOOT.show(); BOOT.set(0,'ok'); } catch(_) {}
+
+  bindTabbar();  bindHeader();
   bindOnboarding();
   bindClientsModal();
   bindSettings();
 
+// boot: Firebase SDK виден
+  try { if (window.firebase && window.FB) BOOT.set(1,'ok'); } catch(_) {}
+
   // Не показываем экран входа сразу — ждём состояние сессии
   FB.auth.onAuthStateChanged(async (user) => {
+ // boot: проверка сессии
+    try { BOOT.set(2,'ok', user ? 'Найдена активная сессия' : 'Гость (нет сессии)'); } catch(_) {}
     if (user) {
       currentUser = user;
       try {
@@ -141,15 +210,14 @@ async function afterLogin(cred) {
 listenRemindersRealtime();
     renderToday();
 
-    // Запускаем GIS чуть позже, чтобы не конфликтовало с popup Firebase
-    setTimeout(() => {
-      initDriveStack({ forceConsent: true })
-        .then(() => toast('Google Drive подключён'))
-        .catch(e => {
-          console.error(e);
-          toast('Не удалось подключить Drive');
-        });
-    }, 500);
+  // Инициализируем Drive (ожидаем библиотеки детерминированно)
+initDriveStack({ forceConsent: true })
+  .then(() => toast('Google Drive подключён'))
+  .catch(e => {
+    console.error(e);
+    toast('Не удалось подключить Drive');
+  });
+
 
   } catch (e) {
     console.error('afterLogin error', e);
@@ -189,9 +257,12 @@ async function loadSettings(){
     const docRef = FB.db.collection('TattooCRM').doc('settings').collection('global').doc('default');
     const doc = await docRef.get();
     AppState.settings = doc.exists ? doc.data() : demoSettings();
+try { BOOT.set(6,'ok'); } catch(_) {}
   } catch(e) {
     console.warn(e);
     AppState.settings = demoSettings();
+try { BOOT.set(6,'ok'); } catch(_) {}
+
   }
 }
 
@@ -256,7 +327,10 @@ function renderToday(){
     rem.appendChild(el);
   });
 
-  function cTime(c){ return (c.nextDate||''); }
+   function cTime(c){ return (c.nextDate||''); }
+
+  // boot: UI готова
+  try { BOOT.set(7,'ok'); BOOT.hide(); } catch(_) {}
 }
 
 // ---------- Clients ----------
@@ -726,18 +800,35 @@ function ensureDriveAccessToken({ forceConsent = false } = {}) {
   });
 }
 
-/** Инициализация gapi + Drive + токена (универсальная) */
 async function initDriveStack({ forceConsent = false } = {}) {
-  await Drive.loadGapi();
-  await ensureDriveAccessToken({ forceConsent });
-  await Drive.ensureLibrary();
-  driveReady = true;
+  try{
+    // 3) GIS
+    await waitFor(() => window.google && google.accounts && google.accounts.oauth2);
+    try { BOOT.set(3,'ok'); } catch(_) {}
 
-  // Периодическое бесшумное обновление токена (~каждые 45 минут)
-  if (!window.__driveAutoRefresh) {
-    window.__driveAutoRefresh = setInterval(() => {
-      ensureDriveAccessToken().catch(console.warn);
-    }, 45 * 60 * 1000);
+    // 4) gapi client
+    await waitFor(() => window.gapi);
+    await Drive.loadGapi();
+    try { BOOT.set(4,'ok'); } catch(_) {}
+
+    // 4.5) access token
+    await ensureDriveAccessToken({ forceConsent });
+
+    // 5) Drive library (папки)
+    await Drive.ensureLibrary();
+    driveReady = true;
+    try { BOOT.set(5,'ok'); } catch(_) {}
+
+    // автообновление токена
+    if (!window.__driveAutoRefresh) {
+      window.__driveAutoRefresh = setInterval(() => {
+        ensureDriveAccessToken().catch(console.warn);
+      }, 45 * 60 * 1000);
+    }
+  }catch(e){
+    console.warn('initDriveStack', e);
+    try { BOOT.set(3,'err', e.message || 'Ошибка инициализации Drive'); } catch(_) {}
+    throw e;
   }
 }
 

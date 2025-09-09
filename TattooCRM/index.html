@@ -224,6 +224,19 @@
 
   <div id="toast" class="toast"></div>
 
+<!-- Boot overlay -->
+<div id="bootOverlay" class="boot hidden">
+  <div class="boot-box glass">
+    <div class="boot-head">
+      <b>Загрузка приложения…</b>
+      <span id="bootProgress">0%</span>
+    </div>
+    <div id="bootSteps" class="boot-steps"></div>
+    <div id="bootHint" class="boot-hint"></div>
+  </div>
+</div>
+
+
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
