@@ -797,54 +797,55 @@ function renderMarketing(){
   hi.innerHTML = '';
   tb.innerHTML = '';
 
-  const highlights = [
-    {k:'55%', t:'Instagram'},
-    {k:'17%', t:'Конверсия → сеанс'},
-    {k:'32%', t:'Повторные клиенты'},
-    {k:'€ 2 450', t:'Выручка (мес)'},
-  ];
+ // берём из состояния, иначе — пусто
+const highlights = Array.isArray(AppState.marketing?.highlights) ? AppState.marketing.highlights : [];
+if (!highlights.length) {
+  hi.innerHTML = `<div class="row card-client glass">Нет данных по маркетингу</div>`;
+} else {
   highlights.forEach(m=>{
     const el = document.createElement('div');
     el.className='metric glass';
     el.innerHTML = `<div class="k">${m.k}</div><div class="t">${m.t}</div>`;
     hi.appendChild(el);
   });
+}
 
-  const rows = [
-    {src:'Instagram', lead:6, consult:3, session:1},
-    {src:'VK', lead:2, consult:0, session:0},
-  ];
-  tb.innerHTML = rows.map(r=>`
-    <div class="row">
-      <div style="width:30%">${r.src}</div>
-      <div>Обращения: <b>${r.lead}</b></div>
-      <div>Консультации: <b>${r.consult}</b></div>
-      <div>Сеансы: <b>${r.session}</b></div>
-    </div>
-  `).join('');
+  const rows = Array.isArray(AppState.marketing?.rows) ? AppState.marketing.rows : [];
+tb.innerHTML = rows.length ? rows.map(r=>`
+  <div class="row">
+    <div style="width:30%">${r.src}</div>
+    <div>Обращения: <b>${r.lead}</b></div>
+    <div>Консультации: <b>${r.consult}</b></div>
+    <div>Сеансы: <b>${r.session}</b></div>
+  </div>
+`).join('') : `<div class="row card-client glass">Данные появятся после первых лидов</div>`;
 }
 
 // ---------- Supplies ----------
 function renderSupplies(){
-  const list = $('#suppliesList'); list.innerHTML = '';
-  AppState.supplies = AppState.supplies?.length ? AppState.supplies : [
-    {name:'Dynamic Black 12oz', cat:'Краски', left:'20%', note:'пора докупить', link:'#'},
-    {name:'Картриджи 0.35 #12', cat:'Иглы', left:'3 уп.', link:'#'},
-  ];
-  AppState.supplies.forEach(s=>{
-    const card = document.createElement('div');
-    card.className='card-client glass';
-    card.innerHTML = `
-      <div class="row" style="justify-content:space-between">
-        <div><b>${s.name}</b> · <span class="meta">${s.cat}</span></div>
-        <div class="badge">${s.left}</div>
-      </div>
-      <div class="row" style="justify-content:flex-end; gap:8px">
-        <a class="btn ghost" href="${s.link}" target="_blank">Заказать</a>
-      </div>
-    `;
-    list.appendChild(card);
-  });
+ const list = $('#suppliesList'); list.innerHTML = '';
+const items = Array.isArray(AppState.supplies) ? AppState.supplies : [];
+
+if (!items.length) {
+  list.innerHTML = `<div class="row card-client glass">Список пуст</div>`;
+  return;
+}
+
+items.forEach(s=>{
+  const card = document.createElement('div');
+  card.className='card-client glass';
+  card.innerHTML = `
+    <div class="row" style="justify-content:space-between">
+      <div><b>${s.name}</b> · <span class="meta">${s.cat||''}</span></div>
+      <div class="badge">${s.left||''}</div>
+    </div>
+    <div class="row" style="justify-content:flex-end; gap:8px">
+      ${s.link ? `<a class="btn ghost" href="${s.link}" target="_blank">Заказать</a>` : ''}
+    </div>
+  `;
+  list.appendChild(card);
+});
+
 }
 
 // ---------- Settings ----------
