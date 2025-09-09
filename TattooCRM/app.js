@@ -24,6 +24,8 @@ let currentUser = null;
 let driveReady = false;
 
 // ---------- Init ----------
+// ---------- Init ----------
+// ---------- Init ----------
 window.addEventListener('DOMContentLoaded', () => {
   bindTabbar();
   bindHeader();
@@ -31,7 +33,29 @@ window.addEventListener('DOMContentLoaded', () => {
   bindClientsModal();
   bindSettings();
 
-  showPage('onboarding'); // стартуем со страницы входа
+  // Не показываем экран входа сразу — ждём состояние сессии
+  FB.auth.onAuthStateChanged(async (user) => {
+    if (user) {
+      currentUser = user;
+      try {
+        // Инициализируем Drive + получаем токен бесшумно
+        await initDriveStack({ forceConsent: false });
+
+        await loadSettings();
+        AppState.connected = true;
+
+        showPage('todayPage');
+        listenClientsRealtime();
+        renderToday();
+        toast('Добро пожаловать обратно 👋');
+      } catch (e) {
+        console.warn('restore session failed', e);
+        showPage('onboarding');
+      }
+    } else {
+      showPage('onboarding');
+    }
+  });
 });
 
 // ---------- Tabs ----------
@@ -105,13 +129,11 @@ function bindOnboarding() {
 async function afterLogin(cred) {
   try {
     currentUser = cred.user;
-    const accessToken = cred.credential && cred.credential.accessToken;
-    if (!accessToken) throw new Error('Google accessToken не получен');
+    // Первый вход в Firebase состоялся. Теперь просим у GIS доступ к Drive.
+// На первом входе показываем экран согласия (forceConsent: true),
+// дальше обновления токена будут бесшумными.
+await initDriveStack({ forceConsent: true });
 
-    await Drive.loadGapi();
-    await Drive.setAuthToken(accessToken);
-    await Drive.ensureLibrary();
-    driveReady = true;
 
     await loadSettings();
     AppState.connected = true;
@@ -574,6 +596,108 @@ function fillSettingsForm(){
 }
 
 // ---------- Utils ----------
+
+// ---------- Google Identity Services token manager ----------
+// ВАЖНО: замени CLIENT_ID на свой из Firebase Console:
+// Firebase Console → Authentication → Sign-in method → Google → Web SDK configuration (или GCP → Credentials)
+cconst GOOGLE_CLIENT_ID = '306275735842-9iebq4vtv2pv9t6isia237os0r1u3eoi.apps.googleusercontent.com';
+
+const OAUTH_SCOPES = 'https://www.googleapis.com/auth/drive.file openid email profile';
+
+let gisTokenClient = null;
+let driveAccessToken = null;
+let driveTokenExpTs = 0; // ms timestamp
+
+function initGISTokenClient() {
+  if (gisTokenClient) return;
+  gisTokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: OAUTH_SCOPES,
+    // callback заполнится динамически в ensureDriveAccessToken()
+    callback: () => {}
+  });
+}
+
+/**
+ * Получить access_token для Drive бесшумно.
+ * - Если токен жив — возвращаем его.
+ * - Если протух — запрашиваем новый с prompt: '' (без UI).
+ * - Если прав ещё не было — можно вызвать с forceConsent=true в момент первого входа.
+ */
+function ensureDriveAccessToken({ forceConsent = false } = {}) {
+  return new Promise((resolve, reject) => {
+    const needsRefresh = !driveAccessToken || Date.now() > (driveTokenExpTs - 60_000);
+    if (!needsRefresh) return resolve(driveAccessToken);
+
+    initGISTokenClient();
+
+    gisTokenClient.callback = (resp) => {
+      if (resp && resp.access_token) {
+        driveAccessToken = resp.access_token;
+        // expires_in обычно ~3600 с; поставим запас -60 с
+        const sec = Number(resp.expires_in || 3600);
+        driveTokenExpTs = Date.now() + (sec - 60) * 1000;
+
+        // Пробрасываем токен в gapi
+        gapi.client.setToken({ access_token: driveAccessToken });
+        return resolve(driveAccessToken);
+      }
+      reject(new Error('No access_token from GIS'));
+    };
+
+    try {
+      // Если forceConsent=true (первый логин) — покажет одноразовое согласие;
+      // иначе попробует тихо обновить без UI.
+      gisTokenClient.requestAccessToken({
+        prompt: forceConsent ? 'consent' : ''
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+/** Инициализация gapi + Drive + токена (универсальная) */
+async function initDriveStack({ forceConsent = false } = {}) {
+  await Drive.loadGapi();
+  await ensureDriveAccessToken({ forceConsent });
+  await Drive.ensureLibrary();
+  driveReady = true;
+
+  // Периодическое бесшумное обновление токена (~каждые 45 минут)
+  if (!window.__driveAutoRefresh) {
+    window.__driveAutoRefresh = setInterval(() => {
+      ensureDriveAccessToken().catch(console.warn);
+    }, 45 * 60 * 1000);
+  }
+}
+
+
+// Храним Google Drive access_token локально (на один час примерно)
+function saveAccessToken(token, ttlSeconds = 3600) {
+  try {
+    const data = {
+      token,
+      exp: Date.now() + ttlSeconds * 1000
+    };
+    localStorage.setItem('gAccessToken', JSON.stringify(data));
+  } catch (e) { /* ignore */ }
+}
+
+function getSavedAccessToken() {
+  try {
+    const raw = localStorage.getItem('gAccessToken');
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (!data?.token || !data?.exp) return null;
+    if (Date.now() > data.exp) return null; // протух
+    return data.token;
+  } catch (e) {
+    return null;
+  }
+}
+
+
 function splitTags(s){
   return (s||'').split(',').map(x=>x.trim()).filter(Boolean);
 }
