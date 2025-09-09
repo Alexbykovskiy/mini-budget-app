@@ -129,20 +129,26 @@ function bindOnboarding() {
 async function afterLogin(cred) {
   try {
     currentUser = cred.user;
-    // Первый вход в Firebase состоялся. Теперь просим у GIS доступ к Drive.
-// На первом входе показываем экран согласия (forceConsent: true),
-// дальше обновления токена будут бесшумными.
-await initDriveStack({ forceConsent: true });
-
 
     await loadSettings();
     AppState.connected = true;
 
     showPage('todayPage');
-    toast('Вход выполнен. Firestore + Drive готовы.');
+    toast('Вход выполнен. Firestore готов.');
 
     listenClientsRealtime();
     renderToday();
+
+    // Запускаем GIS чуть позже, чтобы не конфликтовало с popup Firebase
+    setTimeout(() => {
+      initDriveStack({ forceConsent: true })
+        .then(() => toast('Google Drive подключён'))
+        .catch(e => {
+          console.error(e);
+          toast('Не удалось подключить Drive');
+        });
+    }, 500);
+
   } catch (e) {
     console.error('afterLogin error', e);
     toast('Ошибка входа/инициализации');
