@@ -69,6 +69,44 @@ async function waitFor(getter, timeout=10000, step=50){
   }
 }
 
+// --- Fast Auth Persistence (ускоряем старт на iOS/Safari/Private) ---
+async function testIndexedDB(timeout = 800) {
+  return new Promise((resolve) => {
+    try {
+      let done = false;
+      const req = indexedDB.open('tattoocrm_idb_probe', 1);
+      const timer = setTimeout(() => { if (!done) { done = true; resolve(false); } }, timeout);
+      req.onerror = req.onblocked = () => { if (!done) { done = true; clearTimeout(timer); resolve(false); } };
+      req.onsuccess = () => {
+        if (!done) {
+          done = true; clearTimeout(timer);
+          try { req.result.close(); indexedDB.deleteDatabase('tattoocrm_idb_probe'); } catch(_){}
+          resolve(true);
+        }
+      };
+      req.onupgradeneeded = () => {};
+    } catch (e) {
+      resolve(false);
+    }
+  });
+}
+
+async function ensureAuthPersistence() {
+  // Если IndexedDB недоступен/тормозит (часто на iOS/Safari) — используем SESSION
+  const idbOk = await testIndexedDB(800);
+  const isAppleTouch =
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  const useSession = isAppleTouch && !idbOk;
+  const mode = useSession ? firebase.auth.Auth.Persistence.SESSION
+                          : firebase.auth.Auth.Persistence.LOCAL;
+
+  await FB.auth.setPersistence(mode);
+  try {
+    BOOT.set(1, 'ok', useSession ? 'Auth: SESSION (iOS/IDB slow)' : 'Auth: LOCAL');
+  } catch(_) {}
+}
 
 
 // ---------- State ----------
