@@ -197,8 +197,8 @@ body {
 }
 
 .container {
-  max-width: 360px;
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
   padding: 12px;
   display: flex;
   flex-direction: column;
@@ -207,6 +207,12 @@ body {
   z-index: 1;
 }
 
+@media (min-width: 768px) {
+  .container {
+    max-width: 960px; /* можно поменять на 1200px, если хочешь шире */
+    margin: 0 auto;
+  }
+}
 /* Переписываем карточки/панели под tattoo-style */
 .glass, .card, .card-client, .modal-body, .toolbar, .tabbar {
   background: rgba(0,0,0,0.45) !important;
