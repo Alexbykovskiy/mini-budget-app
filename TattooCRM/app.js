@@ -126,7 +126,7 @@ let driveReady = false;
 // ---------- Init ----------
 // ---------- Init ----------
 // ---------- Init ----------
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
   // boot: DOM
   try { BOOT.show(); BOOT.set(0,'ok'); } catch(_) {}
 
@@ -136,36 +136,53 @@ window.addEventListener('DOMContentLoaded', () => {
   bindSettings();
 
 // boot: Firebase SDK виден
-  try { if (window.firebase && window.FB) BOOT.set(1,'ok'); } catch(_) {}
+try { if (window.firebase && window.FB) BOOT.set(1,'ok'); } catch(_) {}
 
-  // Не показываем экран входа сразу — ждём состояние сессии
-  FB.auth.onAuthStateChanged(async (user) => {
- // boot: проверка сессии
-    try { BOOT.set(2,'ok', user ? 'Найдена активная сессия' : 'Гость (нет сессии)'); } catch(_) {}
-    if (user) {
-      currentUser = user;
-      try {
-        // Инициализируем Drive + получаем токен бесшумно
-        await initDriveStack({ forceConsent: false });
+// Ускоряем инициализацию Auth на iOS/Safari — выбираем быструю персистенцию
+await ensureAuthPersistence();
 
-        await loadSettings();
-        AppState.connected = true;
+// Не показываем экран входа сразу — ждём состояние сессии
+// Не ждём бесконечно: если за 3с нет ответа — показываем гостя, UI не висит
+let __authResolved = false;
+const __authTimeout = setTimeout(() => {
+  if (!__authResolved) {
+    try { BOOT.set(2, 'ok', 'Гость (таймаут 3с)'); BOOT.hide(); } catch(_) {}
+    showPage('onboarding');
+  }
+}, 3000);
 
-        showPage('todayPage');
-        listenClientsRealtime();
-listenRemindersRealtime();
-        renderToday();
-        toast('Добро пожаловать обратно 👋');
-      } catch (e) {
-        console.warn('restore session failed', e);
-        showPage('onboarding');
-      }
-    } else {
+FB.auth.onAuthStateChanged(async (user) => {
+  clearTimeout(__authTimeout);
+  __authResolved = true;
+
+  // boot: проверка сессии
+  try { BOOT.set(2,'ok', user ? 'Найдена активная сессия' : 'Гость (нет сессии)'); } catch(_) {}
+
+  if (user) {
+    currentUser = user;
+    try {
+      // Инициализируем Drive + получаем токен бесшумно
+      await initDriveStack({ forceConsent: false });
+
+      await loadSettings();
+      AppState.connected = true;
+
+      showPage('todayPage');
+      listenClientsRealtime();
+      listenRemindersRealtime();
+      renderToday();
+      toast('Добро пожаловать обратно 👋');
+    } catch (e) {
+      console.warn('restore session failed', e);
       showPage('onboarding');
+      try { BOOT.hide(); } catch(_) {}
     }
-  });
-});
-
+  } else {
+    showPage('onboarding');
+    try { BOOT.hide(); } catch(_) {}
+  }
+}); // ← закрыли onAuthStateChanged
+}); // ← закрыли DOMContentLoaded
 // ---------- Tabs ----------
 function bindTabbar(){
   $$('.tabbar .tab').forEach(btn => {
