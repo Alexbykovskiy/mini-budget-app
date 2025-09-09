@@ -43,8 +43,10 @@ body{
 .titles h1{margin:0; font-size:18px}
 .subtitle{opacity:.65; font-size:12px}
 
-.header-actions .btn{min-width: 44px;}
-
+.app-header .header-actions{
+  margin-left: 0;
+  display:flex; align-items:center; gap:10px;
+}
 main{padding: 12px; padding-bottom: 84px;}
 .page{display:none}
 .page.is-active{display:block}
@@ -291,9 +293,6 @@ body {
 .boot-step.err{border-color:rgba(200,80,60,.6); background:rgba(200,80,60,.08)}
 .boot-hint{margin-top:10px; font-size:12px; opacity:.8}
 
-
-/* выровнять блок действий вправо */
-.app-header .header-actions { margin-left: auto; display:flex; align-items:center; gap:10px; }
 
 /* круглая иконка «Настройки» */
 .icon-btn{
