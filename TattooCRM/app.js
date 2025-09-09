@@ -177,7 +177,8 @@ try {
         // Инициируем полноценную инициализацию + тихое обновление токена
         initDriveStack({ forceConsent: false }).catch(console.warn);
       } catch(e){ console.warn('quickStart drive', e); }
-    })();
+   const __ds = document.querySelector('#driveStatus'); if (__ds) __ds.textContent = 'Drive: оффлайн';
+ })();
   }
 } catch(e){ console.warn('quickStart', e); }
 
@@ -260,11 +261,26 @@ function showPage(id){
 
 // ---------- Header ----------
 function bindHeader(){
-  $('#syncBtn').addEventListener('click', () => {
-    toast('Все данные синхронизируются автоматически');
+  const btn = $('#btnConnectDrive');
+  if (!btn) return;
+
+  btn.addEventListener('click', async () => {
+    try {
+      // Явно просим consent, чтобы показать окно и выдать токен/права Drive
+      await initDriveStack({ forceConsent: true });
+
+      const ds = $('#driveStatus');
+      if (ds) ds.textContent = 'Drive: онлайн';
+
+      toast('Google Drive подключён');
+    } catch (e) {
+      console.warn('connect drive failed', e);
+      const ds = $('#driveStatus');
+      if (ds) ds.textContent = 'Drive: оффлайн';
+      toast('Не удалось подключить Drive');
+    }
   });
 }
-
 // ---------- Onboarding ----------
 function bindOnboarding() {
   // 1) Обработка результата redirect – запускается при каждой загрузке
@@ -833,20 +849,6 @@ function bindSettings(){
     location.reload();
 });
 
-const btnCD = $('#btnConnectDrive');
-if (btnCD) {
-  btnCD.addEventListener('click', async () => {
-    try {
-      await initDriveStack({ forceConsent: true });
-      $('#driveStatus').textContent = 'Drive: онлайн';
-      toast('Google Drive подключён');
-    } catch (e) {
-      console.warn(e);
-      $('#driveStatus').textContent = 'Drive: оффлайн';
-      toast('Не удалось подключить Drive');
-    }
-  });
-}
 } // ← закрыли bindSettings()
  function fillSettingsForm(){
   const s = AppState.settings || demoSettings();
@@ -954,7 +956,7 @@ if (cachedTok) {
 // 5) Drive library (папки)
 try {
   await Drive.ensureLibrary();
-  driveReady = true;
+  const __ds = document.querySelector('#driveStatus'); if (__ds) __ds.textContent = 'Drive: онлайн';
   try { BOOT.set(5,'ok'); } catch(_) {}
   // фоновое обновление токена (не ждём)
   ensureDriveAccessToken({ forceConsent: false }).catch(console.warn);
@@ -964,11 +966,7 @@ try {
 }
 
 
-    // 5) Drive library (папки)
-    await Drive.ensureLibrary();
-    driveReady = true;
-    try { BOOT.set(5,'ok'); } catch(_) {}
-
+    
     // автообновление токена
     if (!window.__driveAutoRefresh) {
       window.__driveAutoRefresh = setInterval(() => {
