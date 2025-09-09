@@ -203,7 +203,7 @@ async function saveSettings(){
     supplies: splitTags($('#setSupplies').value),
     defaultReminder: $('#setDefaultReminder').value.trim(),
     syncInterval: Math.max(15, Number($('#setSyncInterval').value||60)),
-    language: 'ru'
+    language: 'ru',
 reminderTemplates: splitTags($('#setReminderTemplates').value),
 reminderDelays: ($('#setReminderDelays').value||'')
   .split(',')
@@ -780,7 +780,7 @@ function demoSettings(){
     supplies:["Краски","Иглы","Химия"],
     defaultReminder:"Через 14 дней — Спросить про заживление",
     syncInterval:60,
-    language:"ru"
+    language:"ru",
 reminderTemplates:["Спросить про заживление","Попросить отзыв","Отправить инструкцию по уходу"],
 reminderDelays:[14,30,180],
   };
