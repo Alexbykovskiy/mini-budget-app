@@ -190,17 +190,19 @@
         <select id="supType" required></select>
       </label>
 
-      <!-- Подтип (например, RL/RS/RM/CM для игл) -->
-      <label class="field">
-        <span>Подтип</span>
-        <select id="supKind"></select>
-      </label>
+      <!-- Подтип -->
+<label class="field">
+  <span>Подтип</span>
+  <select id="supKind"></select>
+  <input id="supKindText" placeholder="Введите подтип" style="display:none"/>
+</label>
 
-      <!-- Размер (например, 3/5/7/9/11/13 для игл) -->
-      <label class="field">
-        <span>Размер</span>
-        <select id="supSize"></select>
-      </label>
+<!-- Размер -->
+<label class="field">
+  <span>Размер</span>
+  <select id="supSize"></select>
+  <input id="supSizeText" placeholder="Введите размер" style="display:none"/>
+</label>
 
       <!-- Название (если нужно переопределить авто-сборку имени) -->
       <label class="field">
@@ -260,17 +262,26 @@
             <textarea id="setSupplies" rows="2" placeholder="Краски, Иглы, Химия"></textarea>
           </label>
 
-<!-- Справочник расходников (JSON) -->
-<label class="field">
-  <span>Справочник расходников (JSON)</span>
-  <textarea id="setSuppliesDict" rows="6" placeholder='{
-  "Иглы": { "units": "шт", "kinds": ["RL","RS","RM","CM"], "sizes": [3,5,7,9,11,13] },
-  "Краски": { "units": "мл", "brands": ["Eternal","WorldFamous"], "sizes": [30,60,120] },
-  "Химия": { "units": "мл" },
-  "Уход": { "units": "шт" }
-}'></textarea>
-  <div class="hint">Формат: объект, где ключ — тип. Поддерживаемые свойства: <code>units</code>, <code>kinds</code>, <code>sizes</code>, <code>brands</code>. Можно указывать только нужное.</div>
-</label>
+<!-- Справочник расходников (визуальный редактор) -->
+<div class="card glass">
+  <div class="row" style="align-items:center; gap:8px;">
+    <b>Справочник расходников</b>
+    <div class="spacer"></div>
+    <button id="btnAddSupType" type="button" class="btn">+ Тип</button>
+  </div>
+
+  <div id="supDictEditor" class="y-12"></div>
+
+
+
+  <!-- Храним сериализацию тут (скрыто), чтобы saveSettings() мог прочитать -->
+  <textarea id="setSuppliesDict" style="display:none"></textarea>
+
+  <div class="hint">
+    Для каждого типа можно задать: единицу (<code>шт</code>, <code>мл</code>, <code>г</code>, …),
+    подтипы (например, RL, RS), размеры (например, 3,5,7,9), бренды (для красок и т.п.).
+  </div>
+</div>
 
           <label class="field"><span>Напоминание по умолчанию</span>
             <input id="setDefaultReminder" placeholder="Через 14 дней — Спросить про заживление">

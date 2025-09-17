@@ -171,14 +171,17 @@ try {
 
     // Подцепим gapi и подложим сохранённый токен, чтобы Drive был готов
     (async () => {
-      try {
-        await waitFor(() => window.gapi);
-        gapi.client.setToken({ access_token: cachedTok });
-        driveReady = true;
-        // Инициируем полноценную инициализацию + тихое обновление токена
-        initDriveStack({ forceConsent: false }).catch(console.warn);
-      } catch(e){ console.warn('quickStart drive', e); }
-   const __ds = document.querySelector('#driveStatus'); if (__ds) __ds.textContent = 'Drive: оффлайн';
+     try {
+  await waitFor(() => window.gapi);
+  gapi.client.setToken({ access_token: cachedTok });
+  driveReady = true;
+  const __ds = document.querySelector('#driveStatus'); if (__ds) __ds.textContent = 'Drive: онлайн';
+  initDriveStack({ forceConsent: false }).catch(console.warn);
+} catch(e){
+  console.warn('quickStart drive', e);
+  const __ds = document.querySelector('#driveStatus'); if (__ds) __ds.textContent = 'Drive: оффлайн';
+}
+
  })();
   }
 } catch(e){ console.warn('quickStart', e); }
@@ -283,11 +286,10 @@ function bindHeader(){
   const btnSettings = $('#btnSettings');
   if (btnSettings) {
     btnSettings.addEventListener('click', () => {
-      // откроем страницу настроек
-      showPage('settingsPage'); // если у тебя другой id — подставь его сюда
-      // (опционально) проскроллим к началу
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
+  showPage('settingsPage');
+  fillSettingsForm(); // ← добавить
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
   }
 }
 // ---------- Onboarding ----------
@@ -419,6 +421,109 @@ function listenSuppliesRealtime(){
 }
 
 
+function renderSuppliesDictEditor(dict = {}){
+  const root = $('#supDictEditor');
+  if (!root) return;
+  root.innerHTML = '';
+
+  const entries = Object.entries(dict);
+  if (!entries.length) {
+    root.appendChild(buildSupTypeCard('', { units:'шт' }));
+  } else {
+    entries.forEach(([name, cfg]) => {
+      root.appendChild(buildSupTypeCard(name, cfg || {}));
+    });
+  }
+
+  const btn = $('#btnAddSupType');
+  if (btn && !btn.dataset.bound) {
+    btn.dataset.bound = '1';
+    btn.addEventListener('click', () => {
+      root.appendChild(buildSupTypeCard('', { units:'шт' }));
+    });
+  }
+  syncSuppliesDictHidden();
+}
+
+function buildSupTypeCard(name, cfg){
+  const el = document.createElement('div');
+  el.className = 'card-client glass';
+  el.style.marginTop = '12px';
+  el.innerHTML = `
+    <div class="grid two">
+      <label class="field">
+        <span>Тип</span>
+        <input class="typeName" placeholder="Например: Иглы" value="${name ? escapeHtml(name) : ''}">
+      </label>
+
+      <label class="field">
+        <span>Единица</span>
+        <select class="unit">
+          ${['', 'шт','мл','г','л','см','мм','уп'].map(u => `
+            <option value="${u}" ${u===(cfg.units||'')?'selected':''}>${u||'—'}</option>
+          `).join('')}
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Подтипы (через запятую)</span>
+        <input class="kinds" placeholder="RL, RS, RM, CM" value="${(cfg.kinds||[]).join(', ')}">
+      </label>
+
+      <label class="field">
+        <span>Размеры (через запятую)</span>
+        <input class="sizes" placeholder="3,5,7,9,11,13" value="${(cfg.sizes||[]).join(', ')}">
+      </label>
+
+      <label class="field">
+        <span>Бренды (опционально)</span>
+        <input class="brands" placeholder="Eternal, WorldFamous" value="${(cfg.brands||[]).join(', ')}">
+      </label>
+    </div>
+
+    <div class="row" style="justify-content:flex-end; gap:8px; margin-top:8px">
+      <button type="button" class="btn danger" data-del>Удалить тип</button>
+    </div>
+  `;
+  el.querySelector('[data-del]').onclick = () => { el.remove(); syncSuppliesDictHidden(); };
+  // Обновляем скрытый JSON при любом вводе
+  el.addEventListener('input', () => syncSuppliesDictHidden());
+  return el;
+}
+
+function readSuppliesDictFromEditor(){
+  const root = $('#supDictEditor');
+  if (!root) return {};
+  const cards = Array.from(root.querySelectorAll('.card-client'));
+  const out = {};
+  for (const c of cards) {
+    const name = c.querySelector('.typeName')?.value.trim();
+    if (!name) continue;
+    const units  = c.querySelector('.unit')?.value.trim();
+    const kinds  = csv(c.querySelector('.kinds')?.value);
+    const sizes  = csvNums(c.querySelector('.sizes')?.value);
+    const brands = csv(c.querySelector('.brands')?.value);
+    out[name] = {};
+    if (units)  out[name].units  = units;
+    if (kinds.length)  out[name].kinds  = kinds;
+    if (sizes.length)  out[name].sizes  = sizes;
+    if (brands.length) out[name].brands = brands;
+  }
+  return out;
+}
+
+function syncSuppliesDictHidden(){
+  const hidden = $('#setSuppliesDict');
+  if (!hidden) return;
+  const obj = readSuppliesDictFromEditor();
+  hidden.value = JSON.stringify(obj, null, 2);
+}
+
+function csv(s){ return (s||'').split(',').map(v=>v.trim()).filter(Boolean); }
+function csvNums(s){ return (s||'').split(',').map(v=>Number(v.trim())).filter(v=>!isNaN(v)); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+
 async function saveSettings(){
   const s = {
     sources: splitTags($('#setSources').value),
@@ -431,25 +536,20 @@ async function saveSettings(){
     reminderTemplates: splitTags($('#setReminderTemplates').value),
     reminderDelays: ($('#setReminderDelays').value||'')
       .split(',').map(n => Number(n.trim())).filter(n => !isNaN(n) && n > 0),
-    suppliesDict: (() => {
-      try {
-        const raw = $('#setSuppliesDict').value.trim();
-        return raw ? JSON.parse(raw) : (AppState.settings?.suppliesDict || {});
-      } catch(e) {
-        toast('Ошибка JSON в «Справочник расходников» — оставили прежние значения');
-        return (AppState.settings?.suppliesDict || {});
-      }
-    })()
+    suppliesDict: readSuppliesDictFromEditor()
   };
 
+  // ← автозаполнение категорий, если пусто
+  if (!s.supplies?.length) {
+    s.supplies = Object.keys(s.suppliesDict || {});
+  }
+
   try{
-    // сохраняем в Firestore
     const ref = FB.db.collection('TattooCRM').doc('settings').collection('global').doc('default');
     await ref.set(s, { merge: true });
     AppState.settings = s;
 
     toast('Настройки сохранены');
-    // можно перерисовать фильтры расходников, если вкладка открыта
     if (document.querySelector('[data-tab="suppliesPage"]').classList.contains('is-active')) {
       $('#supFilter').dataset.filled = ''; // пересобрать список
       renderSupplies();
@@ -459,7 +559,6 @@ async function saveSettings(){
     toast('Ошибка сохранения настроек');
   }
 }
-
 
 // ---------- Today ----------
 function renderToday(){
@@ -703,26 +802,65 @@ function openSupplyDialog(s = null){
 
   const dict = AppState.settings?.suppliesDict || {};
   function fillDependentFields(){
-    const t = $('#supType').value;
-    const d = dict[t] || {};
-    // kinds
-    const kindSel = $('#supKind'); kindSel.innerHTML = '';
-    (d.kinds || []).forEach(k => { const o=document.createElement('option'); o.value=k; o.textContent=k; kindSel.appendChild(o); });
-    // sizes
-    const sizeSel = $('#supSize'); sizeSel.innerHTML = '';
-    (d.sizes || []).forEach(sz => { const o=document.createElement('option'); o.value=String(sz); o.textContent=String(sz); sizeSel.appendChild(o); });
-    // units
-    $('#supUnit').value = (s?.unit) || d.units || '';
+  const t = $('#supType').value;
+  const d = dict[t] || {};
+
+  // Единицы
+  $('#supUnit').value = (s?.unit) || d.units || '';
+
+  // Подтип: если есть список — показываем select, иначе включаем ручной ввод
+  const kindSel = $('#supKind');
+  const kindTxt = $('#supKindText');
+  kindSel.innerHTML = '';
+  const kinds = d.kinds || [];
+  if (kinds.length) {
+    kinds.forEach(k => {
+      const o = document.createElement('option');
+      o.value = k; o.textContent = k; kindSel.appendChild(o);
+    });
+    kindSel.style.display = '';
+    kindTxt.style.display = 'none';
+  } else {
+    kindSel.style.display = 'none';
+    kindTxt.style.display = '';
   }
+
+  // Размер: аналогично
+  const sizeSel = $('#supSize');
+  const sizeTxt = $('#supSizeText');
+  sizeSel.innerHTML = '';
+  const sizes = d.sizes || [];
+  if (sizes.length) {
+    sizes.forEach(sz => {
+      const o = document.createElement('option');
+      o.value = String(sz); o.textContent = String(sz); sizeSel.appendChild(o);
+    });
+    sizeSel.style.display = '';
+    sizeTxt.style.display = 'none';
+  } else {
+    sizeSel.style.display = 'none';
+    sizeTxt.style.display = '';
+  }
+}
+
 
   typeSel.onchange = fillDependentFields;
 
   // Проставим значения
   typeSel.value = s?.cat || (AppState.settings?.supplies?.[0] || '');
-  fillDependentFields();
+fillDependentFields();
+
+if ($('#supKind').style.display !== 'none') {
   $('#supKind').value = s?.kind || '';
+} else {
+  $('#supKindText').value = s?.kind || '';
+}
+if ($('#supSize').style.display !== 'none') {
   $('#supSize').value = s?.size || '';
-  $('#supName').value = s?.name || '';
+} else {
+  $('#supSizeText').value = s?.size || '';
+}
+    $('#supName').value = s?.name || '';
   $('#supQty').value  = (typeof s?.qty === 'number') ? s.qty : 1;
   $('#supUnit').value = s?.unit || $('#supUnit').value;
   $('#supLink').value = s?.link || '';
@@ -749,8 +887,13 @@ async function saveSupplyFromDialog(){
   if (isNew) id = `sp_${crypto.randomUUID().slice(0,8)}`;
 
   const cat  = $('#supType').value.trim();
-  const kind = $('#supKind').value.trim();
-  const size = $('#supSize').value.trim();
+  const kind = ($('#supKind').style.display !== 'none'
+  ? $('#supKind').value.trim()
+  : $('#supKindText').value.trim());
+
+const size = ($('#supSize').style.display !== 'none'
+  ? $('#supSize').value.trim()
+  : $('#supSizeText').value.trim());
   const qty  = Number($('#supQty').value || 0);
   const unit = $('#supUnit').value.trim();
   const link = $('#supLink').value.trim();
@@ -1043,7 +1186,9 @@ function bindSettings(){
   $('#setDefaultReminder').value = s.defaultReminder || '';
 $('#setReminderTemplates').value = (s.reminderTemplates||[]).join(', ');
 $('#setReminderDelays').value = (s.reminderDelays||[]).join(', ');
-$('#setSuppliesDict').value = JSON.stringify(s.suppliesDict || {}, null, 2); 
+$('#setSuppliesDict').value = JSON.stringify(s.suppliesDict || {}, null, 2);
+renderSuppliesDictEditor(s.suppliesDict || {});
+
  $('#setSyncInterval').value = s.syncInterval ?? 60;
 
   const sel = $('#filterSource');
@@ -1141,6 +1286,7 @@ if (cachedTok) {
 // 5) Drive library (папки)
 try {
   await Drive.ensureLibrary();
+driveReady = true;
   const __ds = document.querySelector('#driveStatus'); if (__ds) __ds.textContent = 'Drive: онлайн';
   try { BOOT.set(5,'ok'); } catch(_) {}
   // фоновое обновление токена (не ждём)
