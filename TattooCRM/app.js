@@ -224,6 +224,7 @@ if (!isSafariA2HS) {
 }
 
 await loadSettings();
+fillSettingsForm();
 AppState.connected = true;
 
       showPage('todayPage');
@@ -338,6 +339,7 @@ async function afterLogin(cred) {
     setDeviceTrusted(currentUser);
     touchDeviceTrust();
     await loadSettings();
+fillSettingsForm();
         AppState.connected = true;
 
     showPage('todayPage');
@@ -446,8 +448,8 @@ function renderSuppliesDictEditor(dict = {}){
 }
 
 function buildSupTypeCard(name, cfg){
-  const el = document.createElement('div');
-  el.className = 'card-client glass';
+ const el = document.createElement('div');
+el.className = 'card glass';
   el.style.marginTop = '12px';
   el.innerHTML = `
     <div class="grid two">
