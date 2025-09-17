@@ -496,7 +496,7 @@ el.className = 'card glass';
 function readSuppliesDictFromEditor(){
   const root = $('#supDictEditor');
   if (!root) return {};
-  const cards = Array.from(root.querySelectorAll('.card-client'));
+  const cards = Array.from(root.querySelectorAll('.card'));
   const out = {};
   for (const c of cards) {
     const name = c.querySelector('.typeName')?.value.trim();
@@ -892,7 +892,7 @@ else { $('#supSizeText').value = s?.size || ''; }    $('#supName').value = s?.na
   dlg.showModal();
 }
 
-function buildSupplyName({cat, kind, size, note, fallback}){
+function buildSupplyName({cat, brand, kind, size, note, fallback}){
   const parts = [cat, brand, kind, size ? `⌀${size}` : '', note].filter(Boolean);
   const s = parts.join(' ');
   return s || (fallback || 'Позиция');
@@ -906,8 +906,13 @@ async function saveSupplyFromDialog(){
 
   const cat  = $('#supType').value.trim();
   const kind = ($('#supKind').style.display !== 'none'
+
   ? $('#supKind').value.trim()
   : $('#supKindText').value.trim());
+
+const brand = ($('#supBrand').style.display !== 'none'
+  ? $('#supBrand').value.trim()
+  : $('#supBrandText').value.trim());
 
 const size = ($('#supSize').style.display !== 'none'
   ? $('#supSize').value.trim()
@@ -917,9 +922,9 @@ const size = ($('#supSize').style.display !== 'none'
   const link = $('#supLink').value.trim();
   const note = $('#supNote').value.trim();
 
-  const name = ($('#supName').value.trim()) || buildSupplyName({cat,kind,size,note, fallback:'Позиция'});
+ const name = ($('#supName').value.trim()) || buildSupplyName({cat, brand, kind, size, note, fallback:'Позиция'});
 
-  onst item = {
+  const item = {
   id, cat, kind, brand, size, name, qty, unit, link, note,
   left: qty,
   updatedAt: new Date().toISOString()
@@ -1169,7 +1174,8 @@ function renderSupplies(){
     const card = document.createElement('div');
     card.className='card-client glass';
     const left = (typeof s.left === 'number') ? s.left : (s.qty ?? '');
-    const meta = [s.cat||'', s.kind||'', s.size?`⌀${s.size}`:'', s.unit||''].filter(Boolean).join(' · ');
+    const meta = [s.cat||'', s.brand||'', s.kind||'', s.size?`⌀${s.size}`:'', s.unit||'']
+  .filter(Boolean).join(' · ');
     card.innerHTML = `
       <div class="row" style="justify-content:space-between">
         <div><b>${s.name}</b> · <span class="meta">${meta}</span></div>
