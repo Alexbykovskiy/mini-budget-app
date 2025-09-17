@@ -175,6 +175,73 @@
       <div id="suppliesList" class="cards-grid"></div>
     </section>
 
+<!-- Модал: Позиция расходника -->
+<dialog id="supplyDialog" class="modal">
+  <form method="dialog" class="modal-body glass" id="supplyForm">
+    <div class="modal-head">
+      <h3 id="supplyModalTitle">Новая позиция</h3>
+      <button class="btn icon" value="cancel" title="Закрыть">✕</button>
+    </div>
+
+    <div class="grid two">
+      <!-- Тип расходника -->
+      <label class="field">
+        <span>Тип</span>
+        <select id="supType" required></select>
+      </label>
+
+      <!-- Подтип (например, RL/RS/RM/CM для игл) -->
+      <label class="field">
+        <span>Подтип</span>
+        <select id="supKind"></select>
+      </label>
+
+      <!-- Размер (например, 3/5/7/9/11/13 для игл) -->
+      <label class="field">
+        <span>Размер</span>
+        <select id="supSize"></select>
+      </label>
+
+      <!-- Название (если нужно переопределить авто-сборку имени) -->
+      <label class="field">
+        <span>Название (необязательно)</span>
+        <input id="supName" placeholder="Если пусто — соберём из полей выше"/>
+      </label>
+
+      <!-- Кол-во -->
+      <label class="field">
+        <span>Количество</span>
+        <input id="supQty" type="number" min="0" step="1" value="1" required/>
+      </label>
+
+      <!-- Единица -->
+      <label class="field">
+        <span>Единица</span>
+        <input id="supUnit" placeholder="шт / мл" />
+      </label>
+
+      <!-- Ссылка на заказ (необязательно) -->
+      <label class="field">
+        <span>Ссылка на заказ</span>
+        <input id="supLink" placeholder="https://…"/>
+      </label>
+
+      <!-- Примечание (необязательно) -->
+      <label class="field">
+        <span>Примечание</span>
+        <input id="supNote" placeholder="бренд/цвет и т.д."/>
+      </label>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn danger" id="deleteSupplyBtn" type="button" style="display:none">Удалить</button>
+      <div class="spacer"></div>
+      <button class="btn" value="cancel">Отмена</button>
+      <button class="btn primary" id="saveSupplyBtn" type="button">Сохранить</button>
+    </div>
+  </form>
+</dialog>
+
     <!-- Вкладка: Настройки -->
     <section id="settingsPage" class="page">
       <div class="section">
@@ -192,6 +259,19 @@
           <label class="field"><span>Категории расходников</span>
             <textarea id="setSupplies" rows="2" placeholder="Краски, Иглы, Химия"></textarea>
           </label>
+
+<!-- Справочник расходников (JSON) -->
+<label class="field">
+  <span>Справочник расходников (JSON)</span>
+  <textarea id="setSuppliesDict" rows="6" placeholder='{
+  "Иглы": { "units": "шт", "kinds": ["RL","RS","RM","CM"], "sizes": [3,5,7,9,11,13] },
+  "Краски": { "units": "мл", "brands": ["Eternal","WorldFamous"], "sizes": [30,60,120] },
+  "Химия": { "units": "мл" },
+  "Уход": { "units": "шт" }
+}'></textarea>
+  <div class="hint">Формат: объект, где ключ — тип. Поддерживаемые свойства: <code>units</code>, <code>kinds</code>, <code>sizes</code>, <code>brands</code>. Можно указывать только нужное.</div>
+</label>
+
           <label class="field"><span>Напоминание по умолчанию</span>
             <input id="setDefaultReminder" placeholder="Через 14 дней — Спросить про заживление">
           </label>

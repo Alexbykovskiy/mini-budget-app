@@ -149,6 +149,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   bindOnboarding();
   bindClientsModal();
   bindSettings();
+bindSupplies();
 
 // boot: Firebase SDK виден
 try { if (window.firebase && window.FB) BOOT.set(1,'ok'); } catch(_) {}
@@ -225,6 +226,7 @@ AppState.connected = true;
       showPage('todayPage');
       listenClientsRealtime();
       listenRemindersRealtime();
+listenSuppliesRealtime();
       renderToday();
       toast('Добро пожаловать обратно 👋');
     } catch (e) {
@@ -341,6 +343,7 @@ async function afterLogin(cred) {
 
     listenClientsRealtime();
 listenRemindersRealtime();
+listenSuppliesRealtime();
     renderToday();
 
   // Инициализируем Drive (ожидаем библиотеки детерминированно)
@@ -401,28 +404,41 @@ try { BOOT.set(6,'ok'); } catch(_) {}
 
 async function saveSettings(){
   const s = {
-    sources: splitTags($('#setSources').value),
-    styles: splitTags($('#setStyles').value),
-    zones: splitTags($('#setZones').value),
-    supplies: splitTags($('#setSupplies').value),
-    defaultReminder: $('#setDefaultReminder').value.trim(),
-    syncInterval: Math.max(15, Number($('#setSyncInterval').value||60)),
-    language: 'ru',
-reminderTemplates: splitTags($('#setReminderTemplates').value),
-reminderDelays: ($('#setReminderDelays').value||'')
-  .split(',')
-  .map(n => Number(n.trim()))
-  .filter(n => !isNaN(n) && n > 0),
-  };
-  AppState.settings = s;
-  try{
-    const docRef = FB.db.collection('TattooCRM').doc('settings').collection('global').doc('default');
-    await docRef.set(s, { merge:true });
-    toast('Настройки сохранены');
-  }catch(e){
-    console.warn(e);
-    toast('Не удалось сохранить настройки');
-  }
+  sources: splitTags($('#setSources').value),
+  styles: splitTags($('#setStyles').value),
+  zones: splitTags($('#setZones').value),
+  supplies: splitTags($('#setSupplies').value),
+  defaultReminder: $('#setDefaultReminder').value.trim(),
+  syncInterval: Math.max(15, Number($('#setSyncInterval').value||60)),
+  language: 'ru',
+  reminderTemplates: splitTags($('#setReminderTemplates').value),
+  reminderDelays: ($('#setReminderDelays').value||'')
+    .split(',').map(n => Number(n.trim())).filter(n => !isNaN(n) && n > 0),
+  suppliesDict: (() => {
+    try {
+      const raw = $('#setSuppliesDict').value.trim();
+      return raw ? JSON.parse(raw) : (AppState.settings?.suppliesDict || {});
+    } catch(e) {
+      toast('Ошибка JSON в «Справочник расходников» — оставили прежние значения');
+      return (AppState.settings?.suppliesDict || {});
+    }
+  })()
+};
+
+function listenSuppliesRealtime(){
+  FB.db.collection('TattooCRM').doc('app').collection('supplies')
+    .orderBy('updatedAt', 'desc')
+    .onSnapshot((qs)=>{
+      AppState.supplies = [];
+      qs.forEach(d => AppState.supplies.push(d.data()));
+      // перерисуем список, если открыта вкладка
+      if (document.querySelector('[data-tab="suppliesPage"]').classList.contains('is-active')) {
+        renderSupplies();
+      }
+    }, (err)=> {
+      console.error(err);
+      toast('Ошибка чтения расходников');
+    });
 }
 
 // ---------- Today ----------
@@ -643,6 +659,128 @@ async function refreshClientPhotos(clientId){
   }
 }
 
+function bindSupplies(){
+  const btnAdd = $('#addSupplyBtn');
+  if (btnAdd) {
+    btnAdd.addEventListener('click', () => openSupplyDialog(null));
+  }
+}
+
+function openSupplyDialog(s = null){
+  const dlg = $('#supplyDialog');
+  const isNew = !s;
+  dlg.dataset.id = s?.id || '';
+
+  $('#supplyModalTitle').textContent = isNew ? 'Новая позиция' : 'Редактирование';
+
+  // Заполняем селект Типов из настроек
+  const typeSel = $('#supType');
+  typeSel.innerHTML = '';
+  (AppState.settings?.supplies || []).forEach(t=>{
+    const o = document.createElement('option'); o.value = t; o.textContent = t; typeSel.appendChild(o);
+  });
+
+  const dict = AppState.settings?.suppliesDict || {};
+  function fillDependentFields(){
+    const t = $('#supType').value;
+    const d = dict[t] || {};
+    // kinds
+    const kindSel = $('#supKind'); kindSel.innerHTML = '';
+    (d.kinds || []).forEach(k => { const o=document.createElement('option'); o.value=k; o.textContent=k; kindSel.appendChild(o); });
+    // sizes
+    const sizeSel = $('#supSize'); sizeSel.innerHTML = '';
+    (d.sizes || []).forEach(sz => { const o=document.createElement('option'); o.value=String(sz); o.textContent=String(sz); sizeSel.appendChild(o); });
+    // units
+    $('#supUnit').value = (s?.unit) || d.units || '';
+  }
+
+  typeSel.onchange = fillDependentFields;
+
+  // Проставим значения
+  typeSel.value = s?.cat || (AppState.settings?.supplies?.[0] || '');
+  fillDependentFields();
+  $('#supKind').value = s?.kind || '';
+  $('#supSize').value = s?.size || '';
+  $('#supName').value = s?.name || '';
+  $('#supQty').value  = (typeof s?.qty === 'number') ? s.qty : 1;
+  $('#supUnit').value = s?.unit || $('#supUnit').value;
+  $('#supLink').value = s?.link || '';
+  $('#supNote').value = s?.note || '';
+
+  // Кнопки
+  $('#deleteSupplyBtn').style.display = isNew ? 'none' : '';
+  $('#saveSupplyBtn').onclick = saveSupplyFromDialog;
+  $('#deleteSupplyBtn').onclick = deleteSupplyFromDialog;
+
+  dlg.showModal();
+}
+
+function buildSupplyName({cat, kind, size, note, fallback}){
+  const parts = [cat, kind, size ? `⌀${size}` : '', note].filter(Boolean);
+  const s = parts.join(' ');
+  return s || (fallback || 'Позиция');
+}
+
+async function saveSupplyFromDialog(){
+  const dlg = $('#supplyDialog');
+  let id = dlg.dataset.id;
+  const isNew = !id;
+  if (isNew) id = `sp_${crypto.randomUUID().slice(0,8)}`;
+
+  const cat  = $('#supType').value.trim();
+  const kind = $('#supKind').value.trim();
+  const size = $('#supSize').value.trim();
+  const qty  = Number($('#supQty').value || 0);
+  const unit = $('#supUnit').value.trim();
+  const link = $('#supLink').value.trim();
+  const note = $('#supNote').value.trim();
+
+  const name = ($('#supName').value.trim()) || buildSupplyName({cat,kind,size,note, fallback:'Позиция'});
+
+  const item = {
+    id, cat, kind, size, name, qty, unit, link, note,
+    left: qty, // запас/остаток — можно доработать списанием позже
+    updatedAt: new Date().toISOString()
+  };
+
+  // Локально — в состояние (чтобы UI отрисовался сразу)
+  const i = AppState.supplies.findIndex(x => x.id === id);
+  if (i >= 0) AppState.supplies[i] = item; else AppState.supplies.push(item);
+  renderSupplies();
+
+  // Firestore
+  try {
+    const ref = FB.db.collection('TattooCRM').doc('app').collection('supplies').doc(id);
+    await ref.set(item, { merge:true });
+    toast('Сохранено');
+  } catch(e){
+    console.warn(e);
+    toast('Ошибка сохранения');
+  }
+
+  dlg.close();
+}
+
+async function deleteSupplyFromDialog(){
+  const dlg = $('#supplyDialog');
+  const id = dlg.dataset.id;
+  if (!id) { dlg.close(); return; }
+
+  // Удалим локально
+  AppState.supplies = AppState.supplies.filter(x => x.id !== id);
+  renderSupplies();
+
+  // Firestore (мягкое удаление можно сделать позже)
+  try{
+    await FB.db.collection('TattooCRM').doc('app').collection('supplies').doc(id).delete();
+    toast('Удалено');
+  }catch(e){
+    console.warn(e);
+    toast('Ошибка удаления');
+  }
+
+  dlg.close();
+}
 
 function openClientDialog(c = null){
   const dlg = $('#clientDialog');
@@ -823,29 +961,46 @@ tb.innerHTML = rows.length ? rows.map(r=>`
 
 // ---------- Supplies ----------
 function renderSupplies(){
- const list = $('#suppliesList'); list.innerHTML = '';
-const items = Array.isArray(AppState.supplies) ? AppState.supplies : [];
+  const list = $('#suppliesList'); list.innerHTML = '';
+  const items = Array.isArray(AppState.supplies) ? AppState.supplies : [];
 
-if (!items.length) {
-  list.innerHTML = `<div class="row card-client glass">Список пуст</div>`;
-  return;
-}
+  // Заполняем фильтр категорий 1 раз
+  const catSel = $('#supFilter');
+  if (!catSel.dataset.filled) {
+    (AppState.settings?.supplies || []).forEach(c=>{
+      const o = document.createElement('option'); o.value = c; o.textContent = c;
+      catSel.appendChild(o);
+    });
+    catSel.dataset.filled = '1';
+    catSel.onchange = renderSupplies;
+  }
 
-items.forEach(s=>{
-  const card = document.createElement('div');
-  card.className='card-client glass';
-  card.innerHTML = `
-    <div class="row" style="justify-content:space-between">
-      <div><b>${s.name}</b> · <span class="meta">${s.cat||''}</span></div>
-      <div class="badge">${s.left||''}</div>
-    </div>
-    <div class="row" style="justify-content:flex-end; gap:8px">
-      ${s.link ? `<a class="btn ghost" href="${s.link}" target="_blank">Заказать</a>` : ''}
-    </div>
-  `;
-  list.appendChild(card);
-});
+  const catFilter = catSel.value || '';
+  const arr = catFilter ? items.filter(i => (i.cat||'') === catFilter) : items;
 
+  if (!arr.length) {
+    list.innerHTML = `<div class="row card-client glass">Список пуст</div>`;
+    return;
+  }
+
+  arr.forEach(s=>{
+    const card = document.createElement('div');
+    card.className='card-client glass';
+    const left = (typeof s.left === 'number') ? s.left : (s.qty ?? '');
+    const meta = [s.cat||'', s.kind||'', s.size?`⌀${s.size}`:'', s.unit||''].filter(Boolean).join(' · ');
+    card.innerHTML = `
+      <div class="row" style="justify-content:space-between">
+        <div><b>${s.name}</b> · <span class="meta">${meta}</span></div>
+        <div class="badge">${left}</div>
+      </div>
+      <div class="row" style="justify-content:flex-end; gap:8px">
+        ${s.link ? `<a class="btn ghost" href="${s.link}" target="_blank">Заказать</a>` : ''}
+        <button class="btn" data-edit>Открыть</button>
+      </div>
+    `;
+    card.querySelector('[data-edit]').addEventListener('click', ()=> openSupplyDialog(s));
+    list.appendChild(card);
+  });
 }
 
 // ---------- Settings ----------
@@ -867,7 +1022,8 @@ function bindSettings(){
   $('#setDefaultReminder').value = s.defaultReminder || '';
 $('#setReminderTemplates').value = (s.reminderTemplates||[]).join(', ');
 $('#setReminderDelays').value = (s.reminderDelays||[]).join(', ');
-  $('#setSyncInterval').value = s.syncInterval ?? 60;
+$('#setSuppliesDict').value = JSON.stringify(s.suppliesDict || {}, null, 2); 
+ $('#setSyncInterval').value = s.syncInterval ?? 60;
 
   const sel = $('#filterSource');
   const have = Array.from(sel.options).map(o=>o.value);
@@ -1056,12 +1212,18 @@ function demoSettings(){
     sources:["Instagram","TikTok","VK","Google","Сарафан"],
     styles:["Реализм","Ч/Б","Цвет","Олдскул"],
     zones:["Рука","Нога","Спина"],
-    supplies:["Краски","Иглы","Химия"],
+    supplies:["Краски","Иглы","Химия","Уход"],
+    suppliesDict:{
+      "Иглы": { "units": "шт", "kinds": ["RL","RS","RM","CM"], "sizes": [3,5,7,9,11,13] },
+      "Краски": { "units": "мл", "brands": ["Eternal","WorldFamous"], "sizes": [30,60,120] },
+      "Химия": { "units": "мл" },
+      "Уход": { "units": "шт" }
+    },
     defaultReminder:"Через 14 дней — Спросить про заживление",
     syncInterval:60,
     language:"ru",
-reminderTemplates:["Спросить про заживление","Попросить отзыв","Отправить инструкцию по уходу"],
-reminderDelays:[14,30,180],
+    reminderTemplates:["Спросить про заживление","Попросить отзыв","Отправить инструкцию по уходу"],
+    reminderDelays:[14,30,180],
   };
 }
 function demoClients(){
