@@ -447,6 +447,25 @@ function renderSuppliesDictEditor(dict = {}){
   syncSuppliesDictHidden();
 }
 
+
+function bindSuppliesDictToggle(){
+  const toggle = $('#supDictToggle');
+  const body = $('#supDictBody');
+  if (!toggle || !body) return;
+
+  if (!toggle.dataset.bound) {
+    toggle.dataset.bound = '1';
+    toggle.addEventListener('change', () => {
+      body.classList.toggle('collapsed', !toggle.checked);
+    });
+  }
+
+  // По умолчанию — свернуто
+  toggle.checked = false;
+  body.classList.add('collapsed');
+}
+
+
 function buildSupTypeCard(name, cfg){
  const el = document.createElement('div');
 el.className = 'card glass';
@@ -1212,7 +1231,7 @@ $('#setReminderTemplates').value = (s.reminderTemplates||[]).join(', ');
 $('#setReminderDelays').value = (s.reminderDelays||[]).join(', ');
 $('#setSuppliesDict').value = JSON.stringify(s.suppliesDict || {}, null, 2);
 renderSuppliesDictEditor(s.suppliesDict || {});
-
+bindSuppliesDictToggle();
  $('#setSyncInterval').value = s.syncInterval ?? 60;
 
   const sel = $('#filterSource');
@@ -1224,6 +1243,9 @@ renderSuppliesDictEditor(s.suppliesDict || {});
     }
   });
 }
+
+
+
 
 // ---------- Utils ----------
 

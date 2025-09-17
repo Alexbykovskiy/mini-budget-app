@@ -269,27 +269,36 @@
             <textarea id="setSupplies" rows="2" placeholder="Краски, Иглы, Химия"></textarea>
           </label>
 
-<!-- Справочник расходников (визуальный редактор) -->
-<div class="card glass">
+<!-- Справочник расходников (сворачиваемый) -->
+<div class="card glass" id="supDictCard">
   <div class="row" style="align-items:center; gap:8px;">
     <b>Справочник расходников</b>
     <div class="spacer"></div>
-    <button id="btnAddSupType" type="button" class="btn">+ Тип</button>
+
+    <!-- iOS-переключатель -->
+    <label class="ios-switch" title="Редактировать справочник">
+      <input type="checkbox" id="supDictToggle">
+      <span class="track"></span>
+    </label>
   </div>
 
-  <div id="supDictEditor"></div>
+  <!-- Содержимое редактора (просто скрываем/показываем, рендер остаётся) -->
+  <div id="supDictBody">
+    <div class="row" style="align-items:center; gap:8px; margin-top:8px">
+      <button id="btnAddSupType" type="button" class="btn">+ Тип</button>
+    </div>
 
+    <div id="supDictEditor" style="margin-top:12px"></div>
 
+    <!-- скрытый JSON для совместимости -->
+    <textarea id="setSuppliesDict" style="display:none"></textarea>
 
-  <!-- Храним сериализацию тут (скрыто), чтобы saveSettings() мог прочитать -->
-  <textarea id="setSuppliesDict" style="display:none"></textarea>
-
-  <div class="hint">
-    Для каждого типа можно задать: единицу (<code>шт</code>, <code>мл</code>, <code>г</code>, …),
-    подтипы (например, RL, RS), размеры (например, 3,5,7,9), бренды (для красок и т.п.).
+    <div class="hint" style="margin-top:8px">
+      Для каждого типа можно задать: единицу (<code>шт</code>, <code>мл</code>, <code>г</code>, …),
+      подтипы (например, RL, RS), размеры (например, 3,5,7,9), бренды (для красок и т.п.).
+    </div>
   </div>
 </div>
-
           <label class="field"><span>Напоминание по умолчанию</span>
             <input id="setDefaultReminder" placeholder="Через 14 дней — Спросить про заживление">
           </label>
