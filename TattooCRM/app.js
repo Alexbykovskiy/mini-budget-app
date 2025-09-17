@@ -805,12 +805,12 @@ function openSupplyDialog(s = null){
   const dict = AppState.settings?.suppliesDict || {};
   function fillDependentFields(){
   const t = $('#supType').value;
-  const d = dict[t] || {};
+  const d = (AppState.settings?.suppliesDict || {})[t] || {};
 
-  // Единицы
+  // Единица
   $('#supUnit').value = (s?.unit) || d.units || '';
 
-  // Подтип: если есть список — показываем select, иначе включаем ручной ввод
+  // Подтип
   const kindSel = $('#supKind');
   const kindTxt = $('#supKindText');
   kindSel.innerHTML = '';
@@ -827,7 +827,24 @@ function openSupplyDialog(s = null){
     kindTxt.style.display = '';
   }
 
-  // Размер: аналогично
+  // Бренды
+  const brandSel = $('#supBrand');
+  const brandTxt = $('#supBrandText');
+  brandSel.innerHTML = '';
+  const brands = d.brands || [];
+  if (brands.length) {
+    brands.forEach(b => {
+      const o = document.createElement('option');
+      o.value = b; o.textContent = b; brandSel.appendChild(o);
+    });
+    brandSel.style.display = '';
+    brandTxt.style.display = 'none';
+  } else {
+    brandSel.style.display = 'none';
+    brandTxt.style.display = '';
+  }
+
+  // Размеры
   const sizeSel = $('#supSize');
   const sizeTxt = $('#supSizeText');
   sizeSel.innerHTML = '';
@@ -846,23 +863,22 @@ function openSupplyDialog(s = null){
 }
 
 
+
   typeSel.onchange = fillDependentFields;
 
   // Проставим значения
   typeSel.value = s?.cat || (AppState.settings?.supplies?.[0] || '');
 fillDependentFields();
 
-if ($('#supKind').style.display !== 'none') {
-  $('#supKind').value = s?.kind || '';
-} else {
-  $('#supKindText').value = s?.kind || '';
-}
-if ($('#supSize').style.display !== 'none') {
-  $('#supSize').value = s?.size || '';
-} else {
-  $('#supSizeText').value = s?.size || '';
-}
-    $('#supName').value = s?.name || '';
+// существующие:
+if ($('#supKind').style.display !== 'none') { $('#supKind').value = s?.kind || ''; }
+else { $('#supKindText').value = s?.kind || ''; }
+
+if ($('#supBrand').style.display !== 'none') { $('#supBrand').value = s?.brand || ''; }
+else { $('#supBrandText').value = s?.brand || ''; }
+
+if ($('#supSize').style.display !== 'none') { $('#supSize').value = s?.size || ''; }
+else { $('#supSizeText').value = s?.size || ''; }    $('#supName').value = s?.name || '';
   $('#supQty').value  = (typeof s?.qty === 'number') ? s.qty : 1;
   $('#supUnit').value = s?.unit || $('#supUnit').value;
   $('#supLink').value = s?.link || '';
@@ -877,7 +893,7 @@ if ($('#supSize').style.display !== 'none') {
 }
 
 function buildSupplyName({cat, kind, size, note, fallback}){
-  const parts = [cat, kind, size ? `⌀${size}` : '', note].filter(Boolean);
+  const parts = [cat, brand, kind, size ? `⌀${size}` : '', note].filter(Boolean);
   const s = parts.join(' ');
   return s || (fallback || 'Позиция');
 }
@@ -903,11 +919,11 @@ const size = ($('#supSize').style.display !== 'none'
 
   const name = ($('#supName').value.trim()) || buildSupplyName({cat,kind,size,note, fallback:'Позиция'});
 
-  const item = {
-    id, cat, kind, size, name, qty, unit, link, note,
-    left: qty, // запас/остаток — можно доработать списанием позже
-    updatedAt: new Date().toISOString()
-  };
+  onst item = {
+  id, cat, kind, brand, size, name, qty, unit, link, note,
+  left: qty,
+  updatedAt: new Date().toISOString()
+};
 
   // Локально — в состояние (чтобы UI отрисовался сразу)
   const i = AppState.supplies.findIndex(x => x.id === id);
