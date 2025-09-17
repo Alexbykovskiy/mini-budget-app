@@ -402,29 +402,6 @@ try { BOOT.set(6,'ok'); } catch(_) {}
   }
 }
 
-async function saveSettings(){
-  const s = {
-  sources: splitTags($('#setSources').value),
-  styles: splitTags($('#setStyles').value),
-  zones: splitTags($('#setZones').value),
-  supplies: splitTags($('#setSupplies').value),
-  defaultReminder: $('#setDefaultReminder').value.trim(),
-  syncInterval: Math.max(15, Number($('#setSyncInterval').value||60)),
-  language: 'ru',
-  reminderTemplates: splitTags($('#setReminderTemplates').value),
-  reminderDelays: ($('#setReminderDelays').value||'')
-    .split(',').map(n => Number(n.trim())).filter(n => !isNaN(n) && n > 0),
-  suppliesDict: (() => {
-    try {
-      const raw = $('#setSuppliesDict').value.trim();
-      return raw ? JSON.parse(raw) : (AppState.settings?.suppliesDict || {});
-    } catch(e) {
-      toast('Ошибка JSON в «Справочник расходников» — оставили прежние значения');
-      return (AppState.settings?.suppliesDict || {});
-    }
-  })()
-};
-
 function listenSuppliesRealtime(){
   FB.db.collection('TattooCRM').doc('app').collection('supplies')
     .orderBy('updatedAt', 'desc')
@@ -440,6 +417,49 @@ function listenSuppliesRealtime(){
       toast('Ошибка чтения расходников');
     });
 }
+
+
+async function saveSettings(){
+  const s = {
+    sources: splitTags($('#setSources').value),
+    styles: splitTags($('#setStyles').value),
+    zones: splitTags($('#setZones').value),
+    supplies: splitTags($('#setSupplies').value),
+    defaultReminder: $('#setDefaultReminder').value.trim(),
+    syncInterval: Math.max(15, Number($('#setSyncInterval').value||60)),
+    language: 'ru',
+    reminderTemplates: splitTags($('#setReminderTemplates').value),
+    reminderDelays: ($('#setReminderDelays').value||'')
+      .split(',').map(n => Number(n.trim())).filter(n => !isNaN(n) && n > 0),
+    suppliesDict: (() => {
+      try {
+        const raw = $('#setSuppliesDict').value.trim();
+        return raw ? JSON.parse(raw) : (AppState.settings?.suppliesDict || {});
+      } catch(e) {
+        toast('Ошибка JSON в «Справочник расходников» — оставили прежние значения');
+        return (AppState.settings?.suppliesDict || {});
+      }
+    })()
+  };
+
+  try{
+    // сохраняем в Firestore
+    const ref = FB.db.collection('TattooCRM').doc('settings').collection('global').doc('default');
+    await ref.set(s, { merge: true });
+    AppState.settings = s;
+
+    toast('Настройки сохранены');
+    // можно перерисовать фильтры расходников, если вкладка открыта
+    if (document.querySelector('[data-tab="suppliesPage"]').classList.contains('is-active')) {
+      $('#supFilter').dataset.filled = ''; // пересобрать список
+      renderSupplies();
+    }
+  }catch(e){
+    console.warn('saveSettings', e);
+    toast('Ошибка сохранения настроек');
+  }
+}
+
 
 // ---------- Today ----------
 function renderToday(){
@@ -545,6 +565,7 @@ if (!driveReady) {
 
     let folderId = snap.exists ? (snap.data()?.driveFolderId || null) : null;
     await Drive.ensureLibrary();
+driveReady = true;
 
     if (!folderId) {
       folderId = await Drive.createClientFolder(id, name);
