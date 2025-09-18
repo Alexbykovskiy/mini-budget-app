@@ -310,20 +310,43 @@ body {
 .icon-btn svg{ pointer-events:none; }
 
 /* iOS-переключатель */
-.ios-switch { position: relative; display: inline-flex; width: 44px; height: 24px; cursor: pointer; }
-.ios-switch input { position: absolute; inset: 0; opacity: 0; }
+.ios-switch {
+  position: relative;
+  display: inline-flex;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+}
+.ios-switch input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
 .ios-switch .track {
-  flex: 1; border-radius: 999px; background: rgba(255,255,255,.15);
+  flex: 1;
+  border-radius: 999px;
+  background: rgba(255,255,255,.15);
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
-  transition: background .2s ease, box-shadow .2s ease;
+  transition: background .25s ease;
 }
 .ios-switch .track::after {
-  content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px;
-  border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.35);
-  transition: transform .2s ease;
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,.3);
+  transition: transform .25s ease;
 }
-.ios-switch input:checked + .track { background: rgba(255,165,0,.45); }
-.ios-switch input:checked + .track::after { transform: translateX(20px); }
+.ios-switch input:checked + .track {
+  background: #ff9d3a;
+}
+.ios-switch input:checked + .track::after {
+  transform: translateX(20px);
+}
 
 /* сворачивание тела справочника */
 #supDictBody.collapsed { display: none; }
