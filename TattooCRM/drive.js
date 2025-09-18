@@ -178,6 +178,21 @@ async function uploadResumable(folderId, file) {
     return res.result.files || [];
   }
 
+ // Поместить файл/папку в корзину (или удалить насовсем)
+  async function trashFile(fileId, hard = false) {
+    await ensureLibrary();
+    if (hard) {
+      // Полное удаление
+      await gapi.client.drive.files.delete({ fileId });
+    } else {
+      // Мягко — отправить в корзину
+      await gapi.client.drive.files.update({
+        fileId,
+        resource: { trashed: true }
+      });
+    }
+  }
+
   return {
     loadGapi,
     setAuthToken,
@@ -186,5 +201,6 @@ async function uploadResumable(folderId, file) {
     uploadToFolder,
     shareFolderPublic,
     listFilesInFolder,    // <-- экспортируем для превью
+ trashFile   // ← добавили
   };
 })();

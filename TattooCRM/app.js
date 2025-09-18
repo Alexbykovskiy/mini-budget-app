@@ -1133,7 +1133,6 @@ async function deleteClientFromDialog(){
   $('#clientDialog').close();
   renderClients();
 }
-
 // ---------- Marketing ----------
 function renderMarketing(){
   const hi = $('#mkHighlites');
