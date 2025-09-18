@@ -1129,11 +1129,49 @@ try {
 
 async function deleteClientFromDialog(){
   const id = $('#clientDialog').dataset.id;
+  if (!id) { $('#clientDialog').close(); return; }
+
+  // 1) Уберём из локального стейта, чтобы UI сразу очистился
   AppState.clients = AppState.clients.filter(x => x.id !== id);
-  $('#clientDialog').close();
   renderClients();
-}
-// ---------- Marketing ----------
+
+  try {
+    // 2) Прочитаем документ, чтобы узнать driveFolderId (если есть)
+    const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
+    const snap = await ref.get();
+    const data = snap.exists ? snap.data() : null;
+    const folderId = data?.driveFolderId || null;
+
+    // 3) Удалим связанные напоминания (если создавались автосозданием)
+    const rs = await FB.db.collection('TattooCRM').doc('app').collection('reminders')
+      .where('clientId', '==', id).get();
+    const batch = FB.db.batch();
+    rs.forEach(d => {
+      batch.delete(FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(d.id));
+    });
+    await batch.commit();
+
+    // 4) Удалим сам документ клиента в Firestore — КЛЮЧЕВО!
+    await ref.delete();
+
+    // 5) Отправим папку клиента в корзину на Google Drive (если была)
+    try {
+      const canTrash = (typeof Drive?.trashFile === 'function');
+      if (folderId && canTrash) {
+        await Drive.trashFile(folderId, /* hard= */ false); // мягко, в корзину
+      }
+    } catch (e) {
+      console.warn('Drive trash failed', e);
+    }
+
+    toast('Клиент удалён');
+  } catch (e) {
+    console.warn('deleteClientFromDialog', e);
+    toast('Ошибка удаления клиента');
+  } finally {
+    $('#clientDialog').close();
+  }
+}// ---------- Marketing ----------
 function renderMarketing(){
   const hi = $('#mkHighlites');
   const tb = $('#mkTable');
