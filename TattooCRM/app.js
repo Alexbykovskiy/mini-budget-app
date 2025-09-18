@@ -1005,6 +1005,8 @@ function openClientDialog(c = null){
   $('#fPhone').value  = c?.phone || '';
   $('#fLink').value   = c?.link || '';
   $('#fSource').value = c?.source || (AppState.settings?.sources?.[0] || '');
+// Дата первого обращения: по умолчанию — сегодня (YYYY-MM-DD)
+$('#fFirstContact').value = c?.firstContactDate || new Date().toISOString().slice(0,10);
   $('#fFirst').value  = String(c?.first ?? true);      // это select!
   $('#fType').value   = c?.type || 'Новая';
   $('#fStyles').value = (c?.styles || []).join(', ');
@@ -1055,6 +1057,7 @@ async function saveClientFromDialog(){
     phone: $('#fPhone').value.trim(),
     link: $('#fLink').value.trim(),
     source: $('#fSource').value.trim(),
+firstContactDate: ($('#fFirstContact').value || new Date().toISOString().slice(0,10)),
     first: ($('#fFirst').value === 'true'),
     type: $('#fType').value.trim(),
     styles: splitTags($('#fStyles').value),
