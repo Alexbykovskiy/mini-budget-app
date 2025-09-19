@@ -1378,7 +1378,29 @@ try {
         await refreshClientPhotos(id);
       }
     }
+ // --- авто-создание напоминания ---
+    try {
+      const title = ($('#fReminderTitle').value || '').trim() || $('#fReminderTpl').value.trim();
+      if (title) {
+        const afterDays = Number($('#fReminderAfter').value || 0);
+        const dateObj = addDaysLocal(new Date(), isNaN(afterDays) ? 0 : afterDays);
+        const ymd = ymdLocal(dateObj);
 
+        const remId = `rm_${crypto.randomUUID().slice(0,8)}`;
+        const reminder = {
+          id: remId,
+          clientId: client.id,
+          clientName: client.displayName,
+          date: ymd,
+          title,
+          createdAt: new Date().toISOString()
+        };
+
+        await FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(remId).set(reminder);
+      }
+    } catch (e) {
+      console.warn('autoReminder', e);
+    }
     toast('Сохранено');
   } catch(e) {
     console.warn('saveClientFromDialog', e);
