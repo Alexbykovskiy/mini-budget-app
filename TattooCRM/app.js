@@ -642,49 +642,120 @@ function renderToday(){
 
   const today = ymdLocal(new Date());
 
-const sessions = (AppState.clients || [])
-  .flatMap(c => (c.sessions || []).map(d => ({
-    time: d.slice(11,16),
-    date: d.slice(0,10),
-    name: c.displayName,
-    badge: c.status || 'Сеанс'
-  })))
-  .filter(s => s.date === today)
-  .map(s => ({ time: s.time, date: s.date, name: s.name, badge: s.badge }));
+  // 1) Сеансы (из клиентов)
+  const sessionsAll = (AppState.clients || [])
+    .flatMap(c => (c.sessions || []).map(d => ({
+      kind: 'session',
+      id: `${c.id}_${d}`,
+      date: d.slice(0,10),
+      time: d.slice(11,16),
+      title: c.displayName,
+      badge: 'Сеанс'
+    })));
 
-const consults = (AppState.clients || [])
-  .filter(c => c.consult && (c.consultDate || '').slice(0,10) === today)
+  // 2) Консультации (из клиентов)
+  const consultsAll = (AppState.clients || [])
+    .filter(c => c.consult && c.consultDate)
     .map(c => ({
-    time: (c.consultDate || '').slice(11,16),
-    date: (c.consultDate || '').slice(0,10),
-    name: c.displayName,
-    badge: 'Консультация'
+      kind: 'consult',
+      id: `cons_${c.id}`,
+      date: c.consultDate.slice(0,10),
+      time: c.consultDate.slice(11,16),
+      title: c.displayName,
+      badge: 'Консультация'
+    }));
+
+  // 3) Ручные напоминания (из коллекции reminders)
+  const remindersAll = (AppState.reminders || []).map(r => ({
+    kind: 'reminder',
+    id: r.id,
+    date: r.date,       // YYYY-MM-DD
+    time: '',           // напоминания без времени
+    title: r.title,
+    who: r.clientName || '',
+    badge: 'Напоминание'
   }));
 
-const todays = [...sessions, ...consults]
-  .sort((a,b) => (a.time || '').localeCompare(b.time || ''));
+  // События «на сегодня»
+  const todayEvents = [...sessionsAll, ...consultsAll, ...remindersAll]
+    .filter(ev => ev.date === today)
+    .sort((a,b) => (a.time || '99:99').localeCompare(b.time || '99:99'));
 
-if (!todays.length) {
-  const el = document.createElement('div');
-  el.className = 'row card-client glass';
-  el.textContent = 'На сегодня записей нет';
-  sch.appendChild(el);
-} else {
-  todays.forEach(item => {
+  // Будущие события (строго > сегодня)
+  const futureEvents = [...sessionsAll, ...consultsAll, ...remindersAll]
+    .filter(ev => ev.date > today)
+    .sort((a,b) => (a.date + (a.time || '99:99')).localeCompare(b.date + (b.time || '99:99')));
+
+  // Рендер «Сегодня»
+  if (!todayEvents.length) {
     const el = document.createElement('div');
-    el.className='row card-client glass';
-    el.innerHTML = `<div><b>${item.time || '—'}</b> — ${item.name} <span class="badge">${item.badge}</span> <span class="meta">${formatDateHuman(item.date)}</span></div>`;
+    el.className = 'row card-client glass';
+    el.textContent = 'На сегодня записей нет';
     sch.appendChild(el);
-  });
+  } else {
+    todayEvents.forEach(ev => {
+      const el = document.createElement('div');
+      el.className = 'row card-client glass';
+      el.innerHTML = `
+        <div>
+          🔔 <b>${formatDateHuman(ev.date)}</b> ${ev.time ? ev.time + ' — ' : ' — '}
+          ${ev.kind === 'reminder'
+            ? `${ev.title}${ev.who ? ' · ' + ev.who : ''}`
+            : `${ev.title} <span class="badge">${ev.badge}</span>`}
+        </div>`;
+      sch.appendChild(el);
+    });
+  }
+
+  // Рендер «Напоминания» (всё будущее)
+  if (!futureEvents.length) {
+    rem.innerHTML = `<div class="row card-client glass">Будущих напоминаний нет</div>`;
+  } else {
+    futureEvents.forEach(ev => {
+      const row = document.createElement('div');
+      row.className = 'row card-client glass';
+      row.style.alignItems = 'center';
+      row.style.justifyContent = 'space-between';
+
+      const text = document.createElement('div');
+      text.innerHTML = `
+        🔔 <b>${formatDateHuman(ev.date)}</b> ${ev.time ? ev.time + ' — ' : ' — '}
+        ${ev.kind === 'reminder'
+          ? `${ev.title}${ev.who ? ' · ' + ev.who : ''} <span class="badge">${ev.badge}</span>`
+          : `${ev.title} <span class="badge">${ev.badge}</span>`}
+      `;
+      row.appendChild(text);
+
+      // Крестик удаления только для «ручных» напоминаний (из коллекции reminders)
+      if (ev.kind === 'reminder' && ev.id) {
+        const btn = document.createElement('button');
+        btn.className = 'btn danger';
+        btn.textContent = '✕';
+        btn.title = 'Удалить напоминание';
+        btn.style.padding = '2px 8px';
+        btn.addEventListener('click', async () => {
+          const ok = await confirmDlg('Удалить это напоминание?');
+          if (!ok) return;
+          try {
+            await FB.db.collection('TattooCRM').doc('app')
+              .collection('reminders').doc(ev.id).delete();
+            row.remove(); // оптимистично; snapshot всё равно обновит
+            toast('Напоминание удалено');
+          } catch (e) {
+            console.warn(e);
+            toast('Не удалось удалить напоминание');
+          }
+        });
+        row.appendChild(btn);
+      }
+
+      rem.appendChild(row);
+    });
+  }
+
+  // boot: UI готова
+  try { BOOT.set(7,'ok'); BOOT.hide(); } catch(_) {}
 }
-
-  (AppState.reminders || []).forEach(r => {
-    const el = document.createElement('div');
-    el.className='row card-client glass';
-    el.innerHTML = `<div>🔔 <b>${formatDateHuman(r.date)}</b> — ${r.title}</div>`;
-    rem.appendChild(el);
-  });
-
    function cTime(c){ return (c.nextDate||''); }
 
   // boot: UI готова
@@ -1249,42 +1320,43 @@ first: ($('#fFirst').value === 'true'),
     const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
     // 1) Сохраняем клиента
     await ref.set(client, { merge:true });
-// --- авто-создание напоминания, если задано
+// --- авто-создание напоминания: ТОЛЬКО если выбран шаблон или введён свой текст
 try {
-  const tplTitle   = $('#fReminderTpl').value.trim();
-const customTitle= $('#fReminderTitle').value.trim();
-const daysStr    = $('#fReminderAfter').value.trim();
+  const tplTitle    = $('#fReminderTpl').value.trim();
+  const customTitle = $('#fReminderTitle').value.trim();
+  const daysStr     = $('#fReminderAfter').value.trim();
+  const title       = (customTitle || tplTitle).trim();
 
-const fallbackTitle = `Сеанс: ${client.displayName || ''}`.trim();
-const title = (customTitle || tplTitle || AppState.settings?.defaultReminder || '').trim();
-const hasTitle = !!title;
-const days = Number(daysStr); // может быть 0
+  // Если нет явного заголовка — ничего не создаём
+  if (!title) { /* noop */ }
+  else {
+    const days = Number(daysStr); // может быть NaN или 0
 
-if (Array.isArray(client.sessions) && client.sessions.length) {
-  for (const d of client.sessions) {
-    const base = new Date(d);
-    if (isNaN(base)) continue;
+    if (Array.isArray(client.sessions) && client.sessions.length) {
+      for (const d of client.sessions) {
+        const base = new Date(d);
+        if (isNaN(base)) continue;
 
-    // если daysStr пустая строка — ставим на день сеанса; иначе сдвиг на days дней (можно 0)
-    const useSameDay = (daysStr === '');
-const remindDate = useSameDay ? base : addDaysLocal(base, days);
-const rid = `r_${client.id}_${d.replace(/[^0-9]/g,'')}_${useSameDay ? 'on' : days}`.slice(0, 40);
+        // Пустое daysStr => напоминание в тот же день, иначе сдвиг на days
+        const sameDay   = (daysStr === '');
+        const remindAt  = sameDay ? base : addDaysLocal(base, days);
+        const rid       = `r_${client.id}_${d.replace(/[^0-9]/g,'')}_${sameDay ? 'on' : days}`.slice(0, 40);
 
-const r = {
-  id: rid,
-  clientId: client.id,
-  clientName: client.displayName || 'Клиент',
-  title,
-  date: ymdLocal(remindDate) // YYYY-MM-DD (локально)
-};
+        const r = {
+          id: rid,
+          clientId: client.id,
+          clientName: client.displayName || 'Клиент',
+          title,
+          date: ymdLocal(remindAt)   // YYYY-MM-DD (локаль)
+        };
 
-    await FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(rid).set(r, { merge:true });
+        await FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(rid).set(r, { merge:true });
+      }
+    }
   }
-}
 } catch(e) {
   console.warn('create reminder failed', e);
 }
-
 // --- консультация -> отдельное напоминание на дату консультации
 try {
   const rid = `rc_${id}`; // стабильный id, чтобы при сохранениях перезаписывать одну и ту же запись
