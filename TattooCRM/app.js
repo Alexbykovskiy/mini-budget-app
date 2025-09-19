@@ -569,6 +569,20 @@ function csv(s){ return (s||'').split(',').map(v=>v.trim()).filter(Boolean); }
 function csvNums(s){ return (s||'').split(',').map(v=>Number(v.trim())).filter(v=>!isNaN(v)); }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
+function pad2(n){ return n < 10 ? '0'+n : ''+n; }
+
+// Вернуть локальную YYYY-MM-DD для объекта Date (без UTC-сдвига)
+function ymdLocal(dt){
+  return `${dt.getFullYear()}-${pad2(dt.getMonth()+1)}-${pad2(dt.getDate())}`;
+}
+
+// Безопасный сдвиг на days календарных дней (по локальному времени)
+function addDaysLocal(dateObj, days){
+  const d = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate(), 
+                     dateObj.getHours(), dateObj.getMinutes(), 0, 0);
+  d.setDate(d.getDate() + days);
+  return d;
+}
 
 async function saveSettings(){
   const s = {
@@ -1234,17 +1248,15 @@ if (Array.isArray(client.sessions) && client.sessions.length) {
 
     // если daysStr пустая строка — ставим на день сеанса; иначе сдвиг на days дней (можно 0)
     const useSameDay = (daysStr === '');
-    const remindDate = useSameDay ? base : new Date(base.getTime() + days*24*60*60*1000);
+const remindDate = useSameDay ? base : addDaysLocal(base, days);
 
-    const rid = `r_${client.id}_${d.replace(/[^0-9]/g,'')}_${useSameDay ? 'on' : days}`.slice(0, 40);
-
-    const r = {
-      id: rid,
-      clientId: client.id,
-      clientName: client.displayName || 'Клиент',
-      title: hasTitle ? title : fallbackTitle,
-      date: remindDate.toISOString().slice(0,10) // YYYY-MM-DD
-    };
+const r = {
+  id: rid,
+  clientId: client.id,
+  clientName: client.displayName || 'Клиент',
+  title,
+  date: ymdLocal(remindDate) // YYYY-MM-DD (локально)
+};
 
     await FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(rid).set(r, { merge:true });
   }
@@ -1264,7 +1276,7 @@ try {
       clientId: client.id,
       clientName: client.displayName || 'Клиент',
       title: `Консультация: ${client.displayName || ''}`.trim(),
-      date: client.consultDate.slice(0,10) // YYYY-MM-DD
+      date: ymdLocal(new Date(client.consultDate))
     };
     await refRem.set(r, { merge: true });
   } else {
