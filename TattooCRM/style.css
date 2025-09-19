@@ -352,63 +352,43 @@ body {
 
 /* iOS-переключатель */
 .ios-switch {
-  display: inline-block;
   position: relative;
-  width: 38px;
+  display: inline-flex;
+  width: 44px;
   height: 24px;
-  vertical-align: middle;
-}
-.ios-switch input[type="checkbox"] {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-.ios-switch .ios-slider {
-  position: absolute;
   cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(40,43,49,0.54);
-  border-radius: 99px;
-  transition: .2s;
-  box-shadow:
-    0 3px 7px 0 rgba(0,0,0,0.22) inset,
-    0 -5px 16px 0 rgba(255,255,255,0.19) inset;
 }
-.ios-switch .ios-slider:before {
+.ios-switch input {
   position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+.ios-switch .track {
+  flex: 1;
+  border-radius: 999px;
+  background: rgba(255,255,255,.15);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
+  transition: background .25s ease;
+  position: relative;
+}
+.ios-switch .track::after {
   content: "";
-  height: 16px;
-  width: 16px;
-  left: 4px; top: 4px;
-  background: #fff;
-  border-radius: 50%;
-  transition: .2s;
-  box-shadow: 1px 1px 4px #aaa;
-}
-.ios-switch input:checked + .ios-slider {
-  background: #FFA35C;
-  box-shadow:
-    0 2px 7px 0 rgba(255,163,92,0.16) inset,
-    0 -1px 4px 0 rgba(255,255,255,0.10) inset;
-}
-.ios-switch input:checked + .ios-slider:before {
-  transform: translateX(14px);
-}
-.ios-switch input:checked + .ios-slider::after {
-  content: '';
   position: absolute;
-  left: 50%; top: 50%;
-  transform: translate(-50%, -50%);
-  width: 54px; height: 40px;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  opacity: 0.37;
-  filter: blur(12px);
-  background: linear-gradient(120deg,
-    rgba(255,163,92,0.21) 0%,
-    rgba(255,163,92,0.09) 70%,
-    rgba(255,255,255,0) 100%
-  );
-}/* сворачивание тела справочника */
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,.3);
+  transition: transform .25s ease;
+}
+.ios-switch input:checked + .track {
+  background: #ff9d3a;
+}
+.ios-switch input:checked + .track::after {
+  transform: translateX(20px);
+}}/* сворачивание тела справочника */
 #supDictBody.collapsed { display: none; }
 
 /* прячем общий инпут суммы, если он есть */
