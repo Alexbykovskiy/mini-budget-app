@@ -106,6 +106,20 @@
             <label class="field"><span>Квалификация</span>
               <select id="fQual"><option>Целевой</option><option>Условно целевой</option><option>Нецелевой</option></select>
             </label>
+<!-- Консультация: переключатель -->
+<label class="field">
+  <span>Консультация</span>
+  <label class="ios-switch">
+    <input id="fConsultOn" type="checkbox" />
+    <span class="track"></span>
+  </label>
+</label>
+
+<!-- Дата консультации (показываем только когда включен свитч) -->
+<label class="field" id="consultDateField" style="display:none">
+  <span>Дата консультации</span>
+  <input id="fConsultDate" type="datetime-local" />
+</label>
             <label class="field"><span>Депозит (€)</span><input id="fDeposit" type="number" step="1"/></label>
             <label class="field"><span>Сумма (€)</span><input id="fAmount" type="number" step="1"/></label>
             <label class="field"><span>Дата сеанса</span><input id="fNextDate" type="datetime-local" /></label>

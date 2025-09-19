@@ -590,24 +590,30 @@ function renderToday(){
 
   const today = new Date().toISOString().slice(0,10);
 
-  const todays = (AppState.clients || [])
-    .filter(c => (c.nextDate || '').slice(0,10) === today)
-    .sort((a,b) => (cTime(a) || '').localeCompare(cTime(b) || ''));
+const sessions = (AppState.clients || [])
+  .filter(c => (c.nextDate || '').slice(0,10) === today)
+  .map(c => ({ time: (c.nextDate || '').slice(11,16), name: c.displayName, badge: c.status || 'Сеанс' }));
 
-  if (!todays.length) {
+const consults = (AppState.clients || [])
+  .filter(c => c.consult && (c.consultDate || '').slice(0,10) === today)
+  .map(c => ({ time: (c.consultDate || '').slice(11,16), name: c.displayName, badge: 'Консультация' }));
+
+const todays = [...sessions, ...consults]
+  .sort((a,b) => (a.time || '').localeCompare(b.time || ''));
+
+if (!todays.length) {
+  const el = document.createElement('div');
+  el.className = 'row card-client glass';
+  el.textContent = 'На сегодня записей нет';
+  sch.appendChild(el);
+} else {
+  todays.forEach(item => {
     const el = document.createElement('div');
-    el.className = 'row card-client glass';
-    el.textContent = 'На сегодня записей нет';
+    el.className='row card-client glass';
+    el.innerHTML = `<div><b>${item.time || '—'}</b> — ${item.name} <span class="badge">${item.badge}</span></div>`;
     sch.appendChild(el);
-  } else {
-    todays.forEach(c => {
-      const time = (c.nextDate || '').slice(11,16) || '';
-      const el = document.createElement('div');
-      el.className='row card-client glass';
-      el.innerHTML = `<div><b>${time||'—'}</b> — ${c.displayName} <span class="badge">${c.status||'Сеанс'}</span></div>`;
-      sch.appendChild(el);
-    });
-  }
+  });
+}
 
   (AppState.reminders || []).forEach(r => {
     const el = document.createElement('div');
@@ -1017,6 +1023,15 @@ $('#fFirstContact').value = c?.firstContactDate || new Date().toISOString().slic
   $('#fAmount').value = c?.amount || '';
   $('#fNotes').value  = c?.notes || '';
   $('#fNextDate').value = c?.nextDate ? c.nextDate.slice(0,16) : '';
+// консалтинг (переключатель + дата)
+$('#fConsultOn').checked = !!(c?.consult);
+$('#fConsultDate').value = c?.consultDate ? c.consultDate.slice(0,16) : '';
+$('#consultDateField').style.display = $('#fConsultOn').checked ? '' : 'none';
+
+// реакция на смену свитча
+$('#fConsultOn').onchange = () => {
+  $('#consultDateField').style.display = $('#fConsultOn').checked ? '' : 'none';
+};
 // --- напоминания: шаблоны и сроки
 const tplSel = $('#fReminderTpl');
 tplSel.innerHTML = '<option value="">— шаблон —</option>';
@@ -1051,25 +1066,41 @@ async function saveClientFromDialog(){
     $('#clientDialog').dataset.id = id;
   }
 
-  const client = {
-    id,
-    displayName,
-    phone: $('#fPhone').value.trim(),
-    link: $('#fLink').value.trim(),
-    source: $('#fSource').value.trim(),
+ const client = {
+  id,
+  displayName,
+  phone: $('#fPhone').value.trim(),
+  link: $('#fLink').value.trim(),
+source: $('#fSource').value.trim(),
 firstContactDate: ($('#fFirstContact').value || new Date().toISOString().slice(0,10)),
-    first: ($('#fFirst').value === 'true'),
-    type: $('#fType').value.trim(),
-    styles: splitTags($('#fStyles').value),
-    zones: splitTags($('#fZones').value),
-    status: $('#fStatus').value,
-    qual: $('#fQual').value,
-    deposit: Number($('#fDeposit').value || 0),
-    amount: Number($('#fAmount').value || 0),
-    notes: $('#fNotes').value.trim(),
-    nextDate: ($('#fNextDate').value || ''),
-    updatedAt: new Date().toISOString()
-  };
+first: ($('#fFirst').value === 'true'),
+  type: $('#fType').value.trim(),
+  styles: splitTags($('#fStyles').value),
+  zones: splitTags($('#fZones').value),
+  status: $('#fStatus').value,
+  qual: $('#fQual').value,
+  deposit: Number($('#fDeposit').value || 0),
+  amount: Number($('#fAmount').value || 0),
+  notes: $('#fNotes').value.trim(),
+  nextDate: ($('#fNextDate').value || ''),
+
+  // NEW
+  // --- Консультация: если свитч включён и указана дата — сохраняем; иначе сбрасываем
+  ...( (() => {
+    const on = $('#fConsultOn').checked;
+    const date = $('#fConsultDate').value;
+    if (on && date) {
+      return { consult: true, consultDate: date };
+    } else {
+      return { consult: false, consultDate: '' };
+    }
+  })() ),
+
+  updatedAt: new Date().toISOString()
+};
+
+
+
 
   const i = AppState.clients.findIndex(x => x.id === id);
   if (i >= 0) AppState.clients[i] = client; else AppState.clients.push(client);
@@ -1105,6 +1136,28 @@ try {
   }
 } catch(e) {
   console.warn('create reminder failed', e);
+}
+
+// --- консультация -> отдельное напоминание на дату консультации
+try {
+  const rid = `rc_${id}`; // стабильный id, чтобы при сохранениях перезаписывать одну и ту же запись
+  const refRem = FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(rid);
+
+  if (client.consult && client.consultDate) {
+    const r = {
+      id: rid,
+      clientId: client.id,
+      clientName: client.displayName || 'Клиент',
+      title: `Консультация: ${client.displayName || ''}`.trim(),
+      date: client.consultDate.slice(0,10) // YYYY-MM-DD
+    };
+    await refRem.set(r, { merge: true });
+  } else {
+    // Выключили свитч или стерли дату — удалим напоминание, если было
+    await refRem.delete().catch(()=>{});
+  }
+} catch(e){
+  console.warn('consult reminder failed', e);
 }
 
     // 2) Автосоздание папки, если ещё нет
@@ -1386,6 +1439,8 @@ driveReady = true;
     
     // автообновление токена
     if (!window.__driveAutoRefresh) {
+
+
       window.__driveAutoRefresh = setInterval(() => {
         ensureDriveAccessToken().catch(console.warn);
       }, 45 * 60 * 1000);
