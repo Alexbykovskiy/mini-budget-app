@@ -439,11 +439,26 @@ body {
 /* 2) сетка 2×2 — плотнее */
 #clientDialog .grid.two{
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr); /* ← ключевой фикс */
   column-gap: 8px;
   row-gap: 10px;
 }
-
+#clientDialog .grid.two > *{ min-width: 0; }  /* дочерним разрешаем сжиматься */
+#clientDialog .field > input,
+#clientDialog .field > select,
+#clientDialog .field > textarea{
+  min-width: 0;           /* чтобы grid мог сжимать поле */
+  box-sizing: border-box; /* на всякий случай */
+}
+#clientDialog input[type="datetime-local"]{
+  font-size: 12px;
+  padding: 6px 8px;
+  height: 32px;
+  min-width: 0;
+}
+/* webkit-акценты поменьше (Chrome/Safari) */
+#clientDialog input[type="datetime-local"]::-webkit-datetime-edit{ padding:0; }
+#clientDialog input[type="datetime-local"]::-webkit-calendar-picker-indicator{ margin:0; }
 /* 3) подписи компактные, с усечением по строке */
 #clientDialog .field{ margin: 0; }
 #clientDialog .field > span{
