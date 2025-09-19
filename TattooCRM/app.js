@@ -196,18 +196,26 @@ try {
 
     // Подцепим gapi и подложим сохранённый токен, чтобы Drive был готов
     (async () => {
-     try {
-  await waitFor(() => window.gapi);
-  gapi.client.setToken({ access_token: cachedTok });
-  driveReady = true;
-  const __ds = document.querySelector('#driveStatus'); if (__ds) __ds.textContent = 'Drive: онлайн';
-  initDriveStack({ forceConsent: false }).catch(console.warn);
-} catch(e){
-  console.warn('quickStart drive', e);
-  const __ds = document.querySelector('#driveStatus'); if (__ds) __ds.textContent = 'Drive: оффлайн';
-}
+  try {
+    // ждём не только gapi, но и gapi.client
+    await waitFor(() => window.gapi && gapi.client);
 
- })();
+    // токен подставляем только если метод существует
+    if (gapi?.client?.setToken) {
+      gapi.client.setToken({ access_token: cachedTok });
+    }
+
+    const __ds = document.querySelector('#driveStatus');
+    if (__ds) __ds.textContent = 'Drive: онлайн';
+
+    // дальше полноценная инициализация Drive (она сама проставит driveReady)
+    initDriveStack({ forceConsent: false }).catch(console.warn);
+  } catch (e) {
+    console.warn('quickStart drive', e);
+    const __ds = document.querySelector('#driveStatus');
+    if (__ds) __ds.textContent = 'Drive: оффлайн';
+  }
+})();
   }
 } catch(e){ console.warn('quickStart', e); }
 
@@ -1156,9 +1164,19 @@ function openClientDialog(c = null){
   $('#fPhone').value  = c?.phone || '';
   $('#fLink').value   = c?.link || '';
   $('#fSource').value = c?.source || (AppState.settings?.sources?.[0] || '');
-// Дата первого обращения: по умолчанию — сегодня (YYYY-MM-DD)
-$('#fFirstContact').value = c?.firstContactDate || new Date().toISOString().slice(0,10);
-  $('#fFirst').value  = String(c?.first ?? true);      // это select!
+
+// Дата первого обращения (если поле есть в верстке)
+const firstContactEl = $('#fFirstContact');
+if (firstContactEl) {
+  firstContactEl.value = c?.firstContactDate || new Date().toISOString().slice(0,10);
+}
+
+// «Первое обращение» (если select есть в верстке)
+const firstEl = $('#fFirst');
+if (firstEl) {
+  firstEl.value = String(c?.first ?? true);
+}
+
   $('#fType').value   = c?.type || 'Новая';
   $('#fStyles').value = (c?.styles || []).join(', ');
   $('#fZones').value  = (c?.zones || []).join(', ');
