@@ -217,15 +217,55 @@ body {
 }
 /* Переписываем карточки/панели под tattoo-style */
 .glass, .card, .card-client, .modal-body, .toolbar, .tabbar {
-  background: rgba(0,0,0,0.45) !important;
-  backdrop-filter: blur(16px) saturate(1.1);
-  -webkit-backdrop-filter: blur(16px) saturate(1.1);
+  position: relative;
+  background:
+    linear-gradient(120deg,
+      rgba(255,255,255,0.06) 8%,
+      rgba(0,0,0,0.06) 100%
+    ),
+    rgba(0,0,0,0.50) !important;
+  backdrop-filter: blur(16px) saturate(1.15);
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
   border-radius: 24px !important;
   border: 1px solid rgba(255,255,255,0.12);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.15), 0 2px 8px rgba(255,255,255,0.05) inset;
   color: #eee !important;
+  overflow: hidden;
 }
-
+.glass::before, .card::before, .card-client::before,
+.modal-body::before, .toolbar::before, .tabbar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  background:
+    linear-gradient(135deg,
+      rgba(255,255,255,0.36) 0%,
+      rgba(255,255,255,0.15) 32%,
+      rgba(255,255,255,0.00) 68%
+    );
+}
+.glass::after, .card::after, .card-client::after,
+.modal-body::after, .toolbar::after, .tabbar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 3;
+  border: 1.5px solid transparent;
+  background: linear-gradient(135deg, rgba(255,255,255,0.50) 15%, rgba(255,255,255,0.00) 90%) border-box;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0) border-box;
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0) border-box;
+  mask-composite: exclude;
+}
 /* Оранжевые акценты */
 .btn.primary, .btn.success {
   background: linear-gradient(120deg, #ffa35c 60%, #f8d8b4 100%) !important;
@@ -311,37 +351,63 @@ body {
 
 /* iOS-переключатель */
 .ios-switch {
+  display: inline-block;
   position: relative;
-  display: inline-flex;
-  width: 44px;
+  width: 38px;
   height: 24px;
-  cursor: pointer;
+  vertical-align: middle;
 }
-.ios-switch input {
-  position: absolute;
-  inset: 0;
+.ios-switch input[type="checkbox"] {
   opacity: 0;
+  width: 0;
+  height: 0;
 }
-.ios-switch .track {
-  flex: 1;
-  border-radius: 999px;
-  background: rgba(255,255,255,.15);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
-  transition: background .25s ease;
-}
-.ios-switch .track::after {
-  content: "";
+.ios-switch .ios-slider {
   position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,.3);
-  transition: transform .25s ease;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(40,43,49,0.54);
+  border-radius: 99px;
+  transition: .2s;
+  box-shadow:
+    0 3px 7px 0 rgba(0,0,0,0.22) inset,
+    0 -5px 16px 0 rgba(255,255,255,0.19) inset;
 }
-.ios-switch input:checked + .track {
+.ios-switch .ios-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px; top: 4px;
+  background: #fff;
+  border-radius: 50%;
+  transition: .2s;
+  box-shadow: 1px 1px 4px #aaa;
+}
+.ios-switch input:checked + .ios-slider {
+  background: #FFA35C;
+  box-shadow:
+    0 2px 7px 0 rgba(255,163,92,0.16) inset,
+    0 -1px 4px 0 rgba(255,255,255,0.10) inset;
+}
+.ios-switch input:checked + .ios-slider:before {
+  transform: translateX(14px);
+}
+.ios-switch input:checked + .ios-slider::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 54px; height: 40px;
+  border-radius: 50%;
+  opacity: 0.37;
+  filter: blur(12px);
+  background: linear-gradient(120deg,
+    rgba(255,163,92,0.21) 0%,
+    rgba(255,163,92,0.09) 70%,
+    rgba(255,255,255,0) 100%
+  );
+}.ios-switch input:checked + .track {
   background: #ff9d3a;
 }
 .ios-switch input:checked + .track::after {
