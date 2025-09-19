@@ -1083,7 +1083,23 @@ $('#photosEmptyNote').style.display = 'block';
 $('#photosGrid').innerHTML = '';
 $('#photosEmptyNote').style.display = 'block';
 refreshClientPhotos($('#clientDialog').dataset.id);
-  dlg.showModal();
+// показать напоминания этого клиента
+const remWrap = $('#clientReminders');
+if (remWrap) {
+  remWrap.innerHTML = '';
+  const myRems = (AppState.reminders || []).filter(r => r.clientId === c?.id);
+  if (!myRems.length) {
+    remWrap.innerHTML = '<div class="meta">Напоминаний нет</div>';
+  } else {
+    myRems.forEach(r => {
+      const div = document.createElement('div');
+      div.className = 'meta';
+      div.textContent = `🔔 ${r.date} — ${r.title}`;
+      remWrap.appendChild(div);
+    });
+  }
+}  
+dlg.showModal();
 }
 
 async function saveClientFromDialog(){
