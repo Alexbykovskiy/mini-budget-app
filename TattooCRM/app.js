@@ -1315,44 +1315,40 @@ first: ($('#fFirst').value === 'true'),
     const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
     // 1) Сохраняем клиента
     await ref.set(client, { merge:true });
-// --- авто-создание напоминания: ТОЛЬКО если выбран шаблон или введён свой текст
+// --- авто-создание напоминания: ТОЛЬКО если выбран шаблон/введён текст,
+// и ВСЕГДА от сегодняшней даты (не зависит от сеансов)
 try {
   const tplTitle    = $('#fReminderTpl').value.trim();
   const customTitle = $('#fReminderTitle').value.trim();
   const daysStr     = $('#fReminderAfter').value.trim();
-  const title       = (customTitle || tplTitle).trim();
 
-  // Если нет явного заголовка — ничего не создаём
-  if (!title) { /* noop */ }
-  else {
-    const days = Number(daysStr); // может быть NaN или 0
+  const title = (customTitle || tplTitle).trim();
+  if (title) {
+    // база — сегодняшняя локальная дата
+    const today = new Date();
+    const days  = Number(daysStr);              // может быть 0 или NaN
+    const sameDay = (daysStr === '');           // пусто = в тот же день
+    const remindAt = sameDay ? today : addDaysLocal(today, days);
 
-    if (Array.isArray(client.sessions) && client.sessions.length) {
-      for (const d of client.sessions) {
-        const base = new Date(d);
-        if (isNaN(base)) continue;
+    // стабильный id, чтобы пересохранение не плодило дубликаты:
+    // r_<clientId>_<YYYYMMDD>_<slug(title 12)>
+    const ymd = ymdLocal(remindAt).replace(/-/g,'');
+    const slug = title.toLowerCase().replace(/\s+/g,'_').replace(/[^a-zа-я0-9_]/gi,'').slice(0,12) || 'note';
+    const rid = `r_${client.id}_${ymd}_${slug}`.slice(0, 64);
 
-        // Пустое daysStr => напоминание в тот же день, иначе сдвиг на days
-        const sameDay   = (daysStr === '');
-        const remindAt  = sameDay ? base : addDaysLocal(base, days);
-        const rid       = `r_${client.id}_${d.replace(/[^0-9]/g,'')}_${sameDay ? 'on' : days}`.slice(0, 40);
+    const r = {
+      id: rid,
+      clientId: client.id,
+      clientName: client.displayName || 'Клиент',
+      title,
+      date: ymdLocal(remindAt) // YYYY-MM-DD локально
+    };
 
-        const r = {
-          id: rid,
-          clientId: client.id,
-          clientName: client.displayName || 'Клиент',
-          title,
-          date: ymdLocal(remindAt)   // YYYY-MM-DD (локаль)
-        };
-
-        await FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(rid).set(r, { merge:true });
-      }
-    }
+    await FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(rid).set(r, { merge:true });
   }
 } catch(e) {
   console.warn('create reminder failed', e);
-}
-// --- консультация -> отдельное напоминание на дату консультации
+}// --- консультация -> отдельное напоминание на дату консультации
 try {
   const rid = `rc_${id}`; // стабильный id, чтобы при сохранениях перезаписывать одну и ту же запись
   const refRem = FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(rid);
