@@ -129,7 +129,11 @@ main{padding: 12px; padding-bottom: 84px;}
 
 .modal{border:none; padding:0; background:transparent}
 .modal::backdrop{background:rgba(0,0,0,.35); backdrop-filter: blur(6px)}
-.modal-body{width:min(880px, 96vw); padding:16px}
+.modal-body {
+  width: min(360px, 96vw);
+  padding: 16px;
+  margin: 0 auto;   /* центрируем */
+}
 .modal-head,.modal-foot{display:flex; align-items:center; gap:12px}
 .modal-head{margin-bottom:12px}
 .modal-foot{margin-top:16px}
