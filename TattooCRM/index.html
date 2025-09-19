@@ -118,8 +118,9 @@
   <label class="field"><span>Стиль (теги)</span><input id="fStyles" placeholder="realism, ч/б"/></label>
   <label class="field"><span>Зоны</span><input id="fZones" placeholder="forearm, calf"/></label>
 
-  <!-- 7: Консультация (свитч) \ Дата консультации \ Депозит -->
-  <div class="row-3">
+  <!-- 7: Консультация (свитч+дата) \ Депозит -->
+<div class="grid two">
+  <div class="stack gap-8">
     <label class="field">
       <span>Консультация</span>
       <label class="ios-switch">
@@ -131,8 +132,12 @@
       <span>Дата консультации</span>
       <input id="fConsultDate" type="datetime-local" />
     </label>
-    <label class="field"><span>Депозит (€)</span><input id="fDeposit" type="number" step="1"/></label>
   </div>
+  <label class="field">
+    <span>Депозит (€)</span>
+    <input id="fDeposit" type="number" step="1"/>
+  </label>
+</div>
 
   <!-- 8: Даты сеансов -->
   <div class="field" style="grid-column: 1 / -1">
