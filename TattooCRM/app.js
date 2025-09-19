@@ -1148,22 +1148,27 @@ try {
 const customTitle= $('#fReminderTitle').value.trim();
 const daysStr    = $('#fReminderAfter').value.trim();
 
-const title = customTitle || tplTitle || (AppState.settings?.defaultReminder || '');
-const days  = Number(daysStr || 0);
+const fallbackTitle = `Сеанс: ${client.displayName || ''}`.trim();
+const title = (customTitle || tplTitle || AppState.settings?.defaultReminder || '').trim();
+const hasTitle = !!title;
+const days = Number(daysStr); // может быть 0
 
-if (Array.isArray(client.sessions) && client.sessions.length && title && days > 0) {
-  // создаём напоминание для КАЖДОГО сеанса
+if (Array.isArray(client.sessions) && client.sessions.length) {
   for (const d of client.sessions) {
     const base = new Date(d);
     if (isNaN(base)) continue;
-    const remindDate = new Date(base.getTime() + days*24*60*60*1000);
-    const rid = `r_${client.id}_${d.replace(/[^0-9]/g,'')}_${days}`.slice(0,40); // стабильный ключ
+
+    // если daysStr пустая строка — ставим на день сеанса; иначе сдвиг на days дней (можно 0)
+    const useSameDay = (daysStr === '');
+    const remindDate = useSameDay ? base : new Date(base.getTime() + days*24*60*60*1000);
+
+    const rid = `r_${client.id}_${d.replace(/[^0-9]/g,'')}_${useSameDay ? 'on' : days}`.slice(0, 40);
 
     const r = {
       id: rid,
       clientId: client.id,
       clientName: client.displayName || 'Клиент',
-      title,
+      title: hasTitle ? title : fallbackTitle,
       date: remindDate.toISOString().slice(0,10) // YYYY-MM-DD
     };
 
