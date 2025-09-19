@@ -643,15 +643,18 @@ function renderToday(){
   const today = ymdLocal(new Date());
 
   // 1) Сеансы (из клиентов)
-  const sessionsAll = (AppState.clients || [])
-    .flatMap(c => (c.sessions || []).map(d => ({
-      kind: 'session',
-      id: `${c.id}_${d}`,
-      date: d.slice(0,10),
-      time: d.slice(11,16),
-      title: c.displayName,
-      badge: 'Сеанс'
-    })));
+  const sessions = (AppState.clients || [])
+  .flatMap(c => (c.sessions || []).map(s => {
+    const dt = (typeof s === 'string') ? s : (s.dt || '');
+    const price = (typeof s === 'object') ? s.price : undefined;
+    return {
+      time: dt.slice(11,16),
+      date: dt.slice(0,10),
+      name: c.displayName,
+      badge: 'Сеанс',
+      price
+    };
+  }));
 
   // 2) Консультации (из клиентов)
   const consultsAll = (AppState.clients || [])
@@ -1123,19 +1126,18 @@ async function deleteSupplyFromDialog(){
   dlg.close();
 }
 
-function addSessionField(val = '') {
+function addSessionField(s = { dt:'', price:'' }) {
   const wrap = document.createElement('div');
   wrap.className = 'row';
-  wrap.style.margin = '4px 0';
+  wrap.style.margin = '6px 0';
   wrap.innerHTML = `
-    <input type="datetime-local" value="${val}" class="sessionDate" style="flex:1">
+    <input type="datetime-local" class="sessionDate" value="${s.dt || ''}" style="flex:1">
+    <input type="number" step="0.01" min="0" class="sessionPrice" placeholder="€" value="${(s.price ?? '')}" style="width:120px; margin-left:8px" title="Стоимость сеанса, €">
     <button type="button" class="btn danger" style="margin-left:6px">✕</button>
   `;
   wrap.querySelector('button').onclick = () => wrap.remove();
   $('#sessionsList').appendChild(wrap);
 }
-
-
 function openClientDialog(c = null){
   const dlg = $('#clientDialog');
   const isNew = !c;
@@ -1168,14 +1170,16 @@ $('#fFirstContact').value = c?.firstContactDate || new Date().toISOString().slic
 const list = $('#sessionsList');
 list.innerHTML = '';
 
-(c?.sessions || (c?.nextDate ? [c.nextDate] : [])).forEach(d => {
-  addSessionField(d);
+const rawSessions = c?.sessions || (c?.nextDate ? [c.nextDate] : []);
+rawSessions.forEach(s => {
+  if (typeof s === 'string') {
+    addSessionField({ dt: s, price: '' });
+  } else {
+    addSessionField({ dt: s?.dt || '', price: (s?.price ?? '') });
+  }
 });
 
-// Если ни одной — добавить пустое поле
-if (!list.children.length) addSessionField('');
-
-$('#btnAddSession').onclick = () => addSessionField('');
+if (!list.children.length) addSessionField({ dt:'', price:'' });$('#btnAddSession').onclick = () => addSessionField('');
 // консалтинг (переключатель + дата)
 $('#fConsultOn').checked = !!(c?.consult);
 $('#fConsultDate').value = c?.consultDate ? c.consultDate.slice(0,16) : '';
@@ -1285,8 +1289,13 @@ first: ($('#fFirst').value === 'true'),
   deposit: Number($('#fDeposit').value || 0),
   amount: Number($('#fAmount').value || 0),
   notes: $('#fNotes').value.trim(),
-  sessions: Array.from(document.querySelectorAll('.sessionDate'))
-  .map(inp => inp.value)
+  sessions: Array.from(document.querySelectorAll('#sessionsList .row'))
+  .map(row => {
+    const dt = row.querySelector('.sessionDate')?.value;
+    const priceNum = Number(row.querySelector('.sessionPrice')?.value || 0);
+    if (!dt) return null;
+    return { dt, price: isNaN(priceNum) ? 0 : priceNum };
+  })
   .filter(Boolean),
 
   // NEW
@@ -1314,8 +1323,7 @@ first: ($('#fFirst').value === 'true'),
   try {
     const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
     // 1) Сохраняем клиента
-    await ref.set(client, { merge:true });
-// --- авто-создание напоминания: ТОЛЬКО если выбран шаблон/введён текст,
+    // --- авто-создание напоминания: только если выбран шаблон/введён текст,
 // и ВСЕГДА от сегодняшней даты (не зависит от сеансов)
 try {
   const tplTitle    = $('#fReminderTpl').value.trim();
@@ -1324,14 +1332,11 @@ try {
 
   const title = (customTitle || tplTitle).trim();
   if (title) {
-    // база — сегодняшняя локальная дата
     const today = new Date();
-    const days  = Number(daysStr);              // может быть 0 или NaN
-    const sameDay = (daysStr === '');           // пусто = в тот же день
+    const days  = Number(daysStr);
+    const sameDay = (daysStr === '');
     const remindAt = sameDay ? today : addDaysLocal(today, days);
 
-    // стабильный id, чтобы пересохранение не плодило дубликаты:
-    // r_<clientId>_<YYYYMMDD>_<slug(title 12)>
     const ymd = ymdLocal(remindAt).replace(/-/g,'');
     const slug = title.toLowerCase().replace(/\s+/g,'_').replace(/[^a-zа-я0-9_]/gi,'').slice(0,12) || 'note';
     const rid = `r_${client.id}_${ymd}_${slug}`.slice(0, 64);
@@ -1341,35 +1346,14 @@ try {
       clientId: client.id,
       clientName: client.displayName || 'Клиент',
       title,
-      date: ymdLocal(remindAt) // YYYY-MM-DD локально
+      date: ymdLocal(remindAt)
     };
 
     await FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(rid).set(r, { merge:true });
   }
 } catch(e) {
   console.warn('create reminder failed', e);
-}// --- консультация -> отдельное напоминание на дату консультации
-try {
-  const rid = `rc_${id}`; // стабильный id, чтобы при сохранениях перезаписывать одну и ту же запись
-  const refRem = FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(rid);
-
-  if (client.consult && client.consultDate) {
-    const r = {
-      id: rid,
-      clientId: client.id,
-      clientName: client.displayName || 'Клиент',
-      title: `Консультация: ${client.displayName || ''}`.trim(),
-      date: ymdLocal(new Date(client.consultDate))
-    };
-    await refRem.set(r, { merge: true });
-  } else {
-    // Выключили свитч или стерли дату — удалим напоминание, если было
-    await refRem.delete().catch(()=>{});
-  }
-} catch(e){
-  console.warn('consult reminder failed', e);
 }
-
     // 2) Автосоздание папки, если ещё нет
     if (driveReady) {
       const snap = await ref.get();
