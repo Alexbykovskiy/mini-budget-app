@@ -104,6 +104,7 @@ main{padding: 12px; padding-bottom: 84px;}
 .field > input,.field > select,.field > textarea{
   padding:10px 12px; border-radius:12px; outline:none;
   background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); color: var(--c-text);
+
 }
 .hint{opacity:.7; font-size:12px}
 .empty-note{opacity:.65; font-size:14px}
@@ -421,4 +422,23 @@ body {
 }
 @media (max-width: 600px) {
   .row-3 { grid-template-columns: 1fr; }
+}
+
+/* ужимаем поля внутри сетки .grid.two */
+.grid.two .field > input,
+.grid.two .field > select,
+.grid.two .field > textarea {
+  width: 80%;       /* не во всю колонку, а уже */
+  max-width: 220px; /* ограничим пикселями, можно менять */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 600px) {
+  .grid.two .field > input,
+  .grid.two .field > select,
+  .grid.two .field > textarea {
+    width: 100%;
+    max-width: none;
+  }
 }
