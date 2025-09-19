@@ -642,15 +642,17 @@ function renderToday(){
 
   const today = ymdLocal(new Date());
 
-  // 1) Сеансы (из клиентов)
-  const sessions = (AppState.clients || [])
+ // 1) Сеансы (из клиентов)
+const sessionsAll = (AppState.clients || [])
   .flatMap(c => (c.sessions || []).map(s => {
     const dt = (typeof s === 'string') ? s : (s.dt || '');
     const price = (typeof s === 'object') ? s.price : undefined;
     return {
-      time: dt.slice(11,16),
+      kind: 'session',
+      id: `${c.id}_${dt}`,
       date: dt.slice(0,10),
-      name: c.displayName,
+      time: dt.slice(11,16),
+      title: c.displayName,
       badge: 'Сеанс',
       price
     };
@@ -680,14 +682,13 @@ function renderToday(){
   }));
 
   // События «на сегодня»
-  const todayEvents = [...sessionsAll, ...consultsAll, ...remindersAll]
-    .filter(ev => ev.date === today)
-    .sort((a,b) => (a.time || '99:99').localeCompare(b.time || '99:99'));
+  const todayEvents  = [...sessionsAll, ...consultsAll, ...remindersAll]
+  .filter(ev => ev.date === today)
+  .sort((a,b) => (a.time || '99:99').localeCompare(b.time || '99:99'));
 
-  // Будущие события (строго > сегодня)
-  const futureEvents = [...sessionsAll, ...consultsAll, ...remindersAll]
-    .filter(ev => ev.date > today)
-    .sort((a,b) => (a.date + (a.time || '99:99')).localeCompare(b.date + (b.time || '99:99')));
+const futureEvents = [...sessionsAll, ...consultsAll, ...remindersAll]
+  .filter(ev => ev.date > today)
+  .sort((a,b) => (a.date + (a.time || '99:99')).localeCompare(b.date + (b.time || '99:99')));
 
   // Рендер «Сегодня»
   if (!todayEvents.length) {
@@ -1179,8 +1180,8 @@ rawSessions.forEach(s => {
   }
 });
 
-if (!list.children.length) addSessionField({ dt:'', price:'' });$('#btnAddSession').onclick = () => addSessionField('');
-// консалтинг (переключатель + дата)
+if (!list.children.length) addSessionField({ dt:'', price:'' });
+$('#btnAddSession').onclick = () => addSessionField({ dt:'', price:'' });// консалтинг (переключатель + дата)
 $('#fConsultOn').checked = !!(c?.consult);
 $('#fConsultDate').value = c?.consultDate ? c.consultDate.slice(0,16) : '';
 $('#consultDateField').style.display = $('#fConsultOn').checked ? '' : 'none';
