@@ -1182,9 +1182,10 @@ if (firstEl) {
   $('#fZones').value  = (c?.zones || []).join(', ');
   $('#fStatus').value = c?.status || 'Лид';
   $('#fQual').value   = c?.qual || 'Целевой';
-  $('#fDeposit').value= c?.deposit || '';
-  $('#fAmount').value = c?.amount || '';
-  $('#fNotes').value  = c?.notes || '';
+  $('#fDeposit').value = c?.deposit || '';
+const amtEl = $('#fAmount');
+if (amtEl) amtEl.value = c?.amount || '';
+$('#fNotes').value = c?.notes || '';
  // Очистим контейнер и добавим все даты сеансов
 const list = $('#sessionsList');
 list.innerHTML = '';
@@ -1308,7 +1309,7 @@ first: ($('#fFirst').value === 'true'),
   status: $('#fStatus').value,
   qual: $('#fQual').value,
   deposit: Number($('#fDeposit').value || 0),
-  amount: Number($('#fAmount').value || 0),
+  amount: Number(($('#fAmount') ? $('#fAmount').value : 0) || 0),
   notes: $('#fNotes').value.trim(),
   sessions: Array.from(document.querySelectorAll('#sessionsList .row'))
   .map(row => {
