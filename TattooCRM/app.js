@@ -9,6 +9,31 @@ const toast = (msg) => {
   setTimeout(() => t.classList.remove('show'), 1800);
 };
 
+// Универсальное подтверждение через <dialog id="confirmDialog">
+function confirmDlg(message = 'Вы уверены?') {
+  return new Promise(resolve => {
+    const dlg = $('#confirmDialog');
+    if (!dlg) return resolve(confirm(message)); // fallback на стандартный confirm
+    $('#confirmText').textContent = message;
+
+    const yes = $('#confirmYes');
+    const no  = $('#confirmNo');
+
+    const onYes = () => { cleanup(); dlg.close(); resolve(true); };
+    const onNo  = () => { cleanup(); dlg.close(); resolve(false); };
+
+    function cleanup(){
+      yes.removeEventListener('click', onYes);
+      no.removeEventListener('click', onNo);
+    }
+
+    yes.addEventListener('click', onYes);
+    no.addEventListener('click', onNo);
+
+    dlg.showModal();
+  });
+}
+
 // --- Boot overlay utils ---
 const BOOT = {
   steps: [
@@ -1083,7 +1108,7 @@ $('#photosEmptyNote').style.display = 'block';
 $('#photosGrid').innerHTML = '';
 $('#photosEmptyNote').style.display = 'block';
 refreshClientPhotos($('#clientDialog').dataset.id);
-// показать напоминания этого клиента
+// показать напоминания этого клиента (с удалением)
 const remWrap = $('#clientReminders');
 if (remWrap) {
   remWrap.innerHTML = '';
@@ -1092,14 +1117,47 @@ if (remWrap) {
     remWrap.innerHTML = '<div class="meta">Напоминаний нет</div>';
   } else {
     myRems.forEach(r => {
-      const div = document.createElement('div');
-      div.className = 'meta';
-      div.textContent = `🔔 ${r.date} — ${r.title}`;
-      remWrap.appendChild(div);
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.style.alignItems = 'center';
+      row.style.justifyContent = 'space-between';
+      row.style.margin = '4px 0';
+
+      const text = document.createElement('div');
+      text.className = 'meta';
+      text.textContent = `🔔 ${r.date} — ${r.title}`;
+
+      const btn = document.createElement('button');
+      btn.className = 'btn danger';
+      btn.textContent = '✕';
+      btn.title = 'Удалить это напоминание';
+      btn.style.padding = '2px 8px';
+
+      // удаление по клику с подтверждением
+      btn.addEventListener('click', async () => {
+        if (!r?.id) { toast('У напоминания нет id'); return; }
+        const ok = await confirmDlg('Хотите удалить это напоминание?');
+        if (!ok) return;
+
+        try {
+          await FB.db.collection('TattooCRM').doc('app')
+            .collection('reminders').doc(r.id).delete();
+
+          // оптимистично уберём строку; onSnapshot всё равно обновит список
+          row.remove();
+          toast('Напоминание удалено');
+        } catch (e) {
+          console.warn(e);
+          toast('Не удалось удалить напоминание');
+        }
+      });
+
+      row.appendChild(text);
+      row.appendChild(btn);
+      remWrap.appendChild(row);
     });
   }
-}  
-dlg.showModal();
+}dlg.showModal();
 }
 
 async function saveClientFromDialog(){

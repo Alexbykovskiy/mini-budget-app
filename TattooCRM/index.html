@@ -387,5 +387,13 @@
   <!-- Приложение -->
   <script src="./app.js?v=5"></script>
 </div> <!-- .container -->
+<!-- Confirm dialog (универсальный) -->
+<dialog id="confirmDialog" class="glass" style="border:none; border-radius:16px; padding:16px; max-width:360px">
+  <div id="confirmText" style="margin-bottom:12px">Вы уверены?</div>
+  <div class="row" style="justify-content:flex-end; gap:8px">
+    <button id="confirmNo" class="btn ghost">Отмена</button>
+    <button id="confirmYes" class="btn danger">Удалить</button>
+  </div>
+</dialog>
 </body>
 </html>
