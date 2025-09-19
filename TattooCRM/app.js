@@ -584,6 +584,19 @@ function addDaysLocal(dateObj, days){
   return d;
 }
 
+// Форматировать YYYY-MM-DD в "21 декабря 2025 г."
+function formatDateHuman(ymd) {
+  if (!ymd) return '';
+  const [y,m,d] = ymd.split('-').map(Number);
+  if (!y || !m || !d) return ymd;
+  const months = [
+    'января','февраля','марта','апреля','мая','июня',
+    'июля','августа','сентября','октября','ноября','декабря'
+  ];
+  return `${d} ${months[m-1]} ${y} г.`;
+}
+
+
 async function saveSettings(){
   const s = {
     sources: splitTags($('#setSources').value),
@@ -627,7 +640,7 @@ function renderToday(){
   sch.innerHTML = '';
   rem.innerHTML = '';
 
-  const today = new Date().toISOString().slice(0,10);
+  const today = ymdLocal(new Date());
 
 const sessions = (AppState.clients || [])
   .flatMap(c => (c.sessions || []).map(d => ({
@@ -637,11 +650,16 @@ const sessions = (AppState.clients || [])
     badge: c.status || 'Сеанс'
   })))
   .filter(s => s.date === today)
-  .map(s => ({ time: s.time, name: s.name, badge: s.badge }));
+  .map(s => ({ time: s.time, date: s.date, name: s.name, badge: s.badge }));
 
 const consults = (AppState.clients || [])
   .filter(c => c.consult && (c.consultDate || '').slice(0,10) === today)
-  .map(c => ({ time: (c.consultDate || '').slice(11,16), name: c.displayName, badge: 'Консультация' }));
+    .map(c => ({
+    time: (c.consultDate || '').slice(11,16),
+    date: (c.consultDate || '').slice(0,10),
+    name: c.displayName,
+    badge: 'Консультация'
+  }));
 
 const todays = [...sessions, ...consults]
   .sort((a,b) => (a.time || '').localeCompare(b.time || ''));
@@ -655,7 +673,7 @@ if (!todays.length) {
   todays.forEach(item => {
     const el = document.createElement('div');
     el.className='row card-client glass';
-    el.innerHTML = `<div><b>${item.time || '—'}</b> — ${item.name} <span class="badge">${item.badge}</span></div>`;
+    el.innerHTML = `<div><b>${item.time || '—'}</b> — ${item.name} <span class="badge">${item.badge}</span> <span class="meta">${formatDateHuman(item.date)}</span></div>`;
     sch.appendChild(el);
   });
 }
@@ -663,7 +681,7 @@ if (!todays.length) {
   (AppState.reminders || []).forEach(r => {
     const el = document.createElement('div');
     el.className='row card-client glass';
-    el.innerHTML = `<div>🔔 <b>${r.date}</b> — ${r.title}</div>`;
+    el.innerHTML = `<div>🔔 <b>${formatDateHuman(r.date)}</b> — ${r.title}</div>`;
     rem.appendChild(el);
   });
 
@@ -1139,7 +1157,8 @@ if (remWrap) {
 
       const text = document.createElement('div');
       text.className = 'meta';
-      text.textContent = `🔔 ${r.date} — ${r.title}`;
+      text.textContent = `🔔 ${formatDateHuman(r.date)} — ${r.title}`;
+
 
       const btn = document.createElement('button');
       btn.className = 'btn danger';
@@ -1249,6 +1268,7 @@ if (Array.isArray(client.sessions) && client.sessions.length) {
     // если daysStr пустая строка — ставим на день сеанса; иначе сдвиг на days дней (можно 0)
     const useSameDay = (daysStr === '');
 const remindDate = useSameDay ? base : addDaysLocal(base, days);
+const rid = `r_${client.id}_${d.replace(/[^0-9]/g,'')}_${useSameDay ? 'on' : days}`.slice(0, 40);
 
 const r = {
   id: rid,
