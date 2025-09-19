@@ -1215,7 +1215,9 @@ refreshClientPhotos($('#clientDialog').dataset.id);
 const remWrap = $('#clientReminders');
 if (remWrap) {
   remWrap.innerHTML = '';
-  const myRems = (AppState.reminders || []).filter(r => r.clientId === c?.id);
+ const myRems = (AppState.reminders || [])
+  .filter(r => r.clientId === c?.id)
+  .filter(r => !(r.title && /^Консультация:/i.test(r.title)));
   if (!myRems.length) {
     remWrap.innerHTML = '<div class="meta">Напоминаний нет</div>';
   } else {
@@ -1324,38 +1326,27 @@ first: ($('#fFirst').value === 'true'),
   try {
     const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
     // 1) Сохраняем клиента
+await ref.set(client, { merge:true });
     // --- авто-создание напоминания: только если выбран шаблон/введён текст,
 // и ВСЕГДА от сегодняшней даты (не зависит от сеансов)
+// --- очистка старых напоминаний о консультации (они больше не нужны)
 try {
-  const tplTitle    = $('#fReminderTpl').value.trim();
-  const customTitle = $('#fReminderTitle').value.trim();
-  const daysStr     = $('#fReminderAfter').value.trim();
+  const remCol = FB.db.collection('TattooCRM').doc('app').collection('reminders');
 
-  const title = (customTitle || tplTitle).trim();
-  if (title) {
-    const today = new Date();
-    const days  = Number(daysStr);
-    const sameDay = (daysStr === '');
-    const remindAt = sameDay ? today : addDaysLocal(today, days);
+  // 1) старый фиксированный id вида rc_<clientId>
+  await remCol.doc(`rc_${client.id}`).delete().catch(()=>{});
 
-    const ymd = ymdLocal(remindAt).replace(/-/g,'');
-    const slug = title.toLowerCase().replace(/\s+/g,'_').replace(/[^a-zа-я0-9_]/gi,'').slice(0,12) || 'note';
-    const rid = `r_${client.id}_${ymd}_${slug}`.slice(0, 64);
-
-    const r = {
-      id: rid,
-      clientId: client.id,
-      clientName: client.displayName || 'Клиент',
-      title,
-      date: ymdLocal(remindAt)
-    };
-
-    await FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(rid).set(r, { merge:true });
-  }
-} catch(e) {
-  console.warn('create reminder failed', e);
-}
-    // 2) Автосоздание папки, если ещё нет
+  // 2) любые напоминания этого клиента, где title начинается с "Консультация:"
+  const snap = await remCol.where('clientId', '==', client.id).get();
+  const batch = FB.db.batch();
+  snap.forEach(doc => {
+    const r = doc.data() || {};
+    if (r.title && /^Консультация:/i.test(r.title)) batch.delete(doc.ref);
+  });
+  try { await batch.commit(); } catch(_) {}
+} catch (e) {
+  console.warn('cleanup consult reminders', e);
+}    // 2) Автосоздание папки, если ещё нет
     if (driveReady) {
       const snap = await ref.get();
       let folderId = snap.data()?.driveFolderId || null;
