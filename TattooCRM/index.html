@@ -80,70 +80,87 @@
           </div>
 
           <div class="grid two">
-            <label class="field"><span>Имя</span><input id="fName" /></label>
-            <label class="field"><span>Телефон</span><input id="fPhone" /></label>
-            <label class="field"><span>Контакт (ссылка)</span><input id="fLink" placeholder="instagram / tg / vk ссылка"/></label>
-            <label class="field"><span>Источник</span><select id="fSource"></select></label>
-<label class="field"><span>Дата первого обращения</span>
-  <input id="fFirstContact" type="date"/>
-</label>
-            <label class="field"><span>Первая тату?</span>
-              <select id="fFirst"><option value="true">Да</option><option value="false">Нет</option></select>
-            </label>
-            <label class="field"><span>Тип</span>
-              <select id="fType">
-                <option>Новая</option><option>Перекрытие</option><option>Коррекция</option>
-              </select>
-            </label>
-            <label class="field"><span>Стиль (теги)</span><input id="fStyles" placeholder="realism, ч/б"/></label>
-            <label class="field"><span>Зоны</span><input id="fZones" placeholder="forearm, calf"/></label>
-            <label class="field"><span>Статус</span>
-              <select id="fStatus">
-                <option>Лид</option><option>Консультация</option><option>Сеанс</option>
-                <option>Отменил</option><option>Слился</option>
-              </select>
-            </label>
-            <label class="field"><span>Квалификация</span>
-              <select id="fQual"><option>Целевой</option><option>Условно целевой</option><option>Нецелевой</option></select>
-            </label>
-<!-- Консультация: переключатель -->
-<label class="field">
-  <span>Консультация</span>
-  <label class="ios-switch">
-    <input id="fConsultOn" type="checkbox" />
-    <span class="track"></span>
+
+  <!-- 1: Имя \ Телефон -->
+  <label class="field"><span>Имя</span><input id="fName" /></label>
+  <label class="field"><span>Телефон</span><input id="fPhone" /></label>
+
+  <!-- 2: Источник \ Контакт -->
+  <label class="field"><span>Источник</span><select id="fSource"></select></label>
+  <label class="field"><span>Контакт (ссылка)</span><input id="fLink" placeholder="instagram / tg / vk ссылка"/></label>
+
+  <!-- 3: Дата первого обращения \ Статус -->
+  <label class="field"><span>Дата первого обращения</span><input id="fFirstContact" type="date"/></label>
+  <label class="field"><span>Статус</span>
+    <select id="fStatus">
+      <option>Лид</option><option>Консультация</option><option>Сеанс</option>
+      <option>Отменил</option><option>Слился</option>
+    </select>
   </label>
-</label>
 
-<!-- Дата консультации (показываем только когда включен свитч) -->
-<label class="field" id="consultDateField" style="display:none">
-  <span>Дата консультации</span>
-  <input id="fConsultDate" type="datetime-local" />
-</label>
-            <label class="field"><span>Депозит (€)</span><input id="fDeposit" type="number" step="1"/></label>
-                        <div class="field">
-  <span>Даты сеансов</span>
-  <div id="sessionsList"></div>
-  <button type="button" class="btn ghost" id="btnAddSession">+ добавить дату</button>
-</div>
-<label class="field"><span>Напоминание</span>
-  <div class="row gap-8">
-    <select id="fReminderTpl" class="chip" style="flex:1">
-      <option value="">— шаблон —</option>
-    </select>
-    <select id="fReminderAfter" class="chip" title="Когда напомнить">
-      <option value="">дни</option>
-    </select>
+  <!-- 4: Квалификация \ Комментарий к квалификации -->
+  <label class="field"><span>Квалификация</span>
+    <select id="fQual"><option>Целевой</option><option>Условно целевой</option><option>Нецелевой</option></select>
+  </label>
+  <label class="field"><span>Комментарий к квалификации</span>
+    <input id="fQualNote" placeholder="почему такая квалификация"/>
+  </label>
+
+  <!-- 5: Первая тату \ Тип -->
+  <label class="field"><span>Первая тату?</span>
+    <select id="fFirst"><option value="true">Да</option><option value="false">Нет</option></select>
+  </label>
+  <label class="field"><span>Тип</span>
+    <select id="fType"><option>Новая</option><option>Перекрытие</option><option>Коррекция</option></select>
+  </label>
+
+  <!-- 6: Стиль(теги) \ Зоны -->
+  <label class="field"><span>Стиль (теги)</span><input id="fStyles" placeholder="realism, ч/б"/></label>
+  <label class="field"><span>Зоны</span><input id="fZones" placeholder="forearm, calf"/></label>
+
+  <!-- 7: Консультация (свитч) \ Дата консультации \ Депозит -->
+  <div class="row-3">
+    <label class="field">
+      <span>Консультация</span>
+      <label class="ios-switch">
+        <input id="fConsultOn" type="checkbox" />
+        <span class="track"></span>
+      </label>
+    </label>
+    <label class="field" id="consultDateField" style="display:none">
+      <span>Дата консультации</span>
+      <input id="fConsultDate" type="datetime-local" />
+    </label>
+    <label class="field"><span>Депозит (€)</span><input id="fDeposit" type="number" step="1"/></label>
   </div>
-  <input id="fReminderTitle" placeholder="Свой текст напоминания (необязательно)"/>
-</label>
-<div class="field">
-  <span>Напоминания</span>
-  <div id="clientReminders"></div>
-</div>
-          </div>
 
-          <label class="field"><span>Заметка</span><textarea id="fNotes" rows="3" placeholder="особенности, пожелания…"></textarea></label>
+  <!-- 8: Даты сеансов -->
+  <div class="field" style="grid-column: 1 / -1">
+    <span>Даты сеансов</span>
+    <div id="sessionsList"></div>
+    <button type="button" class="btn ghost" id="btnAddSession">+ добавить дату</button>
+  </div>
+
+  <!-- 9: Напоминание + список напоминаний -->
+  <label class="field" style="grid-column: 1 / -1"><span>Напоминание</span>
+    <div class="row gap-8">
+      <select id="fReminderTpl" class="chip" style="flex:1"><option value="">— шаблон —</option></select>
+      <select id="fReminderAfter" class="chip" title="Когда напомнить"><option value="">дни</option></select>
+    </div>
+    <input id="fReminderTitle" placeholder="Свой текст напоминания (необязательно)"/>
+  </label>
+
+  <div class="field" style="grid-column: 1 / -1">
+    <span>Напоминания</span>
+    <div id="clientReminders"></div>
+  </div>
+
+</div>
+
+<!-- 10: Комментарии -->
+<label class="field"><span>Заметка</span>
+  <textarea id="fNotes" rows="3" placeholder="особенности, пожелания…"></textarea>
+</label>
 
           <div class="panel">
             <div class="stack">

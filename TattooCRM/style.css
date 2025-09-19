@@ -407,15 +407,18 @@ body {
     rgba(255,163,92,0.09) 70%,
     rgba(255,255,255,0) 100%
   );
-}.ios-switch input:checked + .track {
-  background: #ff9d3a;
-}
-.ios-switch input:checked + .track::after {
-  transform: translateX(20px);
-}
-
-/* сворачивание тела справочника */
+}/* сворачивание тела справочника */
 #supDictBody.collapsed { display: none; }
 
 /* прячем общий инпут суммы, если он есть */
 #fAmount, label[for="fAmount"], #fAmountField { display: none !important; }
+
+/* тройка полей в строке консультации */
+.row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 600px) {
+  .row-3 { grid-template-columns: 1fr; }
+}

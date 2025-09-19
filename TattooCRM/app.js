@@ -1182,9 +1182,18 @@ if (firstEl) {
   $('#fZones').value  = (c?.zones || []).join(', ');
   $('#fStatus').value = c?.status || 'Лид';
   $('#fQual').value   = c?.qual || 'Целевой';
+$('#fQualNote').value = c?.qualNote || '';
   $('#fDeposit').value = c?.deposit || '';
-const amtEl = $('#fAmount');
+$('#fType').value   = c?.type || 'Новая';
+$('#fStyles').value = (c?.styles || []).join(', ');
+$('#fZones').value  = (c?.zones || []).join(', ');
+$('#fStatus').value = c?.status || 'Лид';
+$('#fQual').value   = c?.qual || 'Целевой';
+$('#fQualNote').value = c?.qualNote || '';   // ← добавили
+$('#fDeposit').value= c?.deposit || '';
+const amtEl = $('#fAmount');                 // ← безопасно
 if (amtEl) amtEl.value = c?.amount || '';
+$('#fNotes').value  = c?.notes || '';
 $('#fNotes').value = c?.notes || '';
  // Очистим контейнер и добавим все даты сеансов
 const list = $('#sessionsList');
@@ -1304,13 +1313,14 @@ source: $('#fSource').value.trim(),
 firstContactDate: ($('#fFirstContact').value || new Date().toISOString().slice(0,10)),
 first: ($('#fFirst').value === 'true'),
   type: $('#fType').value.trim(),
-  styles: splitTags($('#fStyles').value),
-  zones: splitTags($('#fZones').value),
-  status: $('#fStatus').value,
-  qual: $('#fQual').value,
-  deposit: Number($('#fDeposit').value || 0),
-  amount: Number(($('#fAmount') ? $('#fAmount').value : 0) || 0),
-  notes: $('#fNotes').value.trim(),
+styles: splitTags($('#fStyles').value),
+zones: splitTags($('#fZones').value),
+status: $('#fStatus').value,
+qual: $('#fQual').value,
+qualNote: $('#fQualNote').value.trim(),            // ← добавили
+deposit: Number($('#fDeposit').value || 0),
+amount: Number(($('#fAmount') ? $('#fAmount').value : 0) || 0),  // ← безопасно
+notes: $('#fNotes').value.trim(),
   sessions: Array.from(document.querySelectorAll('#sessionsList .row'))
   .map(row => {
     const dt = row.querySelector('.sessionDate')?.value;
