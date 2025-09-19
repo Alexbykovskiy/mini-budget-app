@@ -122,7 +122,11 @@
 </label>
             <label class="field"><span>Депозит (€)</span><input id="fDeposit" type="number" step="1"/></label>
             <label class="field"><span>Сумма (€)</span><input id="fAmount" type="number" step="1"/></label>
-            <label class="field"><span>Дата сеанса</span><input id="fNextDate" type="datetime-local" /></label>
+            <div class="field">
+  <span>Даты сеансов</span>
+  <div id="sessionsList"></div>
+  <button type="button" class="btn ghost" id="btnAddSession">+ добавить дату</button>
+</div>
 <label class="field"><span>Напоминание</span>
   <div class="row gap-8">
     <select id="fReminderTpl" class="chip" style="flex:1">

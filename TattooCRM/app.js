@@ -591,8 +591,14 @@ function renderToday(){
   const today = new Date().toISOString().slice(0,10);
 
 const sessions = (AppState.clients || [])
-  .filter(c => (c.nextDate || '').slice(0,10) === today)
-  .map(c => ({ time: (c.nextDate || '').slice(11,16), name: c.displayName, badge: c.status || 'Сеанс' }));
+  .flatMap(c => (c.sessions || []).map(d => ({
+    time: d.slice(11,16),
+    date: d.slice(0,10),
+    name: c.displayName,
+    badge: c.status || 'Сеанс'
+  })))
+  .filter(s => s.date === today)
+  .map(s => ({ time: s.time, name: s.name, badge: s.badge }));
 
 const consults = (AppState.clients || [])
   .filter(c => c.consult && (c.consultDate || '').slice(0,10) === today)
@@ -994,6 +1000,19 @@ async function deleteSupplyFromDialog(){
   dlg.close();
 }
 
+function addSessionField(val = '') {
+  const wrap = document.createElement('div');
+  wrap.className = 'row';
+  wrap.style.margin = '4px 0';
+  wrap.innerHTML = `
+    <input type="datetime-local" value="${val}" class="sessionDate" style="flex:1">
+    <button type="button" class="btn danger" style="margin-left:6px">✕</button>
+  `;
+  wrap.querySelector('button').onclick = () => wrap.remove();
+  $('#sessionsList').appendChild(wrap);
+}
+
+
 function openClientDialog(c = null){
   const dlg = $('#clientDialog');
   const isNew = !c;
@@ -1022,7 +1041,18 @@ $('#fFirstContact').value = c?.firstContactDate || new Date().toISOString().slic
   $('#fDeposit').value= c?.deposit || '';
   $('#fAmount').value = c?.amount || '';
   $('#fNotes').value  = c?.notes || '';
-  $('#fNextDate').value = c?.nextDate ? c.nextDate.slice(0,16) : '';
+ // Очистим контейнер и добавим все даты сеансов
+const list = $('#sessionsList');
+list.innerHTML = '';
+
+(c?.sessions || (c?.nextDate ? [c.nextDate] : [])).forEach(d => {
+  addSessionField(d);
+});
+
+// Если ни одной — добавить пустое поле
+if (!list.children.length) addSessionField('');
+
+$('#btnAddSession').onclick = () => addSessionField('');
 // консалтинг (переключатель + дата)
 $('#fConsultOn').checked = !!(c?.consult);
 $('#fConsultDate').value = c?.consultDate ? c.consultDate.slice(0,16) : '';
@@ -1082,7 +1112,9 @@ first: ($('#fFirst').value === 'true'),
   deposit: Number($('#fDeposit').value || 0),
   amount: Number($('#fAmount').value || 0),
   notes: $('#fNotes').value.trim(),
-  nextDate: ($('#fNextDate').value || ''),
+  sessions: Array.from(document.querySelectorAll('.sessionDate'))
+  .map(inp => inp.value)
+  .filter(Boolean),
 
   // NEW
   // --- Консультация: если свитч включён и указана дата — сохраняем; иначе сбрасываем
@@ -1112,17 +1144,20 @@ first: ($('#fFirst').value === 'true'),
     await ref.set(client, { merge:true });
 // --- авто-создание напоминания, если задано
 try {
-  const tplTitle = $('#fReminderTpl').value.trim();
-  const customTitle = $('#fReminderTitle').value.trim();
-  const daysStr = $('#fReminderAfter').value.trim();
+  const tplTitle   = $('#fReminderTpl').value.trim();
+const customTitle= $('#fReminderTitle').value.trim();
+const daysStr    = $('#fReminderAfter').value.trim();
 
-  const title = customTitle || tplTitle || (AppState.settings?.defaultReminder || '');
-  const days = Number(daysStr || 0);
+const title = customTitle || tplTitle || (AppState.settings?.defaultReminder || '');
+const days  = Number(daysStr || 0);
 
-  if (client.nextDate && title && days > 0) {
-    const base = new Date(client.nextDate); // дата сеанса
+if (Array.isArray(client.sessions) && client.sessions.length && title && days > 0) {
+  // создаём напоминание для КАЖДОГО сеанса
+  for (const d of client.sessions) {
+    const base = new Date(d);
+    if (isNaN(base)) continue;
     const remindDate = new Date(base.getTime() + days*24*60*60*1000);
-    const rid = `r_${crypto.randomUUID().slice(0,8)}`;
+    const rid = `r_${client.id}_${d.replace(/[^0-9]/g,'')}_${days}`.slice(0,40); // стабильный ключ
 
     const r = {
       id: rid,
@@ -1134,6 +1169,7 @@ try {
 
     await FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(rid).set(r, { merge:true });
   }
+}
 } catch(e) {
   console.warn('create reminder failed', e);
 }
