@@ -1302,9 +1302,20 @@ $('#fStatus').value = c?.status || 'Лид';
 $('#fQual').value   = c?.qual || 'Целевой';
 
 $('#fDeposit').value= c?.deposit || '';
-const amtEl = $('#fAmount');                 // ← безопасно
-if (amtEl) amtEl.value = c?.amount || '';
-$('#fNotes').value  = c?.notes || '';
+// Озвученная сумма: от/до (с обратной совместимостью)
+const minEl = $('#fAmountMin');
+const maxEl = $('#fAmountMax');
+let aMin = c?.amountMin;
+let aMax = c?.amountMax;
+
+// если старая схема (одно число)
+if ((aMin == null && aMax == null) && (c?.amount != null)) {
+  const n = Number(c.amount);
+  if (!isNaN(n)) { aMin = n; aMax = n; }
+}
+
+minEl.value = (aMin ?? '');
+maxEl.value = (aMax ?? '');$('#fNotes').value  = c?.notes || '';
 $('#fNotes').value = c?.notes || '';
  // Очистим контейнер и добавим все даты сеансов
 const list = $('#sessionsList');
@@ -1416,11 +1427,10 @@ function toggleColdLeadMode(isCold) {
 
   // список id, которые нужно скрыть
   const toHide = [
-  'fFirst',                 // ← прячем «первая тату?»
+  'fFirst',
   'fType','fStyles','fZones','fQual','fQualNote',
-  'fDeposit','fAmount','fNotes','sessionsList',
+  'fDeposit','fAmount','fAmountMin','fAmountMax','fNotes','sessionsList',
   'fConsultOn','fConsultDate','consultDateField'
-  // ВАЖНО: 'fSource' тут НЕТ — источник оставляем видимым
 ];
 
   toHide.forEach(id => {
@@ -1474,6 +1484,24 @@ const statusVal = $('#fStatus').value;
     $('#clientDialog').close();
     return; // ← выходим, остальные поля не сохраняем
   }
+
+// --- Озвученная сумма: от/до ---
+let amountMin = Number(($('#fAmountMin')?.value ?? '').trim());
+let amountMax = Number(($('#fAmountMax')?.value ?? '').trim());
+
+// превращаем NaN в null
+if (isNaN(amountMin)) amountMin = null;
+if (isNaN(amountMax)) amountMax = null;
+
+// если введено только одно значение — дублируем
+if (amountMin != null && amountMax == null) amountMax = amountMin;
+if (amountMax != null && amountMin == null) amountMin = amountMax;
+
+// если перепутали местами — поменяем
+if (amountMin != null && amountMax != null && amountMin > amountMax) {
+  const t = amountMin; amountMin = amountMax; amountMax = t;
+}
+
  const client = {
   id,
   displayName,
@@ -1488,7 +1516,9 @@ zones: Array.from($('#fZones').selectedOptions).map(o=>o.value),status: $('#fSta
 qual: $('#fQual').value,
 qualNote: $('#fQualNote').value.trim(),            // ← добавили
 deposit: Number($('#fDeposit').value || 0),
-amount: Number(($('#fAmount') ? $('#fAmount').value : 0) || 0),  // ← безопасно
+amountMin,                 // новая модель
+amountMax,                 // новая модель
+amount: (amountMax ?? amountMin ?? 0),  // легаси: пишем число для старого поля
 notes: $('#fNotes').value.trim(),
   sessions: Array.from(document.querySelectorAll('#sessionsList .row'))
   .map(row => {
