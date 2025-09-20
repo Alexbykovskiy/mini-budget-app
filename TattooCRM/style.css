@@ -482,17 +482,28 @@ body {
 #clientDialog input[type="datetime-local"]::-webkit-calendar-picker-indicator{ margin:0; }
 /* 3) подписи компактные, с усечением по строке */
 #clientDialog .field{ margin: 0; }
-#clientDialog .field > span{
-  display:block;
-  font-size: 12px;
-  line-height: 1.1;
+#clientDialog .field > span {
+  display: block;
+  font-size: 11px;              /* чуть мельче */
+  font-weight: 300;             /* тонкий шрифт */
+  line-height: 1.2;
   margin-bottom: 4px;
-  opacity: .9;
+  opacity: .85;
+  text-transform: lowercase;    /* всё маленькими буквами */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* Левый столбец — подписи по левому краю */
+#clientDialog .grid.two > :nth-child(odd) > span {
+  text-align: left;
+}
+
+/* Правый столбец — подписи по правому краю */
+#clientDialog .grid.two > :nth-child(even) > span {
+  text-align: right;
+}
 /* 4) инпуты/селекты тянутся на всю ширину СВОЕЙ колонки */
 #clientDialog .field > input,
 #clientDialog .field > select,
