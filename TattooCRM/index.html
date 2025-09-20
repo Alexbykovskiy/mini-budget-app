@@ -136,20 +136,20 @@
   </label>
 </div>
 
-<!-- 8: Депозит | Примерно озвученная сумма татуировки -->
+<!-- 8: Озвученная сумма (слева) | Депозит (справа) -->
 <div class="grid two" id="rowMoney">
+  <!-- ЛЕВЫЙ СТОЛБЕЦ: озвученная сумма -->
+  <label class="field">
+    <span>Озвученная сумма от\до (€)</span>
+    <input id="fAmount" type="number" step="1" inputmode="decimal" placeholder="например, 600" />
+  </label>
+
+  <!-- ПРАВЫЙ СТОЛБЕЦ: депозит -->
   <label class="field">
     <span>Депозит (€)</span>
     <input id="fDeposit" type="number" step="1" inputmode="decimal" />
   </label>
-
-  <label class="field">
-    <span>озвученная сумма от\до (€)</span>
-    <!-- используем существующий #fAmount -->
-    <input id="fAmount" type="number" step="1" inputmode="decimal" placeholder="например, 600" />
-  </label>
 </div>
-
   <!-- 8: Даты сеансов -->
   <div class="field" style="grid-column: 1 / -1">
     <span>Даты сеансов</span>

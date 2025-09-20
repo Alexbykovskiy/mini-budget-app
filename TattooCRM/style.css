@@ -395,8 +395,7 @@ body {
 }}/* сворачивание тела справочника */
 #supDictBody.collapsed { display: none; }
 
-/* прячем общий инпут суммы, если он есть */
-#fAmount, label[for="fAmount"], #fAmountField { display: none !important; }
+
 
 /* тройка полей в строке консультации */
 .row-3 {
