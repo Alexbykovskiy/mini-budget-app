@@ -457,6 +457,17 @@ body {
   padding: 14px;
 }
 
+/* Скрываем скроллбар в карточке клиента */
+#clientDialog .modal-body {
+  overflow-y: auto;          /* прокрутка остаётся */
+  scrollbar-width: none;     /* Firefox */
+}
+
+#clientDialog .modal-body::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari */
+}
+
+
 /* 2) сетка 2×2 — плотнее */
 #clientDialog .grid.two{
   display: grid;
