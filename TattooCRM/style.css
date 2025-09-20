@@ -651,3 +651,16 @@ body {
 #clientDialog #rowConsult input[type="datetime-local"]::-webkit-datetime-edit{ padding:0; }
 #clientDialog #rowConsult input[type="datetime-local"]::-webkit-calendar-picker-indicator{ margin:0; }
 
+
+/* Кнопка-крестик в списке дат/сеансов — всегда круглая */
+#sessionsList .row .btn.danger {
+  width: 38px;
+  height: 38px;
+  border-radius: 50% !important;   /* круглая форма */
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+}
