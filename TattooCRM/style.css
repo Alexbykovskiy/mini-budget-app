@@ -65,6 +65,28 @@ main{padding: 12px; padding-bottom: 84px;}
   color:var(--c-text); outline:none;
 }
 
+/* --- Строка 8: депозит слева, примерная сумма справа --- */
+#clientDialog #rowMoney{
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+}
+#clientDialog #rowMoney > *{ min-width: 0; }
+#clientDialog #rowMoney input[type="number"]{
+  width:100%; min-width:0; box-sizing:border-box;
+  height:32px; font-size:13px; padding:6px 10px;
+}
+
+#rowConsult,
+#rowMoney {
+  margin-bottom: 12px;
+}
+
+/* В карточке клиента сложные строки должны занимать обе колонки */
+#clientDialog #rowConsult,
+#clientDialog #rowMoney {
+  grid-column: 1 / -1;   /* ← переносит каждый блок на свою строку */
+  margin-bottom: 10px;
+}
+
 .btn{
   appearance:none; border:none; cursor:pointer; padding:10px 14px;
   border-radius: var(--rad-pill); color:var(--c-text);
@@ -569,24 +591,3 @@ body {
 #clientDialog #rowConsult input[type="datetime-local"]::-webkit-datetime-edit{ padding:0; }
 #clientDialog #rowConsult input[type="datetime-local"]::-webkit-calendar-picker-indicator{ margin:0; }
 
-/* --- Строка 8: депозит слева, примерная сумма справа --- */
-#clientDialog #rowMoney{
-  grid-template-columns: minmax(0,1fr) minmax(0,1fr);
-}
-#clientDialog #rowMoney > *{ min-width: 0; }
-#clientDialog #rowMoney input[type="number"]{
-  width:100%; min-width:0; box-sizing:border-box;
-  height:32px; font-size:13px; padding:6px 10px;
-}
-
-#rowConsult,
-#rowMoney {
-  margin-bottom: 12px;
-}
-
-/* В карточке клиента сложные строки должны занимать обе колонки */
-#clientDialog #rowConsult,
-#clientDialog #rowMoney {
-  grid-column: 1 / -1;   /* ← переносит каждый блок на свою строку */
-  margin-bottom: 10px;
-}
