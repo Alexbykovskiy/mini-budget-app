@@ -720,10 +720,10 @@ if (ev.kind === 'session') {
   btn.addEventListener('click', async () => {
     try {
       const ok = await confirmDlg('Подтвердить, что сеанс состоялся?');
-      if (!ok) return;
-      const [clientId, dt] = ev.id.split('_'); // id формата `${c.id}_${dt}`
-      await setSessionDone(clientId, dt, true);
-      toast('Сеанс подтверждён');
+        if (!ok) return;
+        const [clientId, dt] = ev.id.split('_'); // id формата cl_xxxx_YYYY-MM-DDTHH:mm
+        await setSessionDone(clientId, dt, true);
+        toast('Сеанс подтверждён');
     } catch (e) {
       console.warn(e);
       toast('Не удалось подтвердить сеанс');
@@ -918,20 +918,24 @@ if (sortMode === 'name') {
     const card = document.createElement('div');
     card.className = 'card-client glass';
 
-    const tags = (c.styles||[]).slice(0,3).join(', ') || '—';
-const ltv = (Array.isArray(c.sessions) ? c.sessions : [])
+   const tags = (c.styles||[]).slice(0,3).join(', ') || '—';
+const depositVal = Number(c.deposit || 0);
+const sessionsSum = (Array.isArray(c.sessions) ? c.sessions : [])
   .reduce((sum, s) => sum + (s?.done ? Number(s.price||0) : 0), 0);
+const ltv = depositVal + sessionsSum;
+
 card.innerHTML = `
   <div class="row" style="justify-content:space-between">
     <div><b>${c.displayName}</b></div>
     <div class="badge">${c.status||'Лид'}</div>
   </div>
-  <div class="meta">${c.source||'—'} • LTV €${ltv.toFixed(2)}</div>
+  <div class="meta">${c.source||'—'}</div>
+  <div class="meta">Депозит: €${depositVal.toFixed(2)} + Сеансы: €${sessionsSum.toFixed(2)} = LTV €${ltv.toFixed(2)}</div>
   <div class="meta">Теги: ${tags}</div>
-      <div class="row" style="justify-content:flex-end; gap:8px">
-        <button class="btn" data-edit>Открыть</button>
-      </div>
-    `;
+  <div class="row" style="justify-content:flex-end; gap:8px">
+    <button class="btn" data-edit>Открыть</button>
+  </div>
+`;
     card.querySelector('[data-edit]').addEventListener('click', ()=> openClientDialog(c));
     wrap.appendChild(card);
   });
