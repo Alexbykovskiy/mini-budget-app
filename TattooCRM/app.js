@@ -1325,10 +1325,12 @@ function toggleColdLeadMode(isCold) {
 
   // список id, которые нужно скрыть
   const toHide = [
-    'fType','fStyles','fZones','fQual','fQualNote',
-    'fDeposit','fAmount','fNotes','sessionsList',
-    'fConsultOn','fConsultDate','consultDateField','fSource'
-  ];
+  'fFirst',                 // ← прячем «первая тату?»
+  'fType','fStyles','fZones','fQual','fQualNote',
+  'fDeposit','fAmount','fNotes','sessionsList',
+  'fConsultOn','fConsultDate','consultDateField'
+  // ВАЖНО: 'fSource' тут НЕТ — источник оставляем видимым
+];
 
   toHide.forEach(id => {
     const el = document.getElementById(id);
@@ -1355,12 +1357,15 @@ const statusVal = $('#fStatus').value;
   // --- Особый случай: холодный лид ---
   if (statusVal === 'Холодный лид') {
     const client = {
-      id,
-      displayName,
-      phone: $('#fPhone').value.trim(),
-      status: statusVal,
-      updatedAt: new Date().toISOString()
-    };
+    id,
+    displayName,
+    phone: $('#fPhone').value.trim(),
+    status: statusVal,
+    source: $('#fSource').value || '',                // ← источник
+    link: $('#fLink').value.trim() || '',             // ← контакт (ссылка)
+    firstContact: $('#fFirstContact').value || '',    // ← дата первого обращения (YYYY-MM-DD)
+    updatedAt: new Date().toISOString()
+  };
 
     const i = AppState.clients.findIndex(x => x.id === id);
     if (i >= 0) AppState.clients[i] = client; else AppState.clients.push(client);
