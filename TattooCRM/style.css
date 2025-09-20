@@ -547,39 +547,35 @@ body {
   padding: 6px 8px;
 }
 
-/* === Строка 7: 3 колонки — свитч | дата | депозит === */
-#clientDialog .row-consult{
-  display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) minmax(96px, 120px);
-  /* 40px — под свитч; средняя колонка растягивается; правая — под сумму */
-  column-gap: 8px;
-  row-gap: 0;
-  align-items: end;
-  min-width: 0;
+/* --- Строка 7: свитч слева, дата справа --- */
+#clientDialog #rowConsult{
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr);
 }
-#clientDialog .row-consult > *{ min-width: 0; }
+#clientDialog #rowConsult > *{ min-width: 0; }
 
-/* инпут даты и депозит — влезают и сжимаются */
-#clientDialog .row-consult input[type="datetime-local"],
-#clientDialog .row-consult input[type="number"]{
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-  height: 32px;
-  font-size: 12.5px;
-  padding: 6px 8px;
+/* свитч компактный, не распирает колонку */
+#clientDialog #rowConsult .ios-switch{ width:36px; height:20px; }
+#clientDialog #rowConsult .ios-switch .track::after{
+  width:16px; height:16px; top:2px; left:2px;
 }
-#clientDialog .row-consult input[type="datetime-local"]::-webkit-datetime-edit{ padding:0; }
-#clientDialog .row-consult input[type="datetime-local"]::-webkit-calendar-picker-indicator{ margin:0; }
+#clientDialog #rowConsult .ios-switch input:checked + .track::after{
+  transform: translateX(16px);
+}
 
-/* компактный iOS-switch, чтобы не раздвигал колонку */
-#clientDialog .ios-switch{ width:36px; height:20px; }
-#clientDialog .ios-switch .track::after{ width:16px; height:16px; top:2px; left:2px; }
-#clientDialog .ios-switch input:checked + .track::after{ transform: translateX(16px); }
+/* поле даты ужимаем */
+#clientDialog #rowConsult input[type="datetime-local"]{
+  width:100%; min-width:0; box-sizing:border-box;
+  height:32px; font-size:12.5px; padding:6px 8px;
+}
+#clientDialog #rowConsult input[type="datetime-local"]::-webkit-datetime-edit{ padding:0; }
+#clientDialog #rowConsult input[type="datetime-local"]::-webkit-calendar-picker-indicator{ margin:0; }
 
-/* чтобы весь диалог не распирался внутренними минимумами */
-#clientDialog .grid.two{ grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
-#clientDialog .grid.two > *{ min-width: 0; }
-#clientDialog .field > input,
-#clientDialog .field > select,
-#clientDialog .field > textarea{ min-width: 0; }
+/* --- Строка 8: депозит слева, примерная сумма справа --- */
+#clientDialog #rowMoney{
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+}
+#clientDialog #rowMoney > *{ min-width: 0; }
+#clientDialog #rowMoney input[type="number"]{
+  width:100%; min-width:0; box-sizing:border-box;
+  height:32px; font-size:13px; padding:6px 10px;
+}

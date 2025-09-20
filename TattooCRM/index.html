@@ -118,9 +118,9 @@
   <label class="field"><span>Стиль (теги)</span><input id="fStyles" placeholder="realism, ч/б"/></label>
   <label class="field"><span>Зоны</span><input id="fZones" placeholder="forearm, calf"/></label>
 
-<!-- 7: Консультация (свитч) | Дата консультации | Депозит -->
-<div class="row-consult" style="grid-column:1 / -1">
-  <!-- 1) Свитч -->
+<!-- 7: Консультация (свитч слева) | Дата консультации (справа) -->
+<div class="grid two" id="rowConsult">
+  <!-- ЛЕВЫЙ СТОЛБЕЦ: свитч -->
   <label class="field">
     <span>Консультация</span>
     <label class="ios-switch">
@@ -129,16 +129,24 @@
     </label>
   </label>
 
-  <!-- 2) Дата (прячем, когда свитч OFF) -->
+  <!-- ПРАВЫЙ СТОЛБЕЦ: дата, появляется только при ON -->
   <label class="field" id="consultDateField" style="display:none">
     <span>Дата консультации</span>
     <input id="fConsultDate" type="datetime-local" />
   </label>
+</div>
 
-  <!-- 3) Депозит -->
+<!-- 8: Депозит | Примерно озвученная сумма татуировки -->
+<div class="grid two" id="rowMoney">
   <label class="field">
     <span>Депозит (€)</span>
     <input id="fDeposit" type="number" step="1" inputmode="decimal" />
+  </label>
+
+  <label class="field">
+    <span>озвученная сумма от\до (€)</span>
+    <!-- используем существующий #fAmount -->
+    <input id="fAmount" type="number" step="1" inputmode="decimal" placeholder="например, 600" />
   </label>
 </div>
 
