@@ -1200,13 +1200,16 @@ if (firstEl) {
   $('#fQual').value   = c?.qual || 'Не определена';
 
 $('#fQualNote').value = c?.qualNote || '';
+// включаем/выключаем "холодный лид"
+$('#fStatus').onchange = () => toggleColdLeadMode($('#fStatus').value === 'Холодный лид');
+toggleColdLeadMode($('#fStatus').value === 'Холодный лид');
   $('#fDeposit').value = c?.deposit || '';
 $('#fType').value   = c?.type || 'Новая';
 $('#fStyles').value = (c?.styles || []).join(', ');
 $('#fZones').value  = (c?.zones || []).join(', ');
 $('#fStatus').value = c?.status || 'Лид';
 $('#fQual').value   = c?.qual || 'Целевой';
-$('#fQualNote').value = c?.qualNote || '';   // ← добавили
+
 $('#fDeposit').value= c?.deposit || '';
 const amtEl = $('#fAmount');                 // ← безопасно
 if (amtEl) amtEl.value = c?.amount || '';
@@ -1308,6 +1311,29 @@ if (remWrap) {
       remWrap.appendChild(row);
     });
   }
+
+// --- Cold Lead Mode ---
+// Прячет лишние поля, если выбран статус "Холодный лид"
+function toggleColdLeadMode(isCold) {
+  const dlg = $('#clientDialog');
+  if (!dlg) return;
+
+  // список id, которые нужно скрыть
+  const toHide = [
+    'fType','fStyles','fZones','fQual','fQualNote',
+    'fDeposit','fAmount','fNotes','sessionsList',
+    'fConsultOn','fConsultDate','consultDateField','fSource'
+  ];
+
+  toHide.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const wrapper = el.closest('.field, .row') || el;
+    wrapper.style.display = isCold ? 'none' : '';
+  });
+}
+
+
 }dlg.showModal();
 }
 
@@ -1315,12 +1341,41 @@ async function saveClientFromDialog(){
   let id = $('#clientDialog').dataset.id;
 
   const displayName = $('#fName').value.trim();
+
   const isNew = !id || !id.startsWith('cl_');
   if (isNew) {
     id = `cl_${crypto.randomUUID().slice(0,8)}`;
     $('#clientDialog').dataset.id = id;
   }
 
+const statusVal = $('#fStatus').value;
+
+  // --- Особый случай: холодный лид ---
+  if (statusVal === 'Холодный лид') {
+    const client = {
+      id,
+      displayName,
+      phone: $('#fPhone').value.trim(),
+      status: statusVal,
+      updatedAt: new Date().toISOString()
+    };
+
+    const i = AppState.clients.findIndex(x => x.id === id);
+    if (i >= 0) AppState.clients[i] = client; else AppState.clients.push(client);
+    renderClients();
+
+    try {
+      const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
+      await ref.set(client, { merge:true });
+      toast('Сохранено (холодный лид)');
+    } catch(e) {
+      console.warn('save cold lead', e);
+      toast('Ошибка сохранения');
+    }
+
+    $('#clientDialog').close();
+    return; // ← выходим, остальные поля не сохраняем
+  }
  const client = {
   id,
   displayName,
