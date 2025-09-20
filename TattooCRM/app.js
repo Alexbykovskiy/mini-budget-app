@@ -919,31 +919,44 @@ text.innerHTML = `
 `;
 el.appendChild(text);
 
-// кнопка подтверждения для сеанса
-if (ev.kind === 'session') {
-  const btn = document.createElement('button');
-  btn.className = 'btn success';
-  btn.textContent = '✓';
-  btn.title = 'Подтвердить сеанс';
-  btn.style.padding = '2px 10px';
-  btn.addEventListener('click', async () => {
-    try {
-      const ok = await confirmDlg('Подтвердить, что сеанс состоялся?');
-      if (!ok) return;
-      const [clientId, dt] = ev.id.split('_');
-      await setSessionDone(clientId, dt, true);
-      toast('Сеанс подтверждён');
-    } catch (e) {
-      console.warn(e);
-      toast('Не удалось подтвердить сеанс');
-    }
-  });
-  el.appendChild(btn);
-}
+todayEvents.forEach(ev => {
+  const el = document.createElement('div');
+  el.className = 'row card-client glass';
+  el.style.alignItems = 'center';
+  el.style.justifyContent = 'space-between';
 
-sch.appendChild(el);
+  // Текст события
+  const text = document.createElement('div');
+  text.innerHTML = `🔔 <b>${formatDateHuman(ev.date)}</b> ${ev.time ? ev.time + ' — ' : ' — '}
+    ${ev.kind === 'reminder'
+      ? `${ev.title}${ev.who ? ' · ' + ev.who : ''}`
+      : `${ev.title} <span class="badge">${ev.badge}</span>`}`;
+  el.appendChild(text);
+
+  // Кнопка подтверждения — только для сеанса
+  if (ev.kind === 'session') {
+    const btn = document.createElement('button');
+    btn.className = 'btn success';
+    btn.textContent = '✓';
+    btn.title = 'Подтвердить сеанс';
+    btn.style.padding = '2px 10px';
+    btn.addEventListener('click', async () => {
+      try {
+        const ok = await confirmDlg('Подтвердить, что сеанс состоялся?');
+        if (!ok) return;
+        const [clientId, dt] = ev.id.split('_'); // cl_xxxx_YYYY-MM-DDTHH:mm
+        await setSessionDone(clientId, dt, true);
+        toast('Сеанс подтверждён');
+      } catch (e) {
+        console.warn(e);
+        toast('Не удалось подтвердить сеанс');
+      }
     });
+    el.appendChild(btn);
   }
+
+  sch.appendChild(el);
+});  }
 
   // Рендер «Напоминания» (всё будущее)
   if (!futureEvents.length) {
