@@ -583,3 +583,10 @@ body {
 #rowMoney {
   margin-bottom: 12px;
 }
+
+/* В карточке клиента сложные строки должны занимать обе колонки */
+#clientDialog #rowConsult,
+#clientDialog #rowMoney {
+  grid-column: 1 / -1;   /* ← переносит каждый блок на свою строку */
+  margin-bottom: 10px;
+}
