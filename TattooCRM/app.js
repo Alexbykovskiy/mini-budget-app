@@ -286,12 +286,216 @@ function bindTabbar(){
       showPage(btn.dataset.tab);
       if (btn.dataset.tab === 'clientsPage') renderClients();
       if (btn.dataset.tab === 'todayPage') renderToday();
-      if (btn.dataset.tab === 'marketingPage') renderMarketing();
+      if (btn.dataset.tab === 'marketingPage') {
+  if (!AppState._mkInited) {        // первый заход на вкладку
+    initMarketing();                 // <-- твоя функция инициализации маркетинга
+    AppState._mkInited = true;
+  }
+  $('#mkRecalc')?.click();           // каждый раз при открытии — пересчёт за выбранный период
+}
       if (btn.dataset.tab === 'suppliesPage') renderSupplies();
       if (btn.dataset.tab === 'settingsPage') fillSettingsForm();
     });
   });
 }
+
+// ===== Marketing: daily storage =====
+function mkDailyRef(dateId) {
+  return FB.db.collection('TattooCRM').doc('app')
+    .collection('marketing').doc('daily')
+    .collection('days').doc(dateId);
+}
+
+// сохранить ежедневные замеры
+async function saveMarketingDaily() {
+  const date = ($('#mkDate')?.value || new Date().toISOString().slice(0,10));
+  const ig   = Number($('#mkIg')?.value || 0);
+  const ad   = Number($('#mkAd')?.value || 0);
+  await mkDailyRef(date).set({
+    date, igFollowers: isNaN(ig) ? 0 : ig,
+    adSpend: isNaN(ad) ? 0 : ad,
+    updatedAt: new Date().toISOString()
+  }, { merge: true });
+  toast('Сохранено в маркетинг');
+}
+
+// загрузить ежедневные замеры за период
+async function loadMarketingDaily(from, to) {
+  const qs = await FB.db.collection('TattooCRM').doc('app')
+    .collection('marketing').doc('daily')
+    .collection('days')
+    .where('date', '>=', from).where('date', '<=', to)
+    .orderBy('date', 'asc').get();
+
+  const arr = [];
+  qs.forEach(d => arr.push(d.data()));
+  return arr;
+}
+
+// ===== Marketing: compute metrics for period =====
+async function computeMarketing(from, to) {
+  const inPeriod = (iso) => iso && iso.slice(0,10) >= from && iso.slice(0,10) <= to;
+
+  const clients = AppState.clients || [];
+  const bySrc = new Map(); // src -> {lead:0,cold:0,consult:0,session:0}
+
+  let cold = 0, leads = 0, consults = 0, sessions = 0;
+  let uniqueLiquid = new Set(); // уникальные клиенты (lead||consult||session)
+  let sessionsSum = 0;          // € подтвержденных сеансов в периоде
+  let depositsCnt = 0, depositsSum = 0; // по дате депозита в периоде
+  let lost = 0; // "Слился" или "Отменил"
+  let potentialMin = 0, potentialMax = 0;
+
+  // по источникам инициируем запись
+  const touchSrc = (s) => {
+    const key = s || '—';
+    if (!bySrc.has(key)) bySrc.set(key, { src:key, cold:0, lead:0, consult:0, session:0 });
+    return bySrc.get(key);
+  };
+
+  for (const c of clients) {
+    const src = c.source || '—';
+    const leadDate = (c.firstContactAt || c.createdAt || c.updatedAt || '').slice(0,10);
+
+    // потенциальная вилка
+    if (leadDate && leadDate >= from && leadDate <= to) {
+      const mn = (c.amountMin != null) ? Number(c.amountMin) : null;
+      const mx = (c.amountMax != null) ? Number(c.amountMax) : null;
+      if (mn != null && mx != null && !isNaN(mn) && !isNaN(mx)) {
+        potentialMin += mn;
+        potentialMax += mx;
+      }
+    }
+
+    // холод / лид
+    if (leadDate && leadDate >= from && leadDate <= to) {
+      if (c.status === 'Холодный лид') {
+        cold++; touchSrc(src).cold++;
+      } else if (c.status === 'Лид' || c.status === 'Консультация' || c.status === 'Сеанс') {
+        leads++; touchSrc(src).lead++; uniqueLiquid.add(c.id);
+      } else if (c.status === 'Слился' || c.status === 'Отменил') {
+        lost++;
+      }
+    }
+
+    // консультации
+    if (c.consultOn && c.consultDate && inPeriod(c.consultDate)) {
+      consults++; touchSrc(src).consult++; uniqueLiquid.add(c.id);
+    }
+
+    // сеансы (сумма и количество) — считаем done=true
+    (c.sessions || []).forEach(s => {
+      const dt = typeof s === 'string' ? s : (s.dt || '');
+      const done = typeof s === 'object' ? !!s.done : false;
+      const price = Number(typeof s === 'object' ? (s.price || 0) : 0);
+      if (done && inPeriod(dt)) {
+        sessions++; touchSrc(src).session++; uniqueLiquid.add(c.id);
+        if (!isNaN(price)) sessionsSum += price;
+      }
+    });
+
+    // депозиты (по дате депозита)
+    if (c.depositDate && inPeriod(c.depositDate) && Number(c.deposit || 0) > 0) {
+      depositsCnt++;
+      depositsSum += Number(c.deposit || 0);
+    }
+  }
+
+  // ежедневные замеры
+  const daily = await loadMarketingDaily(from, to);
+  const adSpend = daily.reduce((s,d)=> s + Number(d.adSpend||0), 0);
+  const igStart = daily.length ? daily[0].igFollowers||0 : 0;
+  const igEnd   = daily.length ? daily[daily.length-1].igFollowers||0 : 0;
+  const igDelta = igEnd - igStart;
+
+  // конверсии
+  const convLead2Consult = leads ? (consults / leads * 100) : 0;
+  const convLead2Session = leads ? (sessions / leads * 100) : 0;
+
+  // факт-выручка (deposit в периоде + сеансы в периоде)
+  const revenue = sessionsSum + depositsSum;
+
+  // KPI-плитки
+  const kpi = [
+    { t:'Обращения (все)', k: (cold + leads + consults + sessions) },
+    { t:'Холодные лиды',   k: cold },
+    { t:'Лиды',            k: leads },
+    { t:'Консультации',    k: consults },
+    { t:'Сеансы',          k: sessions },
+    { t:'Ликвидные лиды',  k: uniqueLiquid.size },
+    { t:'Депозиты, шт',    k: depositsCnt },
+    { t:'Депозиты, €',     k: '€' + depositsSum.toFixed(2) },
+    { t:'Выручка (факт), €', k:'€' + revenue.toFixed(2) },
+    { t:'Потенциал, €',    k:`€${potentialMin.toFixed(0)}–€${potentialMax.toFixed(0)}` },
+    { t:'IG прирост',      k: (igDelta>=0?'+':'') + igDelta },
+    { t:'Реклама, €',      k: '€' + adSpend.toFixed(2) },
+    { t:'Конверсия Лид→Консультация', k: `${consults}/${leads} · ${convLead2Consult.toFixed(1)}%` },
+    { t:'Конверсия Лид→Сеанс',        k: `${sessions}/${leads} · ${convLead2Session.toFixed(1)}%` },
+  ];
+
+  // таблица по источникам
+  const rows = Array.from(bySrc.values()).sort((a,b)=> (b.lead+b.consult+b.session) - (a.lead+a.consult+a.session) );
+
+  return { kpi, rows, daily, adSpend, igStart, igEnd, igDelta, revenue, potentialMin, potentialMax };
+}
+
+function renderMarketingUI(data){
+  // KPI
+  const kpiWrap = $('#mkKpi'); kpiWrap.innerHTML = '';
+  (data.kpi || []).forEach(x=>{
+    const card = document.createElement('div');
+    card.className = 'card glass';
+    card.style.padding = '10px 12px';
+    card.style.minWidth = '160px';
+    card.innerHTML = `<div style="opacity:.7">${x.t}</div><div style="font-size:20px; font-weight:700">${x.k}</div>`;
+    kpiWrap.appendChild(card);
+  });
+
+  // таблица по источникам
+  const tbl = document.createElement('table');
+  tbl.className = 'table glass';
+  tbl.innerHTML = `
+    <thead><tr><th>Источник</th><th>Хол.</th><th>Лид</th><th>Консы</th><th>Сеансы</th></tr></thead>
+    <tbody>${
+      (data.rows||[]).map(r => `<tr>
+        <td>${r.src}</td><td>${r.cold}</td><td>${r.lead}</td><td>${r.consult}</td><td>${r.session}</td>
+      </tr>`).join('')
+    }</tbody>`;
+  $('#mkTable').innerHTML = ''; $('#mkTable').appendChild(tbl);
+
+  // ежедневные замеры
+  const tbl2 = document.createElement('table');
+  tbl2.className = 'table glass';
+  tbl2.innerHTML = `
+    <thead><tr><th>Дата</th><th>IG, шт</th><th>Реклама, €</th></tr></thead>
+    <tbody>${
+      (data.daily||[]).map(d => `<tr><td>${d.date}</td><td>${d.igFollowers||0}</td><td>${(d.adSpend||0).toFixed?.(2) ?? Number(d.adSpend||0).toFixed(2)}</td></tr>`).join('')
+    }</tbody>`;
+  $('#mkDaily').innerHTML = ''; $('#mkDaily').appendChild(tbl2);
+}
+
+// инициализация кнопок и первичный расчёт
+function initMarketing() {
+  // кнопки
+  $('#mkSave').onclick = async ()=> {
+    await saveMarketingDaily();
+    // после сохранения сразу пересчитаем за выбранный период
+    $('#mkRecalc').click();
+  };
+  $('#mkRecalc').onclick = async ()=>{
+    const from = $('#mkFrom')?.value || new Date().toISOString().slice(0,10);
+    const to   = $('#mkTo')?.value || new Date().toISOString().slice(0,10);
+    const data = await computeMarketing(from, to);
+    renderMarketingUI(data);
+  };
+
+  // дефолтные даты: текущая
+  const today = new Date().toISOString().slice(0,10);
+  if ($('#mkDate')) $('#mkDate').value = today;
+  if ($('#mkFrom')) $('#mkFrom').value = today;
+  if ($('#mkTo'))   $('#mkTo').value   = today;
+}
+
 
 function showPage(id){
   $$('.page').forEach(p => p.classList.remove('is-active'));
@@ -920,6 +1124,11 @@ if (sortMode === 'name') {
 
    const tags = (c.styles||[]).slice(0,3).join(', ') || '—';
 const depositVal = Number(c.deposit || 0);
+// если депозит >0 и нет даты депозита — ставим сегодня
+let depositDate = current?.depositDate || null;  // current — объект редактируемого клиента, у тебя он уже есть в функции
+if (depositVal > 0 && !depositDate) {
+  depositDate = new Date().toISOString().slice(0,10);
+}
 const sessionsSum = (Array.isArray(c.sessions) ? c.sessions : [])
   .reduce((sum, s) => sum + (s?.done ? Number(s.price||0) : 0), 0);
 const ltv = depositVal + sessionsSum;
