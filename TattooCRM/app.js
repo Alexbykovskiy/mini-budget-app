@@ -654,17 +654,18 @@ const sessionsAll = (AppState.clients || [])
   .flatMap(c => (c.sessions || []).map(s => {
     const dt = (typeof s === 'string') ? s : (s.dt || '');
     const price = (typeof s === 'object') ? s.price : undefined;
+    const done = (typeof s === 'object') ? !!s.done : false;
     return {
       kind: 'session',
       id: `${c.id}_${dt}`,
       date: dt.slice(0,10),
       time: dt.slice(11,16),
-      title: c.displayName,
-      badge: 'Сеанс',
-      price
+      title: c.displayName + (done ? ' · ✓' : ''),
+      badge: done ? 'Сеанс · подтвержден' : 'Сеанс',
+      price,
+      done
     };
   }));
-
   // 2) Консультации (из клиентов)
   const consultsAll = (AppState.clients || [])
     .filter(c => c.consult && c.consultDate)
@@ -708,7 +709,30 @@ const futureEvents = [...sessionsAll, ...consultsAll, ...remindersAll]
       const el = document.createElement('div');
       el.className = 'row card-client glass';
       el.innerHTML = `
-        <div>
+       
+
+if (ev.kind === 'session') {
+  const btn = document.createElement('button');
+  btn.className = 'btn success';
+  btn.textContent = '✓';
+  btn.title = 'Подтвердить сеанс';
+  btn.style.padding = '2px 10px';
+  btn.addEventListener('click', async () => {
+    try {
+      const ok = await confirmDlg('Подтвердить, что сеанс состоялся?');
+      if (!ok) return;
+      const [clientId, dt] = ev.id.split('_'); // id формата `${c.id}_${dt}`
+      await setSessionDone(clientId, dt, true);
+      toast('Сеанс подтверждён');
+    } catch (e) {
+      console.warn(e);
+      toast('Не удалось подтвердить сеанс');
+    }
+  });
+  el.appendChild(btn);
+}
+
+ <div>
           🔔 <b>${formatDateHuman(ev.date)}</b> ${ev.time ? ev.time + ' — ' : ' — '}
           ${ev.kind === 'reminder'
             ? `${ev.title}${ev.who ? ' · ' + ev.who : ''}`
@@ -895,13 +919,15 @@ if (sortMode === 'name') {
     card.className = 'card-client glass';
 
     const tags = (c.styles||[]).slice(0,3).join(', ') || '—';
-    card.innerHTML = `
-      <div class="row" style="justify-content:space-between">
-        <div><b>${c.displayName}</b></div>
-        <div class="badge">${c.status||'Лид'}</div>
-      </div>
-      <div class="meta">${c.source||'—'} • LTV €${c.amount||0}</div>
-      <div class="meta">Теги: ${tags}</div>
+const ltv = (Array.isArray(c.sessions) ? c.sessions : [])
+  .reduce((sum, s) => sum + (s?.done ? Number(s.price||0) : 0), 0);
+card.innerHTML = `
+  <div class="row" style="justify-content:space-between">
+    <div><b>${c.displayName}</b></div>
+    <div class="badge">${c.status||'Лид'}</div>
+  </div>
+  <div class="meta">${c.source||'—'} • LTV €${ltv.toFixed(2)}</div>
+  <div class="meta">Теги: ${tags}</div>
       <div class="row" style="justify-content:flex-end; gap:8px">
         <button class="btn" data-edit>Открыть</button>
       </div>
@@ -1142,19 +1168,51 @@ async function deleteSupplyFromDialog(){
   dlg.close();
 }
 
-function addSessionField(s = { dt:'', price:'' }) {
+// Пометить конкретный сеанс клиента как состоявшийся (done=true/false)
+async function setSessionDone(clientId, dtIso, done = true) {
+  // найдём клиента в состоянии
+  const c = (AppState.clients || []).find(x => x.id === clientId);
+  if (!c) throw new Error('Клиент не найден');
+
+  const sessions = Array.isArray(c.sessions) ? [...c.sessions] : [];
+  const i = sessions.findIndex(s => (typeof s === 'object' ? s.dt : s) === dtIso);
+  if (i < 0) throw new Error('Сеанс не найден');
+
+  // нормализуем объект
+  const sObj = typeof sessions[i] === 'object' ? {...sessions[i]} : { dt: sessions[i], price: 0 };
+  sObj.done = !!done;
+  sessions[i] = sObj;
+
+  // локально
+  c.sessions = sessions;
+  c.updatedAt = new Date().toISOString();
+  renderToday();
+  renderClients();
+
+  // Firestore
+  const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(clientId);
+  await ref.set({ sessions, updatedAt: c.updatedAt }, { merge: true });
+}
+
+function addSessionField(s = { dt: '', price: '', done: false }) {
   const wrap = document.createElement('div');
   wrap.className = 'row';
   wrap.style.margin = '6px 0';
   wrap.innerHTML = `
     <input type="datetime-local" class="sessionDate" value="${s.dt || ''}" style="flex:1">
     <input type="number" step="0.01" min="0" class="sessionPrice" placeholder="€" value="${(s.price ?? '')}" style="width:120px; margin-left:8px" title="Стоимость сеанса, €">
+
+    <!-- чекбокс подтверждения -->
+    <label class="chip" style="margin-left:8px; display:inline-flex; align-items:center; gap:6px; cursor:pointer">
+      <input type="checkbox" class="sessionDone" ${s.done ? 'checked' : ''} style="accent-color:#ff9d3a">
+      состоялся
+    </label>
+
     <button type="button" class="btn danger" style="margin-left:6px">✕</button>
   `;
   wrap.querySelector('button').onclick = () => wrap.remove();
   $('#sessionsList').appendChild(wrap);
-}
-function openClientDialog(c = null){
+}function openClientDialog(c = null){
   const dlg = $('#clientDialog');
   const isNew = !c;
   const id = c?.id || `cl_${crypto.randomUUID().slice(0,8)}`;
@@ -1229,9 +1287,9 @@ list.innerHTML = '';
 const rawSessions = c?.sessions || (c?.nextDate ? [c.nextDate] : []);
 rawSessions.forEach(s => {
   if (typeof s === 'string') {
-    addSessionField({ dt: s, price: '' });
+    addSessionField({ dt: s, price: '', done: false });
   } else {
-    addSessionField({ dt: s?.dt || '', price: (s?.price ?? '') });
+    addSessionField({ dt: s?.dt || '', price: (s?.price ?? ''), done: !!s?.done });
   }
 });
 
@@ -1409,9 +1467,10 @@ notes: $('#fNotes').value.trim(),
   sessions: Array.from(document.querySelectorAll('#sessionsList .row'))
   .map(row => {
     const dt = row.querySelector('.sessionDate')?.value;
-    const priceNum = Number(row.querySelector('.sessionPrice')?.value || 0);
     if (!dt) return null;
-    return { dt, price: isNaN(priceNum) ? 0 : priceNum };
+    const priceNum = Number(row.querySelector('.sessionPrice')?.value || 0);
+    const done = !!row.querySelector('.sessionDone')?.checked;
+    return { dt, price: isNaN(priceNum) ? 0 : priceNum, done };
   })
   .filter(Boolean),
 
