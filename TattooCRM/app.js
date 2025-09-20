@@ -355,7 +355,7 @@ async function computeMarketing(from, to) {
 
   for (const c of clients) {
     const src = c.source || '—';
-    const leadDate = (c.firstContactAt || c.createdAt || c.updatedAt || '').slice(0,10);
+    const leadDate = (c.firstContactDate || c.firstContactAt || c.createdAt || c.updatedAt || '').slice(0,10);
 
     // потенциальная вилка
     if (leadDate && leadDate >= from && leadDate <= to) {
@@ -379,10 +379,10 @@ async function computeMarketing(from, to) {
     }
 
     // консультации
-    if (c.consultOn && c.consultDate && inPeriod(c.consultDate)) {
-      consults++; touchSrc(src).consult++; uniqueLiquid.add(c.id);
-    }
-
+    if (c.consult && c.consultDate && inPeriod(c.consultDate)) {
+    consults++; touchSrc(src).consult++; uniqueLiquid.add(c.id);
+}
+    
     // сеансы (сумма и количество) — считаем done=true
     (c.sessions || []).forEach(s => {
       const dt = typeof s === 'string' ? s : (s.dt || '');
@@ -469,7 +469,7 @@ function renderMarketingUI(data){
   tbl2.innerHTML = `
     <thead><tr><th>Дата</th><th>IG, шт</th><th>Реклама, €</th></tr></thead>
     <tbody>${
-      (data.daily||[]).map(d => `<tr><td>${d.date}</td><td>${d.igFollowers||0}</td><td>${(d.adSpend||0).toFixed?.(2) ?? Number(d.adSpend||0).toFixed(2)}</td></tr>`).join('')
+      (data.daily||[]).map(d => `<tr><td>${d.date}</td><td>${d.igFollowers||0}</td><td>${Number(d.adSpend||0).toFixed(2)}</td></tr>`).join('')
     }</tbody>`;
   $('#mkDaily').innerHTML = ''; $('#mkDaily').appendChild(tbl2);
 }
@@ -1124,11 +1124,6 @@ if (sortMode === 'name') {
 
    const tags = (c.styles||[]).slice(0,3).join(', ') || '—';
 const depositVal = Number(c.deposit || 0);
-// если депозит >0 и нет даты депозита — ставим сегодня
-let depositDate = current?.depositDate || null;  // current — объект редактируемого клиента, у тебя он уже есть в функции
-if (depositVal > 0 && !depositDate) {
-  depositDate = new Date().toISOString().slice(0,10);
-}
 const sessionsSum = (Array.isArray(c.sessions) ? c.sessions : [])
   .reduce((sum, s) => sum + (s?.done ? Number(s.price||0) : 0), 0);
 const ltv = depositVal + sessionsSum;
@@ -1666,6 +1661,13 @@ const statusVal = $('#fStatus').value;
 
   // --- Особый случай: холодный лид ---
   if (statusVal === 'Холодный лид') {
+// --- Deposit date (нужна для маркетинга) ---
+const prev = (AppState.clients || []).find(x => x.id === id) || {};
+const newDeposit = Number($('#fDeposit').value || 0);
+const depositDate =
+  (newDeposit > 0 && !prev.depositDate)
+    ? new Date().toISOString().slice(0,10)   // первый раз получили деньги
+    : (prev.depositDate || '');
     const client = {
     id,
     displayName,
@@ -1725,6 +1727,7 @@ zones: Array.from($('#fZones').selectedOptions).map(o=>o.value),status: $('#fSta
 qual: $('#fQual').value,
 qualNote: $('#fQualNote').value.trim(),            // ← добавили
 deposit: Number($('#fDeposit').value || 0),
+depositDate,
 amountMin,                 // новая модель
 amountMax,                 // новая модель
 amount: (amountMax ?? amountMin ?? 0),  // легаси: пишем число для старого поля
