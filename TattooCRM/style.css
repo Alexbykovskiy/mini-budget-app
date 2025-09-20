@@ -71,7 +71,7 @@ main{padding: 12px; padding-bottom: 84px;}
 }
 #clientDialog #rowMoney input[type="number"]{
   width:100%; min-width:0; box-sizing:border-box;
-  height:30px; font-size:13px; padding:6px 10px;
+  height:32px; font-size:13px; padding:6px 10px;
   border-radius: var(--rad-pill);           /* ← добавь эту строку */
 }
 #rowConsult,
