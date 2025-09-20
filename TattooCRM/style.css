@@ -547,20 +547,21 @@ body {
   padding: 6px 8px;
 }
 
-/* --- строка 7: свитч + дата (слева), депозит (справа) --- */
-#clientDialog .inline-consult{
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0; /* позволяет сжиматься внутри колонки */
-}
-
-#clientDialog .inline-date{
-  flex: 1 1 auto;   /* дата занимает остаток ширины левого столбца */
+/* === Строка 7: 3 колонки — свитч | дата | депозит === */
+#clientDialog .row-consult{
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) minmax(96px, 120px);
+  /* 40px — под свитч; средняя колонка растягивается; правая — под сумму */
+  column-gap: 8px;
+  row-gap: 0;
+  align-items: end;
   min-width: 0;
 }
+#clientDialog .row-consult > *{ min-width: 0; }
 
-#clientDialog .inline-date > input{
+/* инпут даты и депозит — влезают и сжимаются */
+#clientDialog .row-consult input[type="datetime-local"],
+#clientDialog .row-consult input[type="number"]{
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
@@ -568,29 +569,17 @@ body {
   font-size: 12.5px;
   padding: 6px 8px;
 }
+#clientDialog .row-consult input[type="datetime-local"]::-webkit-datetime-edit{ padding:0; }
+#clientDialog .row-consult input[type="datetime-local"]::-webkit-calendar-picker-indicator{ margin:0; }
 
-/* чуть компактнее сам свитч, чтобы не распирал колонку */
-#clientDialog .ios-switch{
-  width: 36px;
-  height: 20px;
-}
-#clientDialog .ios-switch .track::after{
-  width: 16px; height:16px; top:2px; left:2px;
-}
-#clientDialog .ios-switch input:checked + .track::after{
-  transform: translateX(16px);
-}
+/* компактный iOS-switch, чтобы не раздвигал колонку */
+#clientDialog .ios-switch{ width:36px; height:20px; }
+#clientDialog .ios-switch .track::after{ width:16px; height:16px; top:2px; left:2px; }
+#clientDialog .ios-switch input:checked + .track::after{ transform: translateX(16px); }
 
-/* грид не даём расползаться — колонки сжимаемые */
-#clientDialog .grid.two{
-  grid-template-columns: minmax(0,1fr) minmax(0,1fr);
-}
+/* чтобы весь диалог не распирался внутренними минимумами */
+#clientDialog .grid.two{ grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
 #clientDialog .grid.two > *{ min-width: 0; }
-
-/* на всякий случай: все поля внутри модалки сжимаемые */
 #clientDialog .field > input,
 #clientDialog .field > select,
-#clientDialog .field > textarea{
-  min-width: 0;
-  width: 100%;
-  box-sizing: border-box;
+#clientDialog .field > textarea{ min-width: 0; }

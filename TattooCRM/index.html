@@ -118,28 +118,27 @@
   <label class="field"><span>Стиль (теги)</span><input id="fStyles" placeholder="realism, ч/б"/></label>
   <label class="field"><span>Зоны</span><input id="fZones" placeholder="forearm, calf"/></label>
 
-  <!-- 7: Консультация (свитч+дата слева) \ Депозит справа -->
-<div class="grid two">
-  <!-- Левый столбец: свитч + дата в одну линию -->
+<!-- 7: Консультация (свитч) | Дата консультации | Депозит -->
+<div class="row-consult" style="grid-column:1 / -1">
+  <!-- 1) Свитч -->
   <label class="field">
     <span>Консультация</span>
-    <div class="inline-consult">
-      <label class="ios-switch">
-        <input id="fConsultOn" type="checkbox" />
-        <span class="track"></span>
-      </label>
-
-      <!-- сама дата, прячется когда свитч OFF -->
-      <span id="consultDateField" class="inline-date" style="display:none">
-        <input id="fConsultDate" type="datetime-local" placeholder="Дата" />
-      </span>
-    </div>
+    <label class="ios-switch">
+      <input id="fConsultOn" type="checkbox" />
+      <span class="track"></span>
+    </label>
   </label>
 
-  <!-- Правый столбец: депозит -->
+  <!-- 2) Дата (прячем, когда свитч OFF) -->
+  <label class="field" id="consultDateField" style="display:none">
+    <span>Дата консультации</span>
+    <input id="fConsultDate" type="datetime-local" />
+  </label>
+
+  <!-- 3) Депозит -->
   <label class="field">
     <span>Депозит (€)</span>
-    <input id="fDeposit" type="number" step="1"/>
+    <input id="fDeposit" type="number" step="1" inputmode="decimal" />
   </label>
 </div>
 
