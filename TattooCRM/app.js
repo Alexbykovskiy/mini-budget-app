@@ -401,18 +401,17 @@ initDriveStack({ forceConsent: true })
 // ---------- Firestore realtime ----------
 function listenClientsRealtime(){
   FB.db.collection('TattooCRM').doc('app').collection('clients')
-    .orderBy('updatedAt', 'desc')
+    .orderBy('updatedAt', 'desc')   // базовая сортировка
     .onSnapshot((qs)=>{
       AppState.clients = [];
       qs.forEach(d => AppState.clients.push(d.data()));
-      renderClients();
+      renderClients();   // внутри будем сортировать по выбору
       renderToday();
     }, (err)=> {
       console.error(err);
       toast('Ошибка чтения клиентов');
     });
 }
-
 function listenRemindersRealtime(){
   FB.db.collection('TattooCRM').doc('app').collection('reminders')
     .orderBy('date', 'asc')
@@ -880,6 +879,13 @@ function renderClients(){
   }
 
   let arr = [...(AppState.clients || [])];
+// сортировка
+const sortMode = $('#sortClients')?.value || 'updatedAt';
+if (sortMode === 'name') {
+  arr.sort((a,b) => (a.displayName||'').localeCompare(b.displayName||''));
+} else {
+  arr.sort((a,b) => (b.updatedAt||'').localeCompare(a.updatedAt||''));
+}
   if (term) arr = arr.filter(c => [c.displayName,c.phone,(c.styles||[]).join(',')].join(' ').toLowerCase().includes(term));
   if (src)  arr = arr.filter(c => c.source === src);
   if (st)   arr = arr.filter(c => c.status === st);
@@ -907,6 +913,7 @@ function renderClients(){
   $('#searchInput').oninput = () => renderClients();
   $('#filterSource').onchange = () => renderClients();
   $('#filterStatus').onchange = () => renderClients();
+$('#sortClients').onchange = () => renderClients();
 }
 
 async function refreshClientPhotos(clientId){
