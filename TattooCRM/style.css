@@ -506,6 +506,24 @@ body {
   text-overflow: ellipsis;
 }
 
+/* Даты и суммы в списке сеансов — тоже «пилюли» */
+#sessionsList .row input[type="datetime-local"].sessionDate,
+#sessionsList .row .sessionDate,
+#sessionsList .row .sessionPrice {
+  background: rgba(0,0,0,0.4) !important;
+  color: #ccc !important;
+  border: none !important;
+  border-radius: 999px !important;
+  padding: 10px 14px !important;
+  height: 38px;
+  line-height: 1.3;
+  box-sizing: border-box;
+}
+
+/* чтобы иконка календаря не прилипала */
+#sessionsList .row .sessionDate::-webkit-datetime-edit{ padding:0; }
+#sessionsList .row .sessionDate::-webkit-calendar-picker-indicator{ margin:0 2px; }
+
 /* Левый столбец — подписи по левому краю */
 #clientDialog .grid.two > :nth-child(odd) > span {
   text-align: left;
@@ -523,14 +541,13 @@ body {
   width: 100% !important;
   max-width: none !important;
   font-size: 13px;
-  min-height: 38px;                /* было height:34px — даём запас по вертикали */
-  height: auto;                    /* пусть сам подстраивается под платформу/шрифт */
-  padding: 9px 12px !important;    /* перебиваем глобальные !important, чтобы не давило текст */
-  line-height: 1.3;                /* безопасная линия для системных шрифтов */
-  border-radius: 12px !important;  /* чтобы не наследовался «999px» из глобального правила */
+  min-height: 38px;
+  height: auto;
+  padding: 9px 12px !important;
+  line-height: 1.3;
+  border-radius: 999px !important;     /* ← делаем «пилюлю» */
   box-sizing: border-box;
 }
-
 /* у select запас справа под стрелку, чтобы текст не упирался */
 #clientDialog .field > select{
   padding-right: 28px !important;
@@ -543,9 +560,11 @@ body {
   font-size: 12.5px;
   min-height: 36px;
   height: auto;
-  padding: 8px 10px !important;
+  padding: 8px 12px !important;
   line-height: 1.25;
+  border-radius: 999px !important;   /* ← «пилюля» для дат */
 }
+
 /* textarea — компактнее, но читабельно */
 #clientDialog textarea#fNotes{
   min-height: 72px;
