@@ -1159,6 +1159,23 @@ function openClientDialog(c = null){
   (AppState.settings?.sources || []).forEach(s=>{
     const o = document.createElement('option'); o.textContent = s; fSource.appendChild(o);
   });
+// Стили (теги)
+const fStyles = $('#fStyles');
+fStyles.innerHTML = '';
+(AppState.settings?.styles || []).forEach(st=>{
+  const o = document.createElement('option'); o.value = st; o.textContent = st;
+  if ((c?.styles||[]).includes(st)) o.selected = true;
+  fStyles.appendChild(o);
+});
+
+// Зоны
+const fZones = $('#fZones');
+fZones.innerHTML = '';
+(AppState.settings?.zones || []).forEach(z=>{
+  const o = document.createElement('option'); o.value = z; o.textContent = z;
+  if ((c?.zones||[]).includes(z)) o.selected = true;
+  fZones.appendChild(o);
+});
 
   $('#fName').value   = c?.displayName || '';
   $('#fPhone').value  = c?.phone || '';
@@ -1178,8 +1195,7 @@ if (firstEl) {
 }
 
   $('#fType').value   = c?.type || 'Новая';
-  $('#fStyles').value = (c?.styles || []).join(', ');
-  $('#fZones').value  = (c?.zones || []).join(', ');
+   
   $('#fStatus').value = c?.status || 'Лид';
   $('#fQual').value   = c?.qual || 'Целевой';
 $('#fQualNote').value = c?.qualNote || '';
@@ -1313,9 +1329,8 @@ source: $('#fSource').value.trim(),
 firstContactDate: ($('#fFirstContact').value || new Date().toISOString().slice(0,10)),
 first: ($('#fFirst').value === 'true'),
   type: $('#fType').value.trim(),
-styles: splitTags($('#fStyles').value),
-zones: splitTags($('#fZones').value),
-status: $('#fStatus').value,
+styles: Array.from($('#fStyles').selectedOptions).map(o=>o.value),
+zones: Array.from($('#fZones').selectedOptions).map(o=>o.value),status: $('#fStatus').value,
 qual: $('#fQual').value,
 qualNote: $('#fQualNote').value.trim(),            // ← добавили
 deposit: Number($('#fDeposit').value || 0),

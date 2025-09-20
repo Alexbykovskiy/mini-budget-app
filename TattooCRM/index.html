@@ -114,9 +114,15 @@
     <select id="fType"><option>Новая</option><option>Перекрытие</option><option>Коррекция</option></select>
   </label>
 
-  <!-- 6: Стиль(теги) \ Зоны -->
-  <label class="field"><span>Стиль (теги)</span><input id="fStyles" placeholder="realism, ч/б"/></label>
-  <label class="field"><span>Зоны</span><input id="fZones" placeholder="forearm, calf"/></label>
+ <!-- 6: Стиль(теги) \ Зоны -->
+<label class="field">
+  <span>Стиль (теги)</span>
+  <select id="fStyles" multiple></select>
+</label>
+<label class="field">
+  <span>Зоны</span>
+  <select id="fZones" multiple></select>
+</label>
 
 <!-- 7: Консультация (свитч слева) | Дата консультации (справа) -->
 <div class="grid two" id="rowConsult">
