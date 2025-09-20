@@ -1197,7 +1197,8 @@ if (firstEl) {
   $('#fType').value   = c?.type || 'Новая';
    
   $('#fStatus').value = c?.status || 'Лид';
-  $('#fQual').value   = c?.qual || 'Целевой';
+  $('#fQual').value   = c?.qual || 'Не определена';
+
 $('#fQualNote').value = c?.qualNote || '';
   $('#fDeposit').value = c?.deposit || '';
 $('#fType').value   = c?.type || 'Новая';
