@@ -664,3 +664,36 @@ body {
   font-size: 16px;
   line-height: 1;
 }
+
+/* --- Пилюля для "от — до" --- */
+.pill-group{
+  display:flex; align-items:center; gap:8px;
+  width:100%;
+  border-radius: var(--rad-pill);
+  background: rgba(0,0,0,0.4);
+  border: none;
+  padding: 6px 10px;
+}
+
+/* Внутренние поля как часть одной пилюли */
+.pill-group input{
+  flex:1; min-width:0;
+  background: transparent !important;
+  border: none !important;
+  padding: 6px 8px !important;
+  height: 32px;
+  text-align: center;
+  color: var(--c-text);
+  outline: none !important;
+}
+
+/* Разделитель "—" по центру */
+.pill-group .divider{
+  opacity:.6; user-select:none;
+  line-height: 1; margin: 0 2px;
+}
+
+/* Уберём спиннеры у number-полей */
+.pill-group input::-webkit-outer-spin-button,
+.pill-group input::-webkit-inner-spin-button{ -webkit-appearance: none; margin: 0; }
+.pill-group input[type=number]{ -moz-appearance: textfield; }

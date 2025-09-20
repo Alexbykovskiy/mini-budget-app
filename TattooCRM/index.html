@@ -154,11 +154,12 @@
 <!-- 8: Озвученная сумма (слева) | Депозит (справа) -->
 <div class="grid two" id="rowMoney">
   <!-- ЛЕВЫЙ СТОЛБЕЦ: озвученная сумма -->
-  <label class="field">
+ <label class="field">
   <span>Озвученная сумма от\до (€)</span>
-  <div class="row" style="gap:8px">
-    <input id="fAmountMin" type="number" step="1" inputmode="decimal" placeholder="от" style="flex:1" />
-    <input id="fAmountMax" type="number" step="1" inputmode="decimal" placeholder="до" style="flex:1" />
+  <div class="pill-group">
+    <input id="fAmountMin" type="number" step="1" inputmode="decimal" placeholder="от" />
+    <span class="divider">—</span>
+    <input id="fAmountMax" type="number" step="1" inputmode="decimal" placeholder="до" />
   </div>
 </label>
 
