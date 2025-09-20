@@ -1202,21 +1202,43 @@ function addSessionField(s = { dt: '', price: '', done: false }) {
   const wrap = document.createElement('div');
   wrap.className = 'row';
   wrap.style.margin = '6px 0';
+  wrap.style.alignItems = 'center';
+  wrap.style.gap = '8px';
+
   wrap.innerHTML = `
-    <input type="datetime-local" class="sessionDate" value="${s.dt || ''}" style="flex:1">
-    <input type="number" step="0.01" min="0" class="sessionPrice" placeholder="€" value="${(s.price ?? '')}" style="width:120px; margin-left:8px" title="Стоимость сеанса, €">
+    <!-- 1) Галочка (без текста) -->
+    <input type="checkbox"
+           class="sessionDone"
+           ${s.done ? 'checked' : ''}
+           title="Сеанс состоялся"
+           aria-label="Сеанс состоялся"
+           style="width:20px; height:20px; accent-color:#ff9d3a;">
 
-    <!-- чекбокс подтверждения -->
-    <label class="chip" style="margin-left:8px; display:inline-flex; align-items:center; gap:6px; cursor:pointer">
-      <input type="checkbox" class="sessionDone" ${s.done ? 'checked' : ''} style="accent-color:#ff9d3a">
-      состоялся
-    </label>
+    <!-- 2) Дата и время -->
+    <input type="datetime-local"
+           class="sessionDate"
+           value="${s.dt || ''}"
+           style="flex:1; min-width:180px">
 
-    <button type="button" class="btn danger" style="margin-left:6px">✕</button>
+    <!-- 3) Сумма -->
+    <input type="number"
+           step="0.01" min="0"
+           class="sessionPrice"
+           placeholder="€"
+           value="${(s.price ?? '')}"
+           title="Стоимость сеанса, €"
+           style="width:120px">
+
+    <!-- 4) Удалить -->
+    <button type="button" class="btn danger" title="Удалить дату">✕</button>
   `;
+
+  // обработчик удаления
   wrap.querySelector('button').onclick = () => wrap.remove();
+
   $('#sessionsList').appendChild(wrap);
-}function openClientDialog(c = null){
+}
+function openClientDialog(c = null){
   const dlg = $('#clientDialog');
   const isNew = !c;
   const id = c?.id || `cl_${crypto.randomUUID().slice(0,8)}`;
