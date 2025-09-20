@@ -69,12 +69,22 @@ main{padding: 12px; padding-bottom: 84px;}
 #clientDialog #rowMoney{
   grid-template-columns: minmax(0,1fr) minmax(0,1fr);
 }
+/* «От» и «До» — та же высота, что у остальных пилюль */
 #clientDialog #rowMoney input[type="number"]{
   width:100%; min-width:0; box-sizing:border-box;
-  height:32px; font-size:13px; padding:6px 10px;
-  border-radius: var(--rad-pill);           /* ← добавь эту строку */
-}
-#rowConsult,
+
+  /* ключевые строки: делаем как у .field > input */
+  min-height: 38px;
+  height: auto;
+  padding: 9px 12px !important;
+  line-height: 1.3;
+  border-radius: 999px !important;
+
+  /* те же фон и рамка, что у других полей-пилюль */
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  font-size: 13px;
+}#rowConsult,
 #rowMoney {
   margin-bottom: 12px;
 }
