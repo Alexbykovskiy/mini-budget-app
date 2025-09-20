@@ -904,17 +904,22 @@ const futureEvents = [...sessionsAll, ...consultsAll, ...remindersAll]
 
   // Рендер «Сегодня»
   if (!todayEvents.length) {
-    const el = document.createElement('div');
-    el.className = 'row card-client glass';
-    el.textContent = 'На сегодня записей нет';
-    sch.appendChild(el);
-  } else {
-    todayEvents.forEach(ev => {
-      const el = document.createElement('div');
-      el.className = 'row card-client glass';
-      el.innerHTML = `
-       
+   const el = document.createElement('div');
+el.className = 'row card-client glass';
+el.style.alignItems = 'center';
+el.style.justifyContent = 'space-between';
 
+// текст
+const text = document.createElement('div');
+text.innerHTML = `
+  🔔 <b>${formatDateHuman(ev.date)}</b> ${ev.time ? ev.time + ' — ' : ' — '}
+  ${ev.kind === 'reminder'
+    ? `${ev.title}${ev.who ? ' · ' + ev.who : ''}`
+    : `${ev.title} <span class="badge">${ev.badge}</span>`}
+`;
+el.appendChild(text);
+
+// кнопка подтверждения для сеанса
 if (ev.kind === 'session') {
   const btn = document.createElement('button');
   btn.className = 'btn success';
@@ -924,10 +929,10 @@ if (ev.kind === 'session') {
   btn.addEventListener('click', async () => {
     try {
       const ok = await confirmDlg('Подтвердить, что сеанс состоялся?');
-        if (!ok) return;
-        const [clientId, dt] = ev.id.split('_'); // id формата cl_xxxx_YYYY-MM-DDTHH:mm
-        await setSessionDone(clientId, dt, true);
-        toast('Сеанс подтверждён');
+      if (!ok) return;
+      const [clientId, dt] = ev.id.split('_');
+      await setSessionDone(clientId, dt, true);
+      toast('Сеанс подтверждён');
     } catch (e) {
       console.warn(e);
       toast('Не удалось подтвердить сеанс');
@@ -936,13 +941,7 @@ if (ev.kind === 'session') {
   el.appendChild(btn);
 }
 
- <div>
-          🔔 <b>${formatDateHuman(ev.date)}</b> ${ev.time ? ev.time + ' — ' : ' — '}
-          ${ev.kind === 'reminder'
-            ? `${ev.title}${ev.who ? ' · ' + ev.who : ''}`
-            : `${ev.title} <span class="badge">${ev.badge}</span>`}
-        </div>`;
-      sch.appendChild(el);
+sch.appendChild(el);
     });
   }
 
@@ -1659,6 +1658,15 @@ async function saveClientFromDialog(){
 
 const statusVal = $('#fStatus').value;
 
+// --- Deposit date (нужна для маркетинга) ---
+const prev = (AppState.clients || []).find(x => x.id === id) || {};
+const newDeposit = Number($('#fDeposit').value || 0);
+const depositDate =
+  (newDeposit > 0 && !prev.depositDate)
+    ? new Date().toISOString().slice(0,10)
+    : (prev.depositDate || '');
+
+
   // --- Особый случай: холодный лид ---
   if (statusVal === 'Холодный лид') {
 // --- Deposit date (нужна для маркетинга) ---
@@ -1675,7 +1683,7 @@ const depositDate =
     status: statusVal,
     source: $('#fSource').value || '',                // ← источник
     link: $('#fLink').value.trim() || '',             // ← контакт (ссылка)
-    firstContact: $('#fFirstContact').value || '',    // ← дата первого обращения (YYYY-MM-DD)
+    firstContactDate: $('#fFirstContact').value || '',    // ← дата первого обращения (YYYY-MM-DD)
     updatedAt: new Date().toISOString()
   };
 
