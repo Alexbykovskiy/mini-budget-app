@@ -1312,6 +1312,11 @@ if (remWrap) {
     });
   }
 
+
+
+}dlg.showModal();
+}
+
 // --- Cold Lead Mode ---
 // Прячет лишние поля, если выбран статус "Холодный лид"
 function toggleColdLeadMode(isCold) {
@@ -1333,9 +1338,6 @@ function toggleColdLeadMode(isCold) {
   });
 }
 
-
-}dlg.showModal();
-}
 
 async function saveClientFromDialog(){
   let id = $('#clientDialog').dataset.id;
