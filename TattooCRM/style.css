@@ -516,17 +516,36 @@ body {
   text-align: right;
 }
 /* 4) инпуты/селекты тянутся на всю ширину СВОЕЙ колонки */
+/* ——— CLIENT DIALOG: нормальная высота и отступы для текста ——— */
 #clientDialog .field > input,
 #clientDialog .field > select,
 #clientDialog .field > textarea{
   width: 100% !important;
   max-width: none !important;
   font-size: 13px;
-  height: 34px;
-  padding: 8px 10px;
-  border-radius: 12px;
+  min-height: 38px;                /* было height:34px — даём запас по вертикали */
+  height: auto;                    /* пусть сам подстраивается под платформу/шрифт */
+  padding: 9px 12px !important;    /* перебиваем глобальные !important, чтобы не давило текст */
+  line-height: 1.3;                /* безопасная линия для системных шрифтов */
+  border-radius: 12px !important;  /* чтобы не наследовался «999px» из глобального правила */
+  box-sizing: border-box;
 }
 
+/* у select запас справа под стрелку, чтобы текст не упирался */
+#clientDialog .field > select{
+  padding-right: 28px !important;
+}
+
+/* поля даты/времени тоже чуть выше и с корректной линией */
+#clientDialog input[type="date"],
+#clientDialog input[type="time"],
+#clientDialog input[type="datetime-local"]{
+  font-size: 12.5px;
+  min-height: 36px;
+  height: auto;
+  padding: 8px 10px !important;
+  line-height: 1.25;
+}
 /* textarea — компактнее, но читабельно */
 #clientDialog textarea#fNotes{
   min-height: 72px;
