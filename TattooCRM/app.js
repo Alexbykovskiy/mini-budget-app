@@ -649,6 +649,30 @@ async function openClientFromEvent(ev){
     }
   }
 
+// если clientId так и не нашли — пробуем спросить Firestore по имени
+if (!id) {
+  const name = (ev.who || ev.clientName || '').trim();
+  if (name) {
+    try {
+      const qs = await FB.db
+        .collection('TattooCRM').doc('app')
+        .collection('clients')
+        .where('displayName', '==', name)
+        .limit(1)
+        .get();
+
+      if (!qs.empty) {
+        const d = qs.docs[0];
+        const client = { id: d.id, ...d.data() };
+        return openClientDialog(client); // нашли по имени — открываем и выходим
+      }
+    } catch (e) {
+      console.warn('fallback by name failed', e);
+    }
+  }
+}
+
+
   if (!id) { toast('Не удалось определить клиента'); return; }
 
   // 2) ищем локально, иначе грузим из Firestore
@@ -931,34 +955,33 @@ el.addEventListener('click', async (e) => {
   }
 
  // Рендер «В будущем»
-  const futureList = document.getElementById('futureList');
-  if (futureList) {
-    futureList.innerHTML = '';
-    if (!futureEvents.length) {
-      futureList.innerHTML = `<div class="row card-client glass">Будущих событий пока нет</div>`;
-    } else {
-      futureEvents.forEach(ev => {
-        const row = document.createElement('div');
-        row.className = 'row card-client glass';
-        const row = document.createElement('div');
-row.className = 'row card-client glass';
-row.innerHTML = `${formatDateHuman(ev.date)}${ev.time ? ' ' + ev.time : ''} — ${ev.title}${ev.who ? ' · ' + ev.who : ''}`;
+const futureList = document.getElementById('futureList');
+if (futureList) {
+  futureList.innerHTML = '';
+  if (!futureEvents.length) {
+    futureList.innerHTML = `<div class="row card-client glass">Будущих событий пока нет</div>`;
+  } else {
+    futureEvents.forEach(ev => {
+      const row = document.createElement('div');
+      row.className = 'row card-client glass';
+      row.innerHTML = `${formatDateHuman(ev.date)}${ev.time ? ' ' + ev.time : ''} — ${ev.title}${ev.who ? ' · ' + ev.who : ''}`;
 
-const openBtnFuture = document.createElement('button');
-openBtnFuture.className = 'btn';
-openBtnFuture.textContent = 'Открыть';
-openBtnFuture.title = 'Открыть карточку клиента';
-openBtnFuture.style.marginLeft = '8px';
-openBtnFuture.addEventListener('click', async (e) => {
-  e.stopPropagation();
-  await openClientFromEvent(ev);
-});
-row.appendChild(openBtnFuture);
-
-futureList.appendChild(row);
+      const openBtnFuture = document.createElement('button');
+      openBtnFuture.className = 'btn';
+      openBtnFuture.textContent = 'Открыть';
+      openBtnFuture.title = 'Открыть карточку клиента';
+      openBtnFuture.style.marginLeft = '8px';
+      openBtnFuture.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await openClientFromEvent(ev);
       });
-    }
+      row.appendChild(openBtnFuture);
+
+      futureList.appendChild(row);
+    });
   }
+}
+
 
     // Рендер «Напоминания»
   const remList = document.getElementById('remindersList');
