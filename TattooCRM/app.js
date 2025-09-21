@@ -687,7 +687,7 @@ function renderToday(todayEvents, futureEvents) {
 }
   // boot: UI готова
   try { BOOT.set(7,'ok'); BOOT.hide(); } catch(_) {}
-}
+
    
 // ---------- Clients ----------
 function bindClientsModal(){
