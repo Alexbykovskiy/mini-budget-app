@@ -824,19 +824,18 @@ function renderToday(todayEvents, futureEvents) {
       openBtnToday.title = 'Открыть карточку клиента';
       openBtnToday.style.marginLeft = '8px';
       openBtnToday.addEventListener('click', async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        await openClientById(ev.clientId);
-      });
+  e.preventDefault();
+  e.stopPropagation();
+  await openClientFromEvent(ev);
+});
       el.appendChild(openBtnToday);
 
       // Клик по карточке (кроме кнопок) — тоже открыть
       el.style.cursor = 'pointer';
       el.addEventListener('click', async (e) => {
-        if (e.target.closest('button')) return;
-        await openClientById(ev.clientId);
-      });
-
+  if (e.target.closest('button')) return;
+  await openClientFromEvent(ev);
+});
       // Подтверждение сеанса
       if (ev.kind === 'session' && !ev.done) {
         const btn = document.createElement('button');
@@ -876,10 +875,10 @@ function renderToday(todayEvents, futureEvents) {
         openBtnFuture.title = 'Открыть карточку клиента';
         openBtnFuture.style.marginLeft = '8px';
         openBtnFuture.addEventListener('click', async (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          await openClientById(ev.clientId);
-        });
+  e.preventDefault();
+  e.stopPropagation();
+  await openClientFromEvent(ev);
+});
         row.appendChild(openBtnFuture);
 
         futureList.appendChild(row);
@@ -919,10 +918,10 @@ function renderToday(todayEvents, futureEvents) {
         openBtn.textContent = 'Открыть';
         openBtn.title = 'Открыть карточку клиента';
         openBtn.style.marginLeft = '8px';
-        openBtn.addEventListener('click', async (e) => {
-          e.stopPropagation();
-          await openClientById(ev.clientId);
-        });
+       openBtn.addEventListener('click', async (e) => {
+  e.stopPropagation();
+  await openClientFromEvent(ev);
+});
         row.appendChild(openBtn);
 
         // Удаление — только для ручных напоминаний
