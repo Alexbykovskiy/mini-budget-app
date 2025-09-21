@@ -740,41 +740,41 @@ function renderToday(todayEvents, futureEvents) {
   });
 });
 
-    // 2) Сеансы и консультации из клиентов
-    const sessions = Array.isArray(c.sessions) ? c.sessions : (c?.nextDate ? [c.nextDate] : []);
-sessions.forEach(s => {
-  const dt = (typeof s === 'string') ? s : (s?.dt || '');
-  if (!dt) return;
-  const [d, tFull = ''] = dt.split('T');
-  const t = tFull.slice(0, 5); // HH:MM
+    (AppState.clients || []).forEach(c => {
+  const sessions = Array.isArray(c.sessions) ? c.sessions : (c?.nextDate ? [c.nextDate] : []);
+  sessions.forEach(s => {
+    const dt = (typeof s === 'string') ? s : (s?.dt || '');
+    if (!dt) return;
+    const [d, tFull = ''] = dt.split('T');
+    const t = tFull.slice(0, 5); // HH:MM
 
-  all.push({
-    id: `${c.id}_${dt}`,
-    kind: 'session',
-    date: d,
-    time: t,
-    title: 'Сеанс',
-    who: c.displayName || '',
-    done: !!(typeof s === 'object' && s.done),
-    clientId: c.id                       // ← ДОБАВИЛИ
-  });
-});
-
-      // Консультация (если включена и указана дата)
-if (c?.consult && c?.consultDate) {
-  const [d, tFull = ''] = String(c.consultDate).split('T');
-  const t = tFull.slice(0, 5);
-  all.push({
-    id: `consult_${c.id}_${c.consultDate}`,
-    kind: 'consult',
-    date: d,
-    time: t,
-    title: 'Консультация',
-    who: c.displayName || '',
-    clientId: c.id                       // ← ДОБАВИЛИ
-  });
-}
+    all.push({
+      id: `${c.id}_${dt}`,
+      kind: 'session',
+      date: d,
+      time: t,
+      title: 'Сеанс',
+      who: c.displayName || '',
+      done: !!(typeof s === 'object' && s.done),
+      clientId: c.id
     });
+  });
+
+  // Консультация (если включена и указана дата)
+  if (c?.consult && c?.consultDate) {
+    const [d, tFull = ''] = String(c.consultDate).split('T');
+    const t = tFull.slice(0, 5);
+    all.push({
+      id: `consult_${c.id}_${c.consultDate}`,
+      kind: 'consult',
+      date: d,
+      time: t,
+      title: 'Консультация',
+      who: c.displayName || '',
+      clientId: c.id
+    });
+  }
+});
 
     // Сортировка: по дате, потом по времени
     all.sort((a, b) => {
@@ -874,9 +874,9 @@ row.addEventListener('click', async () => {
 row.style.cursor = 'pointer';
 row.addEventListener('click', async (e) => {
   if (e.target.closest('button')) return;
-  await openClientFromEvent(ev);
-});
-        // Иконка по типу
+  await openClientById(ev.clientId);
+});       
+ // Иконка по типу
         const icon = ev.kind === 'consult' ? '📞'
                    : ev.kind === 'session' ? '✒️'
                    : '🔔';
