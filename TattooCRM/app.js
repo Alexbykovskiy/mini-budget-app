@@ -841,11 +841,7 @@ el.addEventListener('click', async (e) => {
         const row = document.createElement('div');
         row.className = 'row card-client glass';
         row.textContent = `${formatDateHuman(ev.date)}${ev.time ? ' ' + ev.time : ''} — ${ev.title}${ev.who ? ' · ' + ev.who : ''}`;
-      row.style.cursor = 'pointer';
-row.addEventListener('click', async () => {
-  await openClientById(ev.clientId);
-});
- futureList.appendChild(row);
+       futureList.appendChild(row);
       });
     }
   }
@@ -884,6 +880,17 @@ row.addEventListener('click', async (e) => {
         const txt = document.createElement('div');
         txt.innerHTML = `${icon} <b>${formatDateHuman(ev.date)}${ev.time ? ' ' + ev.time : ''}</b> — ${ev.title}${ev.who ? ' · ' + ev.who : ''}`;
         row.appendChild(txt);
+// Кнопка "Открыть" — перейти в карточку клиента
+const openBtn = document.createElement('button');
+openBtn.className = 'btn';      // можно 'btn primary', если у тебя есть такой стиль
+openBtn.textContent = 'Открыть';
+openBtn.title = 'Открыть карточку клиента';
+openBtn.style.marginLeft = '8px';
+openBtn.addEventListener('click', async (e) => {
+  e.stopPropagation(); // чтобы клик не всплывал на строку
+  await openClientById(ev.clientId);
+});
+row.appendChild(openBtn);
 
         // Крестик удаления — ТОЛЬКО для ручных напоминаний
         if (ev.kind === 'reminder' && ev.id) {
