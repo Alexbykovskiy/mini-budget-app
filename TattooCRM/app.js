@@ -1747,7 +1747,7 @@ async function deleteClientFromDialog(){
   }
 }
 
-}// ---------- Marketing ----------
+// ---------- Marketing ----------
 
 /**
  * Аггрегированный рендер по дням:
