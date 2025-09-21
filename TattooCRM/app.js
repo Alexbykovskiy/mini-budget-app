@@ -1489,17 +1489,24 @@ $('#fStatus').onchange = (e) => {
 
     // Сеансы — рендерим список полей
     const list = $('#sessionsList');
-    list.innerHTML = '';
-    const rawSessions = c?.sessions || (c?.nextDate ? [c.nextDate] : []);
-    rawSessions.forEach(s => {
-      if (typeof s === 'string') {
-        addSessionField({ dt: s, price: '', done: false });
-      } else {
-        addSessionField({ dt: s?.dt || '', price: (s?.price ?? ''), done: !!s?.done });
-      }
-    });
-    if (!list.children.length) addSessionField({ dt:'', price:'' });
-    $('#btnAddSession').onclick = () => addSessionField({ dt:'', price:'' });
+const rawSessions = c?.sessions || (c?.nextDate ? [c.nextDate] : []);
+
+if (list) {
+  list.innerHTML = '';
+  rawSessions.forEach(s => {
+    if (typeof s === 'string') {
+      addSessionField({ dt: s, price: '', done: false });
+    } else {
+      addSessionField({ dt: s?.dt || '', price: (s?.price ?? ''), done: !!s?.done });
+    }
+  });
+  if (!list.children.length) addSessionField({ dt:'', price:'' });
+
+  const addBtn = $('#btnAddSession');
+  if (addBtn) addBtn.onclick = () => addSessionField({ dt:'', price:'' });
+} else {
+  console.warn('[clientDialog] #sessionsList not found — добавь блок в index.html');
+}
 
     // Консультация (свитч + дата)
     $('#fConsultOn').checked = !!(c?.consult);
