@@ -1743,38 +1743,11 @@ async function deleteClientFromDialog(){
   }
 }// ---------- Marketing ----------
 function renderMarketing(){
-  const hi = $('#mkHighlites');
-  const tb = $('#mkTable');
-  if (hi) hi.innerHTML = '';
-  if (tb) tb.innerHTML = '';
-  // пока заглушка
+  // раздел временно отключён
+  const hi = $('#mkHighlites'); if (hi) hi.innerHTML = '';
+  const tb = $('#mkTable');     if (tb) tb.innerHTML = '';
 }
- // берём из состояния, иначе — пусто
-const highlights = Array.isArray(AppState.marketing?.highlights) ? AppState.marketing.highlights : [];
-if (!highlights.length) {
-  hi.innerHTML = `<div class="row card-client glass">Нет данных по маркетингу</div>`;
-} else {
-  highlights.forEach(m=>{
-    const el = document.createElement('div');
-    el.className='metric glass';
-    el.innerHTML = `<div class="k">${m.k}</div><div class="t">${m.t}</div>`;
-    hi.appendChild(el);
-  });
-}
-
-  const rows = Array.isArray(AppState.marketing?.rows) ? AppState.marketing.rows : [];
-tb.innerHTML = rows.length ? rows.map(r=>`
-  <div class="row">
-    <div style="width:30%">${r.src}</div>
-    <div>Обращения: <b>${r.lead}</b></div>
-    <div>Консультации: <b>${r.consult}</b></div>
-    <div>Сеансы: <b>${r.session}</b></div>
-  </div>
-`).join('') : `<div class="row card-client glass">Данные появятся после первых лидов</div>`;
-}
-
-// ---------- Supplies ----------
-function renderSupplies(){
+// ---------- Supplies ----------function renderSupplies(){
   const list = $('#suppliesList'); list.innerHTML = '';
   const items = Array.isArray(AppState.supplies) ? AppState.supplies : [];
 
