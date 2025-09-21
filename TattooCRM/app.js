@@ -1747,13 +1747,18 @@ function renderMarketing(){
   const hi = $('#mkHighlites'); if (hi) hi.innerHTML = '';
   const tb = $('#mkTable');     if (tb) tb.innerHTML = '';
 }
-// ---------- Supplies ----------function renderSupplies(){
-  const list = $('#suppliesList'); list.innerHTML = '';
+
+// ---------- Supplies ----------
+function renderSupplies(){
+  const list = $('#suppliesList');
+  if (!list) return;
+  list.innerHTML = '';
+
   const items = Array.isArray(AppState.supplies) ? AppState.supplies : [];
 
   // Заполняем фильтр категорий 1 раз
   const catSel = $('#supFilter');
-  if (!catSel.dataset.filled) {
+  if (catSel && !catSel.dataset.filled) {
     (AppState.settings?.supplies || []).forEach(c=>{
       const o = document.createElement('option'); o.value = c; o.textContent = c;
       catSel.appendChild(o);
@@ -1762,12 +1767,12 @@ function renderMarketing(){
     catSel.onchange = renderSupplies;
   }
 
-  const catFilter = catSel.value || '';
+  const catFilter = catSel?.value || '';
   const arr = catFilter ? items.filter(i => (i.cat||'') === catFilter) : items;
 
   if (!arr.length) {
     list.innerHTML = `<div class="row card-client glass">Список пуст</div>`;
-    return;
+    return; // ← теперь этот return снова внутри функции
   }
 
   arr.forEach(s=>{
@@ -1775,7 +1780,7 @@ function renderMarketing(){
     card.className='card-client glass';
     const left = (typeof s.left === 'number') ? s.left : (s.qty ?? '');
     const meta = [s.cat||'', s.brand||'', s.kind||'', s.size?`⌀${s.size}`:'', s.unit||'']
-  .filter(Boolean).join(' · ');
+      .filter(Boolean).join(' · ');
     card.innerHTML = `
       <div class="row" style="justify-content:space-between">
         <div><b>${s.name}</b> · <span class="meta">${meta}</span></div>
