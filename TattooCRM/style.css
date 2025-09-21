@@ -776,3 +776,10 @@ dialog[open] .modal-body{
 
 /* На всякий случай убираем «палец» */
 .card-client.glass { cursor: default !important; }
+
+
+/* Пустая ячейка во второй колонке первой строки формы клиента */
+#clientDialog .grid.two .grid-spacer{
+  visibility: hidden;   /* невидима, но занимает место в сетке */
+  height: 0;
+}
