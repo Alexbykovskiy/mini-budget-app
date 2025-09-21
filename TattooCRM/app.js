@@ -1761,78 +1761,52 @@ function renderMarketing() {
   if (!wrap) return;
 
   const items = Array.isArray(AppState.marketing) ? [...AppState.marketing] : [];
-  // сортируем стабильно по дате+времени
   items.sort((a,b) => (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
 
-  // агрегируем по датам
-  const days = {}; // date -> { date, lastTime, lastFollowers, spent }
-  for (const e of items) {
-    if (!e?.date) continue;
-    const key = e.date;
-    if (!days[key]) {
-      days[key] = { date: e.date, lastTime: '', lastFollowers: 0, spent: 0 };
-    }
-    // суммарный расход за день
-    days[key].spent += Number(e.spent || 0);
-
-    // для подписчиков берём ПОСЛЕДНЕЕ значение за день по времени
-    const tNew = String(e.time || '');
-    const tOld = String(days[key].lastTime || '');
-    if (tNew >= tOld) {
-      days[key].lastTime = tNew;
-      days[key].lastFollowers = Number(e.followers || 0);
-    }
-  }
-
-  const dayKeys = Object.keys(days).sort(); // по возрастанию даты
-  let prevFollowers = null;
   let totalFollowers = 0;
+  let prevSpentTotal = 0;
   let totalSpent = 0;
 
-  const rows = dayKeys.map(d => {
-    const day = days[d];
-    const growth = (prevFollowers == null) ? 0 : (day.lastFollowers - prevFollowers);
-    prevFollowers = day.lastFollowers;
-
-    totalFollowers = day.lastFollowers; // последнее значение — это «итого» подписчиков
-    totalSpent += day.spent;
+  const rows = items.map(e => {
+    totalFollowers += Number(e.delta || 0);
+    const daySpent = Number(e.spentTotal || 0) - prevSpentTotal;
+    prevSpentTotal = Number(e.spentTotal || 0);
+    totalSpent = prevSpentTotal;
 
     return `
       <div class="row" style="justify-content:space-between; padding:6px 0">
-        <div><b>${formatDateHuman(day.date)}</b>${day.lastTime ? ' ' + day.lastTime : ''}</div>
-        <div>Прирост: <b>${growth >= 0 ? '+' : ''}${growth}</b></div>
-        <div>Расход: €${day.spent.toFixed(2)}</div>
+        <div><b>${formatDateHuman(e.date)}</b></div>
+        <div>+${e.delta || 0} (Итого: ${totalFollowers})</div>
+        <div>Расход дня: €${daySpent.toFixed(2)}</div>
       </div>
     `;
   });
 
-  const footer = dayKeys.length ? `
+  const footer = items.length ? `
     <div class="row card-client glass" style="margin-top:10px; justify-content:space-between">
       <div><b>Итого</b></div>
       <div>Подписчики: <b>${totalFollowers}</b></div>
-      <div>Расход: €${totalSpent.toFixed(2)}</div>
+      <div>Общий расход: €${totalSpent.toFixed(2)}</div>
     </div>
   ` : '';
 
-  wrap.innerHTML = rows.length ? rows.join('') + footer
-                               : `<div class="row">Пока нет данных</div>`;
+  wrap.innerHTML = rows.length ? rows.join('') + footer : `<div class="row">Пока нет данных</div>`;
 }
-
 /** Сохранение записи маркетинга из формы */
 async function saveMarketingEntry(){
   const date = $('#mkDate').value || ymdLocal(new Date());
   const time = $('#mkTime').value || new Date().toISOString().slice(11,16);
-  const followers = Number($('#mkFollowers').value || 0);
-  const spent = Number($('#mkSpent').value || 0);
+
+  const delta = Number($('#mkDelta').value || 0);          // +подписчики
+  const spentTotal = Number($('#mkSpentTotal').value || 0); // общий расход к дате
 
   const id = `mk_${date}_${time.replace(':','')}`;
-  const entry = { id, date, time, followers, spent };
+  const entry = { id, date, time, delta, spentTotal };
 
-  // ЛОКАЛЬНОЕ состояние (для мгновенного рендера)
+  // локально
   AppState.marketing = AppState.marketing || [];
-  const i = AppState.marketing.findIndex(x => x.id === id);
-  if (i >= 0) AppState.marketing[i] = entry;
-  else AppState.marketing.push(entry);
+  const i = AppState.marketing.findIndex(x=>x.id===id);
+  if (i>=0) AppState.marketing[i] = entry; else AppState.marketing.push(entry);
 
   renderMarketing();
 
@@ -1841,12 +1815,13 @@ async function saveMarketingEntry(){
     const ref = FB.db.collection('TattooCRM').doc('app').collection('marketing').doc(id);
     await ref.set(entry, { merge:true });
     toast('Запись сохранена');
+    $('#mkDelta').value = '';
+    $('#mkSpentTotal').value = '';
   } catch(e) {
     console.warn(e);
     toast('Ошибка сохранения маркетинга');
   }
 }
-
 /** Привязка клика к кнопке Сохранить (однократно) */
 function bindMarketing(){
   const btn = document.getElementById('saveMkBtn');
