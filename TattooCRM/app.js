@@ -730,10 +730,9 @@ if (ev.kind === 'session' && !ev.done) {
     const [clientId, dt] = ev.id.split('_');
     await setSessionDone(clientId, dt, true);
     toast('Сеанс подтверждён');
-  });
+  }); // ← здесь заканчивается addEventListener
   el.appendChild(btn);
 }
-
   } else {
     futureEvents.forEach(ev => {
       const row = document.createElement('div');
