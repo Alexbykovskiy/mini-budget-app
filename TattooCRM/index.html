@@ -77,17 +77,14 @@
     
       <div id="clientsList" class="cards-grid"></div>
 
-      <!-- Карточка клиента (модал) -->
-      <dialog id="clientDialog" class="modal">
-        <form method="dialog" class="modal-body glass">
-          <div class="modal-head">
-            <h3 id="clientModalTitle">Клиент</h3>
-            <button class="btn icon" value="cancel" title="Закрыть">✕</button>
-          </div>
+      <div class="modal-head">
+  <h3 id="clientModalTitle">Клиент</h3>
+  <button class="btn icon" value="cancel" title="Закрыть">✕</button>
+</div>
 
-          <div class="grid two">
+<div class="grid two">
 
-<!-- 0: Язык (отдельная строка: слева поле, справа пусто) -->
+  <!-- 0: Язык (левая ячейка), справа — пусто для выравнивания -->
   <label class="field">
     <span>Язык</span>
     <select id="fLang">
@@ -98,7 +95,8 @@
       <option value="de">Немецкий</option>
     </select>
   </label>
-  <div class="grid-spacer" aria-hidden="true"></div> <!-- пустая правая ячейка -->
+  <div class="grid-spacer" aria-hidden="true"></div>
+
   <!-- 1: Имя \ Телефон -->
   <label class="field"><span>Имя</span><input id="fName" /></label>
   <label class="field"><span>Телефон</span><input id="fPhone" /></label>
@@ -107,20 +105,16 @@
   <label class="field"><span>Источник</span><select id="fSource"></select></label>
   <label class="field"><span>Контакт (ссылка)</span><input id="fLink" placeholder="instagram / tg / vk ссылка"/></label>
 
-  <!-- 3: Дата первого обращения \ Статус -->
+  <!-- 3: Первое обращение \ Статус -->
   <label class="field"><span>Дата первого обращения</span><input id="fFirstContact" type="date"/></label>
   <label class="field"><span>Статус</span>
     <select id="fStatus">
-  <option>Лид</option>
-  <option>Холодный лид</option>
-  <option>Консультация</option>
-  <option>Сеанс</option>
-  <option>Отменил</option>
-  <option>Слился</option>
-</select>
+      <option>Лид</option><option>Холодный лид</option><option>Консультация</option>
+      <option>Сеанс</option><option>Отменил</option><option>Слился</option>
+    </select>
   </label>
 
-  <!-- 4: Квалификация \ Комментарий к квалификации -->
+  <!-- 4: Квалификация \ Комментарий -->
   <label class="field"><span>Квалификация</span>
     <select id="fQual"><option>Не определена</option><option>Целевой</option><option>Не целевой</option><option>Условно-целевой</option></select>
   </label>
@@ -136,75 +130,64 @@
     <select id="fType"><option>Новая</option><option>Перекрытие</option><option>Коррекция</option></select>
   </label>
 
- <label class="field">
-  <span>стиль (теги)</span>
-  <select id="fStyles"></select>
-</label>
-<label class="field">
-  <span>зоны</span>
-  <select id="fZones"></select>
-</label>
+  <!-- 6: Теги \ Зоны -->
+  <label class="field"><span>стиль (теги)</span><select id="fStyles" multiple></select></label>
+  <label class="field"><span>зоны</span><select id="fZones" multiple></select></label>
 
-<!-- 7: Консультация (свитч слева) | Дата консультации (справа) -->
-<div class="grid two" id="rowConsult">
-  <!-- ЛЕВЫЙ СТОЛБЕЦ: свитч -->
-  <label class="field">
-    <span>Консультация</span>
-    <label class="ios-switch">
-      <input id="fConsultOn" type="checkbox" />
-      <span class="track"></span>
+  <!-- 7: Консультация (свитч) \ Дата консультации -->
+  <div class="grid two" id="rowConsult" style="grid-column:1 / -1">
+    <label class="field">
+      <span>Консультация</span>
+      <label class="ios-switch">
+        <input id="fConsultOn" type="checkbox"/>
+        <span class="track"></span>
+      </label>
     </label>
-  </label>
-
-  <!-- ПРАВЫЙ СТОЛБЕЦ: дата, появляется только при ON -->
-  <label class="field" id="consultDateField" style="display:none">
-    <span>Дата консультации</span>
-    <input id="fConsultDate" type="datetime-local" />
-  </label>
-</div>
-
-<!-- 8: Озвученная сумма (слева) | Депозит (справа) -->
-<div class="grid two" id="rowMoney">
- <!-- ЛЕВЫЙ СТОЛБЕЦ: озвученная сумма -->
-<label class="field">
-  <span>Озвученная сумма от\до (€)</span>
-  <div class="row gap-8">
-    <input id="fAmountMin" type="number" step="1" inputmode="decimal" placeholder="от" />
-    <input id="fAmountMax" type="number" step="1" inputmode="decimal" placeholder="до" />
+    <label class="field" id="consultDateField" style="display:none">
+      <span>Дата консультации</span>
+      <input id="fConsultDate" type="datetime-local"/>
+    </label>
   </div>
-</label>
 
-  <!-- ПРАВЫЙ СТОЛБЕЦ: депозит -->
-  <label class="field">
-    <span>Депозит (€)</span>
-    <input id="fDeposit" type="number" step="1" inputmode="decimal" />
-  </label>
-</div>
-  <!-- 8: Даты сеансов -->
-<label class="field" style="grid-column: 1 / -1">
-  <span>Даты сеансов</span>
-  <div id="sessionsList"></div>
-  <div class="row" style="justify-content:flex-end; margin-top:8px">
-    <button id="btnAddSession" type="button" class="btn">+ Дата</button>
+  <!-- 8: Деньги -->
+  <div class="grid two" id="rowMoney" style="grid-column:1 / -1">
+    <label class="field">
+      <span>Озвученная сумма от\до (€)</span>
+      <div class="row gap-8">
+        <input id="fAmountMin" type="number" step="1" inputmode="decimal" placeholder="от"/>
+        <input id="fAmountMax" type="number" step="1" inputmode="decimal" placeholder="до"/>
+      </div>
+    </label>
+    <label class="field">
+      <span>Депозит (€)</span>
+      <input id="fDeposit" type="number" step="1" inputmode="decimal"/>
+    </label>
   </div>
-</label>
-  <!-- Напоминания (слева) + История статусов (справа) -->
-  <div class="grid two" style="grid-column: 1 / -1; gap:12px">
-    <!-- ЛЕВЫЙ столбец: напоминания -->
+
+  <!-- 9: Даты сеансов -->
+  <label class="field" style="grid-column:1 / -1">
+    <span>Даты сеансов</span>
+    <div id="sessionsList"></div>
+    <div class="row" style="justify-content:flex-end; margin-top:8px">
+      <button id="btnAddSession" type="button" class="btn">+ Дата</button>
+    </div>
+  </label>
+
+  <!-- 10: Напоминания слева + История статусов справа -->
+  <div class="grid two" style="grid-column:1 / -1; gap:12px">
     <div class="panel glass">
       <div class="subtle">Напоминания</div>
       <div id="clientReminders"></div>
     </div>
-
-    <!-- ПРАВЫЙ столбец: история смен статусов -->
     <div class="panel glass">
       <div class="subtle">История статусов</div>
       <div id="statusHistory"></div>
     </div>
   </div>
 
-  <!-- 9: Напоминание + список напоминаний -->
-  <label class="field" style="grid-column: 1 / -1"><span>Напоминание</span>
+  <!-- 11: Создать напоминание -->
+  <label class="field" style="grid-column:1 / -1">
+    <span>Напоминание</span>
     <div class="row gap-8">
       <select id="fReminderTpl" class="chip" style="flex:1"><option value="">— шаблон —</option></select>
       <select id="fReminderAfter" class="chip" title="Когда напомнить"><option value="">дни</option></select>
@@ -212,41 +195,36 @@
     <input id="fReminderTitle" placeholder="Свой текст напоминания (необязательно)"/>
   </label>
 
+  <!-- 12: Заметка -->
+  <label class="field" style="grid-column:1 / -1">
+    <span>Заметка</span>
+    <textarea id="fNotes" rows="3" placeholder="особенности, пожелания…"></textarea>
+  </label>
 
+  <!-- 13: Фото -->
+  <div class="panel" style="grid-column:1 / -1">
+    <div class="stack">
+      <div class="subtle">Фото</div>
+      <div id="photosEmptyNote" class="empty-note">У этого клиента пока нет фотографий.</div>
+      <div class="row gap-8">
+        <input id="photoInput" type="file" multiple accept="image/*" hidden/>
+        <button id="attachPhotosBtn" class="btn">+ Прикрепить фотографии</button>
+        <button id="openFolderBtn" class="btn ghost">Открыть папку</button>
+        <button id="shareFolderBtn" class="btn ghost">Поделиться папкой</button>
+      </div>
+      <div id="photosGrid" class="thumbs-grid"></div>
+    </div>
   </div>
 
+</div> <!-- /.grid.two -->
+
+<div class="modal-foot">
+  <button class="btn danger" id="deleteClientBtn" type="button">Удалить</button>
+  <div class="spacer"></div>
+  <button class="btn" value="cancel">Отмена</button>
+  <button class="btn primary" id="saveClientBtn" type="button">Сохранить</button>
 </div>
 
-<!-- 10: Комментарии -->
-<label class="field"><span>Заметка</span>
-  <textarea id="fNotes" rows="3" placeholder="особенности, пожелания…"></textarea>
-</label>
-
-          <div class="panel">
-            <div class="stack">
-              <div class="subtle">Фото</div>
-              <div id="photosEmptyNote" class="empty-note">У этого клиента пока нет фотографий.</div>
-              <div class="row gap-8">
-                <input id="photoInput" type="file" multiple accept="image/*" hidden/>
-                <button id="attachPhotosBtn" class="btn">+ Прикрепить фотографии</button>
-                <button id="openFolderBtn" class="btn ghost">Открыть папку</button>
-                <button id="shareFolderBtn" class="btn ghost">Поделиться папкой</button>
-              </div>
-
-<div id="photosGrid" class="thumbs-grid"></div>
-
-           
- </div>
-          </div>
-
-          <div class="modal-foot">
-            <button class="btn danger" id="deleteClientBtn" type="button">Удалить</button>
-            <div class="spacer"></div>
-            <button class="btn" value="cancel">Отмена</button>
-            <button class="btn primary" id="saveClientBtn" type="button">Сохранить</button>
-          </div>
-        </form>
-      </dialog>
     </section>
 
 <!-- Вкладка: Маркетинг -->
