@@ -812,28 +812,38 @@ row.addEventListener('click', (e) => {
   if (ev.clientId) openClientById(ev.clientId);
 });
 
-        // Крестик удаления — ТОЛЬКО для ручных напоминаний
-        if (ev.kind === 'reminder' && ev.id) {
-          const del = document.createElement('button');
-          del.className = 'btn danger';
-          del.textContent = '✕';
-          del.title = 'Удалить напоминание';
-          del.style.marginLeft = '8px';
-          del.addEventListener('click', async () => {
-            const ok = await confirmDlg('Удалить это напоминание?');
-            if (!ok) return;
-            try {
-              await FB.db.collection('TattooCRM').doc('app')
-                .collection('reminders').doc(ev.id).delete();
-              row.remove(); // оптимистично; снапшот всё равно обновит
-              toast('Напоминание удалено');
-            } catch (e) {
-              console.warn(e);
-              toast('Не удалось удалить напоминание');
-            }
-          });
-          row.appendChild(del);
-        }
+        // Крестик удаления только для «ручных» напоминаний (из коллекции reminders)
+if (ev.kind === 'reminder' && ev.id) {
+  const btn = document.createElement('button');
+  btn.type = 'button'; // чтобы не триггерить submit где-нибудь в форме
+  btn.className = 'btn danger';
+  btn.textContent = '✕';
+  btn.title = 'Удалить напоминание';
+  btn.style.padding = '2px 8px';
+
+  btn.addEventListener('click', async (e) => {
+    // ключевой анти-залипательный блок
+    e.stopPropagation();   // не даём клику подняться до карточки (чтобы та не открывала клиента)
+    e.preventDefault();    // на всякий случай — никаких дефолтных действий
+
+    const ok = await confirmDlg('Удалить это напоминание?');
+    if (!ok) return;
+    try {
+      await FB.db.collection('TattooCRM').doc('app')
+        .collection('reminders').doc(ev.id).delete();
+
+      // локально убираем строку, либо дождёмся snapshot
+      if (row && row.remove) row.remove();
+
+      toast('Напоминание удалено');
+    } catch (e2) {
+      console.warn(e2);
+      toast('Не удалось удалить напоминание');
+    }
+  });
+
+  row.appendChild(btn);
+}
 
         remList.appendChild(row);
       });
