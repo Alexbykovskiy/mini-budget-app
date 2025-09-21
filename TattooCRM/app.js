@@ -641,141 +641,50 @@ async function saveSettings(){
 }
 
 // ---------- Today ----------
-function renderToday(){
-  const sch = $('#todaySchedule');
-  const rem = $('#todayReminders');
-  sch.innerHTML = '';
-  rem.innerHTML = '';
+function renderToday(todayEvents, futureEvents) {
+  const todayList = document.getElementById('todaySchedule');
+  todayList.innerHTML = '';
 
-  const today = ymdLocal(new Date());
-
- // 1) Сеансы (из клиентов)
-const sessionsAll = (AppState.clients || [])
-  .flatMap(c => (c.sessions || []).map(s => {
-    const dt = (typeof s === 'string') ? s : (s.dt || '');
-    const price = (typeof s === 'object') ? s.price : undefined;
-    const done = (typeof s === 'object') ? !!s.done : false;
-    return {
-      kind: 'session',
-      id: `${c.id}_${dt}`,
-      date: dt.slice(0,10),
-      time: dt.slice(11,16),
-      title: c.displayName + (done ? ' · ✓' : ''),
-      badge: done ? 'Сеанс · подтвержден' : 'Сеанс',
-      price,
-      done
-    };
-  }));
-  // 2) Консультации (из клиентов)
-  const consultsAll = (AppState.clients || [])
-    .filter(c => c.consult && c.consultDate)
-    .map(c => ({
-      kind: 'consult',
-      id: `cons_${c.id}`,
-      date: c.consultDate.slice(0,10),
-      time: c.consultDate.slice(11,16),
-      title: c.displayName,
-      badge: 'Консультация'
-    }));
-
-  // 3) Ручные напоминания (из коллекции reminders)
-  const remindersAll = (AppState.reminders || []).map(r => ({
-    kind: 'reminder',
-    id: r.id,
-    date: r.date,       // YYYY-MM-DD
-    time: '',           // напоминания без времени
-    title: r.title,
-    who: r.clientName || '',
-    badge: 'Напоминание'
-  }));
-
-  // События «на сегодня»
-  const todayEvents  = [...sessionsAll, ...consultsAll, ...remindersAll]
-  .filter(ev => ev.date === today)
-  .sort((a,b) => (a.time || '99:99').localeCompare(b.time || '99:99'));
-
-const futureEvents = [...sessionsAll, ...consultsAll, ...remindersAll]
-  .filter(ev => ev.date > today)
-  .sort((a,b) => (a.date + (a.time || '99:99')).localeCompare(b.date + (b.time || '99:99')));
-
-  // Рендер «Сегодня»
-  if (!todayEvents.length) {
+  todayEvents.forEach(ev => {
     const el = document.createElement('div');
     el.className = 'row card-client glass';
-    el.textContent = 'На сегодня записей нет';
-    sch.appendChild(el);
-  } else {
-    todayEvents.forEach(ev => {
-      const el = document.createElement('div');
-      el.className = 'row card-client glass';
-     el.innerHTML = `
-  <div>
-    🔔 <b>${formatDateHuman(ev.date)}</b> ${ev.time ? ev.time + ' — ' : ' — '}
-    ${ev.kind === 'reminder'
-      ? `${ev.title}${ev.who ? ' · ' + ev.who : ''}`
-      : `${ev.title} <span class="badge">${ev.badge}</span>`}
-  </div>
-`;
+    el.innerHTML = `
+      🔔 <b>${formatDateHuman(ev.date)}</b> ${ev.time ? ev.time + ' — ' : ' — '}
+      ${ev.kind === 'reminder'
+        ? `${ev.title}${ev.who ? ' · ' + ev.who : ''}`
+        : `${ev.title}${ev.who ? ' · ' + ev.who : ''}`}
+    `;
 
-// ДОБАВЛЯЕМ кнопку отдельно
-if (ev.kind === 'session' && !ev.done) {
-  const btn = document.createElement('button');
-  btn.className = 'btn success';
-  btn.textContent = '✓';
-  btn.title = 'Подтвердить сеанс';
-  btn.style.padding = '2px 10px';
-  btn.addEventListener('click', async () => {
-    const ok = await confirmDlg('Подтвердить, что сеанс состоялся?');
-    if (!ok) return;
-    const [clientId, dt] = ev.id.split('_');
-    await setSessionDone(clientId, dt, true);
-    toast('Сеанс подтверждён');
-  }); // ← здесь заканчивается addEventListener
-  el.appendChild(btn);
-}
-  } else {
+    if (ev.kind === 'session' && !ev.done) {
+      const btn = document.createElement('button');
+      btn.className = 'btn success';
+      btn.textContent = '✓';
+      btn.title = 'Подтвердить сеанс';
+      btn.style.padding = '2px 10px';
+      btn.addEventListener('click', async () => {
+        const ok = await confirmDlg('Подтвердить, что сеанс состоялся?');
+        if (!ok) return;
+        const [clientId, dt] = ev.id.split('_');
+        await setSessionDone(clientId, dt, true);
+        toast('Сеанс подтверждён');
+      });
+      el.appendChild(btn);
+    }
+
+    todayList.appendChild(el);
+  });
+
+  const futureList = document.getElementById('futureList');
+  if (futureList) {
+    futureList.innerHTML = '';
     futureEvents.forEach(ev => {
       const row = document.createElement('div');
       row.className = 'row card-client glass';
-      row.style.alignItems = 'center';
-      row.style.justifyContent = 'space-between';
-
-      const text = document.createElement('div');
-      text.innerHTML = `
-        🔔 <b>${formatDateHuman(ev.date)}</b> ${ev.time ? ev.time + ' — ' : ' — '}
-        ${ev.kind === 'reminder'
-          ? `${ev.title}${ev.who ? ' · ' + ev.who : ''} <span class="badge">${ev.badge}</span>`
-          : `${ev.title} <span class="badge">${ev.badge}</span>`}
-      `;
-      row.appendChild(text);
-
-      // Крестик удаления только для «ручных» напоминаний (из коллекции reminders)
-      if (ev.kind === 'reminder' && ev.id) {
-        const btn = document.createElement('button');
-        btn.className = 'btn danger';
-        btn.textContent = '✕';
-        btn.title = 'Удалить напоминание';
-        btn.style.padding = '2px 8px';
-        btn.addEventListener('click', async () => {
-          const ok = await confirmDlg('Удалить это напоминание?');
-          if (!ok) return;
-          try {
-            await FB.db.collection('TattooCRM').doc('app')
-              .collection('reminders').doc(ev.id).delete();
-            row.remove(); // оптимистично; snapshot всё равно обновит
-            toast('Напоминание удалено');
-          } catch (e) {
-            console.warn(e);
-            toast('Не удалось удалить напоминание');
-          }
-        });
-        row.appendChild(btn);
-      }
-
-      rem.appendChild(row);
+      row.textContent = `${formatDateHuman(ev.date)} — ${ev.title}`;
+      futureList.appendChild(row);
     });
   }
-
+}
   // boot: UI готова
   try { BOOT.set(7,'ok'); BOOT.hide(); } catch(_) {}
 }
