@@ -997,12 +997,17 @@ const sessionsSum = (Array.isArray(c.sessions) ? c.sessions : [])
   .reduce((sum, s) => sum + (s?.done ? Number(s.price||0) : 0), 0);
 const ltv = depositVal + sessionsSum;
 
+const langBadge = c.lang ? `<span class="badge" title="Язык">${(c.lang || '').toUpperCase()}</span>` : '';
+
 card.innerHTML = `
-  <div class="row" style="justify-content:space-between">
-    <div><b>${c.displayName}</b></div>
-    <div class="badge">${c.status||'Лид'}</div>
+  <div class="row" style="justify-content:space-between; gap:8px; align-items:center">
+    <div class="row" style="gap:8px; align-items:center">
+      <b>${c.displayName}</b>
+      ${langBadge}
+    </div>
+    <div class="badge">${c.status || 'Лид'}</div>
   </div>
-  <div class="meta">${c.source||'—'}</div>
+  <div class="meta">${c.source || '—'}</div>
   <div class="meta">Депозит: €${depositVal.toFixed(2)} + Сеансы: €${sessionsSum.toFixed(2)} = LTV €${ltv.toFixed(2)}</div>
   <div class="meta">Теги: ${tags}</div>
   <div class="row" style="justify-content:flex-end; gap:8px">
@@ -1355,6 +1360,8 @@ async function openClientDialog(c = null){
     $('#fPhone').value  = c?.phone || '';
     $('#fLink').value   = c?.link || '';
     $('#fSource').value = c?.source || (AppState.settings?.sources?.[0] || '');
+// Язык
+$('#fLang').value = c?.lang || '';
 
     // Первое обращение (опциональные поля)
     const firstContactEl = $('#fFirstContact');
@@ -1546,7 +1553,8 @@ const statusVal = $('#fStatus').value;
     source: $('#fSource').value || '',                // ← источник
     link: $('#fLink').value.trim() || '',             // ← контакт (ссылка)
     firstContact: $('#fFirstContact').value || '',    // ← дата первого обращения (YYYY-MM-DD)
-    updatedAt: new Date().toISOString()
+    lang: $('#fLang').value || '',           // ← ДОБАВЬ ЭТО
+ updatedAt: new Date().toISOString()
   };
 
     const i = AppState.clients.findIndex(x => x.id === id);
@@ -1589,6 +1597,7 @@ if (amountMin != null && amountMax != null && amountMin > amountMax) {
   phone: $('#fPhone').value.trim(),
   link: $('#fLink').value.trim(),
 source: $('#fSource').value.trim(),
+lang: $('#fLang').value || '',            // ← ДОБАВЬ ЭТО
 firstContactDate: ($('#fFirstContact').value || new Date().toISOString().slice(0,10)),
 first: ($('#fFirst').value === 'true'),
   type: $('#fType').value.trim(),
