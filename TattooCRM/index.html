@@ -181,6 +181,13 @@
   </label>
 </div>
   <!-- 8: Даты сеансов -->
+<label class="field" style="grid-column: 1 / -1">
+  <span>Даты сеансов</span>
+  <div id="sessionsList"></div>
+  <div class="row" style="justify-content:flex-end; margin-top:8px">
+    <button id="btnAddSession" type="button" class="btn">+ Дата</button>
+  </div>
+</label>
   <!-- Напоминания (слева) + История статусов (справа) -->
   <div class="grid two" style="grid-column: 1 / -1; gap:12px">
     <!-- ЛЕВЫЙ столбец: напоминания -->
@@ -205,9 +212,7 @@
     <input id="fReminderTitle" placeholder="Свой текст напоминания (необязательно)"/>
   </label>
 
-  <div class="field" style="grid-column: 1 / -1">
-    <span>Напоминания</span>
-    <div id="clientReminders"></div>
+
   </div>
 
 </div>
