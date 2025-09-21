@@ -603,6 +603,25 @@ function formatDateHuman(ymd) {
   return `${d} ${months[m-1]} ${y} г.`;
 }
 
+function findClientById(id){
+  return (AppState.clients || []).find(c => c.id === id) || null;
+}
+function clientFromEvent(ev){
+  if (!ev) return null;
+  if (ev.kind === 'reminder') return findClientById(ev.clientId);
+  if (ev.kind === 'session') {
+    const [clientId] = String(ev.id || '').split('_');
+    return findClientById(clientId);
+  }
+  if (ev.kind === 'consult') {
+    const parts = String(ev.id || '').split('_'); // consult_<clientId>_<date>
+    return findClientById(parts[1] || parts[0]);
+  }
+  return null;
+}
+
+
+
 
 async function saveSettings(){
   const s = {
@@ -656,7 +675,8 @@ function renderToday(todayEvents, futureEvents) {
         date: r.date,            // YYYY-MM-DD
         time: '',                // у напоминаний времени нет
         title: r.title || 'Напоминание',
-        who: r.clientName || ''
+        who: r.clientName || '',
+       clientId: r.clientId || null
       });
     });
 
@@ -722,6 +742,16 @@ function renderToday(todayEvents, futureEvents) {
         ${ev.title}${ev.who ? ' · ' + ev.who : ''}
       `;
 
+
+ el.style.cursor = 'pointer';
+  el.addEventListener('click', (e) => {
+    // если клик по кнопке подтверждения — игнорим
+    if (e.target.closest('button')) return;
+    const client = clientFromEvent(ev);
+    if (client) openClientDialog(client); else toast('Клиент не найден');
+  });
+
+
       // Кнопка подтверждения только для сеансов
       if (ev.kind === 'session' && !ev.done) {
         const btn = document.createElement('button');
@@ -754,7 +784,12 @@ function renderToday(todayEvents, futureEvents) {
         const row = document.createElement('div');
         row.className = 'row card-client glass';
         row.textContent = `${formatDateHuman(ev.date)}${ev.time ? ' ' + ev.time : ''} — ${ev.title}${ev.who ? ' · ' + ev.who : ''}`;
-        futureList.appendChild(row);
+       row.style.cursor = 'pointer';
+  row.addEventListener('click', () => {
+    const client = clientFromEvent(ev);
+    if (client) openClientDialog(client); else toast('Клиент не найден');
+  });
+ futureList.appendChild(row);
       });
     }
   }
@@ -780,6 +815,13 @@ function renderToday(todayEvents, futureEvents) {
         row.className = 'row card-client glass';
         row.style.alignItems = 'center';
 
+row.style.cursor = 'pointer';
+row.addEventListener('click', (e) => {
+  if (e.target.closest('button')) return; // клики по кнопке пропускаем
+  const client = clientFromEvent(ev);
+  if (client) openClientDialog(client); else toast('Клиент не найден');
+});
+
         // Иконка по типу
         const icon = ev.kind === 'consult' ? '📞'
                    : ev.kind === 'session' ? '✒️'
@@ -796,7 +838,8 @@ function renderToday(todayEvents, futureEvents) {
           del.textContent = '✕';
           del.title = 'Удалить напоминание';
           del.style.marginLeft = '8px';
-          del.addEventListener('click', async () => {
+          del.addEventListener('click', async (e) => {
+e.stopPropagation();
             const ok = await confirmDlg('Удалить это напоминание?');
             if (!ok) return;
             try {
