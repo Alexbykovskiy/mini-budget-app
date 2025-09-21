@@ -734,7 +734,7 @@ function renderToday(todayEvents, futureEvents) {
 
 // клик по строке — открыть клиента
 if (OPEN_CLIENT_ON_TILE_CLICK) {
-  row.addEventListener('click', (e) => {
+  el.addEventListener('click', (e) => {
     if (e.target.closest('button')) return;
     if (ev.clientId) openClientById(ev.clientId);
   });
@@ -1674,18 +1674,6 @@ function toggleColdLeadMode(isCold) {
   if (sessionsField) sessionsField.style.display = isCold ? 'none' : '';
 }
 
-// --- История смен статусов клиента (подколлекция /clients/{id}/statusLogs)
-async function logStatusChange(clientId, fromStatus, toStatus){
-  if (!clientId || fromStatus === toStatus) return;       // ничего не пишем, если не менялся
-  const ts = new Date().toISOString();
-
-  const ref = FB.db
-    .collection('TattooCRM').doc('app')
-    .collection('clients').doc(clientId)
-    .collection('statusLogs').doc(String(Date.now()));    // простой уникальный id
-
-  await ref.set({ ts, from: fromStatus || null, to: toStatus || null });
-}
 
 async function saveClientFromDialog(){
   let id = $('#clientDialog').dataset.id;
@@ -1709,7 +1697,7 @@ const statusVal = $('#fStatus').value;
     status: statusVal,
     source: $('#fSource').value || '',                // ← источник
     link: $('#fLink').value.trim() || '',             // ← контакт (ссылка)
-    firstContact: $('#fFirstContact').value || '',    // ← дата первого обращения (YYYY-MM-DD)
+    firstContactDate: $('#fFirstContact').value || '',  // ← правильное имя поля
     lang: $('#fLang').value || '',           // ← ДОБАВЬ ЭТО
  updatedAt: new Date().toISOString()
   };
@@ -1721,9 +1709,7 @@ const statusVal = $('#fStatus').value;
     try {
       const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
       await ref.set(client, { merge:true });
-// NEW: зафиксируем смену статуса
-try { await logStatusChange(id, prevStatus, $('#fStatus').value); } catch(_) {}
-
+// Лог смены статуса — один раз
 try { await logStatusChange(id, prevStatus, statusVal); } catch(_) {}
       toast('Сохранено (холодный лид)');
     } catch(e) {
