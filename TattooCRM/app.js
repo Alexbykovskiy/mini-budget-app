@@ -159,6 +159,7 @@ const AppState = {
   reminders: [],
   appointments: [],
   supplies: [],
+  marketing: [],            // ← добавили
   autoSyncTimer: null
 };
 let syncInProgress = false;
@@ -289,7 +290,7 @@ function bindTabbar(){
       showPage(btn.dataset.tab);
       if (btn.dataset.tab === 'clientsPage') renderClients();
       if (btn.dataset.tab === 'todayPage') renderToday();
-      if (btn.dataset.tab === 'marketingPage') renderMarketing();
+      if (btn.dataset.tab === 'marketingPage') { bindMarketing(); renderMarketing(); }
       if (btn.dataset.tab === 'suppliesPage') renderSupplies();
       if (btn.dataset.tab === 'settingsPage') fillSettingsForm();
     });
@@ -1746,46 +1747,92 @@ async function deleteClientFromDialog(){
   }
 }
 
-// ---------- Marketing ----------
+}// ---------- Marketing ----------
+
+/**
+ * Аггрегированный рендер по дням:
+ * - для каждой даты берём ПОСЛЕДНЕЕ значение подписчиков за день (по времени),
+ * - суммируем расходы за день,
+ * - прирост считаем как (подписчики_сегодня - подписчики_вчера),
+ * - внизу показываем итоги: последние общие подписчики и сумму расходов за все дни.
+ */
 function renderMarketing() {
-  const history = AppState.marketing || [];
   const wrap = $('#mkHistory');
   if (!wrap) return;
 
-  // сортируем по дате
-  history.sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time));
+  const items = Array.isArray(AppState.marketing) ? [...AppState.marketing] : [];
+  // сортируем стабильно по дате+времени
+  items.sort((a,b) => (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
 
-  // считаем прирост подписчиков
+  // агрегируем по датам
+  const days = {}; // date -> { date, lastTime, lastFollowers, spent }
+  for (const e of items) {
+    if (!e?.date) continue;
+    const key = e.date;
+    if (!days[key]) {
+      days[key] = { date: e.date, lastTime: '', lastFollowers: 0, spent: 0 };
+    }
+    // суммарный расход за день
+    days[key].spent += Number(e.spent || 0);
+
+    // для подписчиков берём ПОСЛЕДНЕЕ значение за день по времени
+    const tNew = String(e.time || '');
+    const tOld = String(days[key].lastTime || '');
+    if (tNew >= tOld) {
+      days[key].lastTime = tNew;
+      days[key].lastFollowers = Number(e.followers || 0);
+    }
+  }
+
+  const dayKeys = Object.keys(days).sort(); // по возрастанию даты
   let prevFollowers = null;
-  let rows = history.map(entry => {
-    const growth = prevFollowers != null ? (entry.followers - prevFollowers) : 0;
-    prevFollowers = entry.followers;
+  let totalFollowers = 0;
+  let totalSpent = 0;
+
+  const rows = dayKeys.map(d => {
+    const day = days[d];
+    const growth = (prevFollowers == null) ? 0 : (day.lastFollowers - prevFollowers);
+    prevFollowers = day.lastFollowers;
+
+    totalFollowers = day.lastFollowers; // последнее значение — это «итого» подписчиков
+    totalSpent += day.spent;
+
     return `
       <div class="row" style="justify-content:space-between; padding:6px 0">
-        <div>${formatDateHuman(entry.date)} ${entry.time}</div>
-        <div>Подписчики: <b>${entry.followers}</b> (${growth >= 0 ? '+' : ''}${growth})</div>
-        <div>Реклама: €${entry.spent.toFixed(2)}</div>
+        <div><b>${formatDateHuman(day.date)}</b>${day.lastTime ? ' ' + day.lastTime : ''}</div>
+        <div>Прирост: <b>${growth >= 0 ? '+' : ''}${growth}</b></div>
+        <div>Расход: €${day.spent.toFixed(2)}</div>
       </div>
     `;
   });
 
-  wrap.innerHTML = rows.length ? rows.join('') : `<div class="row">Пока нет данных</div>`;
+  const footer = dayKeys.length ? `
+    <div class="row card-client glass" style="margin-top:10px; justify-content:space-between">
+      <div><b>Итого</b></div>
+      <div>Подписчики: <b>${totalFollowers}</b></div>
+      <div>Расход: €${totalSpent.toFixed(2)}</div>
+    </div>
+  ` : '';
+
+  wrap.innerHTML = rows.length ? rows.join('') + footer
+                               : `<div class="row">Пока нет данных</div>`;
 }
 
-$('#saveMkBtn')?.addEventListener('click', async ()=>{
+/** Сохранение записи маркетинга из формы */
+async function saveMarketingEntry(){
   const date = $('#mkDate').value || ymdLocal(new Date());
   const time = $('#mkTime').value || new Date().toISOString().slice(11,16);
   const followers = Number($('#mkFollowers').value || 0);
   const spent = Number($('#mkSpent').value || 0);
 
   const id = `mk_${date}_${time.replace(':','')}`;
-
   const entry = { id, date, time, followers, spent };
 
-  // локально
+  // ЛОКАЛЬНОЕ состояние (для мгновенного рендера)
   AppState.marketing = AppState.marketing || [];
-  const i = AppState.marketing.findIndex(x=>x.id===id);
-  if (i>=0) AppState.marketing[i]=entry; else AppState.marketing.push(entry);
+  const i = AppState.marketing.findIndex(x => x.id === id);
+  if (i >= 0) AppState.marketing[i] = entry;
+  else AppState.marketing.push(entry);
 
   renderMarketing();
 
@@ -1798,16 +1845,29 @@ $('#saveMkBtn')?.addEventListener('click', async ()=>{
     console.warn(e);
     toast('Ошибка сохранения маркетинга');
   }
-});
+}
 
-// Подписка на изменения
+/** Привязка клика к кнопке Сохранить (однократно) */
+function bindMarketing(){
+  const btn = document.getElementById('saveMkBtn');
+  if (btn && !btn.dataset.bound) {
+    btn.dataset.bound = '1';
+    btn.addEventListener('click', saveMarketingEntry);
+  }
+}
+
+/** Реалтайм-подписка на коллекцию marketing */
 function listenMarketingRealtime(){
   FB.db.collection('TattooCRM').doc('app').collection('marketing')
-    .orderBy('date','asc').onSnapshot(qs=>{
-      AppState.marketing = [];
-      qs.forEach(d=>AppState.marketing.push(d.data()));
+    .orderBy('date','asc')   // сортировка по дате
+    .onSnapshot(qs => {
+      const arr = [];
+      qs.forEach(d => arr.push(d.data()));
+      // локально сортируем по дате+времени, чтобы не требовать составного индекса
+      arr.sort((a,b) => (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
+      AppState.marketing = arr;
       renderMarketing();
-    }, err=>console.error('marketing',err));
+    }, err => console.error('marketing', err));
 }
 
 
