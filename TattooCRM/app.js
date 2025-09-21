@@ -743,7 +743,7 @@ function renderToday(todayEvents, futureEvents) {
     });
   }
 
-  // Рендер «В будущем»
+ // Рендер «В будущем»
   const futureList = document.getElementById('futureList');
   if (futureList) {
     futureList.innerHTML = '';
@@ -758,8 +758,55 @@ function renderToday(todayEvents, futureEvents) {
       });
     }
   }
-}  // boot: UI готова
-  try { BOOT.set(7,'ok'); BOOT.hide(); } catch(_) {}
+
+  // Рендер «Напоминания»
+  const remList = document.getElementById('remindersList');
+  if (remList) {
+    const todayYMD = ymdLocal(new Date());
+    const upcoming = (AppState.reminders || [])
+      .filter(r => r?.date && r.date > todayYMD)
+      .sort((a,b) => a.date.localeCompare(b.date));
+
+    remList.innerHTML = '';
+    if (!upcoming.length) {
+      remList.innerHTML = `<div class="row card-client glass">Пока нет будущих напоминаний</div>`;
+    } else {
+      upcoming.forEach(r => {
+        const row = document.createElement('div');
+        row.className = 'row card-client glass';
+        row.style.alignItems = 'center';
+
+        const txt = document.createElement('div');
+        txt.innerHTML = `🔔 <b>${formatDateHuman(r.date)}</b> — ${r.title}${r.clientName ? ' · ' + r.clientName : ''}`;
+        row.appendChild(txt);
+
+        const del = document.createElement('button');
+        del.className = 'btn danger';
+        del.textContent = '✕';
+        del.title = 'Удалить напоминание';
+        del.style.marginLeft = '8px';
+        del.addEventListener('click', async () => {
+          if (!r?.id) return toast('У напоминания нет id');
+          const ok = await confirmDlg('Удалить это напоминание?');
+          if (!ok) return;
+          try {
+            await FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(r.id).delete();
+            toast('Напоминание удалено');
+          } catch(e) {
+            console.warn(e);
+            toast('Не удалось удалить напоминание');
+          }
+        });
+        row.appendChild(del);
+
+        remList.appendChild(row);
+      });
+    }
+  }
+}  
+
+// boot: UI готова
+try { BOOT.set(7,'ok'); BOOT.hide(); } catch(_) {}
 
    
 // ---------- Clients ----------
