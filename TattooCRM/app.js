@@ -1394,37 +1394,59 @@ async function openClientDialog(c = null){
     $('#clientModalTitle').textContent = isNew ? 'Новый клиент' : (c?.displayName || 'Клиент');
 
     // Источник (select)
-    const fSource = $('#fSource');
-    fSource.innerHTML = '';
-    (AppState.settings?.sources || []).forEach(s=>{
-      const o = document.createElement('option'); o.textContent = s; fSource.appendChild(o);
+{
+  const fSource = $('#fSource');
+  if (fSource) {
+    fSource.replaceChildren();
+    (AppState.settings?.sources || []).forEach(s => {
+      const o = document.createElement('option');
+      o.textContent = s;
+      fSource.appendChild(o);
     });
+  } else {
+    console.warn('[clientDialog] #fSource not found');
+  }
+}
 
-    // Стили (multiple select)
-    const fStyles = $('#fStyles');
-    fStyles.innerHTML = '';
-    (AppState.settings?.styles || []).forEach(st=>{
-      const o = document.createElement('option'); o.value = st; o.textContent = st;
-      if ((c?.styles||[]).includes(st)) o.selected = true;
+// Стили (multiple select)
+{
+  const fStyles = $('#fStyles');
+  if (fStyles) {
+    fStyles.replaceChildren();
+    (AppState.settings?.styles || []).forEach(st => {
+      const o = document.createElement('option');
+      o.value = st; o.textContent = st;
+      if ((c?.styles || []).includes(st)) o.selected = true;
       fStyles.appendChild(o);
     });
+  } else {
+    console.warn('[clientDialog] #fStyles not found');
+  }
+}
 
-    // Зоны (multiple select)
-    const fZones = $('#fZones');
-    fZones.innerHTML = '';
-    (AppState.settings?.zones || []).forEach(z=>{
-      const o = document.createElement('option'); o.value = z; o.textContent = z;
-      if ((c?.zones||[]).includes(z)) o.selected = true;
+// Зоны (multiple select)
+{
+  const fZones = $('#fZones');
+  if (fZones) {
+    fZones.replaceChildren();
+    (AppState.settings?.zones || []).forEach(z => {
+      const o = document.createElement('option');
+      o.value = z; o.textContent = z;
+      if ((c?.zones || []).includes(z)) o.selected = true;
       fZones.appendChild(o);
     });
+  } else {
+    console.warn('[clientDialog] #fZones not found');
+  }
+}
 
-    // Простые поля
-    $('#fName').value   = c?.displayName || '';
-    $('#fPhone').value  = c?.phone || '';
-    $('#fLink').value   = c?.link || '';
-    $('#fSource').value = c?.source || (AppState.settings?.sources?.[0] || '');
-// Язык
-$('#fLang').value = c?.lang || '';
+
+// Простые поля
+$('#fName').value   = c?.displayName || '';
+$('#fPhone').value  = c?.phone || '';
+$('#fLink').value   = c?.link || '';
+const fLang = $('#fLang'); if (fLang) fLang.value = c?.lang || '';
+const fSourceSel = $('#fSource'); if (fSourceSel) fSourceSel.value = c?.source || (AppState.settings?.sources?.[0] || '');
 
     // Первое обращение (опциональные поля)
     const firstContactEl = $('#fFirstContact');
@@ -1487,18 +1509,42 @@ $('#fStatus').onchange = (e) => {
       $('#consultDateField').style.display = $('#fConsultOn').checked ? '' : 'none';
     };
 
-    // Напоминания: шаблоны и «через N дней»
-    const tplSel = $('#fReminderTpl');
+    // Напоминания: шаблоны и «через N дней» (безопасная инициализация)
+{
+  const tplSel = $('#fReminderTpl');
+  if (tplSel) {
     tplSel.innerHTML = '<option value="">— шаблон —</option>';
-    (AppState.settings?.reminderTemplates || []).forEach(t=>{
-      const o = document.createElement('option'); o.value = t; o.textContent = t; tplSel.appendChild(o);
+    (AppState.settings?.reminderTemplates || []).forEach(t => {
+      const o = document.createElement('option');
+      o.value = t;
+      o.textContent = t;
+      tplSel.appendChild(o);
     });
-    const afterSel = $('#fReminderAfter');
+  } else {
+    console.warn('[clientDialog] #fReminderTpl not found');
+  }
+
+  const afterSel = $('#fReminderAfter');
+  if (afterSel) {
     afterSel.innerHTML = '<option value="">дни</option>';
-    (AppState.settings?.reminderDelays || []).forEach(d=>{
-      const o = document.createElement('option'); o.value = String(d); o.textContent = `через ${d}`; afterSel.appendChild(o);
+    (AppState.settings?.reminderDelays || []).forEach(d => {
+      const o = document.createElement('option');
+      o.value = String(d);
+      o.textContent = `через ${d}`;
+      afterSel.appendChild(o);
     });
-    $('#fReminderTitle').value = '';
+  } else {
+    console.warn('[clientDialog] #fReminderAfter not found');
+  }
+
+  const titleInput = $('#fReminderTitle');
+  if (titleInput) {
+    titleInput.value = '';
+  } else {
+    console.warn('[clientDialog] #fReminderTitle not found');
+  }
+}
+
 
     // Фото/превью
     $('#photosGrid').innerHTML = '';
