@@ -770,10 +770,12 @@ if (OPEN_CLIENT_ON_TILE_CLICK) {
   row.textContent = `${formatDateHuman(ev.date)}${ev.time ? ' ' + ev.time : ''} — ${ev.title}${ev.who ? ' · ' + ev.who : ''}`;
 
   // клик по строке — открыть карточку клиента (если есть clientId)
+ if (OPEN_CLIENT_ON_TILE_CLICK) {
   row.addEventListener('click', (e) => {
     if (e.target.closest('button')) return;
     if (ev.clientId) openClientById(ev.clientId);
   });
+}
 
   futureList.appendChild(row);
 });
@@ -1743,9 +1745,10 @@ async function deleteClientFromDialog(){
 function renderMarketing(){
   const hi = $('#mkHighlites');
   const tb = $('#mkTable');
-  hi.innerHTML = '';
-  tb.innerHTML = '';
-
+  if (hi) hi.innerHTML = '';
+  if (tb) tb.innerHTML = '';
+  // пока заглушка
+}
  // берём из состояния, иначе — пусто
 const highlights = Array.isArray(AppState.marketing?.highlights) ? AppState.marketing.highlights : [];
 if (!highlights.length) {
