@@ -620,6 +620,40 @@ function clientFromEvent(ev){
   return null;
 }
 
+function findClientById(id){
+  return (AppState.clients || []).find(c => c.id === id) || null;
+}
+
+// Универсально открыть карточку по событию (ищем локально, иначе читаем из Firestore)
+async function openClientFromEvent(ev){
+  // 1) извлекаем clientId из события
+  let id = null;
+  if (ev?.kind === 'reminder') id = ev.clientId || null;
+  else if (ev?.kind === 'session') id = String(ev.id || '').split('_')[0] || null;
+  else if (ev?.kind === 'consult') {
+    const parts = String(ev.id || '').split('_'); // consult_<clientId>_<date>
+    id = parts[1] || parts[0] || null;
+  }
+
+  if (!id) { toast('Не удалось определить клиента'); return; }
+
+  // 2) сначала ищем в локальном состоянии
+  let client = findClientById(id);
+
+  // 3) если локально нет — читаем из Firestore по id
+  if (!client) {
+    try {
+      const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
+      const snap = await ref.get();
+      if (snap.exists) client = snap.data();
+    } catch (e) {
+      console.warn('load client by id failed', e);
+    }
+  }
+
+  if (client) openClientDialog(client);
+  else toast('Клиент не найден');
+}
 
 
 
@@ -743,14 +777,11 @@ function renderToday(todayEvents, futureEvents) {
       `;
 
 
- el.style.cursor = 'pointer';
-  el.addEventListener('click', (e) => {
-    // если клик по кнопке подтверждения — игнорим
-    if (e.target.closest('button')) return;
-    const client = clientFromEvent(ev);
-    if (client) openClientDialog(client); else toast('Клиент не найден');
-  });
-
+el.style.cursor = 'pointer';
+el.addEventListener('click', async (e) => {
+  if (e.target.closest('button')) return;
+  await openClientFromEvent(ev);
+});
 
       // Кнопка подтверждения только для сеансов
       if (ev.kind === 'session' && !ev.done) {
@@ -784,11 +815,10 @@ function renderToday(todayEvents, futureEvents) {
         const row = document.createElement('div');
         row.className = 'row card-client glass';
         row.textContent = `${formatDateHuman(ev.date)}${ev.time ? ' ' + ev.time : ''} — ${ev.title}${ev.who ? ' · ' + ev.who : ''}`;
-       row.style.cursor = 'pointer';
-  row.addEventListener('click', () => {
-    const client = clientFromEvent(ev);
-    if (client) openClientDialog(client); else toast('Клиент не найден');
-  });
+      row.style.cursor = 'pointer';
+row.addEventListener('click', async () => {
+  await openClientFromEvent(ev);
+});
  futureList.appendChild(row);
       });
     }
@@ -816,12 +846,10 @@ function renderToday(todayEvents, futureEvents) {
         row.style.alignItems = 'center';
 
 row.style.cursor = 'pointer';
-row.addEventListener('click', (e) => {
-  if (e.target.closest('button')) return; // клики по кнопке пропускаем
-  const client = clientFromEvent(ev);
-  if (client) openClientDialog(client); else toast('Клиент не найден');
+row.addEventListener('click', async (e) => {
+  if (e.target.closest('button')) return;
+  await openClientFromEvent(ev);
 });
-
         // Иконка по типу
         const icon = ev.kind === 'consult' ? '📞'
                    : ev.kind === 'session' ? '✒️'
