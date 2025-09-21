@@ -1379,8 +1379,16 @@ $('#fLang').value = c?.lang || '';
     $('#fQual').value   = c?.qual || 'Не определена';
     $('#fQualNote').value = c?.qualNote || '';
 
+
+
     // Депозит
     $('#fDeposit').value = c?.deposit || '';
+
+// включаем/выключаем cold-mode
+toggleColdLeadMode($('#fStatus').value === 'Холодный лид');
+$('#fStatus').onchange = (e) => {
+  toggleColdLeadMode(e.target.value === 'Холодный лид');
+};
 
     // Озвученная сумма: от/до (с учетом «наследия»)
     const minEl = $('#fAmountMin');
@@ -1509,26 +1517,51 @@ async function openClientById(clientId){
 
 // --- Cold Lead Mode ---
 // Прячет лишние поля, если выбран статус "Холодный лид"
+// --- Cold Lead Mode ---
+// Прячет лишние поля, если выбран статус "Холодный лид"
 function toggleColdLeadMode(isCold) {
-  const dlg = $('#clientDialog');
-  if (!dlg) return;
-
-  // список id, которые нужно скрыть
-  const toHide = [
-  'fFirst',
-  'fType','fStyles','fZones','fQual','fQualNote',
-  'fDeposit','fAmount','fAmountMin','fAmountMax','fNotes','sessionsList',
-  'fConsultOn','fConsultDate','consultDateField'
-];
-
-  toHide.forEach(id => {
+  // helper: спрятать обёртку ближайшего .field/.row/.grid.two
+  const hideWrap = (id) => {
     const el = document.getElementById(id);
     if (!el) return;
-    const wrapper = el.closest('.field, .row') || el;
-    wrapper.style.display = isCold ? 'none' : '';
-  });
-}
+    const wrap = el.closest('.field, .row, .grid.two') || el;
+    wrap.style.display = isCold ? 'none' : '';
+  };
 
+  // блоки одной строкой (консультация, деньги)
+  const hideBlock = (sel) => {
+    const el = document.querySelector(sel);
+    if (el) el.style.display = isCold ? 'none' : '';
+  };
+
+  // 1) поля, которые точно прячем
+  [
+    // квалификация
+    'fQual', 'fQualNote',
+    // первая тату, тип, теги, зоны
+    'fFirst', 'fType', 'fStyles', 'fZones',
+    // суммы/депозит (внутренности строки "деньги")
+    'fAmountMin', 'fAmountMax', 'fDeposit',
+    // сеансы и вся их «строка»
+    'sessionsList',
+    // напоминания
+    'fReminderTpl', 'fReminderAfter', 'fReminderTitle', 'clientReminders',
+    // заметка
+    'fNotes'
+  ].forEach(hideWrap);
+
+  // 2) целые строки-секции
+  hideBlock('#rowConsult');
+  hideBlock('#rowMoney');
+
+  // 3) фотопанель целиком
+  const photosPanel = document.getElementById('photosGrid')?.closest('.panel');
+  if (photosPanel) photosPanel.style.display = isCold ? 'none' : '';
+
+  // 4) «Даты сеансов» — у них своя обёртка .field
+  const sessionsField = document.getElementById('sessionsList')?.closest('.field');
+  if (sessionsField) sessionsField.style.display = isCold ? 'none' : '';
+}
 
 async function saveClientFromDialog(){
   let id = $('#clientDialog').dataset.id;
