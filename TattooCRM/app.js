@@ -34,6 +34,8 @@ function confirmDlg(message = 'Вы уверены?') {
   });
 }
 
+const OPEN_CLIENT_ON_TILE_CLICK = false;
+
 // --- Boot overlay utils ---
 const BOOT = {
   steps: [
@@ -726,12 +728,12 @@ function renderToday(todayEvents, futureEvents) {
       `;
 
 // клик по строке — открыть карточку клиента (если clientId есть)
-el.addEventListener('click', (e) => {
-  // не реагируем на клик по кнопке подтверждения
-  if (e.target.closest('button')) return;
-  if (ev.clientId) openClientById(ev.clientId);
-});
-
+if (OPEN_CLIENT_ON_TILE_CLICK) {
+  el.addEventListener('click', (e) => {
+    if (e.target.closest('button')) return;
+    if (ev.clientId) openClientById(ev.clientId);
+  });
+}
       // Кнопка подтверждения только для сеансов
       if (ev.kind === 'session' && !ev.done) {
         const btn = document.createElement('button');

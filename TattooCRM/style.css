@@ -736,3 +736,23 @@ dialog[open] .modal-body{
   overflow: auto;
   outline: 2px dashed rgba(255,255,255,.3); /* временно: видно, что модалка есть */
 }
+
+
+/* Отключить клики по плашкам на главной */
+#todayList .card-client,
+#remList .row,
+#futureList .row {
+  pointer-events: none;
+  cursor: default;
+}
+
+/* Но кнопки внутри — кликабельные */
+#todayList .card-client button,
+#remList .row button,
+#futureList .row button {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* Если раньше включали "палец" на карточках — перебьём */
+.card-client.glass { cursor: default !important; }
