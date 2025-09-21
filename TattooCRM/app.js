@@ -655,6 +655,32 @@ async function openClientFromEvent(ev){
   else toast('Клиент не найден');
 }
 
+function findClientById(id){
+  return (AppState.clients || []).find(c => c.id === id) || null;
+}
+
+async function openClientById(id){
+  if (!id) { toast('Не указан clientId'); return; }
+
+  // пробуем из состояния
+  let client = findClientById(id);
+
+  // если нет в состоянии — подгружаем из Firestore
+  if (!client) {
+    try {
+      const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
+      const snap = await ref.get();
+      if (snap.exists) {
+        client = { id: snap.id, ...snap.data() };  // ВАЖНО: включить id
+      }
+    } catch (e) {
+      console.warn('openClientById: load failed', e);
+    }
+  }
+
+  if (client) openClientDialog(client);
+  else toast('Клиент не найден');
+}
 
 
 async function saveSettings(){
@@ -702,51 +728,52 @@ function renderToday(todayEvents, futureEvents) {
     const all = [];
 
     // 1) Напоминания
-    (AppState.reminders || []).forEach(r => {
-      all.push({
-        id: r.id,
-        kind: 'reminder',
-        date: r.date,            // YYYY-MM-DD
-        time: '',                // у напоминаний времени нет
-        title: r.title || 'Напоминание',
-        who: r.clientName || '',
-       clientId: r.clientId || null
-      });
-    });
+(AppState.reminders || []).forEach(r => {
+  all.push({
+    id: r.id,
+    kind: 'reminder',
+    date: r.date,            // YYYY-MM-DD
+    time: '',
+    title: r.title || 'Напоминание',
+    who: r.clientName || '',
+    clientId: r.clientId || null     // ← ДОБАВИЛИ
+  });
+});
 
     // 2) Сеансы и консультации из клиентов
-    (AppState.clients || []).forEach(c => {
-      const sessions = Array.isArray(c.sessions) ? c.sessions : (c?.nextDate ? [c.nextDate] : []);
-      sessions.forEach(s => {
-        const dt = (typeof s === 'string') ? s : (s?.dt || '');
-        if (!dt) return;
-        const [d, tFull = ''] = dt.split('T');
-        const t = tFull.slice(0, 5); // HH:MM
+    const sessions = Array.isArray(c.sessions) ? c.sessions : (c?.nextDate ? [c.nextDate] : []);
+sessions.forEach(s => {
+  const dt = (typeof s === 'string') ? s : (s?.dt || '');
+  if (!dt) return;
+  const [d, tFull = ''] = dt.split('T');
+  const t = tFull.slice(0, 5); // HH:MM
 
-        all.push({
-          id: `${c.id}_${dt}`,
-          kind: 'session',
-          date: d,
-          time: t,
-          title: 'Сеанс',
-          who: c.displayName || '',
-          done: !!(typeof s === 'object' && s.done)
-        });
-      });
+  all.push({
+    id: `${c.id}_${dt}`,
+    kind: 'session',
+    date: d,
+    time: t,
+    title: 'Сеанс',
+    who: c.displayName || '',
+    done: !!(typeof s === 'object' && s.done),
+    clientId: c.id                       // ← ДОБАВИЛИ
+  });
+});
 
       // Консультация (если включена и указана дата)
-      if (c?.consult && c?.consultDate) {
-        const [d, tFull = ''] = String(c.consultDate).split('T');
-        const t = tFull.slice(0, 5);
-        all.push({
-          id: `consult_${c.id}_${c.consultDate}`,
-          kind: 'consult',
-          date: d,
-          time: t,
-          title: 'Консультация',
-          who: c.displayName || ''
-        });
-      }
+if (c?.consult && c?.consultDate) {
+  const [d, tFull = ''] = String(c.consultDate).split('T');
+  const t = tFull.slice(0, 5);
+  all.push({
+    id: `consult_${c.id}_${c.consultDate}`,
+    kind: 'consult',
+    date: d,
+    time: t,
+    title: 'Консультация',
+    who: c.displayName || '',
+    clientId: c.id                       // ← ДОБАВИЛИ
+  });
+}
     });
 
     // Сортировка: по дате, потом по времени
@@ -780,9 +807,8 @@ function renderToday(todayEvents, futureEvents) {
 el.style.cursor = 'pointer';
 el.addEventListener('click', async (e) => {
   if (e.target.closest('button')) return;
-  await openClientFromEvent(ev);
+  await openClientById(ev.clientId);
 });
-
       // Кнопка подтверждения только для сеансов
       if (ev.kind === 'session' && !ev.done) {
         const btn = document.createElement('button');
@@ -817,7 +843,7 @@ el.addEventListener('click', async (e) => {
         row.textContent = `${formatDateHuman(ev.date)}${ev.time ? ' ' + ev.time : ''} — ${ev.title}${ev.who ? ' · ' + ev.who : ''}`;
       row.style.cursor = 'pointer';
 row.addEventListener('click', async () => {
-  await openClientFromEvent(ev);
+  await openClientById(ev.clientId);
 });
  futureList.appendChild(row);
       });
