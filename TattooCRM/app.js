@@ -1302,195 +1302,173 @@ function addSessionField(s = { dt: '', price: '', done: false }) {
   $('#sessionsList').appendChild(wrap);
 }
 function openClientDialog(c = null){
-   const dlg = $('#clientDialog');
+  const dlg = $('#clientDialog');
   if (!dlg) { toast('Диалог не найден'); return; }
 
   try {
-    dlg.showModal();                    // ← открываем модалку СРАЗУ
+    // открываем модалку сразу, чтобы не «залипал» невидимый backdrop
+    dlg.showModal();
     console.log('[clientDialog] open', { id: c?.id });
 
-const dlg = $('#clientDialog');
-  const isNew = !c;
-  const id = c?.id || `cl_${crypto.randomUUID().slice(0,8)}`;
-  dlg.dataset.id = id;
-  $('#clientModalTitle').textContent = isNew ? 'Новый клиент' : (c?.displayName || 'Клиент');
+    const isNew = !c;
+    const id = c?.id || `cl_${crypto.randomUUID().slice(0,8)}`;
+    dlg.dataset.id = id;
+    $('#clientModalTitle').textContent = isNew ? 'Новый клиент' : (c?.displayName || 'Клиент');
 
-  const fSource = $('#fSource');
-  fSource.innerHTML = '';
-  (AppState.settings?.sources || []).forEach(s=>{
-    const o = document.createElement('option'); o.textContent = s; fSource.appendChild(o);
-  });
-// Стили (теги)
-const fStyles = $('#fStyles');
-fStyles.innerHTML = '';
-(AppState.settings?.styles || []).forEach(st=>{
-  const o = document.createElement('option'); o.value = st; o.textContent = st;
-  if ((c?.styles||[]).includes(st)) o.selected = true;
-  fStyles.appendChild(o);
-});
-
-// Зоны
-const fZones = $('#fZones');
-fZones.innerHTML = '';
-(AppState.settings?.zones || []).forEach(z=>{
-  const o = document.createElement('option'); o.value = z; o.textContent = z;
-  if ((c?.zones||[]).includes(z)) o.selected = true;
-  fZones.appendChild(o);
-});
-
-  $('#fName').value   = c?.displayName || '';
-  $('#fPhone').value  = c?.phone || '';
-  $('#fLink').value   = c?.link || '';
-  $('#fSource').value = c?.source || (AppState.settings?.sources?.[0] || '');
-
-// Дата первого обращения (если поле есть в верстке)
-const firstContactEl = $('#fFirstContact');
-if (firstContactEl) {
-  firstContactEl.value = c?.firstContactDate || new Date().toISOString().slice(0,10);
-}
-
-// «Первое обращение» (если select есть в верстке)
-const firstEl = $('#fFirst');
-if (firstEl) {
-  firstEl.value = String(c?.first ?? true);
-}
-
-  $('#fType').value   = c?.type || 'Новая';
-   
-  $('#fStatus').value = c?.status || 'Лид';
-  $('#fQual').value   = c?.qual || 'Не определена';
-
-$('#fQualNote').value = c?.qualNote || '';
-// включаем/выключаем "холодный лид"
-$('#fStatus').onchange = () => toggleColdLeadMode($('#fStatus').value === 'Холодный лид');
-toggleColdLeadMode($('#fStatus').value === 'Холодный лид');
-  $('#fDeposit').value = c?.deposit || '';
-$('#fType').value   = c?.type || 'Новая';
-$('#fStyles').value = (c?.styles || []).join(', ');
-$('#fZones').value  = (c?.zones || []).join(', ');
-$('#fStatus').value = c?.status || 'Лид';
-$('#fQual').value   = c?.qual || 'Целевой';
-
-$('#fDeposit').value= c?.deposit || '';
-// Озвученная сумма: от/до (с обратной совместимостью)
-const minEl = $('#fAmountMin');
-const maxEl = $('#fAmountMax');
-let aMin = c?.amountMin;
-let aMax = c?.amountMax;
-
-// если старая схема (одно число)
-if ((aMin == null && aMax == null) && (c?.amount != null)) {
-  const n = Number(c.amount);
-  if (!isNaN(n)) { aMin = n; aMax = n; }
-}
-
-minEl.value = (aMin ?? '');
-maxEl.value = (aMax ?? '');$('#fNotes').value  = c?.notes || '';
-$('#fNotes').value = c?.notes || '';
- // Очистим контейнер и добавим все даты сеансов
-const list = $('#sessionsList');
-list.innerHTML = '';
-
-const rawSessions = c?.sessions || (c?.nextDate ? [c.nextDate] : []);
-rawSessions.forEach(s => {
-  if (typeof s === 'string') {
-    addSessionField({ dt: s, price: '', done: false });
-  } else {
-    addSessionField({ dt: s?.dt || '', price: (s?.price ?? ''), done: !!s?.done });
-  }
-});
-
-if (!list.children.length) addSessionField({ dt:'', price:'' });
-$('#btnAddSession').onclick = () => addSessionField({ dt:'', price:'' });// консалтинг (переключатель + дата)
-$('#fConsultOn').checked = !!(c?.consult);
-$('#fConsultDate').value = c?.consultDate ? c.consultDate.slice(0,16) : '';
-$('#consultDateField').style.display = $('#fConsultOn').checked ? '' : 'none';
-
-// реакция на смену свитча
-$('#fConsultOn').onchange = () => {
-  $('#consultDateField').style.display = $('#fConsultOn').checked ? '' : 'none';
-};
-// --- напоминания: шаблоны и сроки
-const tplSel = $('#fReminderTpl');
-tplSel.innerHTML = '<option value="">— шаблон —</option>';
-(AppState.settings?.reminderTemplates || []).forEach(t=>{
-  const o = document.createElement('option'); o.value = t; o.textContent = t; tplSel.appendChild(o);
-});
-
-const afterSel = $('#fReminderAfter');
-afterSel.innerHTML = '<option value="">дни</option>';
-(AppState.settings?.reminderDelays || []).forEach(d=>{
-  const o = document.createElement('option'); o.value = String(d); o.textContent = `через ${d}`;
-  afterSel.appendChild(o);
-});
-
-// очистить поле своего текста
-$('#fReminderTitle').value = '';  
-$('#photosEmptyNote').style.display = 'block';
-// очистим и подгрузим превью, если есть папка
-$('#photosGrid').innerHTML = '';
-$('#photosEmptyNote').style.display = 'block';
-refreshClientPhotos($('#clientDialog').dataset.id);
-// показать напоминания этого клиента (с удалением)
-const remWrap = $('#clientReminders');
-if (remWrap) {
-  remWrap.innerHTML = '';
- const myRems = (AppState.reminders || [])
-  .filter(r => r.clientId === c?.id)
-  .filter(r => !(r.title && /^Консультация:/i.test(r.title)));
-  if (!myRems.length) {
-    remWrap.innerHTML = '<div class="meta">Напоминаний нет</div>';
-  } else {
-    myRems.forEach(r => {
-      const row = document.createElement('div');
-      row.className = 'row';
-      row.style.alignItems = 'center';
-      row.style.justifyContent = 'space-between';
-      row.style.margin = '4px 0';
-
-      const text = document.createElement('div');
-      text.className = 'meta';
-      text.textContent = `🔔 ${formatDateHuman(r.date)} — ${r.title}`;
-
-
-      const btn = document.createElement('button');
-      btn.className = 'btn danger';
-      btn.textContent = '✕';
-      btn.title = 'Удалить это напоминание';
-      btn.style.padding = '2px 8px';
-
-      // удаление по клику с подтверждением
-      btn.addEventListener('click', async () => {
-        if (!r?.id) { toast('У напоминания нет id'); return; }
-        const ok = await confirmDlg('Хотите удалить это напоминание?');
-        if (!ok) return;
-
-        try {
-          await FB.db.collection('TattooCRM').doc('app')
-            .collection('reminders').doc(r.id).delete();
-
-          // оптимистично уберём строку; onSnapshot всё равно обновит список
-          row.remove();
-          toast('Напоминание удалено');
-        } catch (e) {
-          console.warn(e);
-          toast('Не удалось удалить напоминание');
-        }
-      });
-
-      row.appendChild(text);
-      row.appendChild(btn);
-      remWrap.appendChild(row);
+    // Источник (select)
+    const fSource = $('#fSource');
+    fSource.innerHTML = '';
+    (AppState.settings?.sources || []).forEach(s=>{
+      const o = document.createElement('option'); o.textContent = s; fSource.appendChild(o);
     });
-  }
 
+    // Стили (multiple select)
+    const fStyles = $('#fStyles');
+    fStyles.innerHTML = '';
+    (AppState.settings?.styles || []).forEach(st=>{
+      const o = document.createElement('option'); o.value = st; o.textContent = st;
+      if ((c?.styles||[]).includes(st)) o.selected = true;
+      fStyles.appendChild(o);
+    });
 
+    // Зоны (multiple select)
+    const fZones = $('#fZones');
+    fZones.innerHTML = '';
+    (AppState.settings?.zones || []).forEach(z=>{
+      const o = document.createElement('option'); o.value = z; o.textContent = z;
+      if ((c?.zones||[]).includes(z)) o.selected = true;
+      fZones.appendChild(o);
+    });
 
-  console.log('[clientDialog] filled');   // всё заполнили — ок
+    // Простые поля
+    $('#fName').value   = c?.displayName || '';
+    $('#fPhone').value  = c?.phone || '';
+    $('#fLink').value   = c?.link || '';
+    $('#fSource').value = c?.source || (AppState.settings?.sources?.[0] || '');
+
+    // Первое обращение (опциональные поля)
+    const firstContactEl = $('#fFirstContact');
+    if (firstContactEl) {
+      firstContactEl.value = c?.firstContactDate || new Date().toISOString().slice(0,10);
+    }
+    const firstEl = $('#fFirst');
+    if (firstEl) {
+      firstEl.value = String(c?.first ?? true);
+    }
+
+    // Статусы/типы/квалификация
+    $('#fType').value   = c?.type || 'Новая';
+    $('#fStatus').value = c?.status || 'Лид';
+    $('#fQual').value   = c?.qual || 'Не определена';
+    $('#fQualNote').value = c?.qualNote || '';
+
+    // Депозит
+    $('#fDeposit').value = c?.deposit || '';
+
+    // Озвученная сумма: от/до (с учетом «наследия»)
+    const minEl = $('#fAmountMin');
+    const maxEl = $('#fAmountMax');
+    let aMin = c?.amountMin;
+    let aMax = c?.amountMax;
+    if ((aMin == null && aMax == null) && (c?.amount != null)) {
+      const n = Number(c.amount);
+      if (!isNaN(n)) { aMin = n; aMax = n; }
+    }
+    minEl.value = (aMin ?? '');
+    maxEl.value = (aMax ?? '');
+
+    // Сеансы — рендерим список полей
+    const list = $('#sessionsList');
+    list.innerHTML = '';
+    const rawSessions = c?.sessions || (c?.nextDate ? [c.nextDate] : []);
+    rawSessions.forEach(s => {
+      if (typeof s === 'string') {
+        addSessionField({ dt: s, price: '', done: false });
+      } else {
+        addSessionField({ dt: s?.dt || '', price: (s?.price ?? ''), done: !!s?.done });
+      }
+    });
+    if (!list.children.length) addSessionField({ dt:'', price:'' });
+    $('#btnAddSession').onclick = () => addSessionField({ dt:'', price:'' });
+
+    // Консультация (свитч + дата)
+    $('#fConsultOn').checked = !!(c?.consult);
+    $('#fConsultDate').value = c?.consultDate ? c.consultDate.slice(0,16) : '';
+    $('#consultDateField').style.display = $('#fConsultOn').checked ? '' : 'none';
+    $('#fConsultOn').onchange = () => {
+      $('#consultDateField').style.display = $('#fConsultOn').checked ? '' : 'none';
+    };
+
+    // Напоминания: шаблоны и «через N дней»
+    const tplSel = $('#fReminderTpl');
+    tplSel.innerHTML = '<option value="">— шаблон —</option>';
+    (AppState.settings?.reminderTemplates || []).forEach(t=>{
+      const o = document.createElement('option'); o.value = t; o.textContent = t; tplSel.appendChild(o);
+    });
+    const afterSel = $('#fReminderAfter');
+    afterSel.innerHTML = '<option value="">дни</option>';
+    (AppState.settings?.reminderDelays || []).forEach(d=>{
+      const o = document.createElement('option'); o.value = String(d); o.textContent = `через ${d}`; afterSel.appendChild(o);
+    });
+    $('#fReminderTitle').value = '';
+
+    // Фото/превью
+    $('#photosGrid').innerHTML = '';
+    $('#photosEmptyNote').style.display = 'block';
+    await refreshClientPhotos(id);
+
+    // Список напоминаний клиента (с удалением)
+    const remWrap = $('#clientReminders');
+    if (remWrap) {
+      remWrap.innerHTML = '';
+      const myRems = (AppState.reminders || [])
+        .filter(r => r.clientId === c?.id)
+        .filter(r => !(r.title && /^Консультация:/i.test(r.title)));
+      if (!myRems.length) {
+        remWrap.innerHTML = '<div class="meta">Напоминаний нет</div>';
+      } else {
+        myRems.forEach(r => {
+          const row = document.createElement('div');
+          row.className = 'row';
+          row.style.alignItems = 'center';
+          row.style.justifyContent = 'space-between';
+          row.style.margin = '4px 0';
+
+          const text = document.createElement('div');
+          text.className = 'meta';
+          text.textContent = `🔔 ${formatDateHuman(r.date)} — ${r.title}`;
+
+          const btn = document.createElement('button');
+          btn.className = 'btn danger';
+          btn.textContent = '✕';
+          btn.title = 'Удалить это напоминание';
+          btn.style.padding = '2px 8px';
+          btn.addEventListener('click', async () => {
+            if (!r?.id) { toast('У напоминания нет id'); return; }
+            const ok = await confirmDlg('Хотите удалить это напоминание?');
+            if (!ok) return;
+            try {
+              await FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(r.id).delete();
+              row.remove(); // оптимистично
+              toast('Напоминание удалено');
+            } catch (e) {
+              console.warn(e);
+              toast('Не удалось удалить напоминание');
+            }
+          });
+
+          row.appendChild(text);
+          row.appendChild(btn);
+          remWrap.appendChild(row);
+        });
+      }
+    }
+
+    console.log('[clientDialog] filled');
   } catch (e) {
     console.error('[clientDialog] fail', e);
     toast('Не удалось открыть карточку клиента');
-    try { $('#clientDialog')?.close(); } catch (_) {}
+    try { dlg.close(); } catch (_) {}
   }
 }
 async function openClientById(clientId){
