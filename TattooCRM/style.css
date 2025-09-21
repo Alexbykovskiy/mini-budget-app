@@ -184,7 +184,7 @@ main{padding: 12px; padding-bottom: 84px;}
 .tab.is-active{background: linear-gradient(180deg, rgba(24,102,99,.45), rgba(24,102,99,.25))}
 
 .modal{border:none; padding:0; background:transparent}
-.modal::backdrop{background:rgba(0,0,0,.35); backdrop-filter: blur(6px)}
+.modal::backdrop{background:rgba(0,0,0,0.35); backdrop-filter: blur(6px)}
 .modal-body {
   width: min(360px, 96vw);
   padding: 16px;
