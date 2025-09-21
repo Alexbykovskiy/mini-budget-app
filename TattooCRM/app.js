@@ -739,13 +739,15 @@ el.addEventListener('click', (e) => {
         btn.textContent = '✓';
         btn.title = 'Подтвердить сеанс';
         btn.style.padding = '2px 10px';
-        btn.addEventListener('click', async () => {
-          const ok = await confirmDlg('Подтвердить, что сеанс состоялся?');
-          if (!ok) return;
-          const [clientId, dt] = ev.id.split('_');
-          await setSessionDone(clientId, dt, true);
-          toast('Сеанс подтверждён');
-        });
+        btn.addEventListener('click', async (e) => {
+  e.stopPropagation();
+  e.preventDefault();
+  const ok = await confirmDlg('Подтвердить, что сеанс состоялся?');
+  if (!ok) return;
+  const [clientId, dt] = ev.id.split('_');
+  await setSessionDone(clientId, dt, true);
+  toast('Сеанс подтверждён');
+});
         el.appendChild(btn);
       }
 
@@ -1301,7 +1303,7 @@ function addSessionField(s = { dt: '', price: '', done: false }) {
 
   $('#sessionsList').appendChild(wrap);
 }
-function openClientDialog(c = null){
+async function openClientDialog(c = null){
   const dlg = $('#clientDialog');
   if (!dlg) { toast('Диалог не найден'); return; }
 
