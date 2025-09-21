@@ -1302,7 +1302,14 @@ function addSessionField(s = { dt: '', price: '', done: false }) {
   $('#sessionsList').appendChild(wrap);
 }
 function openClientDialog(c = null){
-  const dlg = $('#clientDialog');
+   const dlg = $('#clientDialog');
+  if (!dlg) { toast('Диалог не найден'); return; }
+
+  try {
+    dlg.showModal();                    // ← открываем модалку СРАЗУ
+    console.log('[clientDialog] open', { id: c?.id });
+
+const dlg = $('#clientDialog');
   const isNew = !c;
   const id = c?.id || `cl_${crypto.randomUUID().slice(0,8)}`;
   dlg.dataset.id = id;
@@ -1479,9 +1486,13 @@ if (remWrap) {
 
 
 
-}dlg.showModal();
+  console.log('[clientDialog] filled');   // всё заполнили — ок
+  } catch (e) {
+    console.error('[clientDialog] fail', e);
+    toast('Не удалось открыть карточку клиента');
+    try { $('#clientDialog')?.close(); } catch (_) {}
+  }
 }
-
 async function openClientById(clientId){
   if (!clientId) return;
   const cached = (AppState.clients || []).find(x => x.id === clientId);

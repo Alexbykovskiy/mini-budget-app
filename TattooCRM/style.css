@@ -38,6 +38,13 @@ body{
   padding: 10px 16px; display:flex; align-items:center; justify-content:flex-start; gap:12px;
   margin:12px; border-radius: var(--rad-pill);
 }
+
+dialog::backdrop {
+  background: rgba(0,0,0,0.35);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
 .brand{display:flex; gap:12px; align-items:center}
 .logo{width:32px; height:32px; opacity:.9}
 .titles h1{margin:0; font-size:18px}
@@ -716,4 +723,16 @@ dialog .modal-body {
   display: block;
   width: min(360px, 96vw);
   margin: 0 auto;
+}
+
+
+/* Явно центрируем и делаем видимой любую <dialog> */
+dialog[open]{
+  display: grid;
+  place-items: center;
+}
+dialog[open] .modal-body{
+  max-height: 90vh;
+  overflow: auto;
+  outline: 2px dashed rgba(255,255,255,.3); /* временно: видно, что модалка есть */
 }
