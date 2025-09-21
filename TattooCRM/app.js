@@ -650,15 +650,16 @@ function renderToday(todayEvents, futureEvents) {
 
     // 1) Напоминания
     (AppState.reminders || []).forEach(r => {
-      all.push({
-        id: r.id,
-        kind: 'reminder',
-        date: r.date,            // YYYY-MM-DD
-        time: '',                // у напоминаний времени нет
-        title: r.title || 'Напоминание',
-        who: r.clientName || ''
-      });
-    });
+  all.push({
+    id: r.id,
+    kind: 'reminder',
+    clientId: r.clientId,        // ← добавили связку
+    date: r.date,
+    time: '',
+    title: r.title || 'Напоминание',
+    who: r.clientName || ''
+  });
+});
 
     // 2) Сеансы и консультации из клиентов
     (AppState.clients || []).forEach(c => {
@@ -670,28 +671,30 @@ function renderToday(todayEvents, futureEvents) {
         const t = tFull.slice(0, 5); // HH:MM
 
         all.push({
-          id: `${c.id}_${dt}`,
-          kind: 'session',
-          date: d,
-          time: t,
-          title: 'Сеанс',
-          who: c.displayName || '',
-          done: !!(typeof s === 'object' && s.done)
-        });
+  id: `${c.id}_${dt}`,
+  kind: 'session',
+  clientId: c.id,               // ← добавили
+  date: d,
+  time: t,
+  title: 'Сеанс',
+  who: c.displayName || '',
+  done: !!(typeof s === 'object' && s.done)
+});
       });
 
       // Консультация (если включена и указана дата)
       if (c?.consult && c?.consultDate) {
         const [d, tFull = ''] = String(c.consultDate).split('T');
         const t = tFull.slice(0, 5);
-        all.push({
-          id: `consult_${c.id}_${c.consultDate}`,
-          kind: 'consult',
-          date: d,
-          time: t,
-          title: 'Консультация',
-          who: c.displayName || ''
-        });
+       all.push({
+  id: `consult_${c.id}_${c.consultDate}`,
+  kind: 'consult',
+  clientId: c.id,               // ← добавили
+  date: d,
+  time: t,
+  title: 'Консультация',
+  who: c.displayName || ''
+});
       }
     });
 
@@ -722,6 +725,13 @@ function renderToday(todayEvents, futureEvents) {
         ${ev.title}${ev.who ? ' · ' + ev.who : ''}
       `;
 
+// клик по строке — открыть карточку клиента (если clientId есть)
+el.addEventListener('click', (e) => {
+  // не реагируем на клик по кнопке подтверждения
+  if (e.target.closest('button')) return;
+  if (ev.clientId) openClientById(ev.clientId);
+});
+
       // Кнопка подтверждения только для сеансов
       if (ev.kind === 'session' && !ev.done) {
         const btn = document.createElement('button');
@@ -750,12 +760,19 @@ function renderToday(todayEvents, futureEvents) {
     if (!futureEvents.length) {
       futureList.innerHTML = `<div class="row card-client glass">Будущих событий пока нет</div>`;
     } else {
-      futureEvents.forEach(ev => {
-        const row = document.createElement('div');
-        row.className = 'row card-client glass';
-        row.textContent = `${formatDateHuman(ev.date)}${ev.time ? ' ' + ev.time : ''} — ${ev.title}${ev.who ? ' · ' + ev.who : ''}`;
-        futureList.appendChild(row);
-      });
+     futureEvents.forEach(ev => {
+  const row = document.createElement('div');
+  row.className = 'row card-client glass';
+  row.textContent = `${formatDateHuman(ev.date)}${ev.time ? ' ' + ev.time : ''} — ${ev.title}${ev.who ? ' · ' + ev.who : ''}`;
+
+  // клик по строке — открыть карточку клиента (если есть clientId)
+  row.addEventListener('click', (e) => {
+    if (e.target.closest('button')) return;
+    if (ev.clientId) openClientById(ev.clientId);
+  });
+
+  futureList.appendChild(row);
+});
     }
   }
 
@@ -788,6 +805,12 @@ function renderToday(todayEvents, futureEvents) {
         const txt = document.createElement('div');
         txt.innerHTML = `${icon} <b>${formatDateHuman(ev.date)}${ev.time ? ' ' + ev.time : ''}</b> — ${ev.title}${ev.who ? ' · ' + ev.who : ''}`;
         row.appendChild(txt);
+// клик по строке — открыть клиента
+row.addEventListener('click', (e) => {
+  // не реагируем на клик по крестику удаления
+  if (e.target.closest('button')) return;
+  if (ev.clientId) openClientById(ev.clientId);
+});
 
         // Крестик удаления — ТОЛЬКО для ручных напоминаний
         if (ev.kind === 'reminder' && ev.id) {
@@ -1447,6 +1470,25 @@ if (remWrap) {
 
 
 }dlg.showModal();
+}
+
+async function openClientById(clientId){
+  if (!clientId) return;
+  const cached = (AppState.clients || []).find(x => x.id === clientId);
+  if (cached) { openClientDialog(cached); return; }
+
+  try {
+    const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(clientId);
+    const snap = await ref.get();
+    if (snap.exists) {
+      openClientDialog(snap.data());
+    } else {
+      toast('Клиент не найден');
+    }
+  } catch(e){
+    console.warn(e);
+    toast('Не удалось открыть карточку клиента');
+  }
 }
 
 // --- Cold Lead Mode ---
