@@ -922,18 +922,19 @@ openBtnToday.textContent = 'Открыть';
 openBtnToday.title = 'Открыть карточку клиента';
 openBtnToday.style.marginLeft = '8px';
 openBtnToday.addEventListener('click', async (e) => {
+  e.preventDefault();
   e.stopPropagation();
-  await openClientFromEvent(ev);
+  await openClientById(ev.clientId);
 });
 el.appendChild(openBtnToday);
 
-
+// Клик по всей карточке (кроме кнопок) — тоже открыть
 el.style.cursor = 'pointer';
 el.addEventListener('click', async (e) => {
   if (e.target.closest('button')) return;
-  await openClientFromEvent(ev);
-});
-      // Кнопка подтверждения только для сеансов
+  await openClientById(ev.clientId);
+});  
+    // Кнопка подтверждения только для сеансов
       if (ev.kind === 'session' && !ev.done) {
         const btn = document.createElement('button');
         btn.className = 'btn success';
@@ -972,9 +973,10 @@ if (futureList) {
       openBtnFuture.title = 'Открыть карточку клиента';
       openBtnFuture.style.marginLeft = '8px';
       openBtnFuture.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        await openClientFromEvent(ev);
-      });
+  e.preventDefault();
+  e.stopPropagation();
+  await openClientById(ev.clientId);
+});
       row.appendChild(openBtnFuture);
 
       futureList.appendChild(row);
