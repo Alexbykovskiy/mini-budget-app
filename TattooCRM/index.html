@@ -181,10 +181,19 @@
   </label>
 </div>
   <!-- 8: Даты сеансов -->
-  <div class="field" style="grid-column: 1 / -1">
-    <span>Даты сеансов</span>
-    <div id="sessionsList"></div>
-    <button type="button" class="btn ghost" id="btnAddSession">+ добавить дату</button>
+  <!-- Напоминания (слева) + История статусов (справа) -->
+  <div class="grid two" style="grid-column: 1 / -1; gap:12px">
+    <!-- ЛЕВЫЙ столбец: напоминания -->
+    <div class="panel glass">
+      <div class="subtle">Напоминания</div>
+      <div id="clientReminders"></div>
+    </div>
+
+    <!-- ПРАВЫЙ столбец: история смен статусов -->
+    <div class="panel glass">
+      <div class="subtle">История статусов</div>
+      <div id="statusHistory"></div>
+    </div>
   </div>
 
   <!-- 9: Напоминание + список напоминаний -->

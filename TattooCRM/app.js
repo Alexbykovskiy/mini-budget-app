@@ -1316,6 +1316,69 @@ function addSessionField(s = { dt: '', price: '', done: false }) {
 
   $('#sessionsList').appendChild(wrap);
 }
+
+// --- История смен статусов клиента ---
+
+function formatDateTimeHuman(iso){
+  try {
+    const d = new Date(iso);
+    return d.toLocaleString('ru-RU', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  } catch { return iso; }
+}
+
+// Записать факт смены статуса в подколлекцию /clients/{id}/statusLogs
+async function logStatusChange(clientId, fromStatus, toStatus){
+  if (!clientId || fromStatus === toStatus) return;
+  const ts = new Date().toISOString();
+
+  const ref = FB.db
+    .collection('TattooCRM').doc('app')
+    .collection('clients').doc(clientId)
+    .collection('statusLogs').doc(String(Date.now())); // простой уникальный id
+
+  await ref.set({ ts, from: fromStatus || null, to: toStatus || null });
+}
+
+// Подписаться и отрисовать историю
+function bindStatusHistory(clientId){
+  const box = document.getElementById('statusHistory');
+  if (!box || !clientId) return;
+
+  box.innerHTML = '<div class="meta">Загрузка…</div>';
+
+  const q = FB.db
+    .collection('TattooCRM').doc('app')
+    .collection('clients').doc(clientId)
+    .collection('statusLogs').orderBy('ts', 'desc');
+
+  // live-обновления
+  return q.onSnapshot(snap=>{
+    const arr = [];
+    snap.forEach(doc => arr.push(doc.data()));
+    renderStatusHistory(arr);
+  }, ()=> {
+    box.innerHTML = '<div class="meta">Не удалось загрузить историю</div>';
+  });
+
+  function renderStatusHistory(items){
+    if (!items.length){
+      box.innerHTML = '<div class="empty-note">История пуста</div>';
+      return;
+    }
+    box.innerHTML = '';
+    items.forEach(it=>{
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = `
+        <div class="what">${(it.from || '—')} → <b>${it.to || '—'}</b></div>
+        <div class="when">${formatDateTimeHuman(it.ts)}</div>
+      `;
+      box.appendChild(row);
+    });
+  }
+}
+
+
 async function openClientDialog(c = null){
   const dlg = $('#clientDialog');
   if (!dlg) { toast('Диалог не найден'); return; }
@@ -1489,6 +1552,8 @@ $('#fStatus').onchange = (e) => {
       }
     }
 
+// История статусов — запустить подписку на обновления
+bindStatusHistory(id);
     console.log('[clientDialog] filled');
   } catch (e) {
     console.error('[clientDialog] fail', e);
@@ -1563,6 +1628,19 @@ function toggleColdLeadMode(isCold) {
   if (sessionsField) sessionsField.style.display = isCold ? 'none' : '';
 }
 
+// --- История смен статусов клиента (подколлекция /clients/{id}/statusLogs)
+async function logStatusChange(clientId, fromStatus, toStatus){
+  if (!clientId || fromStatus === toStatus) return;       // ничего не пишем, если не менялся
+  const ts = new Date().toISOString();
+
+  const ref = FB.db
+    .collection('TattooCRM').doc('app')
+    .collection('clients').doc(clientId)
+    .collection('statusLogs').doc(String(Date.now()));    // простой уникальный id
+
+  await ref.set({ ts, from: fromStatus || null, to: toStatus || null });
+}
+
 async function saveClientFromDialog(){
   let id = $('#clientDialog').dataset.id;
 
@@ -1573,7 +1651,7 @@ async function saveClientFromDialog(){
     id = `cl_${crypto.randomUUID().slice(0,8)}`;
     $('#clientDialog').dataset.id = id;
   }
-
+const prevStatus = (AppState.clients.find(x => x.id === id) || {}).status || '';
 const statusVal = $('#fStatus').value;
 
   // --- Особый случай: холодный лид ---
@@ -1597,6 +1675,10 @@ const statusVal = $('#fStatus').value;
     try {
       const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
       await ref.set(client, { merge:true });
+// NEW: зафиксируем смену статуса
+try { await logStatusChange(id, prevStatus, $('#fStatus').value); } catch(_) {}
+
+try { await logStatusChange(id, prevStatus, statusVal); } catch(_) {}
       toast('Сохранено (холодный лид)');
     } catch(e) {
       console.warn('save cold lead', e);
@@ -1679,6 +1761,9 @@ notes: $('#fNotes').value.trim(),
     const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
     // 1) Сохраняем клиента
 await ref.set(client, { merge:true });
+// NEW: зафиксируем смену статуса
+try { await logStatusChange(id, prevStatus, $('#fStatus').value); } catch(_) {}
+
     // --- авто-создание напоминания: только если выбран шаблон/введён текст,
 // и ВСЕГДА от сегодняшней даты (не зависит от сеансов)
 // --- очистка старых напоминаний о консультации (они больше не нужны)

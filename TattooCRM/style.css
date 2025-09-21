@@ -783,3 +783,9 @@ dialog[open] .modal-body{
   visibility: hidden;   /* невидима, но занимает место в сетке */
   height: 0;
 }
+
+/* История статусов в карточке клиента */
+#statusHistory { display:flex; flex-direction:column; gap:6px; }
+#statusHistory .row { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+#statusHistory .when { opacity:.7; font-size:12px; }
+#statusHistory .what { font-size:13px; }
