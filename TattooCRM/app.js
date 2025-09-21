@@ -708,43 +708,32 @@ const futureEvents = [...sessionsAll, ...consultsAll, ...remindersAll]
     todayEvents.forEach(ev => {
       const el = document.createElement('div');
       el.className = 'row card-client glass';
-      el.innerHTML = `
-       
+     el.innerHTML = `
+  <div>
+    🔔 <b>${formatDateHuman(ev.date)}</b> ${ev.time ? ev.time + ' — ' : ' — '}
+    ${ev.kind === 'reminder'
+      ? `${ev.title}${ev.who ? ' · ' + ev.who : ''}`
+      : `${ev.title} <span class="badge">${ev.badge}</span>`}
+  </div>
+`;
 
-if (ev.kind === 'session') {
+// ДОБАВЛЯЕМ кнопку отдельно
+if (ev.kind === 'session' && !ev.done) {
   const btn = document.createElement('button');
   btn.className = 'btn success';
   btn.textContent = '✓';
   btn.title = 'Подтвердить сеанс';
   btn.style.padding = '2px 10px';
   btn.addEventListener('click', async () => {
-    try {
-      const ok = await confirmDlg('Подтвердить, что сеанс состоялся?');
-        if (!ok) return;
-        const [clientId, dt] = ev.id.split('_'); // id формата cl_xxxx_YYYY-MM-DDTHH:mm
-        await setSessionDone(clientId, dt, true);
-        toast('Сеанс подтверждён');
-    } catch (e) {
-      console.warn(e);
-      toast('Не удалось подтвердить сеанс');
-    }
+    const ok = await confirmDlg('Подтвердить, что сеанс состоялся?');
+    if (!ok) return;
+    const [clientId, dt] = ev.id.split('_');
+    await setSessionDone(clientId, dt, true);
+    toast('Сеанс подтверждён');
   });
   el.appendChild(btn);
 }
 
- <div>
-          🔔 <b>${formatDateHuman(ev.date)}</b> ${ev.time ? ev.time + ' — ' : ' — '}
-          ${ev.kind === 'reminder'
-            ? `${ev.title}${ev.who ? ' · ' + ev.who : ''}`
-            : `${ev.title} <span class="badge">${ev.badge}</span>`}
-        </div>`;
-      sch.appendChild(el);
-    });
-  }
-
-  // Рендер «Напоминания» (всё будущее)
-  if (!futureEvents.length) {
-    rem.innerHTML = `<div class="row card-client glass">Будущих напоминаний нет</div>`;
   } else {
     futureEvents.forEach(ev => {
       const row = document.createElement('div');
@@ -1782,6 +1771,12 @@ bindSuppliesDictToggle();
 // ---------- Google Identity Services token manager ----------
 // ВАЖНО: замени CLIENT_ID на свой из Firebase Console:
 // Firebase Console → Authentication → Sign-in method → Google → Web SDK configuration (или GCP → Credentials)
+
+const GOOGLE_CLIENT_ID = '306275735842-9iebq4vtv2pv9t6isia237os0r1u3eoi.apps.googleusercontent.com';
+
+const OAUTH_SCOPES = 'https://www.googleapis.com/auth/drive.file openid email profile';
+
+
 let gisTokenClient = null;
 let driveAccessToken = null;
 let driveTokenExpTs = 0; // ms timestamp
