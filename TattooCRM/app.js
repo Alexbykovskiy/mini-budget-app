@@ -759,45 +759,58 @@ function renderToday(todayEvents, futureEvents) {
     }
   }
 
-  // Рендер «Напоминания»
+    // Рендер «Напоминания»
   const remList = document.getElementById('remindersList');
   if (remList) {
-    const todayYMD = ymdLocal(new Date());
-    const upcoming = (AppState.reminders || [])
-      .filter(r => r?.date && r.date > todayYMD)
-      .sort((a,b) => a.date.localeCompare(b.date));
+    // Показываем ВСЕ будущие записи: reminders, consults, sessions
+    const upcomingAll = (futureEvents || [])
+      .filter(ev => ev && ev.date)
+      .sort((a, b) => {
+        const k1 = `${a.date} ${a.time || '99:99'}`;
+        const k2 = `${b.date} ${b.time || '99:99'}`;
+        return k1.localeCompare(k2);
+      });
 
     remList.innerHTML = '';
-    if (!upcoming.length) {
+    if (!upcomingAll.length) {
       remList.innerHTML = `<div class="row card-client glass">Пока нет будущих напоминаний</div>`;
     } else {
-      upcoming.forEach(r => {
+      upcomingAll.forEach(ev => {
         const row = document.createElement('div');
         row.className = 'row card-client glass';
         row.style.alignItems = 'center';
 
+        // Иконка по типу
+        const icon = ev.kind === 'consult' ? '📞'
+                   : ev.kind === 'session' ? '✒️'
+                   : '🔔';
+
         const txt = document.createElement('div');
-        txt.innerHTML = `🔔 <b>${formatDateHuman(r.date)}</b> — ${r.title}${r.clientName ? ' · ' + r.clientName : ''}`;
+        txt.innerHTML = `${icon} <b>${formatDateHuman(ev.date)}${ev.time ? ' ' + ev.time : ''}</b> — ${ev.title}${ev.who ? ' · ' + ev.who : ''}`;
         row.appendChild(txt);
 
-        const del = document.createElement('button');
-        del.className = 'btn danger';
-        del.textContent = '✕';
-        del.title = 'Удалить напоминание';
-        del.style.marginLeft = '8px';
-        del.addEventListener('click', async () => {
-          if (!r?.id) return toast('У напоминания нет id');
-          const ok = await confirmDlg('Удалить это напоминание?');
-          if (!ok) return;
-          try {
-            await FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(r.id).delete();
-            toast('Напоминание удалено');
-          } catch(e) {
-            console.warn(e);
-            toast('Не удалось удалить напоминание');
-          }
-        });
-        row.appendChild(del);
+        // Крестик удаления — ТОЛЬКО для ручных напоминаний
+        if (ev.kind === 'reminder' && ev.id) {
+          const del = document.createElement('button');
+          del.className = 'btn danger';
+          del.textContent = '✕';
+          del.title = 'Удалить напоминание';
+          del.style.marginLeft = '8px';
+          del.addEventListener('click', async () => {
+            const ok = await confirmDlg('Удалить это напоминание?');
+            if (!ok) return;
+            try {
+              await FB.db.collection('TattooCRM').doc('app')
+                .collection('reminders').doc(ev.id).delete();
+              row.remove(); // оптимистично; снапшот всё равно обновит
+              toast('Напоминание удалено');
+            } catch (e) {
+              console.warn(e);
+              toast('Не удалось удалить напоминание');
+            }
+          });
+          row.appendChild(del);
+        }
 
         remList.appendChild(row);
       });
