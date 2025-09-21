@@ -641,51 +641,124 @@ async function saveSettings(){
 }
 
 // ---------- Today ----------
+// ---------- Today ----------
 function renderToday(todayEvents, futureEvents) {
+  // Если массивы не передали — собираем события из состояния
+  if (!Array.isArray(todayEvents) || !Array.isArray(futureEvents)) {
+    const todayYMD = ymdLocal(new Date());
+    const all = [];
+
+    // 1) Напоминания
+    (AppState.reminders || []).forEach(r => {
+      all.push({
+        id: r.id,
+        kind: 'reminder',
+        date: r.date,            // YYYY-MM-DD
+        time: '',                // у напоминаний времени нет
+        title: r.title || 'Напоминание',
+        who: r.clientName || ''
+      });
+    });
+
+    // 2) Сеансы и консультации из клиентов
+    (AppState.clients || []).forEach(c => {
+      const sessions = Array.isArray(c.sessions) ? c.sessions : (c?.nextDate ? [c.nextDate] : []);
+      sessions.forEach(s => {
+        const dt = (typeof s === 'string') ? s : (s?.dt || '');
+        if (!dt) return;
+        const [d, tFull = ''] = dt.split('T');
+        const t = tFull.slice(0, 5); // HH:MM
+
+        all.push({
+          id: `${c.id}_${dt}`,
+          kind: 'session',
+          date: d,
+          time: t,
+          title: 'Сеанс',
+          who: c.displayName || '',
+          done: !!(typeof s === 'object' && s.done)
+        });
+      });
+
+      // Консультация (если включена и указана дата)
+      if (c?.consult && c?.consultDate) {
+        const [d, tFull = ''] = String(c.consultDate).split('T');
+        const t = tFull.slice(0, 5);
+        all.push({
+          id: `consult_${c.id}_${c.consultDate}`,
+          kind: 'consult',
+          date: d,
+          time: t,
+          title: 'Консультация',
+          who: c.displayName || ''
+        });
+      }
+    });
+
+    // Сортировка: по дате, потом по времени
+    all.sort((a, b) => {
+      const k1 = `${a.date} ${a.time || '99:99'}`;
+      const k2 = `${b.date} ${b.time || '99:99'}`;
+      return k1.localeCompare(k2);
+    });
+
+    todayEvents  = all.filter(e => e.date === todayYMD);
+    futureEvents = all.filter(e => e.date >  todayYMD);
+  }
+
+  // Рендер «Сегодня»
   const todayList = document.getElementById('todaySchedule');
+  if (!todayList) return;
   todayList.innerHTML = '';
 
-  todayEvents.forEach(ev => {
-    const el = document.createElement('div');
-    el.className = 'row card-client glass';
-    el.innerHTML = `
-      🔔 <b>${formatDateHuman(ev.date)}</b> ${ev.time ? ev.time + ' — ' : ' — '}
-      ${ev.kind === 'reminder'
-        ? `${ev.title}${ev.who ? ' · ' + ev.who : ''}`
-        : `${ev.title}${ev.who ? ' · ' + ev.who : ''}`}
-    `;
+  if (!todayEvents.length) {
+    todayList.innerHTML = `<div class="row card-client glass">На сегодня ничего не запланировано</div>`;
+  } else {
+    todayEvents.forEach(ev => {
+      const el = document.createElement('div');
+      el.className = 'row card-client glass';
+      el.innerHTML = `
+        🔔 <b>${formatDateHuman(ev.date)}</b>${ev.time ? ' ' + ev.time : ''} — 
+        ${ev.title}${ev.who ? ' · ' + ev.who : ''}
+      `;
 
-    if (ev.kind === 'session' && !ev.done) {
-      const btn = document.createElement('button');
-      btn.className = 'btn success';
-      btn.textContent = '✓';
-      btn.title = 'Подтвердить сеанс';
-      btn.style.padding = '2px 10px';
-      btn.addEventListener('click', async () => {
-        const ok = await confirmDlg('Подтвердить, что сеанс состоялся?');
-        if (!ok) return;
-        const [clientId, dt] = ev.id.split('_');
-        await setSessionDone(clientId, dt, true);
-        toast('Сеанс подтверждён');
-      });
-      el.appendChild(btn);
-    }
+      // Кнопка подтверждения только для сеансов
+      if (ev.kind === 'session' && !ev.done) {
+        const btn = document.createElement('button');
+        btn.className = 'btn success';
+        btn.textContent = '✓';
+        btn.title = 'Подтвердить сеанс';
+        btn.style.padding = '2px 10px';
+        btn.addEventListener('click', async () => {
+          const ok = await confirmDlg('Подтвердить, что сеанс состоялся?');
+          if (!ok) return;
+          const [clientId, dt] = ev.id.split('_');
+          await setSessionDone(clientId, dt, true);
+          toast('Сеанс подтверждён');
+        });
+        el.appendChild(btn);
+      }
 
-    todayList.appendChild(el);
-  });
+      todayList.appendChild(el);
+    });
+  }
 
+  // Рендер «В будущем»
   const futureList = document.getElementById('futureList');
   if (futureList) {
     futureList.innerHTML = '';
-    futureEvents.forEach(ev => {
-      const row = document.createElement('div');
-      row.className = 'row card-client glass';
-      row.textContent = `${formatDateHuman(ev.date)} — ${ev.title}`;
-      futureList.appendChild(row);
-    });
+    if (!futureEvents.length) {
+      futureList.innerHTML = `<div class="row card-client glass">Будущих событий пока нет</div>`;
+    } else {
+      futureEvents.forEach(ev => {
+        const row = document.createElement('div');
+        row.className = 'row card-client glass';
+        row.textContent = `${formatDateHuman(ev.date)}${ev.time ? ' ' + ev.time : ''} — ${ev.title}${ev.who ? ' · ' + ev.who : ''}`;
+        futureList.appendChild(row);
+      });
+    }
   }
-}
-  // boot: UI готова
+}  // boot: UI готова
   try { BOOT.set(7,'ok'); BOOT.hide(); } catch(_) {}
 
    
