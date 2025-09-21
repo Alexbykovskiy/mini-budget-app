@@ -727,14 +727,13 @@ function renderToday(todayEvents, futureEvents) {
         ${ev.title}${ev.who ? ' · ' + ev.who : ''}
       `;
 
-// клик по строке — открыть карточку клиента (если clientId есть)
+// клик по строке — открыть клиента
 if (OPEN_CLIENT_ON_TILE_CLICK) {
-  el.addEventListener('click', (e) => {
+  row.addEventListener('click', (e) => {
     if (e.target.closest('button')) return;
     if (ev.clientId) openClientById(ev.clientId);
   });
-}
-      // Кнопка подтверждения только для сеансов
+}      // Кнопка подтверждения только для сеансов
       if (ev.kind === 'session' && !ev.done) {
         const btn = document.createElement('button');
         btn.className = 'btn success';

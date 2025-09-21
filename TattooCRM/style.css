@@ -756,3 +756,23 @@ dialog[open] .modal-body{
 
 /* Если раньше включали "палец" на карточках — перебьём */
 .card-client.glass { cursor: default !important; }
+
+
+/* Отключить клики по плашкам на главной */
+#todaySchedule .card-client,
+#remindersList .row,
+#futureList .row {
+  pointer-events: none;
+  cursor: default;
+}
+
+/* Но кнопки внутри — кликабельные */
+#todaySchedule .card-client button,
+#remindersList .row button,
+#futureList .row button {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* На всякий случай убираем «палец» */
+.card-client.glass { cursor: default !important; }
