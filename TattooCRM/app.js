@@ -267,6 +267,7 @@ AppState.connected = true;
       listenRemindersRealtime();
 listenSuppliesRealtime();
       renderToday();
+listenMarketingRealtime();
       toast('Добро пожаловать обратно 👋');
     } catch (e) {
       console.warn('restore session failed', e);
@@ -383,7 +384,10 @@ fillSettingsForm();
     listenClientsRealtime();
 listenRemindersRealtime();
 listenSuppliesRealtime();
+
     renderToday();
+
+listenMarketingRealtime();
 
   // Инициализируем Drive (ожидаем библиотеки детерминированно)
 initDriveStack({ forceConsent: true })
@@ -1740,12 +1744,73 @@ async function deleteClientFromDialog(){
   } finally {
     $('#clientDialog').close();
   }
-}// ---------- Marketing ----------
-function renderMarketing(){
-  // раздел временно отключён
-  const hi = $('#mkHighlites'); if (hi) hi.innerHTML = '';
-  const tb = $('#mkTable');     if (tb) tb.innerHTML = '';
 }
+
+// ---------- Marketing ----------
+function renderMarketing() {
+  const history = AppState.marketing || [];
+  const wrap = $('#mkHistory');
+  if (!wrap) return;
+
+  // сортируем по дате
+  history.sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time));
+
+  // считаем прирост подписчиков
+  let prevFollowers = null;
+  let rows = history.map(entry => {
+    const growth = prevFollowers != null ? (entry.followers - prevFollowers) : 0;
+    prevFollowers = entry.followers;
+    return `
+      <div class="row" style="justify-content:space-between; padding:6px 0">
+        <div>${formatDateHuman(entry.date)} ${entry.time}</div>
+        <div>Подписчики: <b>${entry.followers}</b> (${growth >= 0 ? '+' : ''}${growth})</div>
+        <div>Реклама: €${entry.spent.toFixed(2)}</div>
+      </div>
+    `;
+  });
+
+  wrap.innerHTML = rows.length ? rows.join('') : `<div class="row">Пока нет данных</div>`;
+}
+
+$('#saveMkBtn')?.addEventListener('click', async ()=>{
+  const date = $('#mkDate').value || ymdLocal(new Date());
+  const time = $('#mkTime').value || new Date().toISOString().slice(11,16);
+  const followers = Number($('#mkFollowers').value || 0);
+  const spent = Number($('#mkSpent').value || 0);
+
+  const id = `mk_${date}_${time.replace(':','')}`;
+
+  const entry = { id, date, time, followers, spent };
+
+  // локально
+  AppState.marketing = AppState.marketing || [];
+  const i = AppState.marketing.findIndex(x=>x.id===id);
+  if (i>=0) AppState.marketing[i]=entry; else AppState.marketing.push(entry);
+
+  renderMarketing();
+
+  // Firestore
+  try {
+    const ref = FB.db.collection('TattooCRM').doc('app').collection('marketing').doc(id);
+    await ref.set(entry, { merge:true });
+    toast('Запись сохранена');
+  } catch(e) {
+    console.warn(e);
+    toast('Ошибка сохранения маркетинга');
+  }
+});
+
+// Подписка на изменения
+function listenMarketingRealtime(){
+  FB.db.collection('TattooCRM').doc('app').collection('marketing')
+    .orderBy('date','asc').onSnapshot(qs=>{
+      AppState.marketing = [];
+      qs.forEach(d=>AppState.marketing.push(d.data()));
+      renderMarketing();
+    }, err=>console.error('marketing',err));
+}
+
+
 
 // ---------- Supplies ----------
 function renderSupplies(){
