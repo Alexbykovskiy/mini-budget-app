@@ -404,7 +404,7 @@ function listenClientsRealtime(){
     .orderBy('updatedAt', 'desc')   // базовая сортировка
     .onSnapshot((qs)=>{
       AppState.clients = [];
-      qs.forEach(d => AppState.clients.push({ id: d.id, ...d.data() }));
+      qs.forEach(d => AppState.clients.push(d.data()));
       renderClients();   // внутри будем сортировать по выбору
       renderToday();
     }, (err)=> {
@@ -417,7 +417,7 @@ function listenRemindersRealtime(){
     .orderBy('date', 'asc')
     .onSnapshot((qs)=>{
       AppState.reminders = [];
-      qs.forEach(d => AppState.reminders.push({ id: d.id, ...d.data() }));
+      qs.forEach(d => AppState.reminders.push(d.data()));
       renderToday();
     }, (err)=> console.error('reminders', err));
 }
@@ -603,99 +603,6 @@ function formatDateHuman(ymd) {
   return `${d} ${months[m-1]} ${y} г.`;
 }
 
-function clientFromEvent(ev){
-  if (!ev) return null;
-  if (ev.kind === 'reminder') return findClientById(ev.clientId);
-  if (ev.kind === 'session') {
-    const [clientId] = String(ev.id || '').split('_');
-    return findClientById(clientId);
-  }
-  if (ev.kind === 'consult') {
-    const parts = String(ev.id || '').split('_'); // consult_<clientId>_<date>
-    return findClientById(parts[1] || parts[0]);
-  }
-  return null;
-}
-
-
-// Универсально открыть карточку по событию (ищем локально, иначе читаем из Firestore)
-// ---------- MIGRATIONS ----------
-async function migrateBackfillClientIds() {
-  const appRef = FB.db.collection('TattooCRM').doc('app');
-  const qs = await appRef.collection('clients').get();
-
-  let batch = FB.db.batch();
-  const commits = [];
-  let cnt = 0;
-
-  qs.forEach(d => {
-    const data = d.data() || {};
-    // Проставляем поле clientId = doc.id, если его нет
-    if (!data.clientId) {
-      batch.update(d.ref, { clientId: d.id });
-      cnt++;
-      if (cnt % 450 === 0) { commits.push(batch.commit()); batch = FB.db.batch(); }
-    }
-  });
-
-  commits.push(batch.commit());
-  await Promise.all(commits);
-  console.log(`migrateBackfillClientIds: updated ${cnt}`);
-  return cnt;
-}
-
-async function migrateBackfillReminderClientIds() {
-  const appRef = FB.db.collection('TattooCRM').doc('app');
-  const [cSnap, rSnap] = await Promise.all([
-    appRef.collection('clients').get(),
-    appRef.collection('reminders').get()
-  ]);
-
-  // карта Имя -> id клиента
-  const name2id = {};
-  cSnap.forEach(d => {
-    const c = d.data() || {};
-    const name = (c.displayName || c.name || '').trim();
-    if (name) name2id[name] = d.id;
-  });
-
-  let batch = FB.db.batch();
-  const commits = [];
-  let cnt = 0;
-
-  rSnap.forEach(d => {
-    const r = d.data() || {};
-    if (!r.clientId) {
-      const id = r.clientId || name2id[(r.clientName || '').trim()];
-      if (id) {
-        batch.update(d.ref, { clientId: id });
-        cnt++;
-        if (cnt % 450 === 0) { commits.push(batch.commit()); batch = FB.db.batch(); }
-      }
-    }
-  });
-
-  commits.push(batch.commit());
-  await Promise.all(commits);
-  console.log(`migrateBackfillReminderClientIds: updated ${cnt}`);
-  return cnt;
-}
-
-async function runClientIdMigrationsOnce() {
-  // Выполняем один раз на этом устройстве
-  if (localStorage.getItem('migr_clientId_v1') === 'done') return;
-  try {
-    const c = await migrateBackfillClientIds();
-    const r = await migrateBackfillReminderClientIds();
-    toast(`Миграция clientId: клиентов ${c}, напоминаний ${r}`);
-    localStorage.setItem('migr_clientId_v1', 'done');
-  } catch (e) {
-    console.warn('migrations failed', e);
-    toast('Миграция clientId завершилась с ошибкой');
-  }
-}
-// ---------- /MIGRATIONS ----------
-
 
 async function saveSettings(){
   const s = {
@@ -734,6 +641,7 @@ async function saveSettings(){
 }
 
 // ---------- Today ----------
+// ---------- Today ----------
 function renderToday(todayEvents, futureEvents) {
   // Если массивы не передали — собираем события из состояния
   if (!Array.isArray(todayEvents) || !Array.isArray(futureEvents)) {
@@ -746,34 +654,33 @@ function renderToday(todayEvents, futureEvents) {
         id: r.id,
         kind: 'reminder',
         date: r.date,            // YYYY-MM-DD
-        time: '',
+        time: '',                // у напоминаний времени нет
         title: r.title || 'Напоминание',
-        who: r.clientName || '',
-        clientId: r.clientId || null
+        who: r.clientName || ''
       });
     });
 
-    // 2) Клиенты: консультации + сеансы
+    // 2) Сеансы и консультации из клиентов
     (AppState.clients || []).forEach(c => {
-      // сеансы
-      (c.sessions || []).forEach(s => {
-        if (s?.date) {
-          const [d, tFull = ''] = String(s.date).split('T');
-          const t = tFull.slice(0, 5);
-          all.push({
-            id: `${c.id}_${s.date}`,
-            kind: 'session',
-            date: d,
-            time: t,
-            title: 'Сеанс',
-            who: c.displayName || '',
-            done: !!s.done,
-            clientId: c.id
-          });
-        }
+      const sessions = Array.isArray(c.sessions) ? c.sessions : (c?.nextDate ? [c.nextDate] : []);
+      sessions.forEach(s => {
+        const dt = (typeof s === 'string') ? s : (s?.dt || '');
+        if (!dt) return;
+        const [d, tFull = ''] = dt.split('T');
+        const t = tFull.slice(0, 5); // HH:MM
+
+        all.push({
+          id: `${c.id}_${dt}`,
+          kind: 'session',
+          date: d,
+          time: t,
+          title: 'Сеанс',
+          who: c.displayName || '',
+          done: !!(typeof s === 'object' && s.done)
+        });
       });
 
-      // консультация
+      // Консультация (если включена и указана дата)
       if (c?.consult && c?.consultDate) {
         const [d, tFull = ''] = String(c.consultDate).split('T');
         const t = tFull.slice(0, 5);
@@ -783,25 +690,23 @@ function renderToday(todayEvents, futureEvents) {
           date: d,
           time: t,
           title: 'Консультация',
-          who: c.displayName || '',
-          clientId: c.id
+          who: c.displayName || ''
         });
       }
     });
 
-    // Сортировка: дата + время
+    // Сортировка: по дате, потом по времени
     all.sort((a, b) => {
       const k1 = `${a.date} ${a.time || '99:99'}`;
       const k2 = `${b.date} ${b.time || '99:99'}`;
       return k1.localeCompare(k2);
     });
 
-    const today = ymdLocal(new Date());
-    todayEvents  = all.filter(e => e.date === today);
-    futureEvents = all.filter(e => e.date >  today);
+    todayEvents  = all.filter(e => e.date === todayYMD);
+    futureEvents = all.filter(e => e.date >  todayYMD);
   }
 
-  // ===== «Сегодня» =====
+  // Рендер «Сегодня»
   const todayList = document.getElementById('todaySchedule');
   if (!todayList) return;
   todayList.innerHTML = '';
@@ -813,30 +718,11 @@ function renderToday(todayEvents, futureEvents) {
       const el = document.createElement('div');
       el.className = 'row card-client glass';
       el.innerHTML = `
-        🔔 <b>${formatDateHuman(ev.date)}</b>${ev.time ? ' ' + ev.time : ''} —
+        🔔 <b>${formatDateHuman(ev.date)}</b>${ev.time ? ' ' + ev.time : ''} — 
         ${ev.title}${ev.who ? ' · ' + ev.who : ''}
       `;
 
-      // Кнопка «Открыть»
-      const openBtnToday = document.createElement('button');
-      openBtnToday.className = 'btn';
-      openBtnToday.textContent = 'Открыть';
-      openBtnToday.title = 'Открыть карточку клиента';
-      openBtnToday.style.marginLeft = '8px';
-      openBtnToday.addEventListener('click', async (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  await openClientFromEvent(ev);
-});
-      el.appendChild(openBtnToday);
-
-      // Клик по карточке (кроме кнопок) — тоже открыть
-      el.style.cursor = 'pointer';
-      el.addEventListener('click', async (e) => {
-  if (e.target.closest('button')) return;
-  await openClientFromEvent(ev);
-});
-      // Подтверждение сеанса
+      // Кнопка подтверждения только для сеансов
       if (ev.kind === 'session' && !ev.done) {
         const btn = document.createElement('button');
         btn.className = 'btn success';
@@ -857,7 +743,7 @@ function renderToday(todayEvents, futureEvents) {
     });
   }
 
-  // ===== «В будущем» =====
+ // Рендер «В будущем»
   const futureList = document.getElementById('futureList');
   if (futureList) {
     futureList.innerHTML = '';
@@ -867,28 +753,16 @@ function renderToday(todayEvents, futureEvents) {
       futureEvents.forEach(ev => {
         const row = document.createElement('div');
         row.className = 'row card-client glass';
-        row.innerHTML = `${formatDateHuman(ev.date)}${ev.time ? ' ' + ev.time : ''} — ${ev.title}${ev.who ? ' · ' + ev.who : ''}`;
-
-        const openBtnFuture = document.createElement('button');
-        openBtnFuture.className = 'btn';
-        openBtnFuture.textContent = 'Открыть';
-        openBtnFuture.title = 'Открыть карточку клиента';
-        openBtnFuture.style.marginLeft = '8px';
-        openBtnFuture.addEventListener('click', async (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  await openClientFromEvent(ev);
-});
-        row.appendChild(openBtnFuture);
-
+        row.textContent = `${formatDateHuman(ev.date)}${ev.time ? ' ' + ev.time : ''} — ${ev.title}${ev.who ? ' · ' + ev.who : ''}`;
         futureList.appendChild(row);
       });
     }
   }
 
-  // ===== «Напоминания» (все будущие события) =====
+    // Рендер «Напоминания»
   const remList = document.getElementById('remindersList');
   if (remList) {
+    // Показываем ВСЕ будущие записи: reminders, consults, sessions
     const upcomingAll = (futureEvents || [])
       .filter(ev => ev && ev.date)
       .sort((a, b) => {
@@ -906,39 +780,29 @@ function renderToday(todayEvents, futureEvents) {
         row.className = 'row card-client glass';
         row.style.alignItems = 'center';
 
-        const icon = ev.kind === 'consult' ? '📞' : ev.kind === 'session' ? '✒️' : '🔔';
+        // Иконка по типу
+        const icon = ev.kind === 'consult' ? '📞'
+                   : ev.kind === 'session' ? '✒️'
+                   : '🔔';
 
         const txt = document.createElement('div');
         txt.innerHTML = `${icon} <b>${formatDateHuman(ev.date)}${ev.time ? ' ' + ev.time : ''}</b> — ${ev.title}${ev.who ? ' · ' + ev.who : ''}`;
         row.appendChild(txt);
 
-        // Кнопка «Открыть»
-        const openBtn = document.createElement('button');
-        openBtn.className = 'btn';
-        openBtn.textContent = 'Открыть';
-        openBtn.title = 'Открыть карточку клиента';
-        openBtn.style.marginLeft = '8px';
-       openBtn.addEventListener('click', async (e) => {
-  e.stopPropagation();
-  await openClientFromEvent(ev);
-});
-        row.appendChild(openBtn);
-
-        // Удаление — только для ручных напоминаний
+        // Крестик удаления — ТОЛЬКО для ручных напоминаний
         if (ev.kind === 'reminder' && ev.id) {
           const del = document.createElement('button');
           del.className = 'btn danger';
           del.textContent = '✕';
           del.title = 'Удалить напоминание';
           del.style.marginLeft = '8px';
-          del.addEventListener('click', async (e) => {
-            e.stopPropagation();
+          del.addEventListener('click', async () => {
             const ok = await confirmDlg('Удалить это напоминание?');
             if (!ok) return;
             try {
               await FB.db.collection('TattooCRM').doc('app')
                 .collection('reminders').doc(ev.id).delete();
-              row.remove();
+              row.remove(); // оптимистично; снапшот всё равно обновит
               toast('Напоминание удалено');
             } catch (e) {
               console.warn(e);
@@ -952,64 +816,11 @@ function renderToday(todayEvents, futureEvents) {
       });
     }
   }
-}
+}  
 
 // boot: UI готова
 try { BOOT.set(7,'ok'); BOOT.hide(); } catch(_) {}
-try { runClientIdMigrationsOnce(); } catch(e) { console.warn(e); }
 
-function findClientById(id){
-  return (AppState.clients || []).find(c => c.id === id) || null;
-}
-
-// Универсально открыть карточку по событию
-async function openClientFromEvent(ev){
-  if (!ev) return toast('Нет данных события');
-
-  let id = ev.clientId || null;
-
-  if (!id && ev.id) { // consult_<clientId>_<date> или <clientId>_<ISO>
-    const s = String(ev.id);
-    if (s.startsWith('consult_')) id = s.split('_')[1] || null;
-    else if (s.includes('_'))     id = s.split('_')[0] || null;
-  }
-
-  if (!id) {
-    const name = (ev.who || ev.clientName || '').trim();
-    if (name) {
-      id = (AppState.clients || []).find(c => (c.displayName||'').trim() === name)?.id || null;
-      if (!id) {
-        // последний шанс: спросить Firestore по имени
-        const qs = await FB.db.collection('TattooCRM').doc('app')
-          .collection('clients').where('displayName','==',name).limit(1).get();
-        if (!qs.empty) {
-          const d = qs.docs[0];
-          return openClientDialog({ id: d.id, ...d.data() });
-        }
-      }
-    }
-  }
-
-  return openClientById(id);
-}
-
-async function openClientById(id){
-  if (!id) return toast('Не указан clientId');
-
-  let client = findClientById(id);
-  if (!client) {
-    try {
-      const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
-      const snap = await ref.get();
-      if (snap.exists) client = { id: snap.id, ...snap.data() }; // ВАЖНО: без точки перед spread!
-    } catch (e) {
-      console.warn('openClientById: load failed', e);
-    }
-  }
-
-  if (client) openClientDialog(client);
-  else toast('Клиент не найден');
-}
    
 // ---------- Clients ----------
 function bindClientsModal(){
