@@ -2315,10 +2315,11 @@ function demoReminders(){ return []; }
 
 // Заголовки по порядку вывода для КАРТОЧКИ #1
 const MK_STATUS_LABELS = {
-  total:       'Всего клиентов',
+   total:       'Всего клиентов',
   cold:        'Холодные лиды',
   lead:        'Лиды',
   consultation:'Консультации',
+  prepay:      'Предоплата/эскиз',
   session:     'Сеансы',
   canceled:    'Отменил'
 };
@@ -2330,7 +2331,8 @@ function normalizeStatus(raw) {
   if (s.includes('холод')) return 'cold';
   if (s === 'lead' || s.startsWith('лид')) return 'lead';
   if (s.includes('конс')) return 'consultation';
-  if (s.includes('сеанс') || s.includes('session')) return 'session';
+if (s.includes('предоплата') || s.includes('эскиз')) return 'prepay';
+if (s.includes('сеанс') || s.includes('session')) return 'session';
   if (s.includes('отмен')) return 'canceled';
   return '';
 }// Сбор депозитов из разных схем (массив/поле)
@@ -2353,7 +2355,7 @@ function extractDepositsFromClient(c) {
 
 // Главный расчёт
 function mkBuildOverviewFromClients(clients) {
-  const counts = { total: clients.length, cold: 0, lead: 0, consultation: 0, session: 0, canceled: 0 };
+  const counts = { total: clients.length, cold: 0, lead: 0, consultation: 0, prepay: 0, session: 0, canceled: 0 };
   let depCount = 0, depSum = 0;
 
   for (const c of clients) {
@@ -2371,7 +2373,7 @@ function mkBuildOverviewFromClients(clients) {
 function mkRenderCardStatuses(counts) {
   const listEl = document.getElementById('mk-status-list');
   if (!listEl) return;
-  const order = ['total', 'cold', 'lead', 'consultation', 'session', 'canceled'];
+  const order = ['total', 'cold', 'lead', 'consultation', 'prepay', 'session', 'canceled'];
   listEl.innerHTML = order.map(key => {
     const label = MK_STATUS_LABELS[key] || key;
     const value = counts[key] ?? 0;
