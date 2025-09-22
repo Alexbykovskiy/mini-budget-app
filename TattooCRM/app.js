@@ -2325,6 +2325,23 @@ const MK_STATUS_LABELS = {
  dropped:     'Слился'
 };
 
+// Подписи для языка/страны и пола
+const LANG_LABELS = {
+  ru: 'Русский',
+  en: 'Английский',
+  sk: 'Словацкий',
+  de: 'Немецкий',
+  at: 'Австрия',
+  '':  '—'
+};
+const GENDER_LABELS = {
+  male:   'Мужчины',
+  female: 'Женщины',
+  '':     'Не указан'
+};
+
+
+
 // Нормализация статуса (под разные формулировки)
 function normalizeStatus(raw) {
   const s = (raw || '').toString().trim().toLowerCase();
@@ -2373,6 +2390,85 @@ function mkBuildOverviewFromClients(clients) {
   return { counts, depCount, depSum };
 }
 
+// Демография/профиль по клиентам (исключая «Холодный лид» и без заполненного Типа)
+function mkBuildDemographicsFromClients(clients) {
+  // пул: только НЕ "Холодные лиды" и где есть тип
+  const pool = clients.filter(c => {
+    const st = normalizeStatus(c?.status || c?.stage || c?.type);
+    const hasType = !!String(c?.type || '').trim();
+    return st !== 'cold' && hasType;
+  });
+
+  // Языки/страны
+  const langCounts = {};
+  for (const c of pool) {
+    const key = (c?.lang || '').trim().toLowerCase();
+    langCounts[key] = (langCounts[key] || 0) + 1;
+  }
+
+  // Пол
+  const genderCounts = { male: 0, female: 0, '': 0 };
+  for (const c of pool) {
+    const g = (c?.gender || '').trim().toLowerCase();
+    if (g === 'male') genderCounts.male++;
+    else if (g === 'female') genderCounts.female++;
+    else genderCounts['']++;
+  }
+
+  // Квалификация (только 3 категории)
+  const qualCounts = { target: 0, semi: 0, nontarget: 0 };
+  for (const c of pool) {
+    const q = (c?.qual || '').toLowerCase();
+    if (q.includes('целевой') && !q.includes('условно')) qualCounts.target++;
+    else if (q.includes('условно')) qualCounts.semi++;
+    else if (q.includes('не цел') || q.includes('нецел')) qualCounts.nontarget++;
+  }
+
+  return { langCounts, genderCounts, qualCounts };
+}
+
+
+function mkRenderCardDemographics({ langCounts = {}, genderCounts = {}, qualCounts = {} }) {
+  // Язык/страна
+  const langEl = document.getElementById('mk-demo-lang');
+  if (langEl) {
+    const entries = Object.entries(langCounts)
+      .sort((a,b) => b[1] - a[1]); // по убыванию количества
+    langEl.innerHTML = entries.length
+      ? entries.map(([code, n]) => {
+          const label = LANG_LABELS.hasOwnProperty(code) ? LANG_LABELS[code] : (code || '—');
+          return `<li class="mk-row"><span class="label">${label}</span><span class="value">${n}</span></li>`;
+        }).join('')
+      : `<li class="mk-row"><span class="label">—</span><span class="value">0</span></li>`;
+  }
+
+  // Пол
+  const gEl = document.getElementById('mk-demo-gender');
+  if (gEl) {
+    const order = ['male','female',''];
+    gEl.innerHTML = order.map(key => {
+      const label = GENDER_LABELS[key] || key;
+      const val = genderCounts[key] || 0;
+      return `<li class="mk-row"><span class="label">${label}</span><span class="value">${val}</span></li>`;
+    }).join('');
+  }
+
+  // Квалификация
+  const qEl = document.getElementById('mk-demo-qual');
+  if (qEl) {
+    const rows = [
+      ['target',    'Целевой'],
+      ['semi',      'Условно целевой'],
+      ['nontarget', 'Не целевой']
+    ];
+    qEl.innerHTML = rows.map(([k, label]) => {
+      const val = qualCounts[k] || 0;
+      return `<li class="mk-row"><span class="label">${label}</span><span class="value">${val}</span></li>`;
+    }).join('');
+  }
+}
+
+
 // Рендер КАРТОЧКИ #1 (только статусы)
 function mkRenderCardStatuses(counts) {
   const listEl = document.getElementById('mk-status-list');
@@ -2418,9 +2514,14 @@ async function mkFetchClientsFallback() {
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     const clients = await mkFetchClientsFallback();
-    const { counts, depCount, depSum } = mkBuildOverviewFromClients(clients);
-    mkRenderCardStatuses(counts);          // карточка №1
-    mkRenderCardDeposits(depCount, depSum);// карточка №2
+
+    // Карточка №1: статусы (как было)
+    const { counts } = mkBuildOverviewFromClients(clients);
+    mkRenderCardStatuses(counts);
+
+    // Карточка №2: профиль клиентов (новая логика)
+    const demo = mkBuildDemographicsFromClients(clients);
+    mkRenderCardDemographics(demo);
   } catch (e) {
     console.warn('[marketing overview] render failed:', e);
   }
