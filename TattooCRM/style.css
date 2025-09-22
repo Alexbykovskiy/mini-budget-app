@@ -789,3 +789,10 @@ dialog[open] .modal-body{
 #statusHistory .row { display:flex; justify-content:space-between; align-items:center; gap:8px; }
 #statusHistory .when { opacity:.7; font-size:12px; }
 #statusHistory .what { font-size:13px; }
+
+/* Маркетинг — всегда 3 карточки в ряд */
+.marketing-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
