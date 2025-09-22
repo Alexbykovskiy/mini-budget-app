@@ -2364,34 +2364,23 @@ let MK_CLIENTS_CACHE = [];
 
 
 
-// Нормализация статуса (под разные формулировки)
 function normalizeStatus(raw) {
   const s = (raw || '').toString().trim().toLowerCase();
-
   if (!s) return '';
 
-  // lead
   if (s === 'lead' || s.startsWith('лид')) return 'lead';
   if (s.includes('холод')) return 'cold';
 
-  // consultation (любой вариант с "конс")
   if (s.includes('конс')) return 'consultation'; // "запись на конс.", "конс. подтверждена", "консультация"
-
-  // prepay / sketch
   if (s.includes('предоплат') || s.includes('эскиз') || s.includes('скетч')) return 'prepay';
 
-  // session
   if (s.includes('сеанс') || s.includes('session')) return 'session';
 
-  // canceled
   if (s.includes('отмен')) return 'canceled';
 
-  // dropped / no show
   if (s.includes('слил') || s.includes('пропал') || s.includes('no show') || s.includes('ghost')) return 'dropped';
 
   return '';
-
-
 }
 
 // Сбор депозитов из разных схем (массив/поле)
@@ -2410,6 +2399,42 @@ function extractDepositsFromClient(c) {
     sum += Number(c.deposit.amount) || 0;
   }
   return { count, sum };
+}
+
+// --- "Как в Excel": считаем ДОСТИЖЕНИЯ статусов (to == ...), если клиент когда-либо был лидом ---
+function mkBuildReachedConversion(clients, logsMap) {
+  const TARGETS = ['consultation', 'prepay', 'session', 'canceled', 'dropped'];
+  const counts = { consultation:0, prepay:0, session:0, canceled:0, dropped:0 };
+  let denom = 0;
+
+  const norm = (x) => normalizeStatus(x);
+
+  for (const c of (clients || [])) {
+    const logs = logsMap.get(c.id) || [];
+
+    // был ли когда-то лидом (по логам или текущее состояние)
+    const wasLead = logs.some(r => norm(r?.to) === 'lead') || norm(c?.status) === 'lead';
+    if (!wasLead) continue;
+
+    denom++;
+
+    // клиент может попасть в несколько корзин — как в Excel
+    for (const t of TARGETS) {
+      const hit = logs.some(r => norm(r?.to) === t);
+      if (hit) counts[t] += 1;
+    }
+  }
+
+  const pct = (n) => denom > 0 ? Math.round((n / denom) * 100) : 0;
+
+  return {
+    denom,
+    consultation: { n: counts.consultation, p: pct(counts.consultation) },
+    prepay:       { n: counts.prepay,       p: pct(counts.prepay)       },
+    session:      { n: counts.session,      p: pct(counts.session)      },
+    canceled:     { n: counts.canceled,     p: pct(counts.canceled)     },
+    dropped:      { n: counts.dropped,      p: pct(counts.dropped)      }
+  };
 }
 
 function normalizeQual(qRaw='') {
@@ -2632,17 +2657,16 @@ async function mkFetchClientsFallback() {
   return [];
 }
 
-// --- Конверсия из лидов: загрузка логов статусов по всем клиентам (через FB.db, с ручной сортировкой) ---
+// --- Логи статусов по всем клиентам (через FB.db, с аккуратной сортировкой) ---
 async function mkFetchStatusLogsForClients(clients) {
   const out = new Map(); // clientId -> [{ ts, from, to, _id }, ... asc]
   if (!Array.isArray(clients) || !clients.length) return out;
 
   for (const c of clients) {
     const id = c?.id;
-    if (!id) { continue; }
+    if (!id) continue;
 
     try {
-      // Берём как есть, без orderBy — некоторые записи могли быть без ts
       const snap = await FB.db
         .collection('TattooCRM').doc('app')
         .collection('clients').doc(id)
@@ -2653,18 +2677,18 @@ async function mkFetchStatusLogsForClients(clients) {
       snap.forEach(d => {
         const row = d.data() || {};
         arr.push({
-          ts: row.ts || '',          // ISO или пусто
+          ts: row.ts || '',
           from: row.from || '',
           to: row.to || '',
-          _id: d.id || ''            // у нас это Date.now() — растущая строка
+          _id: d.id || ''
         });
       });
 
-      // Сортируем стабильно: сначала по ts (если есть ISO), иначе по _id (doc id как число)
+      // сортируем по ts (если ISO), иначе по doc.id (у нас это Date.now())
       arr.sort((a, b) => {
-        const aKey = a.ts ? a.ts : String(a._id || '');
-        const bKey = b.ts ? b.ts : String(b._id || '');
-        return aKey.localeCompare(bKey);
+        const ak = a.ts ? a.ts : String(a._id || '');
+        const bk = b.ts ? b.ts : String(b._id || '');
+        return ak.localeCompare(bk);
       });
 
       out.set(id, arr);
@@ -2907,10 +2931,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Карточка №4: конверсия из лидов
     const logsMap = await mkFetchStatusLogsForClients(MK_CLIENTS_CACHE);
 
-// Прямые конверсии: "Лид → …"
+// "как в Excel": доля лидов, которые дошли до каждого статуса (to == ...)
 const conv = mkBuildReachedConversion(MK_CLIENTS_CACHE, logsMap);
 mkRenderCardConversion(conv);
 
+// временно для проверки:
+console.log('[conv reached]', conv);
 // (опционально) в консоль для проверки:
 console.log('[conv direct]', conv);
 console.log('[mk conv] denom', conv?.denom, conv, logsMap);
