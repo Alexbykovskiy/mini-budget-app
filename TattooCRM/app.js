@@ -2612,6 +2612,105 @@ async function mkFetchClientsFallback() {
   return [];
 }
 
+// --- Конверсия из лидов: загрузка логов статусов по всем клиентам ---
+async function mkFetchStatusLogsForClients(clients) {
+  const db = firebase?.firestore?.();
+  const out = new Map(); // clientId -> [{ts, from, to}, ... asc]
+  if (!db || !Array.isArray(clients) || !clients.length) return out;
+
+  for (const c of clients) {
+    const id = c?.id;
+    if (!id) continue;
+    try {
+      const snap = await db
+        .collection('TattooCRM').doc('app')
+        .collection('clients').doc(id)
+        .collection('statusLogs')
+        .orderBy('ts', 'asc')
+        .get();
+
+      const arr = [];
+      snap.forEach(d => arr.push(d.data()));
+      out.set(id, arr);
+    } catch (_) {
+      out.set(id, []);
+    }
+  }
+  return out;
+}
+
+
+// --- Конверсия "из лидов" в другие статусы по логам ---
+function mkBuildLeadConversionFromLogs(clients, logsMap) {
+  const targets = ['consultation', 'prepay', 'session', 'canceled', 'dropped'];
+
+  // Нормализация и поиск момента, когда клиент СТАЛ лидом (перешёл на 'lead')
+  function leadTimestamp(logs, client) {
+    // 1) По логам: первый переход "to -> lead"
+    const l = (logs || []).find(row => normalizeStatus(row?.to) === 'lead');
+    if (l?.ts) return l.ts;
+
+    // 2) Если логов нет, но текущий статус == lead — считаем лидом без даты
+    const nowIsLead = normalizeStatus(client?.status || client?.stage || client?.type) === 'lead';
+    return nowIsLead ? null : undefined; // null = лид без даты, undefined = не был лидом вовсе
+  }
+
+  let denom = 0;
+  const counts = { consultation: 0, prepay: 0, session: 0, canceled: 0, dropped: 0 };
+
+  for (const c of (clients || [])) {
+    const logs = logsMap.get(c.id) || [];
+    const tLead = leadTimestamp(logs, c);
+    if (tLead === undefined) continue; // не был лидом вообще
+    denom++;
+
+    // Если есть метка времени tLead — учитываем только переходы ПОСЛЕ tLead.
+    // Если tLead === null (нет даты, но сейчас в лиде) — конверсии считаем только если есть явные переходы в логе (перестраховка).
+    for (const t of targets) {
+      const hit = logs.some(row => {
+        const toNorm = normalizeStatus(row?.to);
+        if (toNorm !== t) return false;
+        if (tLead === null) return true;      // нет времени «lead», но зафиксирован переход в target
+        if (!row?.ts) return false;
+        return String(row.ts) > String(tLead); // строго позже, чем стал лидом
+      });
+      if (hit) counts[t] += 1;
+    }
+  }
+
+  const pct = (n) => denom > 0 ? Math.round((n / denom) * 100) : 0;
+
+  return {
+    denom,
+    consultation: { n: counts.consultation, p: pct(counts.consultation) },
+    prepay:       { n: counts.prepay,       p: pct(counts.prepay)       },
+    session:      { n: counts.session,      p: pct(counts.session)      },
+    canceled:     { n: counts.canceled,     p: pct(counts.canceled)     },
+    dropped:      { n: counts.dropped,      p: pct(counts.dropped)      }
+  };
+}
+
+
+// --- Рендер карточки конверсии (карточка №4) ---
+function mkRenderCardConversion(conv) {
+  // Может не быть карточки в DOM — просто выходим
+  const box = document.getElementById('mk-card-conv');
+  if (!box || !conv) return;
+
+  const set = (id, text) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  };
+
+  set('mk-conv-den', String(conv.denom));
+  set('mk-conv-consult', `${conv.consultation.n} (${conv.consultation.p}%)`);
+  set('mk-conv-prepay',   `${conv.prepay.n} (${conv.prepay.p}%)`);
+  set('mk-conv-session',  `${conv.session.n} (${conv.session.p}%)`);
+  set('mk-conv-canceled', `${conv.canceled.n} (${conv.canceled.p}%)`);
+  set('mk-conv-dropped',  `${conv.dropped.n} (${conv.dropped.p}%)`);
+}
+
+
 function mkClientMatchesFilters(c) {
   // Если ни один фильтр не выбран — считаем, что совпадает любой
   const hasAny =
@@ -2737,6 +2836,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Всегда стартуем со сброшенными кружками
     mkResetFilters();
     mkRenderResults(MK_CLIENTS_CACHE);
+
+    // Карточка №4: конверсия из лидов
+    const logsMap = await mkFetchStatusLogsForClients(MK_CLIENTS_CACHE);
+    const conv = mkBuildLeadConversionFromLogs(MK_CLIENTS_CACHE, logsMap);
+    mkRenderCardConversion(conv);
   } catch (e) {
     console.warn('[marketing overview] render failed:', e);
   }
