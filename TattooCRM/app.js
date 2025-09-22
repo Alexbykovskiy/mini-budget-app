@@ -2389,7 +2389,11 @@ function normalizeStatus(raw) {
   if (s.includes('слил') || s.includes('пропал') || s.includes('no show') || s.includes('ghost')) return 'dropped';
 
   return '';
-}// Сбор депозитов из разных схем (массив/поле)
+
+
+}
+
+// Сбор депозитов из разных схем (массив/поле)
 function extractDepositsFromClient(c) {
   let count = 0, sum = 0;
   if (Array.isArray(c?.deposits)) {
