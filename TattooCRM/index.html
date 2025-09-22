@@ -188,6 +188,16 @@
     <button id="btnAddSession" type="button" class="btn">+ Дата</button>
   </div>
 </label>
+
+ <!-- 9: Напоминание + список напоминаний -->
+  <label class="field" style="grid-column: 1 / -1"><span>Напоминание</span>
+    <div class="row gap-8">
+      <select id="fReminderTpl" class="chip" style="flex:1"><option value="">— шаблон —</option></select>
+      <select id="fReminderAfter" class="chip" title="Когда напомнить"><option value="">дни</option></select>
+    </div>
+    <input id="fReminderTitle" placeholder="Свой текст напоминания (необязательно)"/>
+  </label>
+
   <!-- Напоминания (слева) + История статусов (справа) -->
   <div class="grid two" style="grid-column: 1 / -1; gap:12px">
     <!-- ЛЕВЫЙ столбец: напоминания -->
@@ -203,14 +213,7 @@
     </div>
   </div>
 
-  <!-- 9: Напоминание + список напоминаний -->
-  <label class="field" style="grid-column: 1 / -1"><span>Напоминание</span>
-    <div class="row gap-8">
-      <select id="fReminderTpl" class="chip" style="flex:1"><option value="">— шаблон —</option></select>
-      <select id="fReminderAfter" class="chip" title="Когда напомнить"><option value="">дни</option></select>
-    </div>
-    <input id="fReminderTitle" placeholder="Свой текст напоминания (необязательно)"/>
-  </label>
+ 
 
 
  
