@@ -2413,7 +2413,8 @@ function mkBuildReachedConversion(clients, logsMap) {
     const logs = logsMap.get(c.id) || [];
 
     // был ли когда-то лидом (по логам или текущее состояние)
-    const wasLead = logs.some(r => norm(r?.to) === 'lead') || norm(c?.status) === 'lead';
+    const wasLead = logs.some(r => norm(r?.to) === 'lead' || norm(r?.from) === 'lead')
+               || norm(c?.status) === 'lead';
     if (!wasLead) continue;
 
     denom++;
@@ -2700,42 +2701,6 @@ async function mkFetchStatusLogsForClients(clients) {
   return out;
 }
 
-// --- Конверсия: считаем сколько лидов ДОШЛО до целевых статусов (to == …), неважно откуда ---
-function mkBuildReachedConversion(clients, logsMap) {
-  const TARGETS = ['consultation', 'prepay', 'session', 'canceled', 'dropped'];
-  const counts = { consultation:0, prepay:0, session:0, canceled:0, dropped:0 };
-  let denom = 0;
-
-  const norm = (x) => normalizeStatus(x);
-
-  for (const c of (clients || [])) {
-    const logs = logsMap.get(c.id) || [];
-
-    // был ли когда-то лидом?
-    const wasLead = logs.some(r => norm(r?.to) === 'lead') ||
-                    norm(c?.status) === 'lead';
-    if (!wasLead) continue;
-
-    denom++;
-
-    // смотрим, достигал ли клиент целевых статусов
-    for (const t of TARGETS) {
-      const hit = logs.some(r => norm(r?.to) === t);
-      if (hit) counts[t] += 1;
-    }
-  }
-
-  const pct = (n) => denom > 0 ? Math.round((n / denom) * 100) : 0;
-
-  return {
-    denom,
-    consultation: { n: counts.consultation, p: pct(counts.consultation) },
-    prepay:       { n: counts.prepay,       p: pct(counts.prepay)       },
-    session:      { n: counts.session,      p: pct(counts.session)      },
-    canceled:     { n: counts.canceled,     p: pct(counts.canceled)     },
-    dropped:      { n: counts.dropped,      p: pct(counts.dropped)      }
-  };
-}
 // --- Конверсия "из лидов" в другие статусы по логам (по индексу после первого LEAD) ---
 function mkBuildLeadConversionFromLogs(clients, logsMap) {
   const TARGETS = ['consultation', 'prepay', 'session', 'canceled', 'dropped'];
