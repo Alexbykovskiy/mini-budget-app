@@ -868,3 +868,61 @@ dialog[open] .modal-body{
   border-bottom: 1px dashed rgba(255,255,255,0.12);
   padding-bottom: 2px;
 }
+
+/* --- Marketing: Card #2 — Профиль клиентов (узкий вертикальный столбец) --- */
+#mk-card-demo {
+  font-size: 12px;                /* общий кегль поменьше */
+  line-height: 1.25;
+}
+
+#mk-card-demo .mk-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+#mk-card-demo .mk-subtitle {
+  font-size: 12px;
+  font-weight: 700;               /* заголовки — толстые */
+  opacity: .85;
+  margin: 6px 0 2px 0;
+  padding-bottom: 2px;
+  border-bottom: 1px dashed rgba(255,255,255,0.12);
+}
+
+/* Список строк под каждым подзаголовком — строго вертикально */
+#mk-card-demo .mk-list {
+  list-style: none;
+  margin: 4px 0 8px 0;
+  padding: 0;
+  display: block;                 /* переопределяем возможные grid/inline-стили */
+}
+
+/* Одна строка: лейбл слева (тонкий), число справа (жирное) */
+#mk-card-demo .mk-list .mk-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 0;
+  white-space: nowrap;            /* чтобы влезало на одной строке */
+}
+
+#mk-card-demo .mk-list .label {
+  font-weight: 400;               /* типы — тонкие */
+  opacity: .9;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#mk-card-demo .mk-list .value {
+  font-weight: 700;               /* цифры — толстые */
+  flex: 0 0 auto;
+  margin-left: 8px;
+}
+
+/* На очень узких экранах ещё компактнее */
+@media (max-width: 480px) {
+  #mk-card-demo { font-size: 11px; }
+  #mk-card-demo .mk-card-title { font-size: 13px; }
+}
