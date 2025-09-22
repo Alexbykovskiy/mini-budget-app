@@ -2605,7 +2605,7 @@ function mkClientMatchesFilters(c) {
     MK_FILTERS.status.size || MK_FILTERS.lang.size ||
     MK_FILTERS.gender.size || MK_FILTERS.qual.size;
 
-  if (!hasAny) return true;
+  if (!hasAny) return false;
 
   // Группа: STATUS
   if (MK_FILTERS.status.size) {
@@ -2717,11 +2717,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const { counts } = mkBuildOverviewFromClients(MK_CLIENTS_CACHE);
     mkRenderCardStatuses(counts);
 
-    // Карточка №2: демография (все, кроме "холодных лидов")
+    // Карточка №2: демография
     const demo = mkBuildDemographicsFromClients(MK_CLIENTS_CACHE);
     mkRenderCardDemographics(demo);
 
-    // Карточка №3: стартовый результат (без выбранных фильтров = все)
+    // Всегда стартуем со сброшенными кружками
+    mkResetFilters();
     mkRenderResults(MK_CLIENTS_CACHE);
   } catch (e) {
     console.warn('[marketing overview] render failed:', e);
