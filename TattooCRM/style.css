@@ -853,70 +853,58 @@ dialog[open] .modal-body{
 .mk-row .label { font-size: 13.5px; opacity: .92; }
 .mk-row .value { font-variant-numeric: tabular-nums; font-weight: 700; }
 
-/* ---- Marketing: карточка депозитов ---- */
-#mk-card-deposits { align-items: stretch; justify-content: flex-start; padding: 12px 14px; }
-.mk-deposits-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 6px 0; }
-.mk-deposits-row .label { font-size: 13.5px; opacity: .92; }
-.mk-deposits-row .value { font-variant-numeric: tabular-nums; font-weight: 800; }
 
-/* --- Marketing → Card #2: сделать один вертикальный столбец --- */
-#mk-card-demo {
-  display: block !important;           /* убираем grid из .stat-card для этой карточки */
+/* --- Marketing → Card #2 (Профиль клиентов) --- */
+.stat-card-demo {
+  display: block !important;       /* вместо сетки */
   font-size: 12px;
   line-height: 1.25;
+  text-align: left;                /* всё выравниваем в колонку */
 }
 
-#mk-card-demo .mk-card-title {
+.stat-card-demo .mk-card-title {
   font-size: 14px;
   font-weight: 700;
   margin-bottom: 6px;
 }
 
-#mk-card-demo .mk-subtitle {
-  display: block;                      /* каждый подзаголовок с новой строки */
+.stat-card-demo .mk-subtitle {
+  display: block;
   font-size: 12px;
-  font-weight: 700;                    /* заголовки толстые */
+  font-weight: 700;                /* заголовки толстые */
   opacity: .85;
   margin: 6px 0 2px 0;
   padding-bottom: 2px;
   border-bottom: 1px dashed rgba(255,255,255,0.12);
 }
 
-/* Списки под каждым подзаголовком — строго вертикально, без колонок и grid */
-#mk-card-demo .mk-list {
+/* Списки вертикально */
+.stat-card-demo .mk-list {
   list-style: none;
   margin: 4px 0 8px 0;
   padding: 0;
-  display: block !important;           /* перекрываем возможный grid */
-  grid-template-columns: none !important;
-  column-count: 1 !important;          /* на случай, если где-то включены CSS-колонки */
+  display: block !important;
 }
 
-/* Строка: лейбл слева тонкий, число справа жирное */
-#mk-card-demo .mk-list .mk-row {
+.stat-card-demo .mk-list .mk-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 8px;
   padding: 2px 0;
-  white-space: nowrap;
 }
 
-#mk-card-demo .mk-list .label {
-  font-weight: 400;                    /* типы — тонкие */
+.stat-card-demo .mk-list .label {
+  font-weight: 400;                /* тонкий */
   opacity: .9;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-#mk-card-demo .mk-list .value {
-  font-weight: 700;                    /* цифры — толстые */
-  flex: 0 0 auto;
-  margin-left: 8px;
+.stat-card-demo .mk-list .value {
+  font-weight: 700;                /* жирный */
 }
 
-/* чуть компактнее на очень узких экранах */
+/* На очень узких экранах уменьшаем */
 @media (max-width: 480px) {
-  #mk-card-demo { font-size: 11px; }
-  #mk-card-demo .mk-card-title { font-size: 13px; }
+  .stat-card-demo { font-size: 11px; }
+  .stat-card-demo .mk-card-title { font-size: 13px; }
 }
