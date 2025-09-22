@@ -1283,34 +1283,37 @@ function addSessionField(s = { dt: '', price: '', done: false }) {
   wrap.style.alignItems = 'center';
   wrap.style.gap = '8px';
 
-  wrap.innerHTML = `
-   
-    <input type="checkbox"
-           class="sessionDone"
-           ${s.done ? 'checked' : ''}
-           title="Сеанс состоялся"
-           aria-label="Сеанс состоялся"
-           style="width:20px; height:20px; accent-color:#ff9d3a;">
+wrap.innerHTML = `
+  <input type="checkbox"
+         class="sessionDone"
+         ${s.done ? 'checked' : ''}
+         title="Сеанс состоялся"
+         aria-label="Сеанс состоялся"
+         style="width:20px; height:20px; accent-color:#ff9d3a;">
 
-   <input type="datetime-local"
-       class="sessionDate"
-       value="${s.dt || ''}"
-       style="flex:1; min-width:150px">   
-<input type="number"
-       step="0.01" min="0"
-       class="sessionPrice"
-       placeholder="€"
-       value="${(s.price ?? '')}"
-       title="Стоимость сеанса, €"
-       style="width:100px">             
-<button type="button"
-        class="btn danger icon"
-        title="Удалить сеанс"
-        style="flex:0 0 36px; width:36px; height:36px; padding:0">🗑</button>
-  // обработчик удаления
-  wrap.querySelector('button').onclick = () => wrap.remove();
+  <input type="datetime-local"
+         class="sessionDate"
+         value="${s.dt || ''}"
+         style="flex:1; min-width:150px">
 
-  $('#sessionsList').appendChild(wrap);
+  <input type="number"
+         step="0.01" min="0"
+         class="sessionPrice"
+         placeholder="€"
+         value="${(s.price ?? '')}"
+         title="Стоимость сеанса, €"
+         style="width:100px">
+
+  <button type="button"
+          class="btn danger icon"
+          title="Удалить сеанс"
+          style="flex:0 0 36px; width:36px; height:36px; padding:0">🗑</button>
+`; // ← вот ЭТОГО не хватало
+
+// обработчик удаления
+wrap.querySelector('button').onclick = () => wrap.remove();
+
+$('#sessionsList').appendChild(wrap);
 }
 
 // --- История смен статусов клиента ---
