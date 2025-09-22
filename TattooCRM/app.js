@@ -2329,12 +2329,24 @@ function normalizeStatus(raw) {
   if (!s) return '';
   if (s.includes('холод')) return 'cold';
   if (s === 'lead' || s.startsWith('лид')) return 'lead';
-  if (s.includes('конс')) return 'consultation';
-  if (s.includes('сеанс') || s.includes('session')) return 'session';
+
+  // консультации
+  if (s.includes('запись на конс') || s.includes('конс. подтверждена') || s.includes('консультация состоялась')) {
+    return 'consultation';
+  }
+
+  // предоплата/эскиз и сеансы
+  if (s.includes('предоплата') || s.includes('эскиз') ||
+      s.includes('запись на сеанс') || s.includes('сеанс подтвержден') || s.includes('сеанс состоялся') ||
+      s.includes('сеанс') || s.includes('session')) {
+    return 'session';
+  }
+
   if (s.includes('отмен')) return 'canceled';
+  if (s.includes('слился')) return 'canceled'; // можно завести отдельный, если нужно
+
   return '';
 }
-
 // Сбор депозитов из разных схем (массив/поле)
 function extractDepositsFromClient(c) {
   let count = 0, sum = 0;
