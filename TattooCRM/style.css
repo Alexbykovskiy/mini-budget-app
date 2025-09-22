@@ -1012,3 +1012,5 @@ dialog[open] .modal-body{
 .mk-btn-ghost {
   backdrop-filter: blur(6px);
 }
+
+.meta-note { font-size: 12px; opacity: .7; margin-top: 6px; }
