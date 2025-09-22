@@ -2366,17 +2366,30 @@ let MK_CLIENTS_CACHE = [];
 // Нормализация статуса (под разные формулировки)
 function normalizeStatus(raw) {
   const s = (raw || '').toString().trim().toLowerCase();
+
   if (!s) return '';
-  if (s.includes('холод')) return 'cold';
+
+  // lead
   if (s === 'lead' || s.startsWith('лид')) return 'lead';
- if (s.includes('конс')) return 'consultation';
-if (s.includes('предоплата') || s.includes('эскиз')) return 'prepay';
-if (s.includes('сеанс') || s.includes('session')) return 'session';
-if (s.includes('отмен')) return 'canceled';
-if (s.includes('слил') || s.includes('пропал') || s.includes('no show') || s.includes('ghost'))
-  return 'dropped';
-return '';
-}// Сбор депозитов из разных схем (массив/поле)
+  if (s.includes('холод')) return 'cold';
+
+  // consultation (любой вариант с "конс")
+  if (s.includes('конс')) return 'consultation'; // "запись на конс.", "конс. подтверждена", "консультация"
+
+  // prepay / sketch
+  if (s.includes('предоплат') || s.includes('эскиз') || s.includes('скетч')) return 'prepay';
+
+  // session
+  if (s.includes('сеанс') || s.includes('session')) return 'session';
+
+  // canceled
+  if (s.includes('отмен')) return 'canceled';
+
+  // dropped / no show
+  if (s.includes('слил') || s.includes('пропал') || s.includes('no show') || s.includes('ghost')) return 'dropped';
+
+  return '';
+}}// Сбор депозитов из разных схем (массив/поле)
 function extractDepositsFromClient(c) {
   let count = 0, sum = 0;
   if (Array.isArray(c?.deposits)) {
@@ -2613,16 +2626,17 @@ async function mkFetchClientsFallback() {
 }
 
 // --- Конверсия из лидов: загрузка логов статусов по всем клиентам ---
+// --- Конверсия из лидов: загрузка логов статусов по всем клиентам (через FB.db!) ---
 async function mkFetchStatusLogsForClients(clients) {
-  const db = firebase?.firestore?.();
   const out = new Map(); // clientId -> [{ts, from, to}, ... asc]
-  if (!db || !Array.isArray(clients) || !clients.length) return out;
+  if (!Array.isArray(clients) || !clients.length) return out;
 
   for (const c of clients) {
     const id = c?.id;
-    if (!id) continue;
+    if (!id) { continue; }
+
     try {
-      const snap = await db
+      const snap = await FB.db
         .collection('TattooCRM').doc('app')
         .collection('clients').doc(id)
         .collection('statusLogs')
@@ -2630,15 +2644,23 @@ async function mkFetchStatusLogsForClients(clients) {
         .get();
 
       const arr = [];
-      snap.forEach(d => arr.push(d.data()));
+      snap.forEach(d => {
+        const row = d.data() || {};
+        // нормализуем и подчищаем сразу
+        arr.push({
+          ts: row.ts || '',
+          from: row.from || '',
+          to: row.to || ''
+        });
+      });
       out.set(id, arr);
-    } catch (_) {
+    } catch (e) {
+      console.warn('[mkFetchStatusLogsForClients]', id, e?.message || e);
       out.set(id, []);
     }
   }
   return out;
 }
-
 
 // --- Конверсия "из лидов" в другие статусы по логам ---
 function mkBuildLeadConversionFromLogs(clients, logsMap) {
@@ -2841,6 +2863,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const logsMap = await mkFetchStatusLogsForClients(MK_CLIENTS_CACHE);
     const conv = mkBuildLeadConversionFromLogs(MK_CLIENTS_CACHE, logsMap);
     mkRenderCardConversion(conv);
+console.log('[mk conv] denom', conv?.denom, conv, logsMap);
   } catch (e) {
     console.warn('[marketing overview] render failed:', e);
   }
