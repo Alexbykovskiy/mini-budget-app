@@ -2881,30 +2881,23 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     MK_CLIENTS_CACHE = await mkFetchClientsFallback();
 
-    // Карточка №1: статусы
+    // Карточка №1
     const { counts } = mkBuildOverviewFromClients(MK_CLIENTS_CACHE);
     mkRenderCardStatuses(counts);
 
-    // Карточка №2: демография
+    // Карточка №2
     const demo = mkBuildDemographicsFromClients(MK_CLIENTS_CACHE);
     mkRenderCardDemographics(demo);
 
-    // Всегда стартуем со сброшенными кружками
+    // Суперфильтр
     mkResetFilters();
     mkRenderResults(MK_CLIENTS_CACHE);
 
-    // Карточка №4: конверсия из лидов
+    // Карточка №4: «как в Excel»
     const logsMap = await mkFetchStatusLogsForClients(MK_CLIENTS_CACHE);
-
-// "как в Excel": доля лидов, которые дошли до каждого статуса (to == ...)
-const conv = mkBuildReachedConversion(MK_CLIENTS_CACHE, logsMap);
-mkRenderCardConversion(conv);
-
-// временно для проверки:
-console.log('[conv reached]', conv);
-// (опционально) в консоль для проверки:
-console.log('[conv direct]', conv);
-console.log('[mk conv] denom', conv?.denom, conv, logsMap);
+    const conv = mkBuildReachedConversion(MK_CLIENTS_CACHE, logsMap);
+    mkRenderCardConversion(conv);
+    console.log('[conv reached]', conv);
   } catch (e) {
     console.warn('[marketing overview] render failed:', e);
   }
