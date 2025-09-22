@@ -1446,6 +1446,8 @@ $('#fName').value   = c?.displayName || '';
 $('#fPhone').value  = c?.phone || '';
 $('#fLink').value   = c?.link || '';
 const fLang = $('#fLang'); if (fLang) fLang.value = c?.lang || '';
+const fGender = $('#fGender'); if (fGender) fGender.value = c?.gender || '';
+
 const fSourceSel = $('#fSource'); if (fSourceSel) fSourceSel.value = c?.source || (AppState.settings?.sources?.[0] || '');
 
     // Первое обращение (опциональные поля)
@@ -1706,6 +1708,7 @@ const statusVal = $('#fStatus').value;
     link: $('#fLink').value.trim() || '',             // ← контакт (ссылка)
     firstContactDate: $('#fFirstContact').value || '',  // ← правильное имя поля
     lang: $('#fLang').value || '',           // ← ДОБАВЬ ЭТО
+gender: $('#fGender').value || '',
  updatedAt: new Date().toISOString()
   };
 
@@ -1752,6 +1755,7 @@ if (amountMin != null && amountMax != null && amountMin > amountMax) {
   link: $('#fLink').value.trim(),
 source: $('#fSource').value.trim(),
 lang: $('#fLang').value || '',            // ← ДОБАВЬ ЭТО
+gender: $('#fGender').value || '',
 firstContactDate: ($('#fFirstContact').value || new Date().toISOString().slice(0,10)),
 first: ($('#fFirst').value === 'true'),
   type: $('#fType').value.trim(),

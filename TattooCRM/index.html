@@ -87,19 +87,25 @@
 
           <div class="grid two">
 
-<!-- 0: Язык (отдельная строка: слева поле, справа пусто) -->
-  <label class="field">
-    <span>Язык</span>
-    <select id="fLang">
-      <option value="">—</option>
-      <option value="ru">Русский</option>
-      <option value="en">Английский</option>
-      <option value="sk">Словацкий</option>
-      <option value="de">Немецкий</option>
-    </select>
-  </label>
-  <div class="grid-spacer" aria-hidden="true"></div> <!-- пустая правая ячейка -->
-  <!-- 1: Имя \ Телефон -->
+<!-- 0: Язык (слева) · Пол (справа) -->
+<label class="field">
+  <span>Язык</span>
+  <select id="fLang">
+    <option value="">—</option>
+    <option value="ru">Русский</option>
+    <option value="en">Английский</option>
+    <option value="sk">Словацкий</option>
+    <option value="de">Немецкий</option>
+  </select>
+</label>
+<label class="field">
+  <span>Пол</span>
+  <select id="fGender">
+    <option value="">—</option>
+    <option value="male">Мужчина</option>
+    <option value="female">Женщина</option>
+  </select>
+</label>  <!-- 1: Имя \ Телефон -->
   <label class="field"><span>Имя</span><input id="fName" /></label>
   <label class="field"><span>Телефон</span><input id="fPhone" /></label>
 
