@@ -2340,6 +2340,14 @@ const GENDER_LABELS = {
   '':     'Не указан'
 };
 
+// --- SuperFilter State ---
+const MK_FILTERS = {
+  status: new Set(),   // значения normalizeStatus: cold/lead/consultation/prepay/session/canceled/dropped
+  lang:   new Set(),   // ru/en/sk/de/at/...
+  gender: new Set(),   // male/female/''
+  qual:   new Set(),   // target/semi/nontarget (нормализуем внутри)
+};
+let MK_CLIENTS_CACHE = [];
 
 
 // Нормализация статуса (под разные формулировки)
@@ -2372,6 +2380,15 @@ function extractDepositsFromClient(c) {
   }
   return { count, sum };
 }
+
+function normalizeQual(qRaw='') {
+  const q = String(qRaw).toLowerCase();
+  if (q.includes('целевой') && !q.includes('условно')) return 'target';
+  if (q.includes('условно')) return 'semi';
+  if (q.includes('не цел') || q.includes('нецел')) return 'nontarget';
+  return ''; // неизвестно
+}
+
 
 // Главный расчёт
 function mkBuildOverviewFromClients(clients) {
@@ -2470,27 +2487,100 @@ function mkRenderCardDemographics({ langCounts = {}, genderCounts = {}, qualCoun
 
 // Рендер КАРТОЧКИ #1 (только статусы)
 function mkRenderCardStatuses(counts) {
-  const listEl = document.getElementById('mk-status-list');
-  if (!listEl) return;
-  const order = ['total', 'cold', 'lead', 'consultation', 'prepay', 'session', 'canceled', 'dropped'];
-  listEl.innerHTML = order.map(key => {
-    const label = MK_STATUS_LABELS[key] || key;
-    const value = counts[key] ?? 0;
-    return `<li class="mk-row"><span class="label">${label}</span><span class="value">${value}</span></li>`;
-  }).join('');
-}
+  const list = document.getElementById('mk-status-list');
+  if (!list) return;
 
+  const order = ['total', 'cold', 'lead', 'consultation', 'prepay', 'session', 'canceled', 'dropped'];
+  const html = order.map(key => {
+    const label = MK_STATUS_LABELS[key] || key;
+    const val = counts[key] ?? 0;
+
+    if (key === 'total') {
+      return `<li class="mk-row"><span class="label">${label}</span><span class="value">${val}</span></li>`;
+    }
+
+    // чекбокс для фильтра статусов
+    const isChecked = MK_FILTERS.status.has(key) ? 'checked' : '';
+    return `
+      <li class="mk-row">
+        <label class="mk-check">
+          <span class="label">
+            <input type="checkbox" class="mk-filter" data-mk-group="status" data-mk-value="${key}" ${isChecked}/>
+            ${label}
+          </span>
+          <span class="value">${val}</span>
+        </label>
+      </li>`;
+  }).join('');
+
+  list.innerHTML = html;
+}
 // Рендер КАРТОЧКИ #2 (только депозиты)
-function mkRenderCardDeposits(depCount, depSum) {
-  const cntEl = document.getElementById('mk-deposits-count');
-  const sumEl = document.getElementById('mk-deposits-sum');
-  if (cntEl) cntEl.textContent = String(depCount || 0);
-  if (sumEl) {
-    const v = Math.round((depSum || 0) * 100) / 100;
-    sumEl.textContent = v.toLocaleString('ru-RU') + ' €';
+function mkRenderCardDemographics({ langCounts = {}, genderCounts = {}, qualCounts = {} }) {
+  // Язык/страна
+  const langEl = document.getElementById('mk-demo-lang');
+  if (langEl) {
+    const entries = Object.entries(langCounts).sort((a,b) => b[1] - a[1]);
+    langEl.innerHTML = entries.length
+      ? entries.map(([code, n]) => {
+          const label = LANG_LABELS.hasOwnProperty(code) ? LANG_LABELS[code] : (code || '—');
+          const checked = MK_FILTERS.lang.has(code) ? 'checked' : '';
+          return `<li class="mk-row">
+            <label class="mk-check">
+              <span class="label">
+                <input type="checkbox" class="mk-filter" data-mk-group="lang" data-mk-value="${code}" ${checked}/>
+                ${label}
+              </span>
+              <span class="value">${n}</span>
+            </label>
+          </li>`;
+        }).join('')
+      : `<li class="mk-row"><span class="label">—</span><span class="value">0</span></li>`;
+  }
+
+  // Пол
+  const gEl = document.getElementById('mk-demo-gender');
+  if (gEl) {
+    const order = ['male','female',''];
+    gEl.innerHTML = order.map(key => {
+      const label = GENDER_LABELS[key] || key;
+      const val = genderCounts[key] || 0;
+      const checked = MK_FILTERS.gender.has(key) ? 'checked' : '';
+      return `<li class="mk-row">
+        <label class="mk-check">
+          <span class="label">
+            <input type="checkbox" class="mk-filter" data-mk-group="gender" data-mk-value="${key}" ${checked}/>
+            ${label}
+          </span>
+          <span class="value">${val}</span>
+        </label>
+      </li>`;
+    }).join('');
+  }
+
+  // Квалификация
+  const qEl = document.getElementById('mk-demo-qual');
+  if (qEl) {
+    const rows = [
+      ['target',    'Целевой'],
+      ['semi',      'Условно целевой'],
+      ['nontarget', 'Не целевой']
+    ];
+    qEl.innerHTML = rows.map(([k, label]) => {
+      const val = qualCounts[k] || 0;
+      const checked = MK_FILTERS.qual.has(k) ? 'checked' : '';
+      return `<li class="mk-row">
+        <label class="mk-check">
+          <span class="label">
+            <input type="checkbox" class="mk-filter" data-mk-group="qual" data-mk-value="${k}" ${checked}/>
+            ${label}
+          </span>
+          <span class="value">${val}</span>
+        </label>
+      </li>`;
+    }).join('');
   }
 }
-
 // Достаём клиентов (под разные варианты)
 async function mkFetchClientsFallback() {
   if (window.AppState?.clients && Array.isArray(AppState.clients)) return AppState.clients;
@@ -2509,18 +2599,130 @@ async function mkFetchClientsFallback() {
   return [];
 }
 
+function mkClientMatchesFilters(c) {
+  // Если ни один фильтр не выбран — считаем, что совпадает любой
+  const hasAny =
+    MK_FILTERS.status.size || MK_FILTERS.lang.size ||
+    MK_FILTERS.gender.size || MK_FILTERS.qual.size;
+
+  if (!hasAny) return true;
+
+  // Группа: STATUS
+  if (MK_FILTERS.status.size) {
+    const st = normalizeStatus(c?.status || c?.stage || c?.type);
+    if (!MK_FILTERS.status.has(st)) return false;
+  }
+
+  // Группа: LANG
+  if (MK_FILTERS.lang.size) {
+    const lang = String(c?.lang || '').trim().toLowerCase();
+    if (!MK_FILTERS.lang.has(lang)) return false;
+  }
+
+  // Группа: GENDER
+  if (MK_FILTERS.gender.size) {
+    const g = String(c?.gender || '').trim().toLowerCase();
+    const key = (g === 'male' || g === 'female') ? g : '';
+    if (!MK_FILTERS.gender.has(key)) return false;
+  }
+
+  // Группа: QUAL
+  if (MK_FILTERS.qual.size) {
+    const q = normalizeQual(c?.qual || '');
+    if (!MK_FILTERS.qual.has(q)) return false;
+  }
+
+  return true;
+}
+
+function mkRenderResults(clients) {
+  const list = document.getElementById('mk-filter-list');
+  const cntEl = document.getElementById('mk-result-count');
+  if (!list || !cntEl) return;
+
+  const pool = clients.filter(mkClientMatchesFilters);
+  cntEl.textContent = pool.length;
+
+  // Выводим до 50 строк (чтобы не взрывать карточку)
+  const rows = pool.slice(0, 50).map(c => {
+    const name = c?.displayName || '(без имени)';
+    const st = normalizeStatus(c?.status || c?.stage || c?.type);
+    return `<li>
+      <span class="left mk-link" data-open-client="${c.id || ''}">${name}</span>
+      <span class="right">${MK_STATUS_LABELS[st] || ''}</span>
+    </li>`;
+  });
+
+  list.innerHTML = rows.join('') || `<li><span class="left">—</span><span class="right">0</span></li>`;
+}
+
+document.addEventListener('change', (e) => {
+  const el = e.target;
+  if (!(el instanceof HTMLInputElement)) return;
+  if (!el.classList.contains('mk-filter')) return;
+
+  const group = el.dataset.mkGroup;  // status | lang | gender | qual
+  const value = el.dataset.mkValue;  // нормализованное значение
+
+  if (!group) return;
+
+  const set = MK_FILTERS[group];
+  if (!set) return;
+
+  if (el.checked) set.add(value);
+  else set.delete(value);
+
+  // Перерисовать результаты
+  mkRenderResults(MK_CLIENTS_CACHE);
+});
+
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('[data-open-client]');
+  if (!a) return;
+  const id = a.getAttribute('data-open-client');
+  if (!id) return;
+  // если есть твоя функция openClientDialog(id) — вызови её:
+  if (typeof openClientDialog === 'function') openClientDialog(id);
+});
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('#mk-filter-reset');
+  if (!btn) return;
+  mkResetFilters();
+});
+
+function mkResetFilters() {
+  // очистить выбранные значения
+  MK_FILTERS.status.clear();
+  MK_FILTERS.lang.clear();
+  MK_FILTERS.gender.clear();
+  MK_FILTERS.qual.clear();
+
+  // снять галочки в UI
+  document.querySelectorAll('input.mk-filter[type="checkbox"]').forEach(cb => {
+    cb.checked = false;
+  });
+
+  // перерисовать результаты
+  mkRenderResults(MK_CLIENTS_CACHE);
+}
+
+
 // Инициализация карточек
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    const clients = await mkFetchClientsFallback();
+    MK_CLIENTS_CACHE = await mkFetchClientsFallback();
 
-    // Карточка №1: статусы (как было)
-    const { counts } = mkBuildOverviewFromClients(clients);
+    // Карточка №1: статусы
+    const { counts } = mkBuildOverviewFromClients(MK_CLIENTS_CACHE);
     mkRenderCardStatuses(counts);
 
-    // Карточка №2: профиль клиентов (новая логика)
-    const demo = mkBuildDemographicsFromClients(clients);
+    // Карточка №2: демография (все, кроме "холодных лидов")
+    const demo = mkBuildDemographicsFromClients(MK_CLIENTS_CACHE);
     mkRenderCardDemographics(demo);
+
+    // Карточка №3: стартовый результат (без выбранных фильтров = все)
+    mkRenderResults(MK_CLIENTS_CACHE);
   } catch (e) {
     console.warn('[marketing overview] render failed:', e);
   }

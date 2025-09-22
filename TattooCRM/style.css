@@ -940,3 +940,75 @@ dialog[open] .modal-body{
   .stat-card-demo { font-size: 11px; }
   .stat-card-demo .mk-card-title { font-size: 13px; }
 }
+
+/* --- SuperFilter: чекбоксы-кружки и результаты --- */
+.mk-check {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.mk-check .label { font-weight: 400; }
+.mk-check .value { font-weight: 700; }
+
+.mk-check input[type="checkbox"] {
+  appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.6);
+  display: inline-block;
+  position: relative;
+  margin: 0 6px 0 0;
+}
+.mk-check input[type="checkbox"]:checked {
+  background: rgba(255,255,255,.9);
+  border-color: rgba(255,255,255,1);
+}
+.mk-check input[type="checkbox"]:focus { outline: none; }
+
+/* Карточка результатов */
+.stat-card-results {
+  display: block !important;
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: left;
+  padding: 12px 14px;
+}
+.stat-card-results .mk-card-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.stat-card-results .mk-subtitle { font-weight: 600; opacity: .85; margin: 6px 0 8px; }
+.stat-card-results .mk-list { list-style: none; margin: 0; padding: 0; }
+.stat-card-results .mk-list li { padding: 3px 0; display: flex; justify-content: space-between; gap: 8px; }
+.stat-card-results .mk-list .left { overflow: hidden; text-overflow: ellipsis; }
+.stat-card-results .mk-list .right { font-weight: 700; opacity: .9; }
+.stat-card-results .mk-link { text-decoration: underline dotted; cursor: pointer; }
+
+
+/* --- SuperFilter: шапка карточки и кнопка сброса --- */
+.stat-card-results .mk-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.mk-btn {
+  border: 1px solid rgba(255,255,255,.25);
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform .08s ease, background .2s ease, border-color .2s ease;
+}
+.mk-btn:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.4); }
+.mk-btn:active { transform: scale(.98); }
+
+.mk-btn-ghost {
+  backdrop-filter: blur(6px);
+}
