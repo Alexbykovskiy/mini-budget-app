@@ -859,10 +859,10 @@ dialog[open] .modal-body{
 .mk-deposits-row .label { font-size: 13.5px; opacity: .92; }
 .mk-deposits-row .value { font-variant-numeric: tabular-nums; font-weight: 800; }
 
-
-/* --- Marketing: Card #2 — Профиль клиентов (узкий вертикальный столбец) --- */
+/* --- Marketing → Card #2: сделать один вертикальный столбец --- */
 #mk-card-demo {
-  font-size: 12px;                /* общий кегль поменьше */
+  display: block !important;           /* убираем grid из .stat-card для этой карточки */
+  font-size: 12px;
   line-height: 1.25;
 }
 
@@ -873,46 +873,49 @@ dialog[open] .modal-body{
 }
 
 #mk-card-demo .mk-subtitle {
+  display: block;                      /* каждый подзаголовок с новой строки */
   font-size: 12px;
-  font-weight: 700;               /* заголовки — толстые */
+  font-weight: 700;                    /* заголовки толстые */
   opacity: .85;
   margin: 6px 0 2px 0;
   padding-bottom: 2px;
   border-bottom: 1px dashed rgba(255,255,255,0.12);
 }
 
-/* Список строк под каждым подзаголовком — строго вертикально */
+/* Списки под каждым подзаголовком — строго вертикально, без колонок и grid */
 #mk-card-demo .mk-list {
   list-style: none;
   margin: 4px 0 8px 0;
   padding: 0;
-  display: block;                 /* переопределяем возможные grid/inline-стили */
+  display: block !important;           /* перекрываем возможный grid */
+  grid-template-columns: none !important;
+  column-count: 1 !important;          /* на случай, если где-то включены CSS-колонки */
 }
 
-/* Одна строка: лейбл слева (тонкий), число справа (жирное) */
+/* Строка: лейбл слева тонкий, число справа жирное */
 #mk-card-demo .mk-list .mk-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 8px;
   padding: 2px 0;
-  white-space: nowrap;            /* чтобы влезало на одной строке */
+  white-space: nowrap;
 }
 
 #mk-card-demo .mk-list .label {
-  font-weight: 400;               /* типы — тонкие */
+  font-weight: 400;                    /* типы — тонкие */
   opacity: .9;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 #mk-card-demo .mk-list .value {
-  font-weight: 700;               /* цифры — толстые */
+  font-weight: 700;                    /* цифры — толстые */
   flex: 0 0 auto;
   margin-left: 8px;
 }
 
-/* На очень узких экранах ещё компактнее */
+/* чуть компактнее на очень узких экранах */
 @media (max-width: 480px) {
   #mk-card-demo { font-size: 11px; }
   #mk-card-demo .mk-card-title { font-size: 13px; }
