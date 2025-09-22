@@ -844,3 +844,17 @@ dialog[open] .modal-body{
   letter-spacing: .2px;
   opacity: .95;
 }
+
+/* ---- Marketing: карточка со статусами ---- */
+#mk-card-statuses { align-items: stretch; justify-content: flex-start; padding: 12px 14px; }
+.mk-card-title { font-size: 13px; font-weight: 700; opacity: .9; margin-bottom: 8px; text-align: left; }
+.mk-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.mk-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.mk-row .label { font-size: 13.5px; opacity: .92; }
+.mk-row .value { font-variant-numeric: tabular-nums; font-weight: 700; }
+
+/* ---- Marketing: карточка депозитов ---- */
+#mk-card-deposits { align-items: stretch; justify-content: flex-start; padding: 12px 14px; }
+.mk-deposits-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 6px 0; }
+.mk-deposits-row .label { font-size: 13.5px; opacity: .92; }
+.mk-deposits-row .value { font-variant-numeric: tabular-nums; font-weight: 800; }

@@ -256,9 +256,29 @@
   <h2 class="chart-title">Маркетинг — краткая сводка</h2>
 
   <!-- ВНУТРЕННЯЯ СЕТКА 3×3 -->
+
   <div class="stat-grid">
-    <div class="stat-card"><span>Заглушка 1</span></div>
-    <div class="stat-card"><span>Заглушка 2</span></div>
+    <div class="stat-card" id="mk-card-statuses">
+  <div class="mk-card-title">Клиенты и статусы</div>
+  <ul class="mk-list" id="mk-status-list">
+    <!-- сюда JS вставит строки: Всего / Холодные / Лиды / Консультации / Сеансы / Отменил -->
+  </ul>
+</div>
+
+
+  <div class="stat-card" id="mk-card-deposits">
+  <div class="mk-card-title">Депозиты</div>
+  <div class="mk-deposits-row">
+    <span class="label">Количество</span>
+    <span class="value" id="mk-deposits-count">0</span>
+  </div>
+  <div class="mk-deposits-row">
+    <span class="label">Сумма</span>
+    <span class="value" id="mk-deposits-sum">0 €</span>
+  </div>
+</div>
+
+
     <div class="stat-card"><span>Заглушка 3</span></div>
 
     <div class="stat-card"><span>Заглушка 4</span></div>

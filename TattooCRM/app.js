@@ -2305,3 +2305,115 @@ function demoClients(){
   ];
 }
 function demoReminders(){ return []; }
+
+
+// === Marketing overview: statuses + deposits split ============================
+
+// Заголовки по порядку вывода для КАРТОЧКИ #1
+const MK_STATUS_LABELS = {
+  total:       'Всего клиентов',
+  cold:        'Холодные лиды',
+  lead:        'Лиды',
+  consultation:'Консультации',
+  session:     'Сеансы',
+  canceled:    'Отменил'
+};
+
+// Нормализация статуса (под разные формулировки)
+function normalizeStatus(raw) {
+  const s = (raw || '').toString().trim().toLowerCase();
+  if (!s) return '';
+  if (s.includes('холод')) return 'cold';
+  if (s === 'lead' || s.startsWith('лид')) return 'lead';
+  if (s.includes('конс')) return 'consultation';
+  if (s.includes('сеанс') || s.includes('session')) return 'session';
+  if (s.includes('отмен')) return 'canceled';
+  return '';
+}
+
+// Сбор депозитов из разных схем (массив/поле)
+function extractDepositsFromClient(c) {
+  let count = 0, sum = 0;
+  if (Array.isArray(c?.deposits)) {
+    count += c.deposits.length;
+    for (const d of c.deposits) sum += Number(d?.amount) || 0;
+  }
+  if (c?.depositAmount) {
+    count += 1;
+    sum += Number(c.depositAmount) || 0;
+  }
+  if (c?.deposit?.amount) {
+    count += 1;
+    sum += Number(c.deposit.amount) || 0;
+  }
+  return { count, sum };
+}
+
+// Главный расчёт
+function mkBuildOverviewFromClients(clients) {
+  const counts = { total: clients.length, cold: 0, lead: 0, consultation: 0, session: 0, canceled: 0 };
+  let depCount = 0, depSum = 0;
+
+  for (const c of clients) {
+    const st = normalizeStatus(c?.status || c?.stage || c?.type);
+    if (st && counts.hasOwnProperty(st)) counts[st]++;
+
+    const d = extractDepositsFromClient(c);
+    depCount += d.count;
+    depSum   += d.sum;
+  }
+  return { counts, depCount, depSum };
+}
+
+// Рендер КАРТОЧКИ #1 (только статусы)
+function mkRenderCardStatuses(counts) {
+  const listEl = document.getElementById('mk-status-list');
+  if (!listEl) return;
+  const order = ['total', 'cold', 'lead', 'consultation', 'session', 'canceled'];
+  listEl.innerHTML = order.map(key => {
+    const label = MK_STATUS_LABELS[key] || key;
+    const value = counts[key] ?? 0;
+    return `<li class="mk-row"><span class="label">${label}</span><span class="value">${value}</span></li>`;
+  }).join('');
+}
+
+// Рендер КАРТОЧКИ #2 (только депозиты)
+function mkRenderCardDeposits(depCount, depSum) {
+  const cntEl = document.getElementById('mk-deposits-count');
+  const sumEl = document.getElementById('mk-deposits-sum');
+  if (cntEl) cntEl.textContent = String(depCount || 0);
+  if (sumEl) {
+    const v = Math.round((depSum || 0) * 100) / 100;
+    sumEl.textContent = v.toLocaleString('ru-RU') + ' €';
+  }
+}
+
+// Достаём клиентов (под разные варианты)
+async function mkFetchClientsFallback() {
+  if (window.AppState?.clients && Array.isArray(AppState.clients)) return AppState.clients;
+
+  try {
+    const db = firebase?.firestore?.();
+    if (db) {
+      const snap1 = await db.collection('TattooCRM').doc('app').collection('clients').get();
+      if (!snap1.empty) return snap1.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      const snap2 = await db.collection('clients').get();
+      if (!snap2.empty) return snap2.docs.map(d => ({ id: d.id, ...d.data() }));
+    }
+  } catch (_) { /* noop */ }
+
+  return [];
+}
+
+// Инициализация карточек
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const clients = await mkFetchClientsFallback();
+    const { counts, depCount, depSum } = mkBuildOverviewFromClients(clients);
+    mkRenderCardStatuses(counts);          // карточка №1
+    mkRenderCardDeposits(depCount, depSum);// карточка №2
+  } catch (e) {
+    console.warn('[marketing overview] render failed:', e);
+  }
+});
