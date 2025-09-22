@@ -1463,7 +1463,7 @@ const fSourceSel = $('#fSource'); if (fSourceSel) fSourceSel.value = c?.source |
     // Статусы/типы/квалификация
     $('#fType').value   = c?.type || 'Новая';
     $('#fStatus').value = c?.status || 'Лид';
-    $('#fQual').value   = c?.qual || 'Не определена';
+   
     $('#fQualNote').value = c?.qualNote || '';
 
 
