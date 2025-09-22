@@ -796,3 +796,51 @@ dialog[open] .modal-body{
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
 }
+
+.chart-block { padding: 14px 14px 12px 14px; }
+.chart-title { font-size: 14px; font-weight: 600; opacity: .9; margin: 0 0 8px 0; }
+
+/* ---------- Marketing Summary (внутри .block) ---------- */
+.marketing-summary { padding: 14px 14px 16px 14px; }
+
+/* ровно 3 карточки в ряд на любых ширинах контейнера */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+/* плоские прямоугольники со скруглением (без сильного стекла внутри) */
+.stat-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 86px;
+  border-radius: 16px;
+
+  /* «плоский» фон внутри стеклянного блока */
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.16);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.08) inset,
+    0 6px 18px rgba(0,0,0,0.14);
+
+  color: #e8ecec;
+  text-align: center;
+  user-select: none;
+  transition: background .15s ease, box-shadow .15s ease, transform .04s ease;
+}
+.stat-card:hover {
+  background: rgba(255,255,255,0.11);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.10) inset,
+    0 10px 22px rgba(0,0,0,0.18);
+}
+.stat-card:active { transform: scale(0.995); }
+
+.stat-card span {
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  opacity: .95;
+}
