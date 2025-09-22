@@ -2427,7 +2427,6 @@ function mkBuildDemographicsFromClients(clients) {
   return { langCounts, genderCounts, qualCounts };
 }
 
-
 function mkRenderCardDemographics({ langCounts = {}, genderCounts = {}, qualCounts = {} }) {
   // Язык/страна
   const langEl = document.getElementById('mk-demo-lang');
