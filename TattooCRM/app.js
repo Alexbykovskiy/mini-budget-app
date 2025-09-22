@@ -2321,7 +2321,8 @@ const MK_STATUS_LABELS = {
   consultation:'Консультации',
   prepay:      'Предоплата/эскиз',
   session:     'Сеансы',
-  canceled:    'Отменил'
+  canceled:    'Отменил',
+ dropped:     'Слился'
 };
 
 // Нормализация статуса (под разные формулировки)
@@ -2330,11 +2331,13 @@ function normalizeStatus(raw) {
   if (!s) return '';
   if (s.includes('холод')) return 'cold';
   if (s === 'lead' || s.startsWith('лид')) return 'lead';
-  if (s.includes('конс')) return 'consultation';
+ if (s.includes('конс')) return 'consultation';
 if (s.includes('предоплата') || s.includes('эскиз')) return 'prepay';
 if (s.includes('сеанс') || s.includes('session')) return 'session';
-  if (s.includes('отмен')) return 'canceled';
-  return '';
+if (s.includes('отмен')) return 'canceled';
+if (s.includes('слил') || s.includes('пропал') || s.includes('no show') || s.includes('ghost'))
+  return 'dropped';
+return '';
 }// Сбор депозитов из разных схем (массив/поле)
 function extractDepositsFromClient(c) {
   let count = 0, sum = 0;
@@ -2355,7 +2358,8 @@ function extractDepositsFromClient(c) {
 
 // Главный расчёт
 function mkBuildOverviewFromClients(clients) {
-  const counts = { total: clients.length, cold: 0, lead: 0, consultation: 0, prepay: 0, session: 0, canceled: 0 };
+  const counts = { total: clients.length, cold: 0, lead: 0, consultation: 0, prepay: 0, session: 0, canceled: 0, dropped: 0 };
+
   let depCount = 0, depSum = 0;
 
   for (const c of clients) {
@@ -2373,7 +2377,7 @@ function mkBuildOverviewFromClients(clients) {
 function mkRenderCardStatuses(counts) {
   const listEl = document.getElementById('mk-status-list');
   if (!listEl) return;
-  const order = ['total', 'cold', 'lead', 'consultation', 'prepay', 'session', 'canceled'];
+  const order = ['total', 'cold', 'lead', 'consultation', 'prepay', 'session', 'canceled', 'dropped'];
   listEl.innerHTML = order.map(key => {
     const label = MK_STATUS_LABELS[key] || key;
     const value = counts[key] ?? 0;
