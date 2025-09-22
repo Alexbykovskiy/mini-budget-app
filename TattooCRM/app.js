@@ -1366,9 +1366,9 @@ function bindStatusHistory(clientId){
       const row = document.createElement('div');
       row.className = 'row';
       row.innerHTML = `
-        <div class="what">${(it.from || '—')} → <b>${it.to || '—'}</b></div>
-        <div class="when">${formatDateTimeHuman(it.ts)}</div>
-      `;
+  <div class="what">${(it.from || '—')} → <b>${it.to || '—'}</b></div>
+  <div class="when">${formatDateTimeHuman(it.ts)}</div>
+`;
       box.appendChild(row);
     });
   }
