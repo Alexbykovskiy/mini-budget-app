@@ -2389,7 +2389,7 @@ function normalizeStatus(raw) {
   if (s.includes('слил') || s.includes('пропал') || s.includes('no show') || s.includes('ghost')) return 'dropped';
 
   return '';
-}}// Сбор депозитов из разных схем (массив/поле)
+}// Сбор депозитов из разных схем (массив/поле)
 function extractDepositsFromClient(c) {
   let count = 0, sum = 0;
   if (Array.isArray(c?.deposits)) {
@@ -2669,40 +2669,36 @@ async function mkFetchStatusLogsForClients(clients) {
   return out;
 }
 // --- Конверсия "из лидов" в другие статусы по логам ---
+// --- Конверсия "из лидов" в другие статусы по логам (по индексу после первого LEAD) ---
 function mkBuildLeadConversionFromLogs(clients, logsMap) {
-  const targets = ['consultation', 'prepay', 'session', 'canceled', 'dropped'];
+  const TARGETS = ['consultation', 'prepay', 'session', 'canceled', 'dropped'];
 
-  // Нормализация и поиск момента, когда клиент СТАЛ лидом (перешёл на 'lead')
-  function leadTimestamp(logs, client) {
-    // 1) По логам: первый переход "to -> lead"
-    const l = (logs || []).find(row => normalizeStatus(row?.to) === 'lead');
-    if (l?.ts) return l.ts;
-
-    // 2) Если логов нет, но текущий статус == lead — считаем лидом без даты
+  // Возвращает индекс первой записи, где to == 'lead'. Если нет — null если текущий статус == lead, иначе -1.
+  function findLeadIndex(sortedLogs, client) {
+    const i = (sortedLogs || []).findIndex(row => normalizeStatus(row?.to) === 'lead');
+    if (i >= 0) return i;
     const nowIsLead = normalizeStatus(client?.status || client?.stage || client?.type) === 'lead';
-    return nowIsLead ? null : undefined; // null = лид без даты, undefined = не был лидом вовсе
+    return nowIsLead ? null : -1;
   }
 
   let denom = 0;
-  const counts = { consultation: 0, prepay: 0, session: 0, canceled: 0, dropped: 0 };
+  const cnt = { consultation: 0, prepay: 0, session: 0, canceled: 0, dropped: 0 };
 
   for (const c of (clients || [])) {
     const logs = logsMap.get(c.id) || [];
-    const tLead = leadTimestamp(logs, c);
-    if (tLead === undefined) continue; // не был лидом вообще
+    const iLead = findLeadIndex(logs, c);
+    if (iLead === -1) continue;  // не был лидом вовсе
     denom++;
 
-    // Если есть метка времени tLead — учитываем только переходы ПОСЛЕ tLead.
-    // Если tLead === null (нет даты, но сейчас в лиде) — конверсии считаем только если есть явные переходы в логе (перестраховка).
-    for (const t of targets) {
-      const hit = logs.some(row => {
+    for (const t of TARGETS) {
+      // Если iLead === null (сейчас в лиде, но лога LEAD нет) — засчитываем любой зафиксированный переход в t.
+      // Иначе — ищем переход в t СТРОГО ПОСЛЕ индекса iLead.
+      const hit = logs.some((row, idx) => {
         const toNorm = normalizeStatus(row?.to);
         if (toNorm !== t) return false;
-        if (tLead === null) return true;      // нет времени «lead», но зафиксирован переход в target
-        if (!row?.ts) return false;
-        return String(row.ts) > String(tLead); // строго позже, чем стал лидом
+        return (iLead === null) ? true : (idx > iLead);
       });
-      if (hit) counts[t] += 1;
+      if (hit) cnt[t] += 1;
     }
   }
 
@@ -2710,11 +2706,11 @@ function mkBuildLeadConversionFromLogs(clients, logsMap) {
 
   return {
     denom,
-    consultation: { n: counts.consultation, p: pct(counts.consultation) },
-    prepay:       { n: counts.prepay,       p: pct(counts.prepay)       },
-    session:      { n: counts.session,      p: pct(counts.session)      },
-    canceled:     { n: counts.canceled,     p: pct(counts.canceled)     },
-    dropped:      { n: counts.dropped,      p: pct(counts.dropped)      }
+    consultation: { n: cnt.consultation, p: pct(cnt.consultation) },
+    prepay:       { n: cnt.prepay,       p: pct(cnt.prepay)       },
+    session:      { n: cnt.session,      p: pct(cnt.session)      },
+    canceled:     { n: cnt.canceled,     p: pct(cnt.canceled)     },
+    dropped:      { n: cnt.dropped,      p: pct(cnt.dropped)      }
   };
 }
 
