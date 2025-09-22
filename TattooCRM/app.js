@@ -1284,7 +1284,7 @@ function addSessionField(s = { dt: '', price: '', done: false }) {
   wrap.style.gap = '8px';
 
   wrap.innerHTML = `
-    <!-- 1) Галочка (без текста) -->
+   
     <input type="checkbox"
            class="sessionDone"
            ${s.done ? 'checked' : ''}
@@ -1292,27 +1292,21 @@ function addSessionField(s = { dt: '', price: '', done: false }) {
            aria-label="Сеанс состоялся"
            style="width:20px; height:20px; accent-color:#ff9d3a;">
 
-   <!-- 2) Дата и время -->
-<input type="datetime-local"
+   <input type="datetime-local"
        class="sessionDate"
        value="${s.dt || ''}"
-       style="flex:1; min-width:150px">   <!-- было 180px -->
-
-<!-- 3) Сумма -->
+       style="flex:1; min-width:150px">   
 <input type="number"
        step="0.01" min="0"
        class="sessionPrice"
        placeholder="€"
        value="${(s.price ?? '')}"
        title="Стоимость сеанса, €"
-       style="width:100px">               <!-- было 120px -->
-
-<!-- 4) Удалить -->
+       style="width:100px">             
 <button type="button"
-        class="btn danger icon"           <!-- стала круглая иконка -->
+        class="btn danger icon"
         title="Удалить сеанс"
         style="flex:0 0 36px; width:36px; height:36px; padding:0">🗑</button>
-
   // обработчик удаления
   wrap.querySelector('button').onclick = () => wrap.remove();
 
