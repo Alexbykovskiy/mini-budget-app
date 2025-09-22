@@ -2625,10 +2625,9 @@ async function mkFetchClientsFallback() {
   return [];
 }
 
-// --- Конверсия из лидов: загрузка логов статусов по всем клиентам ---
-// --- Конверсия из лидов: загрузка логов статусов по всем клиентам (через FB.db!) ---
+// --- Конверсия из лидов: загрузка логов статусов по всем клиентам (через FB.db, с ручной сортировкой) ---
 async function mkFetchStatusLogsForClients(clients) {
-  const out = new Map(); // clientId -> [{ts, from, to}, ... asc]
+  const out = new Map(); // clientId -> [{ ts, from, to, _id }, ... asc]
   if (!Array.isArray(clients) || !clients.length) return out;
 
   for (const c of clients) {
@@ -2636,23 +2635,31 @@ async function mkFetchStatusLogsForClients(clients) {
     if (!id) { continue; }
 
     try {
+      // Берём как есть, без orderBy — некоторые записи могли быть без ts
       const snap = await FB.db
         .collection('TattooCRM').doc('app')
         .collection('clients').doc(id)
         .collection('statusLogs')
-        .orderBy('ts', 'asc')
         .get();
 
       const arr = [];
       snap.forEach(d => {
         const row = d.data() || {};
-        // нормализуем и подчищаем сразу
         arr.push({
-          ts: row.ts || '',
+          ts: row.ts || '',          // ISO или пусто
           from: row.from || '',
-          to: row.to || ''
+          to: row.to || '',
+          _id: d.id || ''            // у нас это Date.now() — растущая строка
         });
       });
+
+      // Сортируем стабильно: сначала по ts (если есть ISO), иначе по _id (doc id как число)
+      arr.sort((a, b) => {
+        const aKey = a.ts ? a.ts : String(a._id || '');
+        const bKey = b.ts ? b.ts : String(b._id || '');
+        return aKey.localeCompare(bKey);
+      });
+
       out.set(id, arr);
     } catch (e) {
       console.warn('[mkFetchStatusLogsForClients]', id, e?.message || e);
@@ -2661,7 +2668,6 @@ async function mkFetchStatusLogsForClients(clients) {
   }
   return out;
 }
-
 // --- Конверсия "из лидов" в другие статусы по логам ---
 function mkBuildLeadConversionFromLogs(clients, logsMap) {
   const targets = ['consultation', 'prepay', 'session', 'canceled', 'dropped'];
