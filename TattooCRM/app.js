@@ -1463,7 +1463,14 @@ const fSourceSel = $('#fSource'); if (fSourceSel) fSourceSel.value = c?.source |
     // Статусы/типы/квалификация
     $('#fType').value   = c?.type || 'Новая';
     $('#fStatus').value = c?.status || 'Лид';
-   
+  {
+  const q = String(c?.qual || '').toLowerCase();
+  let v = 'Условно-целевой';                 // дефолт
+  if (q.includes('не цел') || q.includes('нецел')) v = 'Не целевой';
+  else if (q.includes('условно')) v = 'Условно-целевой';
+  else if (q.includes('целевой')) v = 'Целевой';
+  $('#fQual').value = v;
+}
     $('#fQualNote').value = c?.qualNote || '';
 
 
@@ -2474,7 +2481,7 @@ function mkRenderCardDemographics({ langCounts = {}, genderCounts = {}, qualCoun
   if (qEl) {
     const rows = [
       ['target',    'Целевой'],
-      ['semi',      'Условно целевой'],
+      ['semi',      'Условно-целевой'],
       ['nontarget', 'Не целевой']
     ];
     qEl.innerHTML = rows.map(([k, label]) => {
