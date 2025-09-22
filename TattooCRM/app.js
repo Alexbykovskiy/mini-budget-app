@@ -1959,13 +1959,19 @@ function renderMarketing() {
     `;
   });
 
-  const footer = items.length ? `
+   const footer = items.length ? `
     <div class="row card-client glass" style="margin-top:10px; justify-content:space-between">
       <div><b>Итого</b></div>
       <div>Подписчики: <b>${totalFollowers}</b></div>
       <div>Общий расход: €${totalSpent.toFixed(2)}</div>
     </div>
   ` : '';
+
+  // NEW: обновляем «Instagram → xxx новых подписчиков» в карточке №1 (маркетинг-сводка)
+  const igBox = document.getElementById('mk-instagram-followers');
+  if (igBox) {
+    igBox.textContent = `${totalFollowers} новых подписчиков`;
+  }
 
   wrap.innerHTML = rows.length ? rows.join('') + footer : `<div class="row">Пока нет данных</div>`;
 }
