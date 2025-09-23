@@ -2466,10 +2466,7 @@ function mkBuildOverviewFromClients(clients) {
 
 // Демография/профиль по клиентам (берём всех, если указан тип)
 function mkBuildDemographicsFromClients(clients) {
-  const pool = clients.filter(c => {
-    const hasType = !!String(c?.type || '').trim();
-    return hasType; // теперь не исключаем cold
-  });
+  const pool = Array.isArray(clients) ? clients : [];
 
   // Языки/страны
   const langCounts = {};
