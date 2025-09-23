@@ -1025,4 +1025,6 @@ dialog[open] .modal-body{
 .stat-card-demo .mk-subtitle.mk-two .right {
   font-weight: 700;
   opacity: .75;
+  margin-left: auto;     /* ← отталкивает «ВСЕГО» вправо */
+  text-align: right;     /* ← придаёт чёткое выравнивание текста */
 }
