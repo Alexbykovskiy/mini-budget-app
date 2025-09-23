@@ -1646,6 +1646,10 @@ if (list) {
     console.warn('[clientDialog] #fReminderTitle not found');
   }
 }
+const dateInput = $('#fReminderDate');
+if (dateInput) {
+  dateInput.value = ''; // по умолчанию пусто (если надо — можно ставить ymdLocal(new Date()))
+}
 
 
     // Фото/превью
@@ -1935,33 +1939,31 @@ try {
  // --- авто-создание напоминания ---
     try {
       const title = ($('#fReminderTitle').value || '').trim() || $('#fReminderTpl').value.trim();
-      if (title) {
-        const afterDays = Number($('#fReminderAfter').value || 0);
-        const dateObj = addDaysLocal(new Date(), isNaN(afterDays) ? 0 : afterDays);
-        const ymd = ymdLocal(dateObj);
+if (title) {
+  // 1) если выбрали конкретную дату — используем её
+  const picked = ($('#fReminderDate')?.value || '').trim(); // YYYY-MM-DD
+  let ymd = '';
 
-        const remId = `rm_${crypto.randomUUID().slice(0,8)}`;
-        const reminder = {
-          id: remId,
-          clientId: client.id,
-          clientName: client.displayName,
-          date: ymd,
-          title,
-          createdAt: new Date().toISOString()
-        };
-
-        await FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(remId).set(reminder);
-      }
-    } catch (e) {
-      console.warn('autoReminder', e);
-    }
-    toast('Сохранено');
-  } catch(e) {
-    console.warn('saveClientFromDialog', e);
-    toast('Ошибка сохранения');
+  if (picked) {
+    ymd = picked;
+  } else {
+    // 2) иначе считаем «через N дней» (как раньше)
+    const afterDays = Number($('#fReminderAfter').value || 0);
+    const dateObj = addDaysLocal(new Date(), isNaN(afterDays) ? 0 : afterDays);
+    ymd = ymdLocal(dateObj);
   }
 
-  $('#clientDialog').close();
+  const remId = `rm_${crypto.randomUUID().slice(0,8)}`;
+  const reminder = {
+    id: remId,
+    clientId: client.id,
+    clientName: client.displayName,
+    date: ymd,
+    title,
+    createdAt: new Date().toISOString()
+  };
+
+  await FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(remId).set(reminder);
 }
 
 async function deleteClientFromDialog(){
