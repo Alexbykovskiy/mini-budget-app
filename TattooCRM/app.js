@@ -2116,14 +2116,129 @@ function mkGetLatestAdsSpentTotal(marketingArr) {
   return Number(last?.spentTotal || 0);
 }
 
+// === [NEW] Финансы (карточка №6) ===============================
+
+// Берём последнее total по рекламе
+function mkGetLatestAdsSpentTotal(marketingArr) {
+  const arr = Array.isArray(marketingArr) ? [...marketingArr] : [];
+  arr.sort((a,b) => (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
+  const last = arr[arr.length - 1];
+  return Number(last?.spentTotal || 0);
+}
+
+// Медиана/квантили
+function _quantiles(nums) {
+  const a = nums.slice().sort((x,y)=>x-y);
+  const q = (p) => {
+    if (!a.length) return 0;
+    const idx = (a.length - 1) * p;
+    const lo = Math.floor(idx), hi = Math.ceil(idx);
+    return (a[lo] + a[hi]) / 2;
+  };
+  return { p25: q(0.25), med: q(0.5), p75: q(0.75) };
+}
+
+// Главный расчёт
 function mkCalcFinanceMetrics(clients, marketingArr, suppliesArr, cutoffYmd, useSupplies = false) {
-  // ... собираем данные
+  const list = Array.isArray(clients) ? clients : [];
+  const cutoff = cutoffYmd ? String(cutoffYmd) : '';
+  // период = календарный месяц cutoff-даты
+  const co = cutoff ? new Date(cutoff) : new Date();
+  const ymStart = new Date(co.getFullYear(), co.getMonth(), 1);
+  const ymEnd   = new Date(co.getFullYear(), co.getMonth()+1, 0);
+  const startYMD = ymdOf(ymStart.toISOString());
+  const endYMD   = ymdOf(ymEnd.toISOString());
+
+  const adsSpent = mkGetLatestAdsSpentTotal(marketingArr); // реклама «на сегодня»
+
+  let depositsSum = 0;
+  let sessionsSum = 0;
+  let sessionsCnt = 0;
+  const sessionPrices = [];
+
+  // клиенты
+  const payingClientIds = new Set();
+  const newPayingClientIds = new Set();
+  const repeatClientIds = new Set();
+  let canceledClients = 0;
+
+  for (const c of list) {
+    // депозиты учитываем как часть gross, если они в карточке клиента (без даты — берём как есть)
+    depositsSum += Number(c?.deposit || 0) || 0;
+
+    // сеансы
+    const sessions = Array.isArray(c?.sessions) ? c.sessions : [];
+    const doneBeforePeriod = sessions.some(s => {
+      const dt = ymdOf(typeof s === 'string' ? s : s?.dt);
+      return (typeof s === 'object' && s.done) && dt && dt < startYMD;
+    });
+
+    let hadInPeriod = false;
+
+    for (const s of sessions) {
+      const dt = ymdOf(typeof s === 'string' ? s : s?.dt);
+      const price = Number(typeof s === 'object' ? (s.price || 0) : 0);
+      const isDone = (typeof s === 'object' && !!s.done);
+
+      if (!dt) continue;
+
+      // суммируем деньги только за сеансы текущего месяца
+      if (dt >= startYMD && dt <= endYMD && isDone) {
+        sessionsSum += price;
+        sessionsCnt += 1;
+        sessionPrices.push(price);
+        hadInPeriod = true;
+      }
+    }
+
+    // уникальные платящие за период
+    if (hadInPeriod) {
+      payingClientIds.add(c.id);
+      if (doneBeforePeriod) repeatClientIds.add(c.id);
+      else newPayingClientIds.add(c.id);
+    }
+
+    // отмены — грубо по текущему статусу клиента (оценка)
+    const st = normalizeStatus(c?.status || c?.stage || c?.type);
+    if (st === 'canceled') canceledClients += 1;
+  }
+
+  const gross = depositsSum + sessionsSum;
+
+  // расходники: сейчас модели цены/списания нет → считаем 0, пока не появятся поля.
+  // Хук на будущее: если появится suppliesArr[i].cost или списания — суммируй здесь.
+  const suppliesCost = useSupplies ? 0 : 0;
+
+  const net = Math.max(0, gross - adsSpent - suppliesCost);
+
+  // средние/медианы по «сеансам» (без депозитов)
+  const avgCheck    = sessionsCnt ? (sessionsSum / sessionsCnt) : 0;
+  const avgNetCheck = sessionsCnt ? ((sessionsSum - adsSpent - suppliesCost) / sessionsCnt) : 0;
+  const { p25, med, p75 } = _quantiles(sessionPrices);
+
+  // реклама
+  const roi = adsSpent > 0 ? (gross / adsSpent) : 0; // выручка на 1 €
+  const profitPerEuro = adsSpent > 0 ? ((gross - adsSpent - suppliesCost) / adsSpent) : 0;
+
+  // стоимость нового клиента (только «новые платящие» в текущем месяце)
+  const costPerClient = newPayingClientIds.size > 0
+    ? (adsSpent / newPayingClientIds.size)
+    : 0;
+
+  // отмены как доля среди «сеанс состоялся» + «отменил» (оценка)
+  const denomForCancel = sessionsCnt + canceledClients;
+  const cancelPct = denomForCancel > 0 ? Math.round((canceledClients / denomForCancel) * 100) : 0;
+
+  // возвраты
+  const uniqueCount = payingClientIds.size;
+  const repeatPct = uniqueCount > 0 ? Math.round((repeatClientIds.size / uniqueCount) * 100) : 0;
+
   return {
-    gross,        // депозиты + сеансы done
-    sessionsSum,  // только сеансы
-    net,          // gross − реклама (− supplies если useSupplies)
-    avgCheck, avgNetCheck, medianCheck, p25, p75,
-    ads: { roi, profitPerEuro, costPerClient },
+    period: { startYMD, endYMD },
+    gross, sessionsSum, net,
+    avgCheck, avgNetCheck,
+    medianCheck: med, p25, p75,
+    ads: { spent: adsSpent, roi, profitPerEuro, costPerClient },
     clients: { uniqueCount, repeatPct, cancelPct }
   };
 }
@@ -2133,19 +2248,22 @@ function mkRenderCardFinance(data) {
   if (!list || !data) return;
 
   list.innerHTML = `
-    <li>Выручка (gross): €${data.gross.toFixed(2)}</li>
-    <li>Сеансы: €${data.sessionsSum.toFixed(2)}</li>
-    <li>Чистая: €${data.net.toFixed(2)}</li>
+    <li><b>Выручка (gross)</b> — сеансы + депозиты: <b>€${data.gross.toFixed(2)}</b></li>
+    <li>Деньги с проведённых сеансов за период: €${data.sessionsSum.toFixed(2)}</li>
+    <li><b>Чистая выручка (net)</b> ${data.ads.spent>0?'(минус реклама'+(document.getElementById('mkIncludeSupplies')?.checked?', расходники':'')+')':''}: <b>€${data.net.toFixed(2)}</b></li>
     <li>Средний чек: €${data.avgCheck.toFixed(2)}</li>
-    <li>Средний чистый чек: €${data.avgNetCheck.toFixed(2)}</li>
-    <li>Медиана: €${data.medianCheck.toFixed(2)}</li>
-    <li>P25–P75: €${data.p25.toFixed(2)} – €${data.p75.toFixed(2)}</li>
-    <li>ROI: €${data.ads.roi.toFixed(2)}</li>
-    <li>Прибыль/€ рекламы: €${data.ads.profitPerEuro.toFixed(2)}</li>
-    <li>Стоимость нового клиента: €${data.ads.costPerClient.toFixed(2)}</li>
-    <li>Уникальные клиенты: ${data.clients.uniqueCount}</li>
-    <li>Возвраты: ${data.clients.repeatPct}%</li>
-    <li>Отмены: ${data.clients.cancelPct}%</li>
+    <li>Средний «чистый» чек: €${data.avgNetCheck.toFixed(2)}</li>
+    <li>Медианный чек: €${data.medianCheck.toFixed(2)} (P25–P75: €${data.p25.toFixed(2)}–€${data.p75.toFixed(2)})</li>
+
+    <li class="mk-sub">Эффективность рекламы</li>
+    <li>Выручка на 1 € рекламы: €${data.ads.roi.toFixed(2)}</li>
+    <li>Прибыль на 1 € рекламы: €${data.ads.profitPerEuro.toFixed(2)}</li>
+    <li>Стоимость нового клиента с рекламы: €${data.ads.costPerClient.toFixed(2)}</li>
+
+    <li class="mk-sub">Клиенты</li>
+    <li>Уникальные платящие: ${data.clients.uniqueCount}</li>
+    <li>% возвратов / повторных: ${data.clients.repeatPct}%</li>
+    <li>Доля отмен: ${data.clients.cancelPct}%</li>
   `;
 }
 
