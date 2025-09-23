@@ -2464,13 +2464,11 @@ function mkBuildOverviewFromClients(clients) {
   return { counts, depCount, depSum };
 }
 
-// Демография/профиль по клиентам (исключая «Холодный лид» и без заполненного Типа)
+// Демография/профиль по клиентам (берём всех, если указан тип)
 function mkBuildDemographicsFromClients(clients) {
-  // пул: только НЕ "Холодные лиды" и где есть тип
   const pool = clients.filter(c => {
-    const st = normalizeStatus(c?.status || c?.stage || c?.type);
     const hasType = !!String(c?.type || '').trim();
-    return st !== 'cold' && hasType;
+    return hasType; // теперь не исключаем cold
   });
 
   // Языки/страны
