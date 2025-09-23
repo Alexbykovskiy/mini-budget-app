@@ -1557,12 +1557,14 @@ const fSourceSel = $('#fSource'); if (fSourceSel) fSourceSel.value = c?.source |
   else if (q.includes('целевой')) v = 'Целевой';
   $('#fQual').value = v;
 }
-    $('#fQualNote').value = c?.qualNote || '';
+$('#fQualNote').value = c?.qualNote || '';
 
+// Комментарий (заметка по клиенту)
+$('#fNotes').value = c?.notes || '';
 
+// Депозит
+$('#fDeposit').value = c?.deposit || '';
 
-    // Депозит
-    $('#fDeposit').value = c?.deposit || '';
 
 // включаем/выключаем cold-mode
 toggleColdLeadMode($('#fStatus').value === 'Холодный лид');
