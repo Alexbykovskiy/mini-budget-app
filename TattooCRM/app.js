@@ -1996,74 +1996,120 @@ function mkGetLatestAdsSpentTotal(marketingArr) {
   return Number(last?.spentTotal || 0);
 }
 
+// === helper: нормализован ли клиент как «в работе» ===
+// Учитываем тех, у кого есть КОНСУЛЬТАЦИЯ / ПРЕДОПЛАТА / ЭСКИЗ / СЕАНС (или массив sessions)
+function isQualifiedClient(c) {
+  const st = typeof normalizeStatus === 'function'
+    ? normalizeStatus(c?.status || c?.stage || c?.type)
+    : String(c?.status || c?.stage || c?.type || '').toLowerCase();
+
+  const hasDeposit = Number(c?.deposit || 0) > 0;
+  const hasSessions = Array.isArray(c?.sessions) && c.sessions.length > 0;
+
+  // Статусы «в работе» (покрываем варианты пайплайна)
+  const WORK_STATES = new Set([
+    'consult', 'consult_booked', 'consult_confirmed', 'consult_done',
+    'deposit', 'design', 'sketch', 'sketch_done',
+    'session', 'session_booked', 'session_confirmed', 'session_done'
+  ]);
+
+  const inWorkByStatus =
+    !!st &&
+    (WORK_STATES.has(st) ||
+     st.includes('consult') || st.includes('конс') ||
+     st.includes('deposit') || st.includes('депозит') ||
+     st.includes('sketch')  || st.includes('эскиз') ||
+     st.startsWith('session') || st.includes('сеанс'));
+
+  return hasDeposit || hasSessions || inWorkByStatus;
+}
+
+// === helper: получить YYYY-MM-DD из даты/строки ===
+function ymdOf(dt) {
+  if (!dt) return '';
+  const s = String(dt);
+  const ymd = s.split('T')[0];
+  return ymd || s;
+}
+
+// === Totals & Potential (с учётом «клиентов-в работе») ===
 function mkCalcTotalsAndPotential(clients, marketingArr, cutoffYmd) {
   const clientsArr = Array.isArray(clients) ? clients : [];
+  const cutoff = cutoffYmd ? String(cutoffYmd) : '';
 
-  // 1) Реклама — общий потраченный бюджет (берём последнее "spentTotal")
+  // 1) Реклама — берём последнее значение spentTotal
   const adsSpent = mkGetLatestAdsSpentTotal(marketingArr);
 
-  // 2) Предоплаты
+  // 2) Предоплаты (всем по проекту)
   let depCount = 0, depSum = 0;
   for (const c of clientsArr) {
     const v = Number(c?.deposit || 0);
     if (v > 0) { depCount++; depSum += v; }
   }
 
-  // 3) Сеансы (done / planned)
+  // 3) Сеансы (done / planned до cutoff)
   let doneCount = 0, doneSum = 0;
   let planCount = 0, planSum = 0;
-  const cutoff = cutoffYmd ? String(cutoffYmd) : ''; // 'YYYY-MM-DD'
 
   for (const c of clientsArr) {
     const sessions = Array.isArray(c?.sessions) ? c.sessions : [];
     for (const s of sessions) {
       const obj = (typeof s === 'object') ? s : { dt: s, price: 0, done: false };
-      const dt = String(obj.dt || '');
-      const ymd = dt.split('T')[0] || '';
-
+      const ymd = ymdOf(obj.dt);
       const price = Number(obj.price || 0);
-      if (obj.done) { doneCount++; doneSum += price; }
-      else {
-        // planned считаем только до выбранной даты (включительно)
+
+      if (obj.done) {
+        // Для сводки «проведённых» считаем все проведённые (как и раньше)
+        doneCount++; 
+        doneSum += price;
+      } else {
+        // Запланированные учитываем только ДО выбранной даты (включительно)
         if (!cutoff || (ymd && ymd <= cutoff)) {
-          planCount++; planSum += price;
+          planCount++; 
+          planSum += price;
         }
       }
     }
   }
 
-  // 4) Потенциал (диапазон):
-  // Берём клиентов, у кого есть хотя бы ОДИН запланированный сеанс до cutoff.
-  // Складываем их amountMin/amountMax, затем вычитаем депозиты и сумму проведённых сеансов.
+  // 4) Потенциал: ТОЛЬКО для «клиентов-в работе»
+  // Считаем по КАЖДОМУ клиенту отдельно: (amountMin/Max) - (его депозит) - (его проведённые до cutoff)
   let potMin = 0, potMax = 0;
+
   for (const c of clientsArr) {
-    const sessions = Array.isArray(c?.sessions) ? c.sessions : [];
-    const hasPlannedBeforeCutoff = sessions.some(s => {
-      const obj = (typeof s === 'object') ? s : { dt: s, done: false };
-      if (obj.done) return false;
-      const dt = String(obj.dt || '');
-      const ymd = dt.split('T')[0] || '';
-      return cutoff ? (ymd && ymd <= cutoff) : true;
-    });
+    if (!isQualifiedClient(c)) continue;
 
-    if (!hasPlannedBeforeCutoff) continue;
-
-    // Озвученные суммы (поддерживаем legacy amount)
+    // Озвученные суммы
     let aMin = c?.amountMin;
     let aMax = c?.amountMax;
     if (aMin == null && aMax == null && c?.amount != null) {
-      const n = Number(c.amount); if (!isNaN(n)) { aMin = n; aMax = n; }
+      const n = Number(c.amount);
+      if (!isNaN(n)) { aMin = n; aMax = n; }
     }
-    const minNum = Number(aMin || 0);
-    const maxNum = Number(aMax || 0);
+    let minNum = Number(aMin || 0);
+    let maxNum = Number(aMax || 0);
+
+    // Индивидуальные вычеты по этому клиенту
+    const dep = Number(c?.deposit || 0);
+
+    let doneSumClient = 0;
+    const sessions = Array.isArray(c?.sessions) ? c.sessions : [];
+    for (const s of sessions) {
+      const obj = (typeof s === 'object') ? s : { dt: s, price: 0, done: false };
+      if (!obj.done) continue;
+      const ymd = ymdOf(obj.dt);
+      // Вычитаем ПРОВЕДЁННЫЕ ДО выбранной даты (логично для планирования «до»)
+      if (!cutoff || (ymd && ymd <= cutoff)) {
+        doneSumClient += Number(obj.price || 0);
+      }
+    }
+
+    minNum = Math.max(0, minNum - dep - doneSumClient);
+    maxNum = Math.max(0, maxNum - dep - doneSumClient);
 
     potMin += minNum;
     potMax += maxNum;
   }
-
-  // Вычитаем депозиты и проведённые сеансы (за всё время)
-  potMin = Math.max(0, potMin - depSum - doneSum);
-  potMax = Math.max(0, potMax - depSum - doneSum);
 
   return {
     adsSpent,
@@ -2073,7 +2119,6 @@ function mkCalcTotalsAndPotential(clients, marketingArr, cutoffYmd) {
     potential: { min: potMin, max: potMax }
   };
 }
-
 function mkRenderCardTotals(totals) {
   if (!totals) return;
   const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
