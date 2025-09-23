@@ -1296,9 +1296,14 @@ async function deleteSupplyFromDialog(){
 // Пометить конкретный сеанс клиента как состоявшийся (done=true/false)
 async function setSessionDone(clientId, dtIso, done = true) {
   // найдём клиента и нужный сеанс
-  const c = (AppState.clients || []).find(x => x.id === clientId);
+  let c = (AppState.clients || []).find(x => x.id === clientId);
+  if (!c) {
+    // фолбэк: берём из Firestore, чтобы работало даже если стейт не успел обновиться
+   const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(clientId);
+    const snap = await ref.get();
+   if (snap.exists) c = snap.data();
+  }
   if (!c) throw new Error('Клиент не найден');
-
   const sessions = Array.isArray(c.sessions) ? [...c.sessions] : [];
   const idx = sessions.findIndex(s => (typeof s === 'object' ? s.dt : s) === dtIso);
   if (idx < 0) throw new Error('Сеанс не найден');
