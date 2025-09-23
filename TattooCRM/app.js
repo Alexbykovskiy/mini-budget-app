@@ -2266,28 +2266,41 @@ function mkRenderCardTotals(totals) {
   set('mk-sessions-done', `${totals.sessionsDone.count} шт., €${totals.sessionsDone.sum.toFixed(2)}`);
   set('mk-sessions-planned', `${totals.sessionsPlanned.count} шт., €${totals.sessionsPlanned.sum.toFixed(2)}`);
   set('mk-potential-range', `€${totals.potential.min.toFixed(2)} — €${totals.potential.max.toFixed(2)}`);
-// --- Новые KPI ---
-  const gross = Number(totals.sessionsDone.sum || 0);
-  const ads   = Number(totals.adsSpent || 0);
+// --- Новые KPI (реалистичный вариант) ---
+// 1) gross = проведённые сеансы + депозиты
+const sessionsGross = Number(totals.sessionsDone?.sum || 0);
+const depositsGross = Number(totals.deposits?.sum || 0);
+const gross = sessionsGross + depositsGross;
 
-  // Если хочешь учитывать расходники позже — тут добавим suppliesSum из AppState.supplies.
-  const net   = Math.max(0, gross - ads);
-  const marginPct = gross > 0 ? (net / gross) * 100 : 0;
+// 2) реклама
+const ads = Number(totals.adsSpent || 0);
 
-  const roas = ads > 0 ? (gross / ads) : null;
-  const romi = ads > 0 ? ((gross - ads) / ads) : null;
+// 3) net = gross - ads (МОЖЕТ БЫТЬ ОТРИЦАТЕЛЬНЫМ)
+const net = gross - ads;
 
-  // CAC считаем как "расход на рекламу / уникальные клиенты с проведённым сеансом"
-  const payClients = Number(totals.sessionsDone.clients || 0);
-  const cac = (ads > 0 && payClients > 0) ? (ads / payClients) : null;
+// 4) маржинальность может быть отрицательной; при gross = 0 выводим 0%
+const marginPct = gross !== 0 ? (net / gross) * 100 : 0;
 
-  set('mk-gross',  `€${gross.toFixed(2)}`);
-  set('mk-net',    `€${net.toFixed(2)}`);
-  set('mk-margin', `${marginPct.toFixed(0)}%`);
-  set('mk-roas',   roas == null ? '—' : roas.toFixed(2));
-  set('mk-romi',   romi == null ? '—' : romi.toFixed(2));
-  set('mk-cac',    cac  == null ? '—' : `€${cac.toFixed(2)}`);
-}
+// 5) ROAS и ROMI (если нет расходов на рекламу — ставим "—")
+const roas = ads > 0 ? (gross / ads) : null;
+const romi = ads > 0 ? ((gross - ads) / ads) : null;
+
+// 6) CAC = реклама / число уникальных платящих клиентов (проведённые)
+const payClients = Number(totals.sessionsDone?.clients || 0);
+const cac = (ads > 0 && payClients > 0) ? (ads / payClients) : null;
+
+// Форматтеры для денег/процентов
+const fmtMoney = (v) => v < 0 ? `−€${Math.abs(v).toFixed(2)}` : `€${v.toFixed(2)}`;
+const fmtNum   = (v) => v.toFixed(2);
+const fmtPct   = (p) => `${p.toFixed(0)}%`;
+
+// Рендер в карточку
+set('mk-gross',  fmtMoney(gross));
+set('mk-net',    fmtMoney(net));
+set('mk-margin', fmtPct(marginPct));
+set('mk-roas',   roas == null ? '—' : fmtNum(roas));
+set('mk-romi',   romi == null ? '—' : fmtNum(romi));
+set('mk-cac',    cac  == null ? '—' : fmtMoney(cac));}
 
 /** Сохранение записи маркетинга из формы */
 async function saveMarketingEntry(){
