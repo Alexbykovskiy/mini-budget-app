@@ -1107,166 +1107,58 @@ function bindSupplies(){
   }
 }
 
-function openSupplyDialog(s = null){
-  const dlg = $('#supplyDialog');
-  const isNew = !s;
-  dlg.dataset.id = s?.id || '';
-
-  $('#supplyModalTitle').textContent = isNew ? 'Новая позиция' : 'Редактирование';
-
-  // Заполняем селект Типов из настроек
-  const typeSel = $('#supType');
-  typeSel.innerHTML = '';
-  (AppState.settings?.supplies || []).forEach(t=>{
-    const o = document.createElement('option'); o.value = t; o.textContent = t; typeSel.appendChild(o);
-  });
-
-  const dict = AppState.settings?.suppliesDict || {};
-  function fillDependentFields(){
+function fillDependentFields(){
   const t = $('#supType').value;
   const d = (AppState.settings?.suppliesDict || {})[t] || {};
 
   // Единица
   $('#supUnit').value = (s?.unit) || d.units || '';
 
-  // Подтип
+  // --- Подтип (селект либо текст) ---
   const kindSel = $('#supKind');
   const kindTxt = $('#supKindText');
   kindSel.innerHTML = '';
-  const kinds = d.kinds || [];
+  const kinds = Array.isArray(d.kinds) ? d.kinds : [];
   if (kinds.length) {
     kinds.forEach(k => {
       const o = document.createElement('option');
-      o.value = k; o.textContent = k; kindSel.appendChild(o);
+      o.value = k; o.textContent = k;
+      kindSel.appendChild(o);
     });
     kindSel.style.display = '';
     kindTxt.style.display = 'none';
+    // восстановим значение, если оно было
+    if (s?.kind) kindSel.value = s.kind;
   } else {
     kindSel.style.display = 'none';
     kindTxt.style.display = '';
+    if (s?.kind) kindTxt.value = s.kind;
   }
 
-  // Бренды
-  const brandSel = $('#supBrand');
-  const brandTxt = $('#supBrandText');
-  brandSel.innerHTML = '';
-  const brands = d.brands || [];
-  if (brands.length) {
-    brands.forEach(b => {
-      const o = document.createElement('option');
-      o.value = b; o.textContent = b; brandSel.appendChild(o);
-    });
-    brandSel.style.display = '';
-    brandTxt.style.display = 'none';
-  } else {
-    brandSel.style.display = 'none';
-    brandTxt.style.display = '';
-  }
-
-  // Размеры
+  // --- Размер (селект либо текст) ---
   const sizeSel = $('#supSize');
   const sizeTxt = $('#supSizeText');
   sizeSel.innerHTML = '';
-  const sizes = d.sizes || [];
+  const sizes = Array.isArray(d.sizes) ? d.sizes : [];
   if (sizes.length) {
     sizes.forEach(sz => {
       const o = document.createElement('option');
-      o.value = String(sz); o.textContent = String(sz); sizeSel.appendChild(o);
+      o.value = String(sz); o.textContent = String(sz);
+      sizeSel.appendChild(o);
     });
     sizeSel.style.display = '';
     sizeTxt.style.display = 'none';
+    if (s?.size != null) sizeSel.value = String(s.size);
   } else {
     sizeSel.style.display = 'none';
     sizeTxt.style.display = '';
-  }
-}
-
-
-
-  typeSel.onchange = fillDependentFields;
-
-  // Проставим значения
-  typeSel.value = s?.cat || (AppState.settings?.supplies?.[0] || '');
-fillDependentFields();
-
-// существующие:
-if ($('#supKind').style.display !== 'none') { $('#supKind').value = s?.kind || ''; }
-else { $('#supKindText').value = s?.kind || ''; }
-
-if ($('#supBrand').style.display !== 'none') { $('#supBrand').value = s?.brand || ''; }
-else { $('#supBrandText').value = s?.brand || ''; }
-
-if ($('#supSize').style.display !== 'none') { $('#supSize').value = s?.size || ''; }
-else { $('#supSizeText').value = s?.size || ''; }    $('#supName').value = s?.name || '';
-  $('#supQty').value  = (typeof s?.qty === 'number') ? s.qty : 1;
-  $('#supUnit').value = s?.unit || $('#supUnit').value;
-  $('#supLink').value = s?.link || '';
-  $('#supNote').value = s?.note || '';
-
-  // Кнопки
-  $('#deleteSupplyBtn').style.display = isNew ? 'none' : '';
-  $('#saveSupplyBtn').onclick = saveSupplyFromDialog;
-  $('#deleteSupplyBtn').onclick = deleteSupplyFromDialog;
-
-  dlg.showModal();
-}
-
-function buildSupplyName({cat, brand, kind, size, note, fallback}){
-  const parts = [cat, brand, kind, size ? `⌀${size}` : '', note].filter(Boolean);
-  const s = parts.join(' ');
-  return s || (fallback || 'Позиция');
-}
-
-async function saveSupplyFromDialog(){
-  const dlg = $('#supplyDialog');
-  let id = dlg.dataset.id;
-  const isNew = !id;
-  if (isNew) id = `sp_${crypto.randomUUID().slice(0,8)}`;
-
-  const cat  = $('#supType').value.trim();
-  const kind = ($('#supKind').style.display !== 'none'
-
-  ? $('#supKind').value.trim()
-  : $('#supKindText').value.trim());
-
-const brand = ($('#supBrand').style.display !== 'none'
-  ? $('#supBrand').value.trim()
-  : $('#supBrandText').value.trim());
-
-const size = ($('#supSize').style.display !== 'none'
-  ? $('#supSize').value.trim()
-  : $('#supSizeText').value.trim());
-  const qty  = Number($('#supQty').value || 0);
-  const unit = $('#supUnit').value.trim();
-  const link = $('#supLink').value.trim();
-  const note = $('#supNote').value.trim();
-
- const name = ($('#supName').value.trim()) || buildSupplyName({cat, brand, kind, size, note, fallback:'Позиция'});
-
-  const item = {
-  id, cat, kind, brand, size, name, qty, unit, link, note,
-  left: qty,
-  updatedAt: new Date().toISOString()
-};
-
-  // Локально — в состояние (чтобы UI отрисовался сразу)
-  const i = AppState.supplies.findIndex(x => x.id === id);
-  if (i >= 0) AppState.supplies[i] = item; else AppState.supplies.push(item);
-  renderSupplies();
-
-  // Firestore
-  try {
-    const ref = FB.db.collection('TattooCRM').doc('app').collection('supplies').doc(id);
-    await ref.set(item, { merge:true });
-    toast('Сохранено');
-  } catch(e){
-    console.warn(e);
-    toast('Ошибка сохранения');
+    if (s?.size != null) sizeTxt.value = String(s.size);
   }
 
-  dlg.close();
+  // --- Бренд (просто текст, но можно подсказать варианты) ---
+  const brandInp = $('#supBrand');
+  if (brandInp && s?.brand) brandInp.value = s.brand;
 }
-
 async function deleteSupplyFromDialog(){
   const dlg = $('#supplyDialog');
   const id = dlg.dataset.id;
