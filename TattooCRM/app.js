@@ -606,6 +606,31 @@ function addDaysLocal(dateObj, days){
   return d;
 }
 
+
+// === Post-session followups ===
+async function createPostSessionReminders(client, sessionISO, titles) {
+  const base = new Date(sessionISO);
+  const ids = [];
+  for (const { after, title } of titles) {
+    // дата = дата сеанса + N дней
+    const d = new Date(base);
+    d.setDate(d.getDate() + after);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const ymd = `${y}-${m}-${day}`;
+
+    const id = `rm_${crypto.randomUUID().slice(0,8)}`;
+    const doc = {
+      id, clientId: client.id, clientName: client.displayName,
+      date: ymd, title, createdAt: new Date().toISOString()
+    };
+    await FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(id).set(doc);
+    ids.push(id);
+  }
+  return ids;
+}
+
 // Форматировать YYYY-MM-DD в "21 декабря 2025 г."
 function formatDateHuman(ymd) {
   if (!ymd) return '';
@@ -758,10 +783,16 @@ if (OPEN_CLIENT_ON_TILE_CLICK) {
   e.preventDefault();
   const ok = await confirmDlg('Подтвердить, что сеанс состоялся?');
   if (!ok) return;
-  const [clientId, dt] = ev.id.split('_');
+
+  // ✅ правильно режем по последнему "_"
+  const p = ev.id.lastIndexOf('_');
+  const clientId = ev.id.slice(0, p);
+  const dt       = ev.id.slice(p + 1);
+
   await setSessionDone(clientId, dt, true);
   toast('Сеанс подтверждён');
 });
+
         el.appendChild(btn);
       }
 
@@ -1258,22 +1289,44 @@ async function deleteSupplyFromDialog(){
   dlg.close();
 }
 
+
+
+// Пометить конкретный сеанс клиента как состоявшийся (done=true/false)
+// Пометить конкретный сеанс клиента как состоявшийся (done=true/false)
 // Пометить конкретный сеанс клиента как состоявшийся (done=true/false)
 async function setSessionDone(clientId, dtIso, done = true) {
-  // найдём клиента в состоянии
+  // найдём клиента и нужный сеанс
   const c = (AppState.clients || []).find(x => x.id === clientId);
   if (!c) throw new Error('Клиент не найден');
 
   const sessions = Array.isArray(c.sessions) ? [...c.sessions] : [];
-  const i = sessions.findIndex(s => (typeof s === 'object' ? s.dt : s) === dtIso);
-  if (i < 0) throw new Error('Сеанс не найден');
+  const idx = sessions.findIndex(s => (typeof s === 'object' ? s.dt : s) === dtIso);
+  if (idx < 0) throw new Error('Сеанс не найден');
 
-  // нормализуем объект
-  const sObj = typeof sessions[i] === 'object' ? {...sessions[i]} : { dt: sessions[i], price: 0 };
+  const prev = sessions[idx];
+  const wasDone = !!(typeof prev === 'object' && prev.done);
+  const sObj = (typeof prev === 'object') ? { ...prev } : { dt: prev, price: 0 };
+
   sObj.done = !!done;
-  sessions[i] = sObj;
 
-  // локально
+  // если впервые ставим done=true — создаём follow-up напоминания 1/3/10/60 дней
+  if (!wasDone && sObj.done && !sObj.postRemindersCreated) {
+    try {
+      const ids = await createPostSessionReminders(c, sObj.dt, [
+        { after: 1,  title: 'Скинуть фотографии' },
+        { after: 3,  title: 'Спросить про заживление' },
+        { after: 10, title: 'Спросить про заживление' },
+        { after: 60, title: 'Спросить, всё ли нравится' } // ≈ 2 месяца
+      ]);
+      sObj.postRemindersCreated = true;
+      sObj.postReminderIds = ids;
+    } catch (e) {
+      console.warn('createPostSessionReminders', e);
+    }
+  }
+
+  // локально и UI
+  sessions[idx] = sObj;
   c.sessions = sessions;
   c.updatedAt = new Date().toISOString();
   renderToday();
@@ -1321,7 +1374,27 @@ function addSessionField(s = { dt: '', price: '', done: false }) {
 
   // обработчик удаления
   wrap.querySelector('button').onclick = () => wrap.remove();
+// галочка «сеанс состоялся» — создаёт/снимает done и (при включении) делает follow-ups
+  const cb = wrap.querySelector('.sessionDone');
+  const dtInput = wrap.querySelector('.sessionDate');
 
+  cb.addEventListener('change', async () => {
+    const dlg = document.getElementById('clientDialog');
+    const clientId = dlg?.dataset?.id;
+    const dt = dtInput?.value?.trim();
+
+    if (!clientId) { toast('Сначала сохраните клиента'); cb.checked = !cb.checked; return; }
+    if (!dt) { toast('Укажите дату сеанса'); cb.checked = !cb.checked; return; }
+
+    try {
+      await setSessionDone(clientId, dt, cb.checked);
+      toast(cb.checked ? 'Сеанс отмечен как проведён' : 'Отметка снята');
+    } catch (e) {
+      console.warn(e);
+      toast('Не удалось обновить сеанс');
+      cb.checked = !cb.checked;
+    }
+  });
   $('#sessionsList').appendChild(wrap);
 }
 
@@ -3063,7 +3136,7 @@ document.addEventListener('click', (e) => {
   const id = a.getAttribute('data-open-client');
   if (!id) return;
   // если есть твоя функция openClientDialog(id) — вызови её:
-  if (typeof openClientDialog === 'function') openClientDialog(id);
+  if (typeof openClientById === 'function') openClientById(id);;
 });
 
 document.addEventListener('click', (e) => {
