@@ -1983,6 +1983,49 @@ function renderMarketing() {
 
    wrap.innerHTML = rows.length ? rows.join('') + footer : `<div class="row">Пока нет данных</div>`;
 }
+
+// === helper: нормализован ли клиент как «в работе» ===
+// Учитываем тех, у кого есть КОНСУЛЬТАЦИЯ / ПРЕДОПЛАТА / ЭСКИЗ / СЕАНС (или массив sessions)
+function isQualifiedClient(c) {
+  const raw = (c?.status ?? c?.stage ?? c?.type ?? '').toString().toLowerCase();
+  const st = (typeof normalizeStatus === 'function') ? normalizeStatus(raw) : raw;
+
+  const hasDeposit  = Number(c?.deposit || 0) > 0;
+  const hasSessions = Array.isArray(c?.sessions) && c.sessions.length > 0;
+
+  // Статусы «в работе» (покрываем варианты пайплайна)
+  const WORK_STATES = new Set([
+    'consult', 'consult_booked', 'consult_confirmed', 'consult_done',
+    'deposit', 'design', 'sketch', 'sketch_done',
+    'session', 'session_booked', 'session_confirmed', 'session_done'
+  ]);
+
+  const inWorkByStatus =
+    !!st &&
+    (
+      WORK_STATES.has(st) ||
+      st.includes('consult') || st.includes('конс') ||
+      st.includes('deposit') || st.includes('депозит') ||
+      st.includes('sketch')  || st.includes('эскиз') ||
+      st.startsWith('session') || st.includes('сеанс')
+    );
+
+  return hasDeposit || hasSessions || inWorkByStatus;
+}
+
+// === helper: получить YYYY-MM-DD из даты/строки ===
+function ymdOf(dt) {
+  if (!dt) return '';
+  const s = String(dt);
+  const ymd = s.split('T')[0];
+  return ymd || s;
+}
+
+// === Totals & Potential (с учётом «клиентов-в работе») ===
+// (ниже уже идёт твоя функция mkCalcTotalsAndPotential(...) — она эти хелперы использует)
+
+
+
 // === [NEW] Totals & Potential (карточка №5) ===============================
 
 function mkGetLatestAdsSpentTotal(marketingArr) {
