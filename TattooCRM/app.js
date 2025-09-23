@@ -3061,7 +3061,7 @@ function mkRerenderMarketing() {
   mkRenderCardDemographics(demo);
 
   // 3) Карточка №3: «Результат фильтра» — оставляем прежнюю логику (не зависит от периода/источников)
-  mkRenderResults(MK_CLIENTS_CACHE);
+  mkRenderResults(filtered);
 
   // 4) История маркетинга + Instagram (уже учитывает период)
   renderMarketing();
@@ -3145,7 +3145,7 @@ function mkResetFilters() {
   });
 
   // перерисовать результаты
-  mkRenderResults(MK_CLIENTS_CACHE);
+  mkRerenderMarketing();
 }
 
 
