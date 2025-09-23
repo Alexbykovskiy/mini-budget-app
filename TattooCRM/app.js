@@ -421,6 +421,8 @@ function listenClientsRealtime(){
       if (untilInput) {
         const totals = mkCalcTotalsAndPotential(AppState.clients, AppState.marketing, untilInput.value);
         mkRenderCardTotals(totals);
+ // Карточка №6: обновить финансы
+      if (typeof mkUpdateFinanceCard === 'function') mkUpdateFinanceCard();
       }
     }, (err)=> {
       console.error(err);
@@ -462,6 +464,7 @@ function listenSuppliesRealtime(){
       // перерисуем список, если открыта вкладка
       if (document.querySelector('[data-tab="suppliesPage"]').classList.contains('is-active')) {
         renderSupplies();
+ if (typeof mkUpdateFinanceCard === 'function') mkUpdateFinanceCard();
       }
     }, (err)=> {
       console.error(err);
@@ -2113,6 +2116,40 @@ function mkGetLatestAdsSpentTotal(marketingArr) {
   return Number(last?.spentTotal || 0);
 }
 
+function mkCalcFinanceMetrics(clients, marketingArr, suppliesArr, cutoffYmd, useSupplies = false) {
+  // ... собираем данные
+  return {
+    gross,        // депозиты + сеансы done
+    sessionsSum,  // только сеансы
+    net,          // gross − реклама (− supplies если useSupplies)
+    avgCheck, avgNetCheck, medianCheck, p25, p75,
+    ads: { roi, profitPerEuro, costPerClient },
+    clients: { uniqueCount, repeatPct, cancelPct }
+  };
+}
+
+function mkRenderCardFinance(data) {
+  const list = document.getElementById('mk-finance-list');
+  if (!list || !data) return;
+
+  list.innerHTML = `
+    <li>Выручка (gross): €${data.gross.toFixed(2)}</li>
+    <li>Сеансы: €${data.sessionsSum.toFixed(2)}</li>
+    <li>Чистая: €${data.net.toFixed(2)}</li>
+    <li>Средний чек: €${data.avgCheck.toFixed(2)}</li>
+    <li>Средний чистый чек: €${data.avgNetCheck.toFixed(2)}</li>
+    <li>Медиана: €${data.medianCheck.toFixed(2)}</li>
+    <li>P25–P75: €${data.p25.toFixed(2)} – €${data.p75.toFixed(2)}</li>
+    <li>ROI: €${data.ads.roi.toFixed(2)}</li>
+    <li>Прибыль/€ рекламы: €${data.ads.profitPerEuro.toFixed(2)}</li>
+    <li>Стоимость нового клиента: €${data.ads.costPerClient.toFixed(2)}</li>
+    <li>Уникальные клиенты: ${data.clients.uniqueCount}</li>
+    <li>Возвраты: ${data.clients.repeatPct}%</li>
+    <li>Отмены: ${data.clients.cancelPct}%</li>
+  `;
+}
+
+
 // === helper: нормализован ли клиент как «в работе» ===
 // Учитываем тех, у кого есть КОНСУЛЬТАЦИЯ / ПРЕДОПЛАТА / ЭСКИЗ / СЕАНС (или массив sessions)
 function isQualifiedClient(c) {
@@ -2265,6 +2302,22 @@ function mkRenderCardTotals(totals) {
   set('mk-potential-range', `€${totals.potential.min.toFixed(2)} — €${totals.potential.max.toFixed(2)}`);
 }
 
+// ===== Карточка №6: Финансы =====
+function mkUpdateFinanceCard() {
+  const cutoff = document.getElementById('mkPotentialUntil')?.value || '';
+  const useSup = !!document.getElementById('mkIncludeSupplies')?.checked;
+
+  const data = mkCalcFinanceMetrics(
+    AppState.clients || MK_CLIENTS_CACHE,
+    AppState.marketing,
+    AppState.supplies,
+    cutoff,
+    useSup
+  );
+  mkRenderCardFinance(data);
+}
+
+
 /** Сохранение записи маркетинга из формы */
 async function saveMarketingEntry(){
   const date = $('#mkDate').value || ymdLocal(new Date());
@@ -2321,6 +2374,7 @@ function listenMarketingRealtime(){
         mkRenderCardTotals(totals);
       }
       renderMarketing();
+ if (typeof mkUpdateFinanceCard === 'function') mkUpdateFinanceCard();
     }, err => console.error('marketing', err));
 }
 
@@ -3204,12 +3258,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       mkRenderCardTotals(totals1);
 
       // Пересчёт при смене даты
-      untilInput.addEventListener('change', () => {
+            untilInput.addEventListener('change', () => {
         const totals2 = mkCalcTotalsAndPotential(MK_CLIENTS_CACHE, AppState.marketing, untilInput.value);
         mkRenderCardTotals(totals2);
       });
     }
+
+    // --- Карточка №6: Финансы ---
+    mkUpdateFinanceCard();
+    document.getElementById('mkIncludeSupplies')?.addEventListener('change', mkUpdateFinanceCard);
+
   } catch (e) {
+
     console.warn('[marketing overview] render failed:', e);
   }
 });
