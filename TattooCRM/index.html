@@ -213,24 +213,15 @@
     </div>
   </div>
 
- <label class="field" style="grid-column: 1 / -1"><span>Напоминание</span>
-  <div class="row gap-8" style="flex-wrap: wrap">
-    <select id="fReminderTpl" class="chip" style="flex:1; min-width:180px">
-      <option value="">— шаблон —</option>
-    </select>
+  <!-- 9: Напоминание + список напоминаний -->
+  <label class="field" style="grid-column: 1 / -1"><span>Напоминание</span>
+    <div class="row gap-8">
+      <select id="fReminderTpl" class="chip" style="flex:1"><option value="">— шаблон —</option></select>
+      <select id="fReminderAfter" class="chip" title="Когда напомнить"><option value="">дни</option></select>
+    </div>
+    <input id="fReminderTitle" placeholder="Свой текст напоминания (необязательно)"/>
+  </label>
 
-    <select id="fReminderAfter" class="chip" title="Когда напомнить" style="min-width:120px">
-      <option value="">дни</option>
-    </select>
-
-    <!-- компактное поле текста -->
-    <input id="fReminderTitle" class="chip" style="flex:1; min-width:200px"
-           placeholder="свой текст (необязательно)" />
-
-    <!-- выбор конкретной даты -->
-    <input id="fReminderDate" class="chip" type="date" style="min-width:160px" />
-  </div>
-</label>
 
  
 <!-- 10: Комментарии -->
@@ -381,17 +372,7 @@
   </ul>
 </div>
 
-<!-- Карточка №6: Финансы -->
-<div id="mk-card-finance" class="card glass">
-  <div class="row" style="justify-content:space-between; align-items:center">
-    <h3>Финансы</h3>
-    <label class="switch">
-      <input type="checkbox" id="mkIncludeSupplies">
-      <span>Учитывать расходники</span>
-    </label>
-  </div>
-  <ul id="mk-finance-list" class="mk-list"></ul>
-</div>
+    <div class="stat-card"><span>Заглушка 6</span></div>
 
     <div class="stat-card"><span>Заглушка 7</span></div>
     <div class="stat-card"><span>Заглушка 8</span></div>

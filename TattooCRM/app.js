@@ -379,7 +379,6 @@ async function afterLogin(cred) {
     touchDeviceTrust();
     await loadSettings();
 fillSettingsForm();
-rebuildSourceFilterFromSettings();
         AppState.connected = true;
 
     showPage('todayPage');
@@ -422,8 +421,6 @@ function listenClientsRealtime(){
       if (untilInput) {
         const totals = mkCalcTotalsAndPotential(AppState.clients, AppState.marketing, untilInput.value);
         mkRenderCardTotals(totals);
- // Карточка №6: обновить финансы
-      if (typeof mkUpdateFinanceCard === 'function') mkUpdateFinanceCard();
       }
     }, (err)=> {
       console.error(err);
@@ -465,7 +462,6 @@ function listenSuppliesRealtime(){
       // перерисуем список, если открыта вкладка
       if (document.querySelector('[data-tab="suppliesPage"]').classList.contains('is-active')) {
         renderSupplies();
- if (typeof mkUpdateFinanceCard === 'function') mkUpdateFinanceCard();
       }
     }, (err)=> {
       console.error(err);
@@ -672,10 +668,8 @@ async function saveSettings(){
     const ref = FB.db.collection('TattooCRM').doc('settings').collection('global').doc('default');
     await ref.set(s, { merge: true });
     AppState.settings = s;
-rebuildSourceFilterFromSettings();
+
     toast('Настройки сохранены');
-rebuildSourceFilterFromSettings();
-renderClients(); // чтобы сразу перерисовался список с новым фильтром
     if (document.querySelector('[data-tab="suppliesPage"]').classList.contains('is-active')) {
       $('#supFilter').dataset.filled = ''; // пересобрать список
       renderSupplies();
@@ -1012,7 +1006,14 @@ function renderClients(){
   const st  = $('#filterStatus').value || '';
 
   // заполняем источники в фильтре один раз
-  
+  const srcSel = $('#filterSource');
+  if (!srcSel.dataset.filled){
+    (AppState.settings?.sources || []).forEach(s=>{
+      const o = document.createElement('option'); o.textContent = s; srcSel.appendChild(o);
+    });
+    srcSel.dataset.filled = '1';
+  }
+
   let arr = [...(AppState.clients || [])];
 // сортировка
 const sortMode = $('#sortClients')?.value || 'updatedAt';
@@ -1107,58 +1108,166 @@ function bindSupplies(){
   }
 }
 
-function fillDependentFields(){
+function openSupplyDialog(s = null){
+  const dlg = $('#supplyDialog');
+  const isNew = !s;
+  dlg.dataset.id = s?.id || '';
+
+  $('#supplyModalTitle').textContent = isNew ? 'Новая позиция' : 'Редактирование';
+
+  // Заполняем селект Типов из настроек
+  const typeSel = $('#supType');
+  typeSel.innerHTML = '';
+  (AppState.settings?.supplies || []).forEach(t=>{
+    const o = document.createElement('option'); o.value = t; o.textContent = t; typeSel.appendChild(o);
+  });
+
+  const dict = AppState.settings?.suppliesDict || {};
+  function fillDependentFields(){
   const t = $('#supType').value;
   const d = (AppState.settings?.suppliesDict || {})[t] || {};
 
   // Единица
   $('#supUnit').value = (s?.unit) || d.units || '';
 
-  // --- Подтип (селект либо текст) ---
+  // Подтип
   const kindSel = $('#supKind');
   const kindTxt = $('#supKindText');
   kindSel.innerHTML = '';
-  const kinds = Array.isArray(d.kinds) ? d.kinds : [];
+  const kinds = d.kinds || [];
   if (kinds.length) {
     kinds.forEach(k => {
       const o = document.createElement('option');
-      o.value = k; o.textContent = k;
-      kindSel.appendChild(o);
+      o.value = k; o.textContent = k; kindSel.appendChild(o);
     });
     kindSel.style.display = '';
     kindTxt.style.display = 'none';
-    // восстановим значение, если оно было
-    if (s?.kind) kindSel.value = s.kind;
   } else {
     kindSel.style.display = 'none';
     kindTxt.style.display = '';
-    if (s?.kind) kindTxt.value = s.kind;
   }
 
-  // --- Размер (селект либо текст) ---
+  // Бренды
+  const brandSel = $('#supBrand');
+  const brandTxt = $('#supBrandText');
+  brandSel.innerHTML = '';
+  const brands = d.brands || [];
+  if (brands.length) {
+    brands.forEach(b => {
+      const o = document.createElement('option');
+      o.value = b; o.textContent = b; brandSel.appendChild(o);
+    });
+    brandSel.style.display = '';
+    brandTxt.style.display = 'none';
+  } else {
+    brandSel.style.display = 'none';
+    brandTxt.style.display = '';
+  }
+
+  // Размеры
   const sizeSel = $('#supSize');
   const sizeTxt = $('#supSizeText');
   sizeSel.innerHTML = '';
-  const sizes = Array.isArray(d.sizes) ? d.sizes : [];
+  const sizes = d.sizes || [];
   if (sizes.length) {
     sizes.forEach(sz => {
       const o = document.createElement('option');
-      o.value = String(sz); o.textContent = String(sz);
-      sizeSel.appendChild(o);
+      o.value = String(sz); o.textContent = String(sz); sizeSel.appendChild(o);
     });
     sizeSel.style.display = '';
     sizeTxt.style.display = 'none';
-    if (s?.size != null) sizeSel.value = String(s.size);
   } else {
     sizeSel.style.display = 'none';
     sizeTxt.style.display = '';
-    if (s?.size != null) sizeTxt.value = String(s.size);
+  }
+}
+
+
+
+  typeSel.onchange = fillDependentFields;
+
+  // Проставим значения
+  typeSel.value = s?.cat || (AppState.settings?.supplies?.[0] || '');
+fillDependentFields();
+
+// существующие:
+if ($('#supKind').style.display !== 'none') { $('#supKind').value = s?.kind || ''; }
+else { $('#supKindText').value = s?.kind || ''; }
+
+if ($('#supBrand').style.display !== 'none') { $('#supBrand').value = s?.brand || ''; }
+else { $('#supBrandText').value = s?.brand || ''; }
+
+if ($('#supSize').style.display !== 'none') { $('#supSize').value = s?.size || ''; }
+else { $('#supSizeText').value = s?.size || ''; }    $('#supName').value = s?.name || '';
+  $('#supQty').value  = (typeof s?.qty === 'number') ? s.qty : 1;
+  $('#supUnit').value = s?.unit || $('#supUnit').value;
+  $('#supLink').value = s?.link || '';
+  $('#supNote').value = s?.note || '';
+
+  // Кнопки
+  $('#deleteSupplyBtn').style.display = isNew ? 'none' : '';
+  $('#saveSupplyBtn').onclick = saveSupplyFromDialog;
+  $('#deleteSupplyBtn').onclick = deleteSupplyFromDialog;
+
+  dlg.showModal();
+}
+
+function buildSupplyName({cat, brand, kind, size, note, fallback}){
+  const parts = [cat, brand, kind, size ? `⌀${size}` : '', note].filter(Boolean);
+  const s = parts.join(' ');
+  return s || (fallback || 'Позиция');
+}
+
+async function saveSupplyFromDialog(){
+  const dlg = $('#supplyDialog');
+  let id = dlg.dataset.id;
+  const isNew = !id;
+  if (isNew) id = `sp_${crypto.randomUUID().slice(0,8)}`;
+
+  const cat  = $('#supType').value.trim();
+  const kind = ($('#supKind').style.display !== 'none'
+
+  ? $('#supKind').value.trim()
+  : $('#supKindText').value.trim());
+
+const brand = ($('#supBrand').style.display !== 'none'
+  ? $('#supBrand').value.trim()
+  : $('#supBrandText').value.trim());
+
+const size = ($('#supSize').style.display !== 'none'
+  ? $('#supSize').value.trim()
+  : $('#supSizeText').value.trim());
+  const qty  = Number($('#supQty').value || 0);
+  const unit = $('#supUnit').value.trim();
+  const link = $('#supLink').value.trim();
+  const note = $('#supNote').value.trim();
+
+ const name = ($('#supName').value.trim()) || buildSupplyName({cat, brand, kind, size, note, fallback:'Позиция'});
+
+  const item = {
+  id, cat, kind, brand, size, name, qty, unit, link, note,
+  left: qty,
+  updatedAt: new Date().toISOString()
+};
+
+  // Локально — в состояние (чтобы UI отрисовался сразу)
+  const i = AppState.supplies.findIndex(x => x.id === id);
+  if (i >= 0) AppState.supplies[i] = item; else AppState.supplies.push(item);
+  renderSupplies();
+
+  // Firestore
+  try {
+    const ref = FB.db.collection('TattooCRM').doc('app').collection('supplies').doc(id);
+    await ref.set(item, { merge:true });
+    toast('Сохранено');
+  } catch(e){
+    console.warn(e);
+    toast('Ошибка сохранения');
   }
 
-  // --- Бренд (просто текст, но можно подсказать варианты) ---
-  const brandInp = $('#supBrand');
-  if (brandInp && s?.brand) brandInp.value = s.brand;
+  dlg.close();
 }
+
 async function deleteSupplyFromDialog(){
   const dlg = $('#supplyDialog');
   const id = dlg.dataset.id;
@@ -1448,13 +1557,12 @@ const fSourceSel = $('#fSource'); if (fSourceSel) fSourceSel.value = c?.source |
   else if (q.includes('целевой')) v = 'Целевой';
   $('#fQual').value = v;
 }
-$('#fQualNote').value = c?.qualNote || '';
+    $('#fQualNote').value = c?.qualNote || '';
 
-// Комментарий (заметка по клиенту)
-$('#fNotes').value = c?.notes || '';
 
-// Депозит
-$('#fDeposit').value = c?.deposit || '';
+
+    // Депозит
+    $('#fDeposit').value = c?.deposit || '';
 
 // включаем/выключаем cold-mode
 toggleColdLeadMode($('#fStatus').value === 'Холодный лид');
@@ -1537,10 +1645,6 @@ if (list) {
   } else {
     console.warn('[clientDialog] #fReminderTitle not found');
   }
-}
-const dateInput = $('#fReminderDate');
-if (dateInput) {
-  dateInput.value = ''; // по умолчанию пусто (если надо — можно ставить ymdLocal(new Date()))
 }
 
 
@@ -1831,31 +1935,33 @@ try {
  // --- авто-создание напоминания ---
     try {
       const title = ($('#fReminderTitle').value || '').trim() || $('#fReminderTpl').value.trim();
-if (title) {
-  // 1) если выбрали конкретную дату — используем её
-  const picked = ($('#fReminderDate')?.value || '').trim(); // YYYY-MM-DD
-  let ymd = '';
+      if (title) {
+        const afterDays = Number($('#fReminderAfter').value || 0);
+        const dateObj = addDaysLocal(new Date(), isNaN(afterDays) ? 0 : afterDays);
+        const ymd = ymdLocal(dateObj);
 
-  if (picked) {
-    ymd = picked;
-  } else {
-    // 2) иначе считаем «через N дней» (как раньше)
-    const afterDays = Number($('#fReminderAfter').value || 0);
-    const dateObj = addDaysLocal(new Date(), isNaN(afterDays) ? 0 : afterDays);
-    ymd = ymdLocal(dateObj);
+        const remId = `rm_${crypto.randomUUID().slice(0,8)}`;
+        const reminder = {
+          id: remId,
+          clientId: client.id,
+          clientName: client.displayName,
+          date: ymd,
+          title,
+          createdAt: new Date().toISOString()
+        };
+
+        await FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(remId).set(reminder);
+      }
+    } catch (e) {
+      console.warn('autoReminder', e);
+    }
+    toast('Сохранено');
+  } catch(e) {
+    console.warn('saveClientFromDialog', e);
+    toast('Ошибка сохранения');
   }
 
-  const remId = `rm_${crypto.randomUUID().slice(0,8)}`;
-  const reminder = {
-    id: remId,
-    clientId: client.id,
-    clientName: client.displayName,
-    date: ymd,
-    title,
-    createdAt: new Date().toISOString()
-  };
-
-  await FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(remId).set(reminder);
+  $('#clientDialog').close();
 }
 
 async function deleteClientFromDialog(){
@@ -2006,158 +2112,6 @@ function mkGetLatestAdsSpentTotal(marketingArr) {
   const last = arr[arr.length - 1];
   return Number(last?.spentTotal || 0);
 }
-
-// === [NEW] Финансы (карточка №6) ===============================
-
-// Берём последнее total по рекламе
-function mkGetLatestAdsSpentTotal(marketingArr) {
-  const arr = Array.isArray(marketingArr) ? [...marketingArr] : [];
-  arr.sort((a,b) => (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
-  const last = arr[arr.length - 1];
-  return Number(last?.spentTotal || 0);
-}
-
-// Медиана/квантили
-function _quantiles(nums) {
-  const a = nums.slice().sort((x,y)=>x-y);
-  const q = (p) => {
-    if (!a.length) return 0;
-    const idx = (a.length - 1) * p;
-    const lo = Math.floor(idx), hi = Math.ceil(idx);
-    return (a[lo] + a[hi]) / 2;
-  };
-  return { p25: q(0.25), med: q(0.5), p75: q(0.75) };
-}
-
-// Главный расчёт
-function mkCalcFinanceMetrics(clients, marketingArr, suppliesArr, cutoffYmd, useSupplies = false) {
-  const list = Array.isArray(clients) ? clients : [];
-  const cutoff = cutoffYmd ? String(cutoffYmd) : '';
-  // период = календарный месяц cutoff-даты
-  const co = cutoff ? new Date(cutoff) : new Date();
-  const ymStart = new Date(co.getFullYear(), co.getMonth(), 1);
-  const ymEnd   = new Date(co.getFullYear(), co.getMonth()+1, 0);
-  const startYMD = ymdOf(ymStart.toISOString());
-  const endYMD   = ymdOf(ymEnd.toISOString());
-
-  const adsSpent = mkGetLatestAdsSpentTotal(marketingArr); // реклама «на сегодня»
-
-  let depositsSum = 0;
-  let sessionsSum = 0;
-  let sessionsCnt = 0;
-  const sessionPrices = [];
-
-  // клиенты
-  const payingClientIds = new Set();
-  const newPayingClientIds = new Set();
-  const repeatClientIds = new Set();
-  let canceledClients = 0;
-
-  for (const c of list) {
-    // депозиты учитываем как часть gross, если они в карточке клиента (без даты — берём как есть)
-    depositsSum += Number(c?.deposit || 0) || 0;
-
-    // сеансы
-    const sessions = Array.isArray(c?.sessions) ? c.sessions : [];
-    const doneBeforePeriod = sessions.some(s => {
-      const dt = ymdOf(typeof s === 'string' ? s : s?.dt);
-      return (typeof s === 'object' && s.done) && dt && dt < startYMD;
-    });
-
-    let hadInPeriod = false;
-
-    for (const s of sessions) {
-      const dt = ymdOf(typeof s === 'string' ? s : s?.dt);
-      const price = Number(typeof s === 'object' ? (s.price || 0) : 0);
-      const isDone = (typeof s === 'object' && !!s.done);
-
-      if (!dt) continue;
-
-      // суммируем деньги только за сеансы текущего месяца
-      if (dt >= startYMD && dt <= endYMD && isDone) {
-        sessionsSum += price;
-        sessionsCnt += 1;
-        sessionPrices.push(price);
-        hadInPeriod = true;
-      }
-    }
-
-    // уникальные платящие за период
-    if (hadInPeriod) {
-      payingClientIds.add(c.id);
-      if (doneBeforePeriod) repeatClientIds.add(c.id);
-      else newPayingClientIds.add(c.id);
-    }
-
-    // отмены — грубо по текущему статусу клиента (оценка)
-    const st = normalizeStatus(c?.status || c?.stage || c?.type);
-    if (st === 'canceled') canceledClients += 1;
-  }
-
-  const gross = depositsSum + sessionsSum;
-
-  // расходники: сейчас модели цены/списания нет → считаем 0, пока не появятся поля.
-  // Хук на будущее: если появится suppliesArr[i].cost или списания — суммируй здесь.
-  const suppliesCost = useSupplies ? 0 : 0;
-
-  const net = Math.max(0, gross - adsSpent - suppliesCost);
-
-  // средние/медианы по «сеансам» (без депозитов)
-  const avgCheck    = sessionsCnt ? (sessionsSum / sessionsCnt) : 0;
-  const avgNetCheck = sessionsCnt ? ((sessionsSum - adsSpent - suppliesCost) / sessionsCnt) : 0;
-  const { p25, med, p75 } = _quantiles(sessionPrices);
-
-  // реклама
-  const roi = adsSpent > 0 ? (gross / adsSpent) : 0; // выручка на 1 €
-  const profitPerEuro = adsSpent > 0 ? ((gross - adsSpent - suppliesCost) / adsSpent) : 0;
-
-  // стоимость нового клиента (только «новые платящие» в текущем месяце)
-  const costPerClient = newPayingClientIds.size > 0
-    ? (adsSpent / newPayingClientIds.size)
-    : 0;
-
-  // отмены как доля среди «сеанс состоялся» + «отменил» (оценка)
-  const denomForCancel = sessionsCnt + canceledClients;
-  const cancelPct = denomForCancel > 0 ? Math.round((canceledClients / denomForCancel) * 100) : 0;
-
-  // возвраты
-  const uniqueCount = payingClientIds.size;
-  const repeatPct = uniqueCount > 0 ? Math.round((repeatClientIds.size / uniqueCount) * 100) : 0;
-
-  return {
-    period: { startYMD, endYMD },
-    gross, sessionsSum, net,
-    avgCheck, avgNetCheck,
-    medianCheck: med, p25, p75,
-    ads: { spent: adsSpent, roi, profitPerEuro, costPerClient },
-    clients: { uniqueCount, repeatPct, cancelPct }
-  };
-}
-
-function mkRenderCardFinance(data) {
-  const list = document.getElementById('mk-finance-list');
-  if (!list || !data) return;
-
-  list.innerHTML = `
-    <li><b>Выручка (gross)</b> — сеансы + депозиты: <b>€${data.gross.toFixed(2)}</b></li>
-    <li>Деньги с проведённых сеансов за период: €${data.sessionsSum.toFixed(2)}</li>
-    <li><b>Чистая выручка (net)</b> ${data.ads.spent>0?'(минус реклама'+(document.getElementById('mkIncludeSupplies')?.checked?', расходники':'')+')':''}: <b>€${data.net.toFixed(2)}</b></li>
-    <li>Средний чек: €${data.avgCheck.toFixed(2)}</li>
-    <li>Средний «чистый» чек: €${data.avgNetCheck.toFixed(2)}</li>
-    <li>Медианный чек: €${data.medianCheck.toFixed(2)} (P25–P75: €${data.p25.toFixed(2)}–€${data.p75.toFixed(2)})</li>
-
-    <li class="mk-sub">Эффективность рекламы</li>
-    <li>Выручка на 1 € рекламы: €${data.ads.roi.toFixed(2)}</li>
-    <li>Прибыль на 1 € рекламы: €${data.ads.profitPerEuro.toFixed(2)}</li>
-    <li>Стоимость нового клиента с рекламы: €${data.ads.costPerClient.toFixed(2)}</li>
-
-    <li class="mk-sub">Клиенты</li>
-    <li>Уникальные платящие: ${data.clients.uniqueCount}</li>
-    <li>% возвратов / повторных: ${data.clients.repeatPct}%</li>
-    <li>Доля отмен: ${data.clients.cancelPct}%</li>
-  `;
-}
-
 
 // === helper: нормализован ли клиент как «в работе» ===
 // Учитываем тех, у кого есть КОНСУЛЬТАЦИЯ / ПРЕДОПЛАТА / ЭСКИЗ / СЕАНС (или массив sessions)
@@ -2311,22 +2265,6 @@ function mkRenderCardTotals(totals) {
   set('mk-potential-range', `€${totals.potential.min.toFixed(2)} — €${totals.potential.max.toFixed(2)}`);
 }
 
-// ===== Карточка №6: Финансы =====
-function mkUpdateFinanceCard() {
-  const cutoff = document.getElementById('mkPotentialUntil')?.value || '';
-  const useSup = !!document.getElementById('mkIncludeSupplies')?.checked;
-
-  const data = mkCalcFinanceMetrics(
-    AppState.clients || MK_CLIENTS_CACHE,
-    AppState.marketing,
-    AppState.supplies,
-    cutoff,
-    useSup
-  );
-  mkRenderCardFinance(data);
-}
-
-
 /** Сохранение записи маркетинга из формы */
 async function saveMarketingEntry(){
   const date = $('#mkDate').value || ymdLocal(new Date());
@@ -2383,7 +2321,6 @@ function listenMarketingRealtime(){
         mkRenderCardTotals(totals);
       }
       renderMarketing();
- if (typeof mkUpdateFinanceCard === 'function') mkUpdateFinanceCard();
     }, err => console.error('marketing', err));
 }
 
@@ -2438,54 +2375,6 @@ function renderSupplies(){
 }
 
 // ---------- Settings ----------
-
-// Пересобрать селект фильтра источников строго из настроек
-function rebuildSourceFilterFromSettings() {
-  const sel = $('#filterSource');
-  if (!sel) return;
-
-  // запомним текущее значение, чтобы по возможности сохранить выбор
-  const keep = sel.value || '';
-
-  // Пересобираем с чистого листа
-  sel.innerHTML = '';
-  const oAll = document.createElement('option');
-  oAll.value = ''; oAll.textContent = 'Все источники';
-  sel.appendChild(oAll);
-
-  (AppState.settings?.sources || []).forEach(src => {
-    const o = document.createElement('option');
-    o.value = src; o.textContent = src;
-    sel.appendChild(o);
-  });
-
-  // вернём предыдущий выбор, если он есть в списке
-  if ([...sel.options].some(o => o.value === keep)) sel.value = keep;
-}
-
-// Сформировать фильтр источников строго из настроек (без дублей)
-function rebuildSourceFilterFromSettings() {
-  const sel = document.querySelector('#filterSource');
-  if (!sel) return;
-
-  const keep = sel.value || '';
-  sel.innerHTML = ''; // полностью чистим
-
-  const oAll = document.createElement('option');
-  oAll.value = '';
-  oAll.textContent = 'Источник: все';
-  sel.appendChild(oAll);
-
-  (AppState.settings?.sources || []).forEach(src => {
-    const o = document.createElement('option');
-    o.value = src;
-    o.textContent = src;
-    sel.appendChild(o);
-  });
-
-  if ([...sel.options].some(o => o.value === keep)) sel.value = keep;
-}
-
 function bindSettings(){
   $('#saveSettingsBtn').addEventListener('click', saveSettings);
   $('#logoutBtn').addEventListener('click', ()=>{
@@ -2493,8 +2382,6 @@ function bindSettings(){
     toast('Вы вышли из аккаунта');
     location.reload();
 });
-
-
 
 } // ← закрыли bindSettings()
  function fillSettingsForm(){
@@ -2511,7 +2398,14 @@ renderSuppliesDictEditor(s.suppliesDict || {});
 bindSuppliesDictToggle();
  $('#setSyncInterval').value = s.syncInterval ?? 60;
 
- rebuildSourceFilterFromSettings();
+  const sel = $('#filterSource');
+  const have = Array.from(sel.options).map(o=>o.value);
+  (s.sources||[]).forEach(src=>{
+    if (!have.includes(src)) {
+      const o = document.createElement('option'); o.textContent = src;
+      sel.appendChild(o);
+    }
+  });
 }
 
 
@@ -3310,18 +3204,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       mkRenderCardTotals(totals1);
 
       // Пересчёт при смене даты
-            untilInput.addEventListener('change', () => {
+      untilInput.addEventListener('change', () => {
         const totals2 = mkCalcTotalsAndPotential(MK_CLIENTS_CACHE, AppState.marketing, untilInput.value);
         mkRenderCardTotals(totals2);
       });
     }
-
-    // --- Карточка №6: Финансы ---
-    mkUpdateFinanceCard();
-    document.getElementById('mkIncludeSupplies')?.addEventListener('change', mkUpdateFinanceCard);
-
   } catch (e) {
-
     console.warn('[marketing overview] render failed:', e);
   }
 });
