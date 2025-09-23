@@ -408,32 +408,16 @@ initDriveStack({ forceConsent: true })
 // ---------- Firestore realtime ----------
 function listenClientsRealtime(){
   FB.db.collection('TattooCRM').doc('app').collection('clients')
+    .orderBy('updatedAt', 'desc')   // базовая сортировка
     .onSnapshot((qs)=>{
-  // 1) Пересобрать массив клиентов
-  const next = [];
-  const ids = new Set();
-  qs.forEach(d => {
-    const row = d.data();
-    next.push(row);
-    if (row?.id) ids.add(row.id);
-  });
-
-  AppState.clients = next;
-  renderClients();    // как и раньше
-  renderToday();      // как и раньше
-
-  // 2) Обновить маркетинговый кэш клиентов
-  MK_CLIENTS_CACHE = next.slice();
-
-  // 3) Держать подписки на логи в актуальном состоянии
-  mkSyncLogSubscriptions(ids);
-
-  // 4) Перерендерить маркетинг (статусы, демо, конверсии, история/IG и т.д.)
-  mkRerenderDebounced();
-}, (err)=> {
-  console.error(err);
-  toast('Ошибка чтения клиентов');
-});
+      AppState.clients = [];
+      qs.forEach(d => AppState.clients.push(d.data()));
+      renderClients();   // внутри будем сортировать по выбору
+      renderToday();
+    }, (err)=> {
+      console.error(err);
+      toast('Ошибка чтения клиентов');
+    });
 }
 function listenRemindersRealtime(){
   FB.db.collection('TattooCRM').doc('app').collection('reminders')
@@ -1953,12 +1937,8 @@ function renderMarketing() {
   const wrap = $('#mkHistory');
   if (!wrap) return;
 
-  const all = Array.isArray(AppState.marketing) ? [...AppState.marketing] : [];
-  // Фильтрация по периоду
-  const items = all.filter(e => {
-    const iso = `${e.date || ''}T${(e.time || '00:00')}:00`;
-    return mkInRange(iso);
-  }).sort((a,b) => (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
+  const items = Array.isArray(AppState.marketing) ? [...AppState.marketing] : [];
+  items.sort((a,b) => (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
 
   let totalFollowers = 0;
   let prevSpentTotal = 0;
@@ -1969,26 +1949,33 @@ function renderMarketing() {
     const daySpent = Number(e.spentTotal || 0) - prevSpentTotal;
     prevSpentTotal = Number(e.spentTotal || 0);
     totalSpent = prevSpentTotal;
+
     return `
       <div class="row" style="justify-content:space-between; padding:6px 0">
         <div><b>${formatDateHuman(e.date)}</b></div>
         <div>+${e.delta || 0} (Итого: ${totalFollowers})</div>
         <div>Расход дня: €${daySpent.toFixed(2)}</div>
-      </div>`;
+      </div>
+    `;
   });
 
-  const footer = items.length ? `
+   const footer = items.length ? `
     <div class="row card-client glass" style="margin-top:10px; justify-content:space-between">
       <div><b>Итого</b></div>
       <div>Подписчики: <b>${totalFollowers}</b></div>
       <div>Общий расход: €${totalSpent.toFixed(2)}</div>
-    </div>` : '';
+    </div>
+  ` : '';
 
+  // NEW: обновляем «Instagram → xxx новых подписчиков» в карточке №1 (маркетинг-сводка)
   const igBox = document.getElementById('mk-instagram-followers');
-  if (igBox) igBox.textContent = `${totalFollowers} новых подписчиков`;
+  if (igBox) {
+    igBox.textContent = `${totalFollowers} новых подписчиков`;
+  }
 
   wrap.innerHTML = rows.length ? rows.join('') + footer : `<div class="row">Пока нет данных</div>`;
-}/** Сохранение записи маркетинга из формы */
+}
+/** Сохранение записи маркетинга из формы */
 async function saveMarketingEntry(){
   const date = $('#mkDate').value || ymdLocal(new Date());
   const time = $('#mkTime').value || new Date().toISOString().slice(11,16);
@@ -2368,118 +2355,12 @@ const GENDER_LABELS = {
 
 // --- SuperFilter State ---
 const MK_FILTERS = {
-  status: new Set(),
-  lang:   new Set(),
-  gender: new Set(),
-  qual:   new Set(),
-
-  // NEW:
-  sources: new Set(),                       // строки из client.source
-  period: { mode: 'all', days: null, from: null, to: null } // 'all' | 'days' | 'range'
+  status: new Set(),   // значения normalizeStatus: cold/lead/consultation/prepay/session/canceled/dropped
+  lang:   new Set(),   // ru/en/sk/de/at/...
+  gender: new Set(),   // male/female/''
+  qual:   new Set(),   // target/semi/nontarget (нормализуем внутри)
 };
 let MK_CLIENTS_CACHE = [];
-let MK_LOGS_CACHE = null; // кэш логов статусов
-// ---- Live helpers for Marketing ----
-const MK_LOGS_UNSUB = new Map(); // clientId -> unsubscribe
-let __mkRerenderTimer = null;
-function mkRerenderDebounced(ms = 200){
-  clearTimeout(__mkRerenderTimer);
-  __mkRerenderTimer = setTimeout(() => mkRerenderMarketing(), ms);
-}
-
-// Подписка на /clients/{id}/statusLogs c обновлением MK_LOGS_CACHE
-function mkBindLogsRealtimeFor(clientId){
-  if (!clientId || MK_LOGS_UNSUB.has(clientId)) return;
-
-  const q = FB.db
-    .collection('TattooCRM').doc('app')
-    .collection('clients').doc(clientId)
-    .collection('statusLogs');
-
-  const unsub = q.onSnapshot(snap => {
-    const arr = [];
-    snap.forEach(d => {
-      const row = d.data() || {};
-      arr.push({
-        ts: row.ts || '',
-        from: row.from || '',
-        to: row.to || '',
-        _id: d.id || ''
-      });
-    });
-    // стабильная сортировка: сначала ts (ISO), иначе по doc.id (Date.now())
-    arr.sort((a,b)=>{
-      const ak = a.ts ? a.ts : String(a._id||'');
-      const bk = b.ts ? b.ts : String(b._id||'');
-      return ak.localeCompare(bk);
-    });
-
-    MK_LOGS_CACHE = MK_LOGS_CACHE || new Map();
-    MK_LOGS_CACHE.set(clientId, arr);
-    mkRerenderDebounced(); // обновить карточку 4 и прочее
-  }, (err)=> console.warn('[statusLogs]', clientId, err));
-
-  MK_LOGS_UNSUB.set(clientId, unsub);
-}
-
-// Синхронизация набора подписок под текущий список клиентов
-function mkSyncLogSubscriptions(currentIds){
-  // добавить недостающие
-  currentIds.forEach(id => mkBindLogsRealtimeFor(id));
-  // убрать лишние
-  for (const [id, unsub] of MK_LOGS_UNSUB.entries()){
-    if (!currentIds.has(id)) { try{ unsub(); }catch(_){}
-      MK_LOGS_UNSUB.delete(id);
-      if (MK_LOGS_CACHE) MK_LOGS_CACHE.delete(id);
-    }
-  }
-}
-
-function mkGetDateRangeMs() {
-  const p = MK_FILTERS.period || {};
-  if (p.mode === 'days' && p.days > 0) {
-    const to = Date.now();
-    const from = to - p.days * 86400000;
-    return [from, to];
-  }
-  if (p.mode === 'range') {
-    const from = p.from ? Date.parse(p.from + 'T00:00:00') : null;
-    const to   = p.to   ? Date.parse(p.to   + 'T23:59:59') : null;
-    return [from, to];
-  }
-  return [null, null]; // all time
-}
-function mkInRange(ts) {
-  const [from, to] = mkGetDateRangeMs();
-  if (from == null && to == null) return true;
-  const t = typeof ts === 'number' ? ts : Date.parse(ts || '');
-  if (!t) return false;
-  if (from != null && t < from) return false;
-  if (to   != null && t > to)   return false;
-  return true;
-}
-
-function mkCollectSources(clients) {
-  const set = new Set();
-  for (const c of (clients || [])) {
-    const s = String(c?.source || '').trim();
-    if (s) set.add(s);
-  }
-  return Array.from(set).sort((a,b)=>a.localeCompare(b));
-}
-function mkRenderSourceFilter(clients) {
-  const list = document.getElementById('mk-sources');
-  if (!list) return;
-  const arr = mkCollectSources(clients);
-  list.innerHTML = arr.length ? arr.map(s => `
-    <li class="mk-row">
-      <label class="mk-check">
-        <span class="label">
-          <input type="checkbox" class="mk-src" data-src="${s}"/> ${s}
-        </span>
-      </label>
-    </li>`).join('') : `<li class="mk-row"><span class="label">—</span></li>`;
-}
 
 
 
@@ -2500,59 +2381,6 @@ function normalizeStatus(raw) {
   if (s.includes('слил') || s.includes('пропал') || s.includes('no show') || s.includes('ghost')) return 'dropped';
 
   return '';
-}
-
-// "как в Excel", но с фильтрами периода и источников
-function mkBuildReachedConversionFiltered(clients, logsMap) {
-  const TARGETS = ['consultation','prepay','session','canceled','dropped'];
-  const useSrc   = MK_FILTERS.sources.size > 0;
-  const useRange = (() => { const [f,t] = mkGetDateRangeMs(); return f!=null || t!=null; })();
-
-  const denomSet = new Set();
-  const cnt = { consultation:0, prepay:0, session:0, canceled:0, dropped:0 };
-
-  for (const c of (clients || [])) {
-    if (useSrc) {
-      const s = String(c?.source || '').trim();
-      if (!MK_FILTERS.sources.has(s)) continue;
-    }
-    // события клиента в выбранном периоде
-    const allLogs = logsMap.get(c.id) || [];
-    const logs = useRange ? allLogs.filter(r => mkInRange(r?.ts)) : allLogs;
-
-    // был "в лиде" в периоде?
-    const wasLead = useRange
-      ? logs.some(r => {
-          const f = normalizeStatus(r?.from);
-          const t = normalizeStatus(r?.to);
-          return (f === 'lead' || t === 'lead');
-        })
-      : allLogs.some(r => {
-          const f = normalizeStatus(r?.from);
-          const t = normalizeStatus(r?.to);
-          return (f === 'lead' || t === 'lead');
-        });
-
-    if (!wasLead) continue;
-    denomSet.add(c.id);
-
-    // переходы "to == целевой статус" в периоде
-    for (const t of TARGETS) {
-      const hit = logs.some(r => normalizeStatus(r?.to) === t);
-      if (hit) cnt[t] += 1;
-    }
-  }
-
-  const denom = denomSet.size;
-  const pct = (n) => denom > 0 ? Math.round((n/denom)*100) : 0;
-  return {
-    denom,
-    consultation: { n: cnt.consultation, p: pct(cnt.consultation) },
-    prepay:       { n: cnt.prepay,       p: pct(cnt.prepay) },
-    session:      { n: cnt.session,      p: pct(cnt.session) },
-    canceled:     { n: cnt.canceled,     p: pct(cnt.canceled) },
-    dropped:      { n: cnt.dropped,      p: pct(cnt.dropped) }
-  };
 }
 
 // Сбор депозитов из разных схем (массив/поле)
@@ -2616,38 +2444,6 @@ function normalizeQual(qRaw='') {
   if (q.includes('условно')) return 'semi';
   if (q.includes('не цел') || q.includes('нецел')) return 'nontarget';
   return ''; // неизвестно
-}
-
-// --- Глобальная выборка для карточек 1 и 2 по ПЕРИОДУ и ИСТОЧНИКАМ ---
-function mkFilterClientsByTopFilters(clients, logsMap = new Map()) {
-  const useSrc = MK_FILTERS.sources && MK_FILTERS.sources.size > 0;
-  const [from, to] = mkGetDateRangeMs();
-  const useRange = (from != null || to != null);
-
-  return (clients || []).filter(c => {
-    // 1) Источник
-    if (useSrc) {
-      const s = String(c?.source || '').trim();
-      if (!MK_FILTERS.sources.has(s)) return false;
-    }
-
-    // 2) Период
-    if (useRange) {
-      // Считаем, что клиент «попадает в период», если:
-      //  - есть хотя бы один лог смены статуса в диапазоне, ИЛИ
-      //  - дата первого контакта попадает в диапазон, ИЛИ (фолбэк)
-      //  - createdAt/updatedAt в диапазоне.
-      const logs = logsMap.get(c?.id) || [];
-      const byLogs = logs.some(r => mkInRange(r?.ts));
-      const byFirst = c?.firstContactDate ? mkInRange(`${c.firstContactDate}T00:00:00`) : false;
-      const byCreated = c?.createdAt ? mkInRange(c.createdAt) : false;
-      const byUpdated = c?.updatedAt ? mkInRange(c.updatedAt) : false;
-
-      if (!(byLogs || byFirst || byCreated || byUpdated)) return false;
-    }
-
-    return true;
-  });
 }
 
 
@@ -3048,82 +2844,13 @@ document.addEventListener('change', (e) => {
   mkRenderResults(MK_CLIENTS_CACHE);
 });
 
-function mkRerenderMarketing() {
-  // Пул клиентов под глобальные фильтры (период + источники)
-  const filtered = mkFilterClientsByTopFilters(MK_CLIENTS_CACHE, MK_LOGS_CACHE || new Map());
-
-  // 1) Карточка №1: «Клиенты и статусы»
-  const { counts } = mkBuildOverviewFromClients(filtered);
-  mkRenderCardStatuses(counts);
-
-  // 2) Карточка №2: «Профиль клиентов»
-  const demo = mkBuildDemographicsFromClients(filtered);
-  mkRenderCardDemographics(demo);
-
-  // 3) Карточка №3: «Результат фильтра» — оставляем прежнюю логику (не зависит от периода/источников)
-  mkRenderResults(filtered);
-
-  // 4) История маркетинга + Instagram (уже учитывает период)
-  renderMarketing();
-
-  // 5) Карточка №4: «Конверсия» — уже внутри учитывает период и источники
-  if (MK_LOGS_CACHE) {
-    const conv = mkBuildReachedConversionFiltered(MK_CLIENTS_CACHE, MK_LOGS_CACHE);
-    mkRenderCardConversion(conv);
-  }
-}
-
-// Пресеты периода (7/10/30/всё время)
-document.addEventListener('click', (e) => {
-  const b = e.target.closest('#mk-global-filter .chip[data-mk-days]');
-  if (!b) return;
-  const n = Number(b.dataset.mkDays || 0);
-  MK_FILTERS.period = n > 0 ? { mode:'days', days:n } : { mode:'all', days:null, from:null, to:null };
-  document.querySelectorAll('#mk-global-filter .chip[data-mk-days]')
-    .forEach(btn => btn.classList.toggle('active', btn === b));
-  mkRerenderMarketing();
-});
-
-// Собственный диапазон
-document.addEventListener('click', (e) => {
-  const ok = e.target.closest('#mk-apply-range');
-  if (!ok) return;
-  MK_FILTERS.period = {
-    mode:'range',
-    from: document.getElementById('mk-date-from')?.value || null,
-    to:   document.getElementById('mk-date-to')?.value   || null
-  };
-  document.querySelectorAll('#mk-global-filter .chip[data-mk-days]').forEach(btn => btn.classList.remove('active'));
-  mkRerenderMarketing();
-});
-
-// Источники — мультивыбор
-document.addEventListener('change', (e) => {
-  const cb = e.target.closest('.mk-src');
-  if (!cb) return;
-  const key = cb.dataset.src;
-  if (cb.checked) MK_FILTERS.sources.add(key); else MK_FILTERS.sources.delete(key);
-  mkRerenderMarketing();
-});
-document.addEventListener('click', (e) => {
-  if (e.target.closest('#mk-src-all')) {
-    document.querySelectorAll('.mk-src').forEach(cb => { cb.checked = true; MK_FILTERS.sources.add(cb.dataset.src); });
-    mkRerenderMarketing();
-  }
-  if (e.target.closest('#mk-src-none')) {
-    MK_FILTERS.sources.clear();
-    document.querySelectorAll('.mk-src').forEach(cb => cb.checked = false);
-    mkRerenderMarketing();
-  }
-});
-
 document.addEventListener('click', (e) => {
   const a = e.target.closest('[data-open-client]');
   if (!a) return;
   const id = a.getAttribute('data-open-client');
   if (!id) return;
   // если есть твоя функция openClientDialog(id) — вызови её:
- if (typeof openClientById === 'function') openClientById(id);
+  if (typeof openClientDialog === 'function') openClientDialog(id);
 });
 
 document.addEventListener('click', (e) => {
@@ -3145,7 +2872,7 @@ function mkResetFilters() {
   });
 
   // перерисовать результаты
-  mkRerenderMarketing();
+  mkRenderResults(MK_CLIENTS_CACHE);
 }
 
 
@@ -3154,16 +2881,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     MK_CLIENTS_CACHE = await mkFetchClientsFallback();
 
-// Рендер источников в шапке
-mkRenderSourceFilter(MK_CLIENTS_CACHE);
+    // Карточка №1
+    const { counts } = mkBuildOverviewFromClients(MK_CLIENTS_CACHE);
+    mkRenderCardStatuses(counts);
 
-// Кэш логов для конверсии
-MK_LOGS_CACHE = await mkFetchStatusLogsForClients(MK_CLIENTS_CACHE);
+    // Карточка №2
+    const demo = mkBuildDemographicsFromClients(MK_CLIENTS_CACHE);
+    mkRenderCardDemographics(demo);
 
-// Стартовый рендер единым проходом
-mkResetFilters();          // сброс внутренних чекбоксов
-mkRerenderMarketing();     // теперь перерисует карточки 1–4 согласованно
-} catch (e) {
-  console.warn('[marketing overview] render failed:', e);
-}
-}); // DOMContentLoaded
+    // Суперфильтр
+    mkResetFilters();
+    mkRenderResults(MK_CLIENTS_CACHE);
+
+    // Карточка №4: «как в Excel»
+    const logsMap = await mkFetchStatusLogsForClients(MK_CLIENTS_CACHE);
+    const conv = mkBuildReachedConversion(MK_CLIENTS_CACHE, logsMap);
+    mkRenderCardConversion(conv);
+    console.log('[conv reached]', conv);
+  } catch (e) {
+    console.warn('[marketing overview] render failed:', e);
+  }
+});
