@@ -268,6 +268,8 @@ AppState.connected = true;
       listenRemindersRealtime();
 listenSuppliesRealtime();
       renderToday();
+
+
 listenMarketingRealtime();
       toast('Добро пожаловать обратно 👋');
     } catch (e) {
@@ -414,6 +416,12 @@ function listenClientsRealtime(){
       qs.forEach(d => AppState.clients.push(d.data()));
       renderClients();   // внутри будем сортировать по выбору
       renderToday();
+// Карточка №5: перестраиваем итоги при изменении клиентов
+      const untilInput = document.getElementById('mkPotentialUntil');
+      if (untilInput) {
+        const totals = mkCalcTotalsAndPotential(AppState.clients, AppState.marketing, untilInput.value);
+        mkRenderCardTotals(totals);
+      }
     }, (err)=> {
       console.error(err);
       toast('Ошибка чтения клиентов');
@@ -1973,8 +1981,110 @@ function renderMarketing() {
     igBox.textContent = `${totalFollowers} новых подписчиков`;
   }
 
-  wrap.innerHTML = rows.length ? rows.join('') + footer : `<div class="row">Пока нет данных</div>`;
+   wrap.innerHTML = rows.length ? rows.join('') + footer : `<div class="row">Пока нет данных</div>`;
 }
+
+wrap.innerHTML = rows.length ? rows.join('') + footer : `<div class="row">Пока нет данных</div>`;
+}
+
+// === [NEW] Totals & Potential (карточка №5) ===============================
+
+function mkGetLatestAdsSpentTotal(marketingArr) {
+  const arr = Array.isArray(marketingArr) ? [...marketingArr] : [];
+  arr.sort((a,b) => (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
+  const last = arr[arr.length - 1];
+  return Number(last?.spentTotal || 0);
+}
+
+function mkCalcTotalsAndPotential(clients, marketingArr, cutoffYmd) {
+  const clientsArr = Array.isArray(clients) ? clients : [];
+
+  // 1) Реклама — общий потраченный бюджет (берём последнее "spentTotal")
+  const adsSpent = mkGetLatestAdsSpentTotal(marketingArr);
+
+  // 2) Предоплаты
+  let depCount = 0, depSum = 0;
+  for (const c of clientsArr) {
+    const v = Number(c?.deposit || 0);
+    if (v > 0) { depCount++; depSum += v; }
+  }
+
+  // 3) Сеансы (done / planned)
+  let doneCount = 0, doneSum = 0;
+  let planCount = 0, planSum = 0;
+  const cutoff = cutoffYmd ? String(cutoffYmd) : ''; // 'YYYY-MM-DD'
+
+  for (const c of clientsArr) {
+    const sessions = Array.isArray(c?.sessions) ? c.sessions : [];
+    for (const s of sessions) {
+      const obj = (typeof s === 'object') ? s : { dt: s, price: 0, done: false };
+      const dt = String(obj.dt || '');
+      const ymd = dt.split('T')[0] || '';
+
+      const price = Number(obj.price || 0);
+      if (obj.done) { doneCount++; doneSum += price; }
+      else {
+        // planned считаем только до выбранной даты (включительно)
+        if (!cutoff || (ymd && ymd <= cutoff)) {
+          planCount++; planSum += price;
+        }
+      }
+    }
+  }
+
+  // 4) Потенциал (диапазон):
+  // Берём клиентов, у кого есть хотя бы ОДИН запланированный сеанс до cutoff.
+  // Складываем их amountMin/amountMax, затем вычитаем депозиты и сумму проведённых сеансов.
+  let potMin = 0, potMax = 0;
+  for (const c of clientsArr) {
+    const sessions = Array.isArray(c?.sessions) ? c.sessions : [];
+    const hasPlannedBeforeCutoff = sessions.some(s => {
+      const obj = (typeof s === 'object') ? s : { dt: s, done: false };
+      if (obj.done) return false;
+      const dt = String(obj.dt || '');
+      const ymd = dt.split('T')[0] || '';
+      return cutoff ? (ymd && ymd <= cutoff) : true;
+    });
+
+    if (!hasPlannedBeforeCutoff) continue;
+
+    // Озвученные суммы (поддерживаем legacy amount)
+    let aMin = c?.amountMin;
+    let aMax = c?.amountMax;
+    if (aMin == null && aMax == null && c?.amount != null) {
+      const n = Number(c.amount); if (!isNaN(n)) { aMin = n; aMax = n; }
+    }
+    const minNum = Number(aMin || 0);
+    const maxNum = Number(aMax || 0);
+
+    potMin += minNum;
+    potMax += maxNum;
+  }
+
+  // Вычитаем депозиты и проведённые сеансы (за всё время)
+  potMin = Math.max(0, potMin - depSum - doneSum);
+  potMax = Math.max(0, potMax - depSum - doneSum);
+
+  return {
+    adsSpent,
+    deposits: { count: depCount, sum: depSum },
+    sessionsDone: { count: doneCount, sum: doneSum },
+    sessionsPlanned: { count: planCount, sum: planSum },
+    potential: { min: potMin, max: potMax }
+  };
+}
+
+function mkRenderCardTotals(totals) {
+  if (!totals) return;
+  const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+
+  set('mk-ads-spent', `€${totals.adsSpent.toFixed(2)}`);
+  set('mk-deposits', `${totals.deposits.count} шт., €${totals.deposits.sum.toFixed(2)}`);
+  set('mk-sessions-done', `${totals.sessionsDone.count} шт., €${totals.sessionsDone.sum.toFixed(2)}`);
+  set('mk-sessions-planned', `${totals.sessionsPlanned.count} шт., €${totals.sessionsPlanned.sum.toFixed(2)}`);
+  set('mk-potential-range', `€${totals.potential.min.toFixed(2)} — €${totals.potential.max.toFixed(2)}`);
+}
+
 /** Сохранение записи маркетинга из формы */
 async function saveMarketingEntry(){
   const date = $('#mkDate').value || ymdLocal(new Date());
@@ -2024,6 +2134,12 @@ function listenMarketingRealtime(){
       // локально сортируем по дате+времени, чтобы не требовать составного индекса
       arr.sort((a,b) => (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
       AppState.marketing = arr;
+ // Карточка №5: обновляем итоги и потенциал при новых данных маркетинга
+      const untilInput = document.getElementById('mkPotentialUntil');
+      if (untilInput) {
+        const totals = mkCalcTotalsAndPotential(AppState.clients || MK_CLIENTS_CACHE, AppState.marketing, untilInput.value);
+        mkRenderCardTotals(totals);
+      }
       renderMarketing();
     }, err => console.error('marketing', err));
 }
@@ -2893,6 +3009,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     const conv = mkBuildReachedConversion(MK_CLIENTS_CACHE, logsMap);
     mkRenderCardConversion(conv);
     console.log('[conv reached]', conv);
+// --- Карточка №5: Totals + Potential ---
+    const untilInput = document.getElementById('mkPotentialUntil');
+    if (untilInput) {
+      // Дата по умолчанию: 1-е число следующего месяца
+      const now = new Date();
+      const def = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+      const defYmd =
+        `${def.getFullYear()}-${String(def.getMonth()+1).padStart(2,'0')}-${String(def.getDate()).padStart(2,'0')}`;
+      if (!untilInput.value) untilInput.value = defYmd;
+
+      // Первый рендер итогов
+      const totals1 = mkCalcTotalsAndPotential(MK_CLIENTS_CACHE, AppState.marketing, untilInput.value);
+      mkRenderCardTotals(totals1);
+
+      // Пересчёт при смене даты
+      untilInput.addEventListener('change', () => {
+        const totals2 = mkCalcTotalsAndPotential(MK_CLIENTS_CACHE, AppState.marketing, untilInput.value);
+        mkRenderCardTotals(totals2);
+      });
+    }
   } catch (e) {
     console.warn('[marketing overview] render failed:', e);
   }

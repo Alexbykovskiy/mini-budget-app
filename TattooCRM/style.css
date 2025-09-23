@@ -1028,3 +1028,21 @@ dialog[open] .modal-body{
   margin-left: auto;     /* ← отталкивает «ВСЕГО» вправо */
   text-align: right;     /* ← придаёт чёткое выравнивание текста */
 }
+
+/* Заголовок с элементом справа (дата и т.п.) */
+.stat-card .mk-subtitle.mk-two {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.stat-card .mk-subtitle.mk-two .right {
+  margin-left: auto;
+  text-align: right;
+}
+#mk-card-totals input[type="date"] {
+  background: transparent;
+  color: inherit;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
