@@ -1046,3 +1046,57 @@ dialog[open] .modal-body{
   border-radius: 999px;
   padding: 4px 10px;
 }
+
+
+/* === Compact view for Totals card (card #5) === */
+.stat-card.compact { --fs-title:16px; --fs-sub:12px; --fs-label:12px; --fs-value:12px; }
+
+.stat-card.compact .mk-title {
+  font-size: var(--fs-title);
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.stat-card.compact .mk-subtitle {
+  font-size: var(--fs-sub);
+  line-height: 1.2;
+  margin: 6px 0 4px;
+}
+
+.stat-card.compact .mk-subtitle.mk-two { display: flex; align-items: center; }
+.stat-card.compact .mk-subtitle.mk-two .right { margin-left: auto; text-align: right; }
+
+.stat-card.compact .mk-list { margin-top: 4px; }
+.stat-card.compact .mk-list .mk-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 3px 0;      /* было больше — ужимаем вертикальные отступы */
+}
+
+.stat-card.compact .mk-list .label {
+  font-size: var(--fs-label);
+  line-height: 1.2;
+  flex: 1 1 auto;      /* текст метки гибкий */
+  min-width: 0;        /* разрешить перенос */
+  overflow-wrap: anywhere;
+}
+
+.stat-card.compact .mk-list .value {
+  font-size: var(--fs-value);
+  line-height: 1.2;
+  flex: 0 0 auto;      /* значение компактное */
+  text-align: right;
+  white-space: nowrap; /* цифры в одну строку */
+}
+
+/* Поле даты — компактнее */
+#mk-card-totals input[type="date"] {
+  font-size: 12px;
+  padding: 2px 8px;
+  height: 26px;
+  background: transparent;
+  color: inherit;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 999px;
+}
