@@ -2618,6 +2618,38 @@ function normalizeQual(qRaw='') {
   return ''; // неизвестно
 }
 
+// --- Глобальная выборка для карточек 1 и 2 по ПЕРИОДУ и ИСТОЧНИКАМ ---
+function mkFilterClientsByTopFilters(clients, logsMap = new Map()) {
+  const useSrc = MK_FILTERS.sources && MK_FILTERS.sources.size > 0;
+  const [from, to] = mkGetDateRangeMs();
+  const useRange = (from != null || to != null);
+
+  return (clients || []).filter(c => {
+    // 1) Источник
+    if (useSrc) {
+      const s = String(c?.source || '').trim();
+      if (!MK_FILTERS.sources.has(s)) return false;
+    }
+
+    // 2) Период
+    if (useRange) {
+      // Считаем, что клиент «попадает в период», если:
+      //  - есть хотя бы один лог смены статуса в диапазоне, ИЛИ
+      //  - дата первого контакта попадает в диапазон, ИЛИ (фолбэк)
+      //  - createdAt/updatedAt в диапазоне.
+      const logs = logsMap.get(c?.id) || [];
+      const byLogs = logs.some(r => mkInRange(r?.ts));
+      const byFirst = c?.firstContactDate ? mkInRange(`${c.firstContactDate}T00:00:00`) : false;
+      const byCreated = c?.createdAt ? mkInRange(c.createdAt) : false;
+      const byUpdated = c?.updatedAt ? mkInRange(c.updatedAt) : false;
+
+      if (!(byLogs || byFirst || byCreated || byUpdated)) return false;
+    }
+
+    return true;
+  });
+}
+
 
 // Главный расчёт
 function mkBuildOverviewFromClients(clients) {
@@ -3017,10 +3049,24 @@ document.addEventListener('change', (e) => {
 });
 
 function mkRerenderMarketing() {
-  // Ререндер глобальных вещей
-  mkRenderResults(MK_CLIENTS_CACHE);     // список «Результат фильтра» (оставим как есть)
-  renderMarketing();                      // история + Instagram за период
-  // конверсия по логам (используем кэш, если есть)
+  // Пул клиентов под глобальные фильтры (период + источники)
+  const filtered = mkFilterClientsByTopFilters(MK_CLIENTS_CACHE, MK_LOGS_CACHE || new Map());
+
+  // 1) Карточка №1: «Клиенты и статусы»
+  const { counts } = mkBuildOverviewFromClients(filtered);
+  mkRenderCardStatuses(counts);
+
+  // 2) Карточка №2: «Профиль клиентов»
+  const demo = mkBuildDemographicsFromClients(filtered);
+  mkRenderCardDemographics(demo);
+
+  // 3) Карточка №3: «Результат фильтра» — оставляем прежнюю логику (не зависит от периода/источников)
+  mkRenderResults(MK_CLIENTS_CACHE);
+
+  // 4) История маркетинга + Instagram (уже учитывает период)
+  renderMarketing();
+
+  // 5) Карточка №4: «Конверсия» — уже внутри учитывает период и источники
   if (MK_LOGS_CACHE) {
     const conv = mkBuildReachedConversionFiltered(MK_CLIENTS_CACHE, MK_LOGS_CACHE);
     mkRenderCardConversion(conv);
@@ -3111,22 +3157,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Рендер источников в шапке
 mkRenderSourceFilter(MK_CLIENTS_CACHE);
 
-// Карточки 1 и 2 как раньше …
-const { counts } = mkBuildOverviewFromClients(MK_CLIENTS_CACHE);
-mkRenderCardStatuses(counts);
-const demo = mkBuildDemographicsFromClients(MK_CLIENTS_CACHE);
-mkRenderCardDemographics(demo);
-
 // Кэш логов для конверсии
 MK_LOGS_CACHE = await mkFetchStatusLogsForClients(MK_CLIENTS_CACHE);
 
-// Стартовый рендер
-mkResetFilters();
-renderMarketing();                           // ← уже учитывает период
-mkRenderResults(MK_CLIENTS_CACHE);
-const conv0 = mkBuildReachedConversionFiltered(MK_CLIENTS_CACHE, MK_LOGS_CACHE);
-mkRenderCardConversion(conv0);
-
+// Стартовый рендер единым проходом
+mkResetFilters();          // сброс внутренних чекбоксов
+mkRerenderMarketing();     // теперь перерисует карточки 1–4 согласованно
 } catch (e) {
   console.warn('[marketing overview] render failed:', e);
 }
