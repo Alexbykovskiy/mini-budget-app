@@ -2076,17 +2076,17 @@ function mkCalcTotalsAndPotential(clients, marketingArr, cutoffYmd) {
   const clientsArr = Array.isArray(clients) ? clients : [];
   const cutoff = cutoffYmd ? String(cutoffYmd) : '';
 
-  // 1) Реклама — берём последнее значение spentTotal
+  // 1) Реклама — последнее spentTotal
   const adsSpent = mkGetLatestAdsSpentTotal(marketingArr);
 
-  // 2) Предоплаты (всем по проекту)
+  // 2) Предоплаты (просто сумма и количество)
   let depCount = 0, depSum = 0;
   for (const c of clientsArr) {
     const v = Number(c?.deposit || 0);
     if (v > 0) { depCount++; depSum += v; }
   }
 
-  // 3) Сеансы (done / planned до cutoff)
+  // 3) Сеансы (проведённые — всегда; запланированные — только до cutoff включ.)
   let doneCount = 0, doneSum = 0;
   let planCount = 0, planSum = 0;
 
@@ -2098,11 +2098,9 @@ function mkCalcTotalsAndPotential(clients, marketingArr, cutoffYmd) {
       const price = Number(obj.price || 0);
 
       if (obj.done) {
-        // Для сводки «проведённых» считаем все проведённые (как и раньше)
         doneCount++; 
         doneSum += price;
       } else {
-        // Запланированные учитываем только ДО выбранной даты (включительно)
         if (!cutoff || (ymd && ymd <= cutoff)) {
           planCount++; 
           planSum += price;
@@ -2111,16 +2109,38 @@ function mkCalcTotalsAndPotential(clients, marketingArr, cutoffYmd) {
     }
   }
 
-  // 4) Потенциал: ТОЛЬКО для «клиентов-в работе»
-  // Считаем по КАЖДОМУ клиенту отдельно: (amountMin/Max) - (его депозит) - (его проведённые до cutoff)
+  // 4) Потенциал: только клиенты «в работе» + фильтр по самой ранней "ориентировочной дате"
   let potMin = 0, potMax = 0;
 
   for (const c of clientsArr) {
     if (!isQualifiedClient(c)) continue;
 
-    // Озвученные суммы
-    let aMin = c?.amountMin;
-    let aMax = c?.amountMax;
+    // --- решаем, включать ли ЭТОГО клиента в потенциал до cutoff ---
+    let includeForCutoff = true;
+    if (cutoff) {
+      // Самая ранняя НЕпроведённая сессия (если есть)
+      const sessions = Array.isArray(c?.sessions) ? c.sessions : [];
+      const plannedYmds = sessions
+        .filter(s => !(typeof s === 'object' ? s.done : false))
+        .map(s => ymdOf(typeof s === 'object' ? s.dt : s))
+        .filter(Boolean)
+        .sort();
+
+      if (plannedYmds.length) {
+        // если ближайшая запланированная позже cutoff — потенциал уедет «в следующий период»
+        includeForCutoff = plannedYmds[0] <= cutoff;
+      } else if (c?.consult && c?.consultDate) {
+        // без сеансов, но консультация с датой — включаем, только если она до cutoff
+        includeForCutoff = ymdOf(c.consultDate) <= cutoff;
+      } else {
+        // вообще без дат — оставляем (может случиться в любой момент)
+        includeForCutoff = true;
+      }
+    }
+    if (!includeForCutoff) continue;
+
+    // Озвученный диапазон
+    let aMin = c?.amountMin, aMax = c?.amountMax;
     if (aMin == null && aMax == null && c?.amount != null) {
       const n = Number(c.amount);
       if (!isNaN(n)) { aMin = n; aMax = n; }
@@ -2128,16 +2148,14 @@ function mkCalcTotalsAndPotential(clients, marketingArr, cutoffYmd) {
     let minNum = Number(aMin || 0);
     let maxNum = Number(aMax || 0);
 
-    // Индивидуальные вычеты по этому клиенту
+    // Вычитаем депозит и ПРОВЕДЁННЫЕ до cutoff
     const dep = Number(c?.deposit || 0);
-
     let doneSumClient = 0;
     const sessions = Array.isArray(c?.sessions) ? c.sessions : [];
     for (const s of sessions) {
       const obj = (typeof s === 'object') ? s : { dt: s, price: 0, done: false };
       if (!obj.done) continue;
       const ymd = ymdOf(obj.dt);
-      // Вычитаем ПРОВЕДЁННЫЕ ДО выбранной даты (логично для планирования «до»)
       if (!cutoff || (ymd && ymd <= cutoff)) {
         doneSumClient += Number(obj.price || 0);
       }
