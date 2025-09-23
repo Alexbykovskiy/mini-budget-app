@@ -1125,3 +1125,16 @@ dialog[open] .modal-body{
 #mk-card-totals.totals-card .value{
   all: unset; /* сбрасываем случайные наследованные mk-правила */
 }
+
+/* Totals card: один столбец и левое выравнивание */
+#mk-card-totals.totals-card{
+  display: block !important;     /* ← выключаем flex у .stat-card */
+  text-align: left !important;   /* ← не центр */
+  padding: 12px 14px;            /* ← как у других инфо-карт */
+  align-items: initial;
+  justify-content: initial;
+}
+
+/* подстраховка: списки строго вертикально */
+#mk-card-totals.totals-card .tc-list { list-style: none; margin: 0; padding: 0; display: block; }
+#mk-card-totals.totals-card .tc-row  { display: flex; align-items: baseline; gap: 10px; padding: 3px 0; }
