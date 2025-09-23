@@ -672,7 +672,7 @@ async function saveSettings(){
     const ref = FB.db.collection('TattooCRM').doc('settings').collection('global').doc('default');
     await ref.set(s, { merge: true });
     AppState.settings = s;
-
+rebuildSourceFilterFromSettings();
     toast('Настройки сохранены');
 rebuildSourceFilterFromSettings();
 renderClients(); // чтобы сразу перерисовался список с новым фильтром
@@ -2569,6 +2569,28 @@ function rebuildSourceFilterFromSettings() {
   if ([...sel.options].some(o => o.value === keep)) sel.value = keep;
 }
 
+// Сформировать фильтр источников строго из настроек (без дублей)
+function rebuildSourceFilterFromSettings() {
+  const sel = document.querySelector('#filterSource');
+  if (!sel) return;
+
+  const keep = sel.value || '';
+  sel.innerHTML = ''; // полностью чистим
+
+  const oAll = document.createElement('option');
+  oAll.value = '';
+  oAll.textContent = 'Источник: все';
+  sel.appendChild(oAll);
+
+  (AppState.settings?.sources || []).forEach(src => {
+    const o = document.createElement('option');
+    o.value = src;
+    o.textContent = src;
+    sel.appendChild(o);
+  });
+
+  if ([...sel.options].some(o => o.value === keep)) sel.value = keep;
+}
 
 function bindSettings(){
   $('#saveSettingsBtn').addEventListener('click', saveSettings);
