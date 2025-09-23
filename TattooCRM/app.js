@@ -1983,10 +1983,6 @@ function renderMarketing() {
 
    wrap.innerHTML = rows.length ? rows.join('') + footer : `<div class="row">Пока нет данных</div>`;
 }
-
-wrap.innerHTML = rows.length ? rows.join('') + footer : `<div class="row">Пока нет данных</div>`;
-}
-
 // === [NEW] Totals & Potential (карточка №5) ===============================
 
 function mkGetLatestAdsSpentTotal(marketingArr) {
