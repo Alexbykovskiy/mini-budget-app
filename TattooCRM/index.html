@@ -265,6 +265,38 @@
 <section class="block marketing-summary">
   <h2 class="chart-title">Маркетинг — краткая сводка</h2>
 
+<!-- Глобальный фильтр маркетинга -->
+<div id="mk-global-filter" class="mk-global-filter">
+  <div class="row">
+    <!-- Период -->
+    <div class="gf-group">
+      <div class="gf-label">Период</div>
+      <div class="chips">
+        <button class="chip" data-mk-days="7">7 дней</button>
+        <button class="chip" data-mk-days="10">10 дней</button>
+        <button class="chip" data-mk-days="30">30 дней</button>
+        <button class="chip" data-mk-days="0">Всё время</button>
+      </div>
+      <div class="gf-range">
+        <input type="date" id="mk-date-from"> <span>—</span>
+        <input type="date" id="mk-date-to">
+        <button class="chip ghost" id="mk-apply-range">Ок</button>
+      </div>
+    </div>
+
+    <!-- Источники -->
+    <div class="gf-group">
+      <div class="gf-label">Источники</div>
+      <ul id="mk-sources" class="mk-list inline"></ul>
+      <div class="gf-actions">
+        <button class="chip ghost" id="mk-src-all">Все</button>
+        <button class="chip ghost" id="mk-src-none">Очистить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
   <!-- ВНУТРЕННЯЯ СЕТКА 3×3 -->
 
   <div class="stat-grid">
