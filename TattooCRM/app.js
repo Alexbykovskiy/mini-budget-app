@@ -3127,4 +3127,7 @@ mkRenderResults(MK_CLIENTS_CACHE);
 const conv0 = mkBuildReachedConversionFiltered(MK_CLIENTS_CACHE, MK_LOGS_CACHE);
 mkRenderCardConversion(conv0);
 
-}); // ← закрываем DOMContentLoaded (маркетинг)
+} catch (e) {
+  console.warn('[marketing overview] render failed:', e);
+}
+}); // DOMContentLoaded
