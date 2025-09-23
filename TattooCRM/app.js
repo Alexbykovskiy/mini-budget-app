@@ -2167,8 +2167,6 @@ function mkCalcTotalsAndPotential(clients, marketingArr, cutoffYmd) {
   // 3) Сеансы (проведённые — всегда; запланированные — только до cutoff включ.)
   let doneCount = 0, doneSum = 0;
   let planCount = 0, planSum = 0;
-// для CAC: количество уникальных клиентов, у кого есть хотя бы один проведённый сеанс
-  const doneClients = new Set();
 
   for (const c of clientsArr) {
     const sessions = Array.isArray(c?.sessions) ? c.sessions : [];
@@ -2178,10 +2176,9 @@ function mkCalcTotalsAndPotential(clients, marketingArr, cutoffYmd) {
       const price = Number(obj.price || 0);
 
       if (obj.done) {
-  doneCount++;
-  doneSum += price;
-  if (c?.id) doneClients.add(c.id);
-} else {
+        doneCount++; 
+        doneSum += price;
+      } else {
         if (!cutoff || (ymd && ymd <= cutoff)) {
           planCount++; 
           planSum += price;
@@ -2252,7 +2249,7 @@ function mkCalcTotalsAndPotential(clients, marketingArr, cutoffYmd) {
   return {
     adsSpent,
     deposits: { count: depCount, sum: depSum },
-    sessionsDone: { count: doneCount, sum: doneSum, clients: doneClients.size },
+    sessionsDone: { count: doneCount, sum: doneSum },
     sessionsPlanned: { count: planCount, sum: planSum },
     potential: { min: potMin, max: potMax }
   };
@@ -2266,41 +2263,7 @@ function mkRenderCardTotals(totals) {
   set('mk-sessions-done', `${totals.sessionsDone.count} шт., €${totals.sessionsDone.sum.toFixed(2)}`);
   set('mk-sessions-planned', `${totals.sessionsPlanned.count} шт., €${totals.sessionsPlanned.sum.toFixed(2)}`);
   set('mk-potential-range', `€${totals.potential.min.toFixed(2)} — €${totals.potential.max.toFixed(2)}`);
-// --- Новые KPI (реалистичный вариант) ---
-// 1) gross = проведённые сеансы + депозиты
-const sessionsGross = Number(totals.sessionsDone?.sum || 0);
-const depositsGross = Number(totals.deposits?.sum || 0);
-const gross = sessionsGross + depositsGross;
-
-// 2) реклама
-const ads = Number(totals.adsSpent || 0);
-
-// 3) net = gross - ads (МОЖЕТ БЫТЬ ОТРИЦАТЕЛЬНЫМ)
-const net = gross - ads;
-
-// 4) маржинальность может быть отрицательной; при gross = 0 выводим 0%
-const marginPct = gross !== 0 ? (net / gross) * 100 : 0;
-
-// 5) ROAS и ROMI (если нет расходов на рекламу — ставим "—")
-const roas = ads > 0 ? (gross / ads) : null;
-const romi = ads > 0 ? ((gross - ads) / ads) : null;
-
-// 6) CAC = реклама / число уникальных платящих клиентов (проведённые)
-const payClients = Number(totals.sessionsDone?.clients || 0);
-const cac = (ads > 0 && payClients > 0) ? (ads / payClients) : null;
-
-// Форматтеры для денег/процентов
-const fmtMoney = (v) => v < 0 ? `−€${Math.abs(v).toFixed(2)}` : `€${v.toFixed(2)}`;
-const fmtNum   = (v) => v.toFixed(2);
-const fmtPct   = (p) => `${p.toFixed(0)}%`;
-
-// Рендер в карточку
-set('mk-gross',  fmtMoney(gross));
-set('mk-net',    fmtMoney(net));
-set('mk-margin', fmtPct(marginPct));
-set('mk-roas',   roas == null ? '—' : fmtNum(roas));
-set('mk-romi',   romi == null ? '—' : fmtNum(romi));
-set('mk-cac',    cac  == null ? '—' : fmtMoney(cac));}
+}
 
 /** Сохранение записи маркетинга из формы */
 async function saveMarketingEntry(){
