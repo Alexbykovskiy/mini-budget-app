@@ -379,6 +379,7 @@ async function afterLogin(cred) {
     touchDeviceTrust();
     await loadSettings();
 fillSettingsForm();
+rebuildSourceFilterFromSettings();
         AppState.connected = true;
 
     showPage('todayPage');
@@ -673,6 +674,8 @@ async function saveSettings(){
     AppState.settings = s;
 
     toast('Настройки сохранены');
+rebuildSourceFilterFromSettings();
+renderClients(); // чтобы сразу перерисовался список с новым фильтром
     if (document.querySelector('[data-tab="suppliesPage"]').classList.contains('is-active')) {
       $('#supFilter').dataset.filled = ''; // пересобрать список
       renderSupplies();
@@ -1009,14 +1012,7 @@ function renderClients(){
   const st  = $('#filterStatus').value || '';
 
   // заполняем источники в фильтре один раз
-  const srcSel = $('#filterSource');
-  if (!srcSel.dataset.filled){
-    (AppState.settings?.sources || []).forEach(s=>{
-      const o = document.createElement('option'); o.textContent = s; srcSel.appendChild(o);
-    });
-    srcSel.dataset.filled = '1';
-  }
-
+  
   let arr = [...(AppState.clients || [])];
 // сортировка
 const sortMode = $('#sortClients')?.value || 'updatedAt';
@@ -2548,6 +2544,32 @@ function renderSupplies(){
 }
 
 // ---------- Settings ----------
+
+// Пересобрать селект фильтра источников строго из настроек
+function rebuildSourceFilterFromSettings() {
+  const sel = $('#filterSource');
+  if (!sel) return;
+
+  // запомним текущее значение, чтобы по возможности сохранить выбор
+  const keep = sel.value || '';
+
+  // Пересобираем с чистого листа
+  sel.innerHTML = '';
+  const oAll = document.createElement('option');
+  oAll.value = ''; oAll.textContent = 'Все источники';
+  sel.appendChild(oAll);
+
+  (AppState.settings?.sources || []).forEach(src => {
+    const o = document.createElement('option');
+    o.value = src; o.textContent = src;
+    sel.appendChild(o);
+  });
+
+  // вернём предыдущий выбор, если он есть в списке
+  if ([...sel.options].some(o => o.value === keep)) sel.value = keep;
+}
+
+
 function bindSettings(){
   $('#saveSettingsBtn').addEventListener('click', saveSettings);
   $('#logoutBtn').addEventListener('click', ()=>{
@@ -2555,6 +2577,8 @@ function bindSettings(){
     toast('Вы вышли из аккаунта');
     location.reload();
 });
+
+
 
 } // ← закрыли bindSettings()
  function fillSettingsForm(){
@@ -2571,14 +2595,7 @@ renderSuppliesDictEditor(s.suppliesDict || {});
 bindSuppliesDictToggle();
  $('#setSyncInterval').value = s.syncInterval ?? 60;
 
-  const sel = $('#filterSource');
-  const have = Array.from(sel.options).map(o=>o.value);
-  (s.sources||[]).forEach(src=>{
-    if (!have.includes(src)) {
-      const o = document.createElement('option'); o.textContent = src;
-      sel.appendChild(o);
-    }
-  });
+ rebuildSourceFilterFromSettings();
 }
 
 
