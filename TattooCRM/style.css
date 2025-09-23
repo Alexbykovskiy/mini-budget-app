@@ -1014,3 +1014,15 @@ dialog[open] .modal-body{
 }
 
 .meta-note { font-size: 12px; opacity: .7; margin-top: 6px; }
+
+
+/* Заголовок с правой подписью (напр. "ВСЕГО") */
+.stat-card-demo .mk-subtitle.mk-two {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.stat-card-demo .mk-subtitle.mk-two .right {
+  font-weight: 700;
+  opacity: .75;
+}
