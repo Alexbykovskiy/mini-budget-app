@@ -1287,3 +1287,17 @@ dialog[open] .modal-body{
 .mk-langcell { display: inline-flex; align-items: center; gap: 6px; }
 .mk-pill.mk-total { background: #7a7a7a; color: #fff; }
 
+/* Кружочки для легенды */
+.mk-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  vertical-align: middle;
+  margin: 0 4px 0 2px;
+  border: 1px solid rgba(255,255,255,0.45); /* тонкая окантовка на тёмном фоне */
+}
+
+/* цвета согласованы с таблицей */
+.mk-dot-cold { background: #8b9fb8; } /* «сложный» светлый синий */
+.mk-dot-warm { background: #9aa57a; } /* светлый зелёный/оливковый */
