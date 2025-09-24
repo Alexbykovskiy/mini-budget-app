@@ -371,7 +371,7 @@ function bindOnboarding() {
       provider.addScope('email');
       provider.addScope('https://www.googleapis.com/auth/drive.file');
 
-      await FB.auth.signInWithRedirect(provider);
+      FB.auth.signInWithRedirect(provider);
       // Дальше вернёмся сюда после редиректа, и блок getRedirectResult() выше отработает
     }
   });
