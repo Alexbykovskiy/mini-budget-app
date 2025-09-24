@@ -359,9 +359,9 @@ function bindOnboarding() {
       const provider = new firebase.auth.GoogleAuthProvider();
       provider.addScope('profile');
       provider.addScope('email');
-      provider.addScope('https://www.googleapis.com/auth/drive.file');
-      provider.addScope('https://www.googleapis.com/auth/calendar.events'); // для Calendar
-
+     provider.addScope('https://www.googleapis.com/auth/drive.file');
+provider.addScope('https://www.googleapis.com/auth/calendar');       // ← добавили
+provider.addScope('https://www.googleapis.com/auth/calendar.events'); // можно оставить
       // Сначала POPUP (быстрее и без перезагрузки)
       const cred = await FB.auth.signInWithPopup(provider);
       await afterLogin(cred);
@@ -437,6 +437,7 @@ async function afterLogin(cred) {
     listenSuppliesRealtime();
     listenMarketingRealtime();
     renderToday();
+renderTodayCalendar();
 
     // 1) DRIVE
     try {
@@ -742,6 +743,9 @@ async function saveSettings(){
 
 // ---------- Today ----------
 // ---------- Today ----------
+
+
+
 function renderToday(todayEvents, futureEvents) {
   // Если массивы не передали — собираем события из состояния
   if (!Array.isArray(todayEvents) || !Array.isArray(futureEvents)) {
@@ -963,7 +967,49 @@ if (ev.kind === 'reminder' && ev.id) {
 // boot: UI готова
 try { BOOT.set(7,'ok'); BOOT.hide(); } catch(_) {}
 
-   
+   async function renderTodayCalendar() {
+  const el = document.querySelector('#todayCalendar');
+  if (!el) return;
+
+  el.innerHTML = '<div class="subtle">Загрузка…</div>';
+
+  try {
+    const token = await ensureDriveAccessToken({ forceConsent: false });
+    if (!token) throw new Error('no token');
+    TCRM_Calendar.setAuthToken(token);
+
+    const calId = await TCRM_Calendar.ensureCalendarId('Tattoo CRM');
+
+    const now = new Date().toISOString();
+    const res = await gapi.client.calendar.events.list({
+      calendarId: calId,
+      timeMin: now,
+      maxResults: 10,
+      singleEvents: true,
+      orderBy: 'startTime'
+    });
+
+    const items = res.result.items || [];
+    if (!items.length) {
+      el.innerHTML = '<div class="subtle">Нет ближайших событий</div>';
+      return;
+    }
+
+    el.innerHTML = items.map(ev => {
+      let start = ev.start.dateTime || ev.start.date;
+      return `<div class="row">
+        <b>${ev.summary || '(без названия)'}</b>
+        <span style="margin-left:auto">${start}</span>
+      </div>`;
+    }).join('');
+
+  } catch (e) {
+    console.error('renderTodayCalendar error', e);
+    el.innerHTML = '<div class="bad">Ошибка загрузки календаря</div>';
+  }
+}
+
+
 // ---------- Clients ----------
 function bindClientsModal(){
   $('#addClientBtn').addEventListener('click', () => openClientDialog());
@@ -2980,8 +3026,7 @@ bindSuppliesDictToggle();
 
 const GOOGLE_CLIENT_ID = '306275735842-9iebq4vtv2pv9t6isia237os0r1u3eoi.apps.googleusercontent.com';
 
-const OAUTH_SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar.events openid email profile';
-
+const OAUTH_SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar openid email profile';
 let gisTokenClient = null;
 let driveAccessToken = null;
 let driveTokenExpTs = 0; // ms timestamp
