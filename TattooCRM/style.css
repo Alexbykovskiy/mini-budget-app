@@ -1274,3 +1274,15 @@ dialog[open] .modal-body{
   color: #222; background: #b0b0b0; border: 1px solid rgba(255,255,255,0.4);
   padding: 2px 8px; border-radius: 999px; font-weight: 700;
 }
+
+/* Итого по столбцам (tfoot) */
+.mk-table tfoot td {
+  font-weight: 600;
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.04);
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Чтобы «пилюля Σ» и цифры выглядели так же, как в строках */
+.mk-langcell { display: inline-flex; align-items: center; gap: 6px; }
+.mk-pill.mk-total { background: #7a7a7a; color: #fff; }

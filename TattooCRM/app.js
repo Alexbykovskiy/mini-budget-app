@@ -2072,6 +2072,15 @@ function renderMarketing() {
   let totalSpent = 0;       // итог затрат
   let sumCold = 0;          // итог холодных по всем дням и всем языкам
   let sumOther = 0;         // итог не-холодных по всем дням и всем языкам
+// НОВОЕ: суммы по каждому языку (cold/other)
+const langSums = {
+  ru: { c:0, o:0 },
+  sk: { c:0, o:0 },
+  en: { c:0, o:0 },
+  at: { c:0, o:0 },
+  de: { c:0, o:0 }
+};
+const daysCount = items.length; // кол-во строк (дней) в таблице
 
   // 3) Рендер строк
   const rows = items.map(e => {
@@ -2091,6 +2100,12 @@ function renderMarketing() {
     const dayOther = L.ru.o + L.sk.o + L.en.o + L.at.o + L.de.o;
     sumCold  += dayCold;
     sumOther += dayOther;
+// НОВОЕ: копим по языкам
+langSums.ru.c += L.ru.c; langSums.ru.o += L.ru.o;
+langSums.sk.c += L.sk.c; langSums.sk.o += L.sk.o;
+langSums.en.c += L.en.c; langSums.en.o += L.en.o;
+langSums.at.c += L.at.c; langSums.at.o += L.at.o;
+langSums.de.c += L.de.c; langSums.de.o += L.de.o;
 
     // ячейка языка: C (синяя цифра) | Σ (серая плашка) | N (зелёная цифра)
     const langCell = (o) => `
@@ -2119,33 +2134,29 @@ function renderMarketing() {
     ? rows.join('')
     : `<tr><td colspan="8">Пока нет данных</td></tr>`;
 
-  // 4) Итоговая полоса
-  const totalsHost = document.getElementById('mkTotals');
-  if (totalsHost) {
-    const sumSigma = sumCold + sumOther;
-    totalsHost.innerHTML = `
-      <div class="mk-total-item">
-        <span class="mk-total-label">Подписчики:</span>
-        <span class="mk-total-value mk-mono">${totalFollowers}</span>
-      </div>
-      <div class="mk-total-item">
-        <span class="mk-total-label">Затраты:</span>
-        <span class="mk-total-value mk-total-euro mk-mono">€${(Number(totalSpent)||0).toFixed(2)}</span>
-      </div>
-      <div class="mk-total-item">
-        <span class="mk-total-label">Холодные:</span>
-        <span class="mk-total-value mk-cold-txt mk-mono">${sumCold}</span>
-      </div>
-      <div class="mk-total-item">
-        <span class="mk-total-label">Σ всего:</span>
-        <span class="mk-total"><span class="mk-mono">${sumSigma}</span></span>
-      </div>
-      <div class="mk-total-item">
-        <span class="mk-total-label">Не&nbsp;холодные:</span>
-        <span class="mk-total-value mk-warm-txt mk-mono">${sumOther}</span>
-      </div>
-    `;
-  }
+  // 4) Итоги по столбцам — в <tfoot><tr id="mkTotalsRow">
+const foot = document.getElementById('mkTotalsRow');
+if (foot) {
+  const cellLang = (o) => `
+    <span class="mk-langcell" title="C / Σ / N">
+      <span class="mk-txt mk-cold-txt mk-mono">${o.c}</span>
+      <span class="mk-pill mk-total mk-mono">${o.c + o.o}</span>
+      <span class="mk-txt mk-warm-txt mk-mono">${o.o}</span>
+    </span>
+  `;
+
+  foot.innerHTML = `
+    <td class="mk-mono">${daysCount}</td>
+    <td class="mk-mono">${totalFollowers}</td>
+    <td class="mk-mono">€${(Number(totalSpent)||0).toFixed(2)}</td>
+    <td>${cellLang(langSums.ru)}</td>
+    <td>${cellLang(langSums.sk)}</td>
+    <td>${cellLang(langSums.en)}</td>
+    <td>${cellLang(langSums.at)}</td>
+    <td>${cellLang(langSums.de)}</td>
+  `;
+}
+
 
   // (опционально) обновление карточки про Instagram
   const igBox = document.getElementById('mk-instagram-followers');
