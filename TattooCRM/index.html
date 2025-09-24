@@ -384,7 +384,30 @@
   <ul id="mk-finance-list" class="mk-list"></ul>
 </div>
 
-    <div class="stat-card"><span>Заглушка 7</span></div>
+    <!-- КАРТОЧКА №7: График лидов по дням -->
+<div class="stat-card glass" id="mkChartCard" style="grid-column: 1 / -1">
+  <div class="row" style="justify-content:space-between; align-items:center; gap:12px">
+    <h3 style="margin:0">График лидов по дням</h3>
+    <div class="row" style="gap:12px; align-items:center">
+      <label class="field" style="min-width:220px">
+        <span>Месяц</span>
+        <select id="mkChartMonth"></select>
+      </label>
+      <div class="field">
+        <span>Тип</span>
+        <div class="row" style="gap:8px">
+          <label class="chip"><input type="radio" name="mkChartMode" value="all" checked> все</label>
+          <label class="chip"><input type="radio" name="mkChartMode" value="cold"> холодные</label>
+          <label class="chip"><input type="radio" name="mkChartMode" value="warm"> не холодные</label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:12px; height:260px">
+    <canvas id="mkLeadsChart"></canvas>
+  </div>
+</div>
+
     <div class="stat-card"><span>Заглушка 8</span></div>
     <div class="stat-card"><span>Заглушка 9</span></div>
   </div>
