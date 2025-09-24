@@ -1355,3 +1355,14 @@ dialog[open] .modal-body{
   white-space: nowrap;
 }
 
+/* --- MK Card #7: chart compact styles --- */
+#mkChartCard .field > span { font-size: 12px; opacity: .8; }
+#mkChartCard .chip { 
+  display:inline-flex; align-items:center; gap:6px; 
+  padding:6px 10px; border-radius:16px; 
+  background:rgba(255,255,255,.06); 
+  border:1px solid rgba(255,255,255,.12); 
+  cursor:pointer; user-select:none;
+  font-size:13px;
+}
+#mkChartCard .chip input { transform: translateY(1px); }
