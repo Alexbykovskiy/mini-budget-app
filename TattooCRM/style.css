@@ -1138,3 +1138,61 @@ dialog[open] .modal-body{
 /* подстраховка: списки строго вертикально */
 #mk-card-totals.totals-card .tc-list { list-style: none; margin: 0; padding: 0; display: block; }
 #mk-card-totals.totals-card .tc-row  { display: flex; align-items: baseline; gap: 10px; padding: 3px 0; }
+
+/* ===== Marketing Table ===== */
+.mk-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.mk-table th, .mk-table td {
+  padding: 6px 8px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  white-space: nowrap;
+}
+.mk-table th {
+  font-weight: 600;
+  background: rgba(255,255,255,0.05);
+}
+.mk-table tr:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+/* compact monospace for numbers */
+.mk-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.2px;
+}
+
+/* pills: cold / warm */
+.mk-pill {
+  display: inline-block;
+  min-width: 20px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1.1;
+  font-weight: 600;
+  margin: 0 2px;
+  vertical-align: middle;
+}
+
+.mk-cold {
+  color: #d8d8d8;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.18);
+}
+
+.mk-warm {
+  color: #fff;
+  background: rgba(220, 53, 69, 0.85); /* красный, iOS-like */
+  border: 1px solid rgba(220, 53, 69, 0.65);
+}
+
+/* stack two pills на одной строке аккуратно */
+.mk-langcell {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}

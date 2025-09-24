@@ -390,43 +390,28 @@
   </div>
 </section>
 
-    <div class="card glass">
-      <div class="grid two">
-        <!-- Дата -->
-        <label class="field">
-          <span>Дата</span>
-          <input id="mkDate" type="date">
-        </label>
+    <div id="mkHistory" class="glass" style="padding:10px; overflow-x:auto">
+  <table class="mk-table">
+    <thead>
+      <tr>
+        <th>Дата</th>
+        <th title="+прирост (кум.)">IG</th>
+        <th title="Расход дня">€</th>
+        <th>RU</th>
+        <th>SK</th>
+        <th>EN</th>
+        <th>AT</th>
+        <th>DE</th>
+      </tr>
+    </thead>
+    <tbody id="mkHistoryBody"></tbody>
+  </table>
 
-        <!-- Время -->
-        <label class="field">
-          <span>Время</span>
-          <input id="mkTime" type="time">
-        </label>
-
-        <!-- Подписчики (+ за день) -->
-        <label class="field">
-          <span>+ Подписчики за день</span>
-          <input id="mkDelta" type="number" step="1" min="0" placeholder="например, 12">
-        </label>
-
-        <!-- Общий расход -->
-        <label class="field">
-          <span>Общий расход на рекламу (€)</span>
-          <input id="mkSpentTotal" type="number" step="0.01" min="0" placeholder="например, 200.00">
-        </label>
-      </div>
-
-      <div class="row" style="justify-content:flex-end; margin-top:12px">
-        <button id="saveMkBtn" class="btn primary">✓ Сохранить</button>
-      </div>
-    </div>
-
-    <div class="y-12"></div>
-    <h3>История</h3>
-    <div id="mkHistory" class="table glass"></div>
+  <div class="mk-legend" style="margin-top:8px; font-size:12px; opacity:.85">
+    <span class="mk-pill mk-cold">C</span> — холодные &nbsp;|&nbsp;
+    <span class="mk-pill mk-warm">N</span> — все остальные (лиды/консы/депозиты/сеансы)
   </div>
-</section>
+</div>
     <!-- Вкладка: Расходники -->
     <section id="suppliesPage" class="page">
       <div class="toolbar glass">

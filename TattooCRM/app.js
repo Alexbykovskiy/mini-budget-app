@@ -2026,47 +2026,66 @@ async function deleteClientFromDialog(){
  * - внизу показываем итоги: последние общие подписчики и сумму расходов за все дни.
  */
 function renderMarketing() {
-  const wrap = $('#mkHistory');
-  if (!wrap) return;
+  const body = document.getElementById('mkHistoryBody');
+  if (!body) return;
 
+  // 1) Маркетинговая лента по датам (сортируем по date+time)
   const items = Array.isArray(AppState.marketing) ? [...AppState.marketing] : [];
-  items.sort((a,b) => (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
+  items.sort((a,b) => (String(a.date||'')+String(a.time||''))
+    .localeCompare(String(b.date||'')+String(b.time||'')));
 
+  // 2) Первая статистика: первые обращения по дням и языкам (cold/other)
+  const firstByDay = mkBuildDailyFirstContactsStats(AppState.clients || []);
+
+  // 3) Накапливаем IG и высчитываем расход дня
   let totalFollowers = 0;
   let prevSpentTotal = 0;
-  let totalSpent = 0;
 
   const rows = items.map(e => {
+    // IG кумулятив
     totalFollowers += Number(e.delta || 0);
+
+    // Расход дня = (накопит.)spentTotal - предыдущее накопит.
     const daySpent = Number(e.spentTotal || 0) - prevSpentTotal;
     prevSpentTotal = Number(e.spentTotal || 0);
-    totalSpent = prevSpentTotal;
+
+    // нужная запись «первых обращений» на эту дату
+    const rec = firstByDay.get(e.date) || {
+      langs: { ru:{c:0,o:0}, sk:{c:0,o:0}, en:{c:0,o:0}, at:{c:0,o:0}, de:{c:0,o:0} }
+    };
+    const L = rec.langs;
+
+    // шаблон ячейки языка: две пилюли на одной линии
+    const langCell = (o) => `
+      <span class="mk-langcell">
+        <span class="mk-pill mk-cold mk-mono">${o.c}</span>
+        <span class="mk-pill mk-warm mk-mono">${o.o}</span>
+      </span>
+    `;
 
     return `
-      <div class="row" style="justify-content:space-between; padding:6px 0">
-        <div><b>${formatDateHuman(e.date)}</b></div>
-        <div>+${e.delta || 0} (Итого: ${totalFollowers})</div>
-        <div>Расход дня: €${daySpent.toFixed(2)}</div>
-      </div>
+      <tr>
+        <td>${e.date || '—'}</td>
+        <td class="mk-mono">+${e.delta || 0} (${totalFollowers})</td>
+        <td class="mk-mono">€${(isFinite(daySpent) ? daySpent : 0).toFixed(2)}</td>
+        <td>${langCell(L.ru)}</td>
+        <td>${langCell(L.sk)}</td>
+        <td>${langCell(L.en)}</td>
+        <td>${langCell(L.at)}</td>
+        <td>${langCell(L.de)}</td>
+      </tr>
     `;
   });
 
-   const footer = items.length ? `
-    <div class="row card-client glass" style="margin-top:10px; justify-content:space-between">
-      <div><b>Итого</b></div>
-      <div>Подписчики: <b>${totalFollowers}</b></div>
-      <div>Общий расход: €${totalSpent.toFixed(2)}</div>
-    </div>
-  ` : '';
+  body.innerHTML = rows.length
+    ? rows.join('')
+    : `<tr><td colspan="8">Пока нет данных</td></tr>`;
 
-  // NEW: обновляем «Instagram → xxx новых подписчиков» в карточке №1 (маркетинг-сводка)
+  // (опционально) обновим верхнюю карточку про инстаграм, если у тебя есть этот элемент
   const igBox = document.getElementById('mk-instagram-followers');
-  if (igBox) {
-    igBox.textContent = `${totalFollowers} новых подписчиков`;
-  }
-
-   wrap.innerHTML = rows.length ? rows.join('') + footer : `<div class="row">Пока нет данных</div>`;
+  if (igBox) igBox.textContent = `${totalFollowers} новых подписчиков`;
 }
+
 
 // === helper: нормализован ли клиент как «в работе» ===
 // Учитываем тех, у кого есть КОНСУЛЬТАЦИЯ / ПРЕДОПЛАТА / ЭСКИЗ / СЕАНС (или массив sessions)
@@ -2108,6 +2127,48 @@ function ymdOf(dt) {
 // === Totals & Potential (с учётом «клиентов-в работе») ===
 // (ниже уже идёт твоя функция mkCalcTotalsAndPotential(...) — она эти хелперы использует)
 
+
+// Построить статистику первых обращений по дням с разрезом: холодные (C) и остальные (N)
+// и по языкам RU/SK/EN/AT/DE (в коде: ru, sk, en, at, de).
+function mkBuildDailyFirstContactsStats(clients) {
+  const map = new Map(); // ymd -> { langs: {ru:{c,o}, sk:{c,o}, en:{c,o}, at:{c,o}, de:{c,o}} }
+
+  const ensure = (ymd) => {
+    if (!map.has(ymd)) {
+      map.set(ymd, {
+        langs: {
+          ru:{c:0,o:0}, sk:{c:0,o:0}, en:{c:0,o:0}, at:{c:0,o:0}, de:{c:0,o:0}
+        }
+      });
+    }
+    return map.get(ymd);
+  };
+
+  const list = Array.isArray(clients) ? clients : [];
+  for (const c of list) {
+    // 1) дата первого обращения
+    let ymd = (c?.firstContactDate || '').slice(0,10);
+    // если формат иной — попробуем через существующий ymdOf
+    if ((!ymd || ymd.length !== 10) && typeof ymdOf === 'function') {
+      ymd = ymdOf(c?.firstContactDate);
+    }
+    if (!ymd) continue;
+
+    // 2) язык (или страна из твоего поля lang)
+    const lang = String(c?.lang || '').trim().toLowerCase();
+    if (!['ru','sk','en','at','de'].includes(lang)) continue;
+
+    // 3) статус -> холодный или нет
+    let st = String(c?.status || c?.stage || '').toLowerCase().trim();
+    if (typeof normalizeStatus === 'function') st = normalizeStatus(st);
+    const isCold = (st === 'cold' || st === 'холодный' || st === 'cold lead');
+
+    const rec = ensure(ymd);
+    if (isCold) rec.langs[lang].c++;
+    else rec.langs[lang].o++;
+  }
+  return map; // Map<ymd, {langs:{...}} >
+}
 
 
 // === [NEW] Totals & Potential (карточка №5) ===============================
