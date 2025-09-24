@@ -1653,7 +1653,6 @@ if (list) {
 }
 
 
-
     // Фото/превью
     $('#photosGrid').innerHTML = '';
     $('#photosEmptyNote').style.display = 'block';
@@ -2560,31 +2559,6 @@ function bindSettings(){
     toast('Вы вышли из аккаунта');
     location.reload();
 });
-
-// Пересобрать селект фильтра источников строго из настроек
-function rebuildSourceFilterFromSettings() {
-  const sel = $('#filterSource');
-  if (!sel) return;
-
-  // запомним текущее значение, чтобы по возможности сохранить выбор
-  const keep = sel.value || '';
-
-  // Пересобираем с чистого листа
-  sel.innerHTML = '';
-  const oAll = document.createElement('option');
-  oAll.value = ''; oAll.textContent = 'Все источники';
-  sel.appendChild(oAll);
-
-  (AppState.settings?.sources || []).forEach(src => {
-    const o = document.createElement('option');
-    o.value = src; o.textContent = src;
-    sel.appendChild(o);
-  });
-
-  // вернём предыдущий выбор, если он есть в списке
-  if ([...sel.options].some(o => o.value === keep)) sel.value = keep;
-}
-
 
 } // ← закрыли bindSettings()
  function fillSettingsForm(){
