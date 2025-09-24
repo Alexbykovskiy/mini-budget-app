@@ -1212,10 +1212,18 @@ dialog[open] .modal-body{
   vertical-align: middle;
 }
 
-/* цвета: холодные (синий), тёплые/остальные (красный) */
-.mk-cold-txt { color: #0077ff; }
-.mk-warm-txt { color: #dc3545; }  /* такой же оттенок как у .mk-warm */
+/* холодные — синий */
+.mk-cold-txt { color: #576d96; }
 
+/* остальные (лиды/консы/сеансы) — зелёный */
+.mk-warm-txt { color: #607043; }
+
+/* всего — серая плашка */
+.mk-total {
+  color: #fff;
+  background: #a3b0c0;
+  border: 1px solid rgba(255,255,255,0.25);
+}
 /* на всякий: немного увеличим зазор между элементами в ячейке языка */
 .mk-langcell {
   display: inline-flex;
