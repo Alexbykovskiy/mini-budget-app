@@ -268,10 +268,13 @@ AppState.connected = true;
       listenRemindersRealtime();
 listenSuppliesRealtime();
       renderToday();
+renderTodayCalendar(); // ← добавили: виджет «Сегодня» обновляется сразу
 
+// фоновая инициализация календаря (бейджик в шапке + ensureCalendarId)
+initCalendarStack({ forceConsent: false }).catch(console.warn);
 
 listenMarketingRealtime();
-      toast('Добро пожаловать обратно 👋');
+toast('Добро пожаловать обратно 👋');
     } catch (e) {
       console.warn('restore session failed', e);
       showPage('onboarding');
@@ -291,7 +294,10 @@ function bindTabbar(){
       btn.classList.add('is-active');
       showPage(btn.dataset.tab);
       if (btn.dataset.tab === 'clientsPage') renderClients();
-      if (btn.dataset.tab === 'todayPage') renderToday();
+      if (btn.dataset.tab === 'todayPage') { 
+  renderToday();
+  renderTodayCalendar(); // ← добавили
+}
       if (btn.dataset.tab === 'marketingPage') {
   bindMarketing();
   renderMarketing();
@@ -3097,7 +3103,7 @@ if (cachedTok) {
   driveAccessToken = cachedTok;
   gapi.client.setToken({ access_token: driveAccessToken });
 } else {
-  await withTimeout(ensureDriveAccessToken({ forceConsent }), 3000, 'gis_token_timeout');
+  await withTimeout(ensureDriveAccessToken({ forceConsent }), 8000, 'gis_token_timeout');
 }
 
 // 5) Drive library (папки)
