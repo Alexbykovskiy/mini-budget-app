@@ -392,33 +392,27 @@
 
     <div id="mkHistory" class="glass" style="padding:10px; overflow-x:auto">
   <table class="mk-table">
-  <thead>
-    <tr>
-      <th>Дата</th>
-      <th title="+прирост (кум.)">IG</th>
-      <th title="Расход дня">€</th>
-      <th>RU</th>
-      <th>SK</th>
-      <th>EN</th>
-      <th>AT</th>
-      <th>DE</th>
-    </tr>
-  </thead>
-  <tbody id="mkHistoryBody"></tbody>
+    <thead>
+      <tr>
+        <th>Дата</th>
+        <th title="+прирост (кум.)">IG</th>
+        <th title="Расход дня">€</th>
+        <th>RU</th><th>SK</th><th>EN</th><th>AT</th><th>DE</th>
+      </tr>
+    </thead>
+    <tbody id="mkHistoryBody"></tbody>
+    <tfoot>
+      <tr id="mkTotalsRow"></tr>
+    </tfoot>
+  </table>
 
-  <!-- НОВОЕ: итоги по столбцам -->
-  <tfoot>
-  <tr id="mkTotalsRow" class="mk-totals"></tr>
-</tfoot>
-</table>
+  <div class="mk-legend" style="margin-top:8px; font-size:12px; opacity:.85">
+    <span class="mk-dot mk-dot-cold"></span> — холодные &nbsp;|&nbsp;
+    <span class="mk-pill mk-total mk-mono">Σ</span> — всего &nbsp;|&nbsp;
+    <span class="mk-dot mk-dot-warm"></span> — все остальные (лиды/консы/депозиты/сеансы)
+  </div>
+</div>
 
-<!-- Легенда оставляем отдельно под таблицей -->
-<div class="mk-legend" style="margin-top:8px; font-size:12px; opacity:.85">
-  <span class="mk-dot mk-dot-cold" aria-label="Холодные" title="Холодные"></span> — холодные &nbsp;|&nbsp;
-  <span class="mk-pill mk-total mk-mono">Σ</span> — всего &nbsp;|&nbsp;
-  <span class="mk-dot mk-dot-warm" aria-label="Не холодные" title="Не холодные"></span> — все остальные (лиды/консы/депозиты/сеансы)
-</div>
-</div>
 
 </section> <!-- ← ЗАКРЫВАЕМ marketingPage -->
 

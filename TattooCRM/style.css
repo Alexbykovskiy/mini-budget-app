@@ -1238,7 +1238,8 @@ dialog[open] .modal-body{
 }
 
 /* ===== totals bar under marketing table ===== */
-.mk-totals {
+/* (legacy) старая плашка итогов — если вдруг когда-то вернёшь */
+#mkTotals.mk-totals {
   margin-top: 8px;
   padding: 8px 10px;
   border-radius: 12px;
@@ -1248,7 +1249,6 @@ dialog[open] .modal-body{
   align-items: center;
   font-size: 14px;
 }
-
 .mk-total-item {
   display: flex;
   align-items: center;
