@@ -2162,9 +2162,49 @@ function ymdOf(dt) {
 // === Totals & Potential (с учётом «клиентов-в работе») ===
 // (ниже уже идёт твоя функция mkCalcTotalsAndPotential(...) — она эти хелперы использует)
 
+// --- Helpers for "status as of first contact date" ---
+
+// End-of-day UTC ms for YYYY-MM-DD
+function mkEodMs(ymd) {
+  if (!ymd) return NaN;
+  return Date.parse(`${ymd}T23:59:59.999Z`);
+}
+
+// Determine if a status is "cold"
+function mkIsColdStatus(st) {
+  let s = (typeof normalizeStatus === 'function')
+    ? normalizeStatus(st)
+    : String(st || '').toLowerCase().trim();
+  return s === 'cold' || s === 'холодный' || s === 'cold lead';
+}
+
+// Get client's status at (<=) the end of given date (YYYY-MM-DD) using statusLogs.
+// Fallback to client's current status if no logs before that moment.
+function mkGetStatusOnDate(client, ymd) {
+  const target = mkEodMs(ymd);
+  const logs = Array.isArray(client?.statusLogs) ? client.statusLogs.slice() : [];
+
+  // Normalize + sort logs by time ascending
+  logs.sort((a, b) => {
+    const ta = Date.parse(a?.at || a?.date || a?.ts || a?.time || '');
+    const tb = Date.parse(b?.at || b?.date || b?.ts || b?.time || '');
+    return (isFinite(ta) ? ta : 0) - (isFinite(tb) ? tb : 0);
+  });
+
+  let picked = null;
+  for (const L of logs) {
+    const t = Date.parse(L?.at || L?.date || L?.ts || L?.time || '');
+    if (!isFinite(t)) continue;
+    if (t <= target) picked = L; else break; // логи дальше этой даты нам не нужны
+  }
+
+  // Если нашли лог на/до даты — берём его статус, иначе — текущий статус клиента
+  return (picked?.status ?? picked?.value ?? picked?.stage ?? picked?.type ?? client?.status ?? client?.stage ?? '');
+}
 
 // Построить статистику первых обращений по дням с разрезом: холодные (C) и остальные (N)
 // и по языкам RU/SK/EN/AT/DE (в коде: ru, sk, en, at, de).
+// Build stats of first contacts by day & language using the STATUS AS OF that date
 function mkBuildDailyFirstContactsStats(clients) {
   const map = new Map(); // ymd -> { langs: {ru:{c,o}, sk:{c,o}, en:{c,o}, at:{c,o}, de:{c,o}} }
 
@@ -2172,7 +2212,11 @@ function mkBuildDailyFirstContactsStats(clients) {
     if (!map.has(ymd)) {
       map.set(ymd, {
         langs: {
-          ru:{c:0,o:0}, sk:{c:0,o:0}, en:{c:0,o:0}, at:{c:0,o:0}, de:{c:0,o:0}
+          ru: { c:0, o:0 },
+          sk: { c:0, o:0 },
+          en: { c:0, o:0 },
+          at: { c:0, o:0 },
+          de: { c:0, o:0 },
         }
       });
     }
@@ -2182,30 +2226,26 @@ function mkBuildDailyFirstContactsStats(clients) {
   const list = Array.isArray(clients) ? clients : [];
   for (const c of list) {
     // 1) дата первого обращения
-    let ymd = (c?.firstContactDate || '').slice(0,10);
-    // если формат иной — попробуем через существующий ymdOf
-    if ((!ymd || ymd.length !== 10) && typeof ymdOf === 'function') {
-      ymd = ymdOf(c?.firstContactDate);
-    }
+    let ymd = String(c?.firstContactDate || '').slice(0, 10);
+    if ((!ymd || ymd.length !== 10) && typeof ymdOf === 'function') ymd = ymdOf(c?.firstContactDate);
     if (!ymd) continue;
 
-    // 2) язык (или страна из твоего поля lang)
+    // 2) язык/страна (только наши 5 кодов)
     const lang = String(c?.lang || '').trim().toLowerCase();
     if (!['ru','sk','en','at','de'].includes(lang)) continue;
 
-    // 3) статус -> холодный или нет
-    let st = String(c?.status || c?.stage || '').toLowerCase().trim();
-    if (typeof normalizeStatus === 'function') st = normalizeStatus(st);
-    const isCold = (st === 'cold' || st === 'холодный' || st === 'cold lead');
+    // 3) статус на ЭТУ дату (по логам статусов); если логов нет — текущий
+    const statusAtDay = mkGetStatusOnDate(c, ymd);
+    const isCold = mkIsColdStatus(statusAtDay);
 
+    // 4) учёт
     const rec = ensure(ymd);
     if (isCold) rec.langs[lang].c++;
-    else rec.langs[lang].o++;
+    else        rec.langs[lang].o++;
   }
-  return map; // Map<ymd, {langs:{...}} >
+
+  return map;
 }
-
-
 // === [NEW] Totals & Potential (карточка №5) ===============================
 
 function mkGetLatestAdsSpentTotal(marketingArr) {
