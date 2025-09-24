@@ -1301,3 +1301,35 @@ dialog[open] .modal-body{
 /* цвета согласованы с таблицей */
 .mk-dot-cold { background: #8b9fb8; } /* «сложный» светлый синий */
 .mk-dot-warm { background: #9aa57a; } /* светлый зелёный/оливковый */
+
+/* ===== Totals row (tfoot) — варианты оформления ===== */
+
+/* базовое: вес шрифта и отступы, без фонов — чтобы варианты ниже всё контролировали */
+.mk-table tfoot td {
+  font-weight: 700;
+  padding: 10px 12px;
+}
+
+/* Вариант 1 (по умолчанию): только разделительная линия сверху */
+.mk-table tfoot tr.mk-tfoot-line td {
+  background: transparent;
+  border-top: 2px solid rgba(255,255,255,0.28);
+}
+
+/* Вариант 2: светлее фон футера */
+.mk-table tfoot tr.mk-tfoot-light td {
+  background: rgba(255,255,255,0.10);
+  border-top: 1px solid rgba(255,255,255,0.25);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+}
+
+/* Вариант 3: темнее фон футера */
+.mk-table tfoot tr.mk-tfoot-dark td {
+  background: rgba(0,0,0,0.30);
+  border-top: 1px solid rgba(0,0,0,0.50);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.20);
+}
+
+/* скругления по краям итога (для всех вариантов) */
+.mk-table tfoot tr[class^="mk-tfoot-"] td:first-child { border-bottom-left-radius: 12px; }
+.mk-table tfoot tr[class^="mk-tfoot-"] td:last-child  { border-bottom-right-radius: 12px; }
