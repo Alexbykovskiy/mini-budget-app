@@ -1366,3 +1366,28 @@ dialog[open] .modal-body{
   font-size:13px;
 }
 #mkChartCard .chip input { transform: translateY(1px); }
+
+/* --- График в маркетинге: карточка уже --- */
+#mkChartCard.mk-card-wide {
+  grid-column: span 1;       /* занимать только одну колонку */
+  min-width: 300px;
+}
+
+#mkChartCard .field > span {
+  font-size: 12px;
+  opacity: .7;
+}
+
+#mkChartCard select {
+  width: 100%;
+}
+
+/* Легенда под графиком */
+#mkChartCard .chartjs-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 16px;
+  margin-top: 8px;
+  font-size: 12px;
+}

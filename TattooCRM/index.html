@@ -385,27 +385,32 @@
 </div>
 
     <!-- КАРТОЧКА №7: График лидов по дням -->
-<div class="stat-card glass" id="mkChartCard" style="grid-column: 1 / -1">
-  <div class="row" style="justify-content:space-between; align-items:center; gap:12px">
-    <h3 style="margin:0">График лидов по дням</h3>
-    <div class="row" style="gap:12px; align-items:center">
-      <label class="field" style="min-width:220px">
-        <span>Месяц</span>
-        <select id="mkChartMonth"></select>
-      </label>
-      <div class="field">
-        <span>Тип</span>
-        <div class="row" style="gap:8px">
-          <label class="chip"><input type="radio" name="mkChartMode" value="all" checked> все</label>
-          <label class="chip"><input type="radio" name="mkChartMode" value="cold"> холодные</label>
-          <label class="chip"><input type="radio" name="mkChartMode" value="warm"> не холодные</label>
-        </div>
-      </div>
-    </div>
+<div class="stat-card glass mk-card-wide" id="mkChartCard">
+  <h3 class="mk-card-title">График лидов по дням</h3>
+
+  <!-- Фильтры -->
+  <div class="stack" style="gap:8px; margin-top:8px">
+    <label class="field">
+      <span>Месяц</span>
+      <select id="mkChartMonth"></select>
+    </label>
+
+    <label class="field">
+      <span>Тип</span>
+      <select id="mkChartMode">
+        <option value="all" selected>Все</option>
+        <option value="cold">Холодные</option>
+        <option value="warm">Не холодные</option>
+      </select>
+    </label>
   </div>
-  <div style="margin-top:12px; height:260px">
+
+  <!-- График -->
+  <div style="margin-top:12px; height:200px">
     <canvas id="mkLeadsChart"></canvas>
   </div>
+
+  <!-- Легенда Chart.js будет под графиком -->
 </div>
 
     <div class="stat-card"><span>Заглушка 8</span></div>
