@@ -1542,7 +1542,12 @@ const fSourceSel = $('#fSource'); if (fSourceSel) fSourceSel.value = c?.source |
     // Первое обращение (опциональные поля)
     const firstContactEl = $('#fFirstContact');
     if (firstContactEl) {
-      firstContactEl.value = c?.firstContactDate || new Date().toISOString().slice(0,10);
+      const firstContactEl = $('#fFirstContact');
+if (firstContactEl) {
+  const legacyFCD = c?.firstContactDate || c?.firstContact || c?.first_contact || '';
+  // для НОВОГО клиента — сегодня, для существующего — что было (или пусто)
+  firstContactEl.value = isNew ? ymdLocal(new Date()) : (legacyFCD || '');
+}
     }
     const firstEl = $('#fFirst');
     if (firstEl) {
