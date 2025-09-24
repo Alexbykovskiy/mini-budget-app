@@ -1333,3 +1333,5 @@ dialog[open] .modal-body{
 /* скругления по краям итога (для всех вариантов) */
 .mk-table tfoot tr[class^="mk-tfoot-"] td:first-child { border-bottom-left-radius: 12px; }
 .mk-table tfoot tr[class^="mk-tfoot-"] td:last-child  { border-bottom-right-radius: 12px; }
+
+
