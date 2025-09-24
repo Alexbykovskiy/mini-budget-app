@@ -355,6 +355,9 @@ function bindOnboarding() {
       provider.addScope('profile');
       provider.addScope('email');
       provider.addScope('https://www.googleapis.com/auth/drive.file');
+provider.addScope('https://www.googleapis.com/auth/calendar.events');
+
+
 
       // Сначала POPUP
       const cred = await FB.auth.signInWithPopup(provider);
@@ -399,11 +402,45 @@ listenMarketingRealtime();
 
   // Инициализируем Drive (ожидаем библиотеки детерминированно)
 initDriveStack({ forceConsent: true })
+initCalendarStack().catch(console.warn);
+await initCalendarStack({ forceConsent: true });
   .then(() => toast('Google Drive подключён'))
   .catch(e => {
     console.error(e);
     toast('Не удалось подключить Drive');
   });
+
+async function initCalendarStack({forceConsent = false} = {}) {
+  try {
+    // 1) получаем/обновляем access_token c расширенными scope
+    const token = await ensureDriveAccessToken({ forceConsent }); // у тебя уже так называется — используется и для Drive
+    if (!token) throw new Error('no google access token');
+
+    // 2) передаем токен в календарь и убеждаемся, что API подхватился
+    TCRM_Calendar.setAuthToken(token);
+
+    // 3) гарантируем наличие календаря "Tattoo CRM" и запоминаем id
+    const calId = await TCRM_Calendar.ensureCalendarId('Tattoo CRM');
+
+    // 4) UI-метка в шапке
+    const el = document.querySelector('#calStatus');
+    if (el) {
+      el.textContent = 'Calendar: online';
+      el.classList.remove('bad');
+      el.classList.add('good');
+      el.title = calId;
+    }
+  } catch (e) {
+    console.warn('initCalendarStack error', e);
+    const el = document.querySelector('#calStatus');
+    if (el) {
+      el.textContent = 'Calendar: offline';
+      el.classList.remove('good');
+      el.classList.add('bad');
+      el.title = e?.message || '';
+    }
+  }
+}
 
 
   } catch (e) {
@@ -1802,6 +1839,9 @@ async function saveClientFromDialog(){
 
   const displayName = $('#fName').value.trim();
 
+// Предыдущая версия клиента до изменений — нужна для сравнения сеансов (что удалили и т.п.)
+const prevClient = (AppState.clients || []).find(x => x.id === id) || null;
+
   const isNew = !id || !id.startsWith('cl_');
   if (isNew) {
     id = `cl_${crypto.randomUUID().slice(0,8)}`;
@@ -1849,6 +1889,21 @@ if (statusVal === 'Холодный лид') {
   try {
     const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
     await ref.set(client, { merge:true });
+// 1) Синхронизация консультации и сеансов в Google Calendar ("Tattoo CRM" календарь)
+try {
+  await syncClientToCalendar(prevClient, client);
+
+  // 2) Если во время синка проставились/изменились ID событий — сохраним их в Firestore
+  const patch = {};
+  if (client.gcalConsultEventId) patch.gcalConsultEventId = client.gcalConsultEventId;
+  if (Array.isArray(client.sessions)) patch.sessions = client.sessions;
+
+  if (Object.keys(patch).length) {
+    await ref.set(patch, { merge: true });
+  }
+} catch (e) {
+  console.warn('calendar sync failed', e);
+}
     try { await logStatusChange(id, prevStatus, statusVal); } catch(_) {}
     toast('Сохранено (холодный лид)');
   } catch(e) {
@@ -2915,8 +2970,7 @@ bindSuppliesDictToggle();
 
 const GOOGLE_CLIENT_ID = '306275735842-9iebq4vtv2pv9t6isia237os0r1u3eoi.apps.googleusercontent.com';
 
-const OAUTH_SCOPES = 'https://www.googleapis.com/auth/drive.file openid email profile';
-
+const OAUTH_SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar.events openid email profile';
 
 let gisTokenClient = null;
 let driveAccessToken = null;
@@ -3531,6 +3585,66 @@ function mkBuildLeadConversionFromLogs(clients, logsMap) {
     canceled:     { n: cnt.canceled,     p: pct(cnt.canceled)     },
     dropped:      { n: cnt.dropped,      p: pct(cnt.dropped)      }
   };
+}
+
+
+async function syncClientToCalendar(prevClient, client) {
+  // Если календарь не инициализирован — тихо выходим
+  if (!window.TCRM_Calendar) return;
+
+  // 1) получаем id календаря
+  let calId = null;
+  try {
+    const token = await ensureDriveAccessToken({ forceConsent: false });
+    if (!token) return;
+    TCRM_Calendar.setAuthToken(token);
+    calId = await TCRM_Calendar.ensureCalendarId('Tattoo CRM');
+  } catch (e) {
+    console.warn('Calendar not ready', e);
+    return;
+  }
+
+  // 2) консалт-событие
+  if (client.consultDate) {
+    try {
+      const eid = await TCRM_Calendar.upsertConsultEvent(calId, client, { durationMinutes: 30 });
+      if (eid && client.gcalConsultEventId !== eid) {
+        client.gcalConsultEventId = eid;
+      }
+    } catch (e) { console.warn('consult upsert failed', e); }
+  }
+
+  // 3) сессии (upsert + удаление удаленных)
+  const prevSessions = (prevClient?.sessions || []).map(s => ({ dt: s.dt, gcalEventId: s.gcalEventId }));
+  const currSessions = (client.sessions || []);
+
+  // upsert текущих
+  for (const s of currSessions) {
+    if (!s.dt) continue;
+    try {
+      const eid = await TCRM_Calendar.upsertSessionEvent(calId, client, s, { durationHours: 3 });
+      if (eid && s.gcalEventId !== eid) s.gcalEventId = eid;
+    } catch (e) { console.warn('session upsert failed', s, e); }
+  }
+
+// Если консультацию удалили — удалим её событие из календаря (если было)
+if (!client.consultDate && prevClient?.gcalConsultEventId) {
+  try {
+    await TCRM_Calendar.deleteEvent(calId, prevClient.gcalConsultEventId);
+    client.gcalConsultEventId = '';
+  } catch (e) {
+    console.warn('consult delete failed', e);
+  }
+}
+
+  // удаление тех, что были и исчезли (сопоставляем по dt)
+  const removed = prevSessions.filter(ps => !currSessions.some(cs => cs.dt === ps.dt));
+  for (const r of removed) {
+    if (r.gcalEventId) {
+      try { await TCRM_Calendar.deleteEvent(calId, r.gcalEventId); }
+      catch (e) { console.warn('session delete failed', e); }
+    }
+  }
 }
 
 
