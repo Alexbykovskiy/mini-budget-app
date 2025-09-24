@@ -2145,10 +2145,18 @@ if (foot) {
     </span>
   `;
 
+  // формат "N евро" (без знака € и без .00, если целое)
+  const euroWords = (v) => {
+    const n = Number(v) || 0;
+    const s = n.toFixed(2);
+    const trimmed = s.endsWith('.00') ? s.slice(0, -3) : s;
+    return `${trimmed}\u00A0евро`;
+  };
+
   foot.innerHTML = `
-    <td class="mk-mono">${daysCount}</td>
-    <td class="mk-mono">${totalFollowers}</td>
-    <td class="mk-mono">€${(Number(totalSpent)||0).toFixed(2)}</td>
+    <td class="mk-mono">${daysCount}\u00A0дн.</td>
+    <td class="mk-mono">${totalFollowers}\u00A0чел.</td>
+    <td class="mk-mono">${euroWords(totalSpent)}</td>
     <td>${cellLang(langSums.ru)}</td>
     <td>${cellLang(langSums.sk)}</td>
     <td>${cellLang(langSums.en)}</td>

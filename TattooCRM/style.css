@@ -1286,3 +1286,26 @@ dialog[open] .modal-body{
 /* Чтобы «пилюля Σ» и цифры выглядели так же, как в строках */
 .mk-langcell { display: inline-flex; align-items: center; gap: 6px; }
 .mk-pill.mk-total { background: #7a7a7a; color: #fff; }
+
+/* ===== Totals row styles ===== */
+.mk-table tfoot tr.mk-totals td {
+  font-weight: 700;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.08);
+  border-top: 1px solid rgba(255,255,255,0.14);
+}
+
+.mk-table tfoot tr.mk-totals td:first-child {
+  border-bottom-left-radius: 12px;
+}
+.mk-table tfoot tr.mk-totals td:last-child {
+  border-bottom-right-radius: 12px;
+}
+
+/* лёгкая рамка по контуру строки-итогов */
+.mk-table tfoot tr.mk-totals td {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07);
+}
+
+/* переиспользуем существующие цвета/форматы */
+.mk-langcell { display: inline-flex; align-items: center; gap: 6px; }
