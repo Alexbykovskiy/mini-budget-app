@@ -339,94 +339,64 @@ function bindHeader(){
 }
 // ---------- Onboarding ----------
 function bindOnboarding() {
-  // 1) Обработка результата redirect – запускается при каждой загрузке
- FB.auth.getRedirectResult().then(async (cred) => {
-  if (!cred.user) return; // redirect ещё не выполнялся
-  await afterLogin(cred);
-}).catch(async (e) => {
-  console.warn('popup auth failed, fallback to redirect', e?.code || e);
-
-  const provider = new firebase.auth.GoogleAuthProvider();
-  provider.addScope('profile');
-  provider.addScope('email');
-  provider.addScope('https://www.googleapis.com/auth/drive.file');
-  provider.addScope('https://www.googleapis.com/auth/calendar.events');
-
-  await FB.auth.signInWithRedirect(provider);
-});
-
-
-
-      // Сначала POPUP
-      const cred = await FB.auth.signInWithPopup(provider);
+  // 1) Обработка результата redirect — вызывается при каждом заходе на страницу
+  FB.auth.getRedirectResult()
+    .then(async (cred) => {
+      if (!cred || !cred.user) return;        // redirect ещё не выполнялся
       await afterLogin(cred);
+    })
+    .catch((e) => {
+      console.error('redirect result error', e);
+      toast('Ошибка инициализации после входа');
+    });
 
-    } catch (e) {
-      console.warn('popup auth failed, fallback to redirect', e?.code || e);
+  // 2) Клик по кнопке «Войти через Google» — пробуем POPUP, при неудаче уходим в REDIRECT
+  const btn = document.getElementById('bootstrapBtn'); // см. id в index.html :contentReference[oaicite:1]{index=1}
+  if (!btn) return;
 
-      // Частые коды для fallback:
-      // auth/popup-blocked, auth/popup-closed-by-user, auth/cancelled-popup-request
+  btn.addEventListener('click', async () => {
+    try {
       const provider = new firebase.auth.GoogleAuthProvider();
       provider.addScope('profile');
       provider.addScope('email');
       provider.addScope('https://www.googleapis.com/auth/drive.file');
+      provider.addScope('https://www.googleapis.com/auth/calendar.events'); // для Calendar
 
-      FB.auth.signInWithRedirect(provider);
-      // Дальше вернёмся сюда после редиректа, и блок getRedirectResult() выше отработает
+      // Сначала POPUP (быстрее и без перезагрузки)
+      const cred = await FB.auth.signInWithPopup(provider);
+      await afterLogin(cred);
+
+    } catch (e) {
+      // Частые коды: auth/popup-blocked, auth/popup-closed-by-user, auth/cancelled-popup-request
+      console.warn('popup auth failed, fallback to redirect', e?.code || e);
+
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.addScope('profile');
+      provider.addScope('email');
+      provider.addScope('https://www.googleapis.com/auth/drive.file');
+      provider.addScope('https://www.googleapis.com/auth/calendar.events');
+
+      // Редирект — после возврата сработает getRedirectResult() выше
+      await FB.auth.signInWithRedirect(provider);
     }
   });
 }
 
-// Общая пост-инициализация после входа
-async function afterLogin(cred) {
+// Инициализация Google Calendar (через уже полученный токен Drive)
+async function initCalendarStack({ forceConsent = false } = {}) {
   try {
-    currentUser = cred.user;
-    setDeviceTrusted(currentUser);
-    touchDeviceTrust();
-    await loadSettings();
-fillSettingsForm();
-        AppState.connected = true;
-
-    showPage('todayPage');
-    toast('Вход выполнен. Firestore готов.');
-
-    listenClientsRealtime();
-listenRemindersRealtime();
-listenSuppliesRealtime();
-
-    renderToday();
-
-listenMarketingRealtime();
-
-  // Инициализируем Drive и Calendar
-try {
-  await initDriveStack({ forceConsent: true });
-  toast('Google Drive подключён');
-} catch (e) {
-  console.error(e);
-  toast('Не удалось подключить Drive');
-}
-
-await initCalendarStack({ forceConsent: true });
-  .catch(e => {
-    console.error(e);
-    toast('Не удалось подключить Drive');
-  });
-
-async function initCalendarStack({forceConsent = false} = {}) {
-  try {
-    // 1) получаем/обновляем access_token c расширенными scope
-    const token = await ensureDriveAccessToken({ forceConsent }); // у тебя уже так называется — используется и для Drive
+    // 1) Получаем/обновляем access_token с расширенными scope
+    const token = await ensureDriveAccessToken({ forceConsent });
     if (!token) throw new Error('no google access token');
 
-    // 2) передаем токен в календарь и убеждаемся, что API подхватился
+    // 2) Отдаём токен модулю calendar.js
     TCRM_Calendar.setAuthToken(token);
 
-    // 3) гарантируем наличие календаря "Tattoo CRM" и запоминаем id
+    // 3) Гарантируем наличие календаря "Tattoo CRM" (создастся, если нет)
     const calId = await TCRM_Calendar.ensureCalendarId('Tattoo CRM');
 
-    // 4) UI-метка в шапке
-    const el = document.querySelector('#calStatus');
+    // 4) UI-значок в шапке
+    const el = document.querySelector('#calStatus'); // см. index.html, появился бейджик Calendar: offline :contentReference[oaicite:2]{index=2}
     if (el) {
       el.textContent = 'Calendar: online';
       el.classList.remove('bad');
@@ -446,12 +416,49 @@ async function initCalendarStack({forceConsent = false} = {}) {
 }
 
 
+// Общая пост-инициализация после входа
+async function afterLogin(cred) {
+  try {
+    currentUser = cred.user;
+
+    setDeviceTrusted(currentUser);
+    touchDeviceTrust();
+
+    await loadSettings();
+    fillSettingsForm();
+    AppState.connected = true;
+
+    showPage('todayPage');
+    toast('Вход выполнен. Firestore готов.');
+
+    // realtime-потоки
+    listenClientsRealtime();
+    listenRemindersRealtime();
+    listenSuppliesRealtime();
+    listenMarketingRealtime();
+    renderToday();
+
+    // 1) DRIVE
+    try {
+      await initDriveStack({ forceConsent: true });
+      const ds = document.querySelector('#driveStatus');
+      if (ds) ds.textContent = 'Drive: онлайн';
+      toast('Google Drive подключён');
+    } catch (e) {
+      console.error('Drive init failed', e);
+      const ds = document.querySelector('#driveStatus');
+      if (ds) ds.textContent = 'Drive: оффлайн';
+      toast('Не удалось подключить Drive');
+    }
+
+    // 2) CALENDAR
+    await initCalendarStack({ forceConsent: true });
+
   } catch (e) {
     console.error('afterLogin error', e);
     toast('Ошибка входа/инициализации');
   }
 }
-
 // ---------- Firestore realtime ----------
 function listenClientsRealtime(){
   FB.db.collection('TattooCRM').doc('app').collection('clients')
