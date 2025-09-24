@@ -1212,19 +1212,25 @@ dialog[open] .modal-body{
   vertical-align: middle;
 }
 
-/* холодные — синий */
-.mk-cold-txt { color: #576d96; }
-
-/* остальные (лиды/консы/сеансы) — зелёный */
-.mk-warm-txt { color: #607043; }
-
-/* всего — серая плашка */
-.mk-total {
-  color: #fff;
-  background: #a3b0c0;
-  border: 1px solid rgba(255,255,255,0.25);
+/* холодные — светлый сложный синий */
+.mk-cold-txt { 
+  color: #8b9fb8;
+  font-weight: 700;
 }
-/* на всякий: немного увеличим зазор между элементами в ячейке языка */
+
+/* остальные (лиды/консы/сеансы) — светлый зелёный */
+.mk-warm-txt { 
+  color: #9aa57a;
+  font-weight: 700;
+}
+
+/* всего — нейтрально-серая плашка */
+.mk-total {
+  color: #222;
+  background: #b0b0b0;
+  border: 1px solid rgba(255,255,255,0.4);
+  font-weight: 700;
+}/* на всякий: немного увеличим зазор между элементами в ячейке языка */
 .mk-langcell {
   display: inline-flex;
   align-items: center;
