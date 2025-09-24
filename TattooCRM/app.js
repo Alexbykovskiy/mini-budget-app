@@ -2362,8 +2362,7 @@ function mkRenderLeadsChart(){
 
   const { labels, series } = mkPrepareLeadsSeriesByMonth(AppState.clients || [], ym, mode);
 
-  const datasets = [
-    const datasets = [
+      const datasets = [
   { key:'ru', label:'Русский',  data: series.ru, borderColor:'#186663', backgroundColor:'#186663' },
   { key:'sk', label:'Словацкий', data: series.sk, borderColor:'#A6B5B4', backgroundColor:'#A6B5B4' },
   { key:'en', label:'Английский', data: series.en, borderColor:'#8C7361', backgroundColor:'#8C7361' },
