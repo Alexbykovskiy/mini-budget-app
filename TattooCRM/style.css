@@ -1335,3 +1335,23 @@ dialog[open] .modal-body{
 .mk-table tfoot tr[class^="mk-tfoot-"] td:last-child  { border-bottom-right-radius: 12px; }
 
 
+/* --- Marketing table tweaks --- */
+#mkHistory {
+  table-layout: fixed;   /* фиксированная сетка */
+  width: 100%;           /* всегда влезает */
+  border-collapse: collapse;
+}
+
+#mkHistory td, 
+#mkHistory th {
+  padding: 4px 6px;      /* меньше отступы */
+  font-size: 13px;       /* чуть меньше шрифт */
+  white-space: nowrap;   /* не переносим текст */
+  text-align: center;    /* всё по центру */
+}
+
+#mkHistory td:first-child {
+  text-align: left;      /* только даты слева */
+  white-space: nowrap;
+}
+
