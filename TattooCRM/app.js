@@ -278,7 +278,7 @@ AppState.connected = true;
 listenSuppliesRealtime();
       renderToday();
 renderTodayCalendar(); // ← добавили: виджет «Сегодня» обновляется сразу
-
+renderFullCalendar();
 // фоновая инициализация календаря (бейджик в шапке + ensureCalendarId)
 initCalendarStack({ forceConsent: false }).catch(console.warn);
 
@@ -303,9 +303,10 @@ function bindTabbar(){
       btn.classList.add('is-active');
       showPage(btn.dataset.tab);
       if (btn.dataset.tab === 'clientsPage') renderClients();
-      if (btn.dataset.tab === 'todayPage') { 
+      if (btn.dataset.tab === 'todayPage') {
   renderToday();
-  renderTodayCalendar(); // ← добавили
+  renderTodayCalendar();
+  renderFullCalendar(); // ← добавили
 }
       if (btn.dataset.tab === 'marketingPage') {
   bindMarketing();
@@ -455,7 +456,7 @@ async function afterLogin(cred) {
     listenMarketingRealtime();
     renderToday();
 renderTodayCalendar();
-
+renderFullCalendar();
     // 1) DRIVE
     try {
       await initDriveStack({ forceConsent: true });
@@ -983,6 +984,53 @@ if (ev.kind === 'reminder' && ev.id) {
 
 // boot: UI готова
 try { BOOT.set(7,'ok'); BOOT.hide(); } catch(_) {}
+
+async function renderFullCalendar() {
+  const box = document.getElementById('calendarUI');
+  if (!box) return;
+
+  // Очищаем контейнер
+  box.innerHTML = '';
+
+  try {
+    const token = await ensureDriveAccessToken({ forceConsent: false });
+    if (!token) throw new Error('Нет токена');
+    TCRM_Calendar.setAuthToken(token);
+
+    const calId = await TCRM_Calendar.ensureCalendarId('Tattoo CRM');
+
+    // Грузим ближайшие события
+    const now = new Date().toISOString();
+    const res = await gapi.client.calendar.events.list({
+      calendarId: calId,
+      timeMin: now,
+      maxResults: 50,
+      singleEvents: true,
+      orderBy: 'startTime'
+    });
+
+    const items = res.result.items || [];
+    const events = items.map(ev => ({
+      title: ev.summary || '(без названия)',
+      start: ev.start.dateTime || ev.start.date,
+      end: ev.end?.dateTime || ev.end?.date,
+      allDay: !!ev.start.date
+    }));
+
+    // Рисуем календарь через FullCalendar
+    const calendar = new FullCalendar.Calendar(box, {
+      initialView: 'dayGridMonth',
+      locale: 'ru',
+      height: 600,
+      events
+    });
+    calendar.render();
+
+  } catch (e) {
+    console.error('renderFullCalendar error', e);
+    box.innerHTML = `<div class="bad">Ошибка календаря: ${e.message}</div>`;
+  }
+}
 
    async function renderTodayCalendar() {
   const el = document.querySelector('#todayCalendar');

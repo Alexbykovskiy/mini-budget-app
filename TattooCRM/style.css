@@ -1355,3 +1355,18 @@ dialog[open] .modal-body{
   white-space: nowrap;
 }
 
+
+#calendarUI .fc {
+  --fc-border-color: rgba(255,255,255,0.08);
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: rgba(255,255,255,0.03);
+  --fc-today-bg-color: rgba(255,255,255,0.06);
+  --fc-event-bg-color: rgba(220, 220, 220, 0.9);
+  --fc-event-border-color: transparent;
+  --fc-event-text-color: #111;
+  border-radius: 16px;
+  overflow: hidden;
+}
+#calendarUI {
+  min-height: 620px;
+}
