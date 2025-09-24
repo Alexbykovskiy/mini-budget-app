@@ -343,19 +343,17 @@ function bindOnboarding() {
   FB.auth.getRedirectResult().then(async (cred) => {
     if (!cred.user) return; // redirect ещё не выполнялся
     await afterLogin(cred);
-  }).catch((e) => {
-    console.error('redirect result error', e);
-    toast('Ошибка инициализации после входа');
-  });
+  } catch (e) {
+  console.warn('popup auth failed, fallback to redirect', e?.code || e);
 
-  // 2) Клик по кнопке – пробуем popup, при неудаче fallback в redirect
-  $('#bootstrapBtn').addEventListener('click', async () => {
-    try {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      provider.addScope('profile');
-      provider.addScope('email');
-      provider.addScope('https://www.googleapis.com/auth/drive.file');
-provider.addScope('https://www.googleapis.com/auth/calendar.events');
+  const provider = new firebase.auth.GoogleAuthProvider();
+  provider.addScope('profile');
+  provider.addScope('email');
+  provider.addScope('https://www.googleapis.com/auth/drive.file');
+  provider.addScope('https://www.googleapis.com/auth/calendar.events'); // ← ДОБАВЬ ЭТО
+
+  await FB.auth.signInWithRedirect(provider);
+}
 
 
 
@@ -400,11 +398,16 @@ listenSuppliesRealtime();
 
 listenMarketingRealtime();
 
-  // Инициализируем Drive (ожидаем библиотеки детерминированно)
-initDriveStack({ forceConsent: true })
-initCalendarStack().catch(console.warn);
+  // Инициализируем Drive и Calendar
+try {
+  await initDriveStack({ forceConsent: true });
+  toast('Google Drive подключён');
+} catch (e) {
+  console.error(e);
+  toast('Не удалось подключить Drive');
+}
+
 await initCalendarStack({ forceConsent: true });
-  .then(() => toast('Google Drive подключён'))
   .catch(e => {
     console.error(e);
     toast('Не удалось подключить Drive');
