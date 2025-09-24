@@ -1540,15 +1540,15 @@ const fGender = $('#fGender'); if (fGender) fGender.value = c?.gender || '';
 const fSourceSel = $('#fSource'); if (fSourceSel) fSourceSel.value = c?.source || (AppState.settings?.sources?.[0] || '');
 
     // Первое обращение (опциональные поля)
-    const firstContactEl = $('#fFirstContact');
-    if (firstContactEl) {
-      const firstContactEl = $('#fFirstContact');
-if (firstContactEl) {
-  const legacyFCD = c?.firstContactDate || c?.firstContact || c?.first_contact || '';
-  // для НОВОГО клиента — сегодня, для существующего — что было (или пусто)
-  firstContactEl.value = isNew ? ymdLocal(new Date()) : (legacyFCD || '');
+    // Первое обращение (опционально)
+{
+  const firstContactEl = $('#fFirstContact');
+  if (firstContactEl) {
+    const legacyFCD = c?.firstContactDate || c?.firstContact || c?.first_contact || '';
+    // Новый клиент → сегодня; существующий → что было (или пусто)
+    firstContactEl.value = isNew ? ymdLocal(new Date()) : (legacyFCD || '');
+  }
 }
-    }
     const firstEl = $('#fFirst');
     if (firstEl) {
       firstEl.value = String(c?.first ?? true);
@@ -1800,41 +1800,55 @@ async function saveClientFromDialog(){
 const prevStatus = (AppState.clients.find(x => x.id === id) || {}).status || '';
 const statusVal = $('#fStatus').value;
 
-  // --- Особый случай: холодный лид ---
-  if (statusVal === 'Холодный лид') {
-    const client = {
+ // --- Особый случай: холодный лид ---
+if (statusVal === 'Холодный лид') {
+  // ❶ Берём предыдущую карточку клиента (если уже существовал)
+  const prev = AppState.clients.find(x => x.id === id) || {};
+
+  // ❷ Что ввёл юзер в поле «Дата первого обращения»
+  const inputFCD = ($('#fFirstContact').value || '').trim();
+
+  // ❸ Вычисляем итоговую дату:
+  // - если юзер ввёл дату → её и берём
+  // - иначе берём прежнее значение из клиента (firstContactDate/firstContact)
+  // - если это НОВЫЙ клиент (isNew == true), то подставляем «сегодня» локально
+  const fcd = inputFCD || prev.firstContactDate || prev.firstContact || (isNew ? ymdLocal(new Date()) : '');
+
+  // ❹ Формируем объект клиента, дублируя дату в оба поля:
+  const client = {
     id,
     displayName,
     phone: $('#fPhone').value.trim(),
     status: statusVal,
+    source: $('#fSource').value || '',
+    link: $('#fLink').value.trim() || '',
 
-    source: $('#fSource').value || '',                // ← источник
-    link: $('#fLink').value.trim() || '',             // ← контакт (ссылка)
-    firstContactDate: $('#fFirstContact').value || '',  // ← правильное имя поля
-    lang: $('#fLang').value || '',           // ← ДОБАВЬ ЭТО
-gender: $('#fGender').value || '',
- updatedAt: new Date().toISOString()
+    // важное: пишем в оба поля
+    firstContactDate: fcd,
+    firstContact:     fcd,
+
+    lang: $('#fLang').value || '',
+    gender: $('#fGender').value || '',
+    updatedAt: new Date().toISOString()
   };
 
-    const i = AppState.clients.findIndex(x => x.id === id);
-    if (i >= 0) AppState.clients[i] = client; else AppState.clients.push(client);
-    renderClients();
+  const i = AppState.clients.findIndex(x => x.id === id);
+  if (i >= 0) AppState.clients[i] = client; else AppState.clients.push(client);
+  renderClients();
 
-    try {
-      const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
-      await ref.set(client, { merge:true });
-// Лог смены статуса — один раз
-try { await logStatusChange(id, prevStatus, statusVal); } catch(_) {}
-      toast('Сохранено (холодный лид)');
-    } catch(e) {
-      console.warn('save cold lead', e);
-      toast('Ошибка сохранения');
-    }
-
-    $('#clientDialog').close();
-    return; // ← выходим, остальные поля не сохраняем
+  try {
+    const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
+    await ref.set(client, { merge:true });
+    try { await logStatusChange(id, prevStatus, statusVal); } catch(_) {}
+    toast('Сохранено (холодный лид)');
+  } catch(e) {
+    console.warn('save cold lead', e);
+    toast('Ошибка сохранения');
   }
 
+  $('#clientDialog').close();
+  return; // ← выходим, остальные поля не сохраняем
+}
 // --- Озвученная сумма: от/до ---
 let amountMin = Number(($('#fAmountMin')?.value ?? '').trim());
 let amountMax = Number(($('#fAmountMax')?.value ?? '').trim());
@@ -1858,9 +1872,20 @@ if (amountMin != null && amountMax != null && amountMin > amountMax) {
   phone: $('#fPhone').value.trim(),
   link: $('#fLink').value.trim(),
 source: $('#fSource').value.trim(),
-lang: $('#fLang').value || '',            // ← ДОБАВЬ ЭТО
+lang: $('#fLang').value || '',
 gender: $('#fGender').value || '',
-firstContactDate: ($('#fFirstContact').value || new Date().toISOString().slice(0,10)),
+
+// --- ДАТА ПЕРВОГО ОБРАЩЕНИЯ: не перетираем ранее сохранённую ---
+...(() => {
+  const prev = AppState.clients.find(x => x.id === id) || {};
+  const inputFCD = ($('#fFirstContact').value || '').trim();
+  const fcd = inputFCD || prev.firstContactDate || prev.firstContact || (isNew ? ymdLocal(new Date()) : '');
+  // записываем в оба поля для совместимости
+  client.firstContactDate = fcd;
+  client.firstContact     = fcd;
+  return '';
+})(),
+
 first: ($('#fFirst').value === 'true'),
   type: $('#fType').value.trim(),
 styles: Array.from($('#fStyles').selectedOptions).map(o=>o.value),
