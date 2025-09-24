@@ -2056,12 +2056,14 @@ function renderMarketing() {
     const L = rec.langs;
 
     // шаблон ячейки языка: две пилюли на одной линии
-    const langCell = (o) => `
-      <span class="mk-langcell">
-        <span class="mk-pill mk-cold mk-mono">${o.c}</span>
-        <span class="mk-pill mk-warm mk-mono">${o.o}</span>
-      </span>
-    `;
+    // шаблон ячейки языка: C (синие), Σ (всего, серые), N (красные)
+const langCell = (o) => `
+  <span class="mk-langcell" title="C|Σ|N">
+    <span class="mk-pill mk-cold mk-mono">${o.c}</span>
+    <span class="mk-pill mk-total mk-mono">${o.c + o.o}</span>
+    <span class="mk-pill mk-warm mk-mono">${o.o}</span>
+  </span>
+`;
 
     return `
       <tr>
