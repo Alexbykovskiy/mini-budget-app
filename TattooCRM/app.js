@@ -292,7 +292,12 @@ function bindTabbar(){
       showPage(btn.dataset.tab);
       if (btn.dataset.tab === 'clientsPage') renderClients();
       if (btn.dataset.tab === 'todayPage') renderToday();
-      if (btn.dataset.tab === 'marketingPage') { bindMarketing(); renderMarketing(); }
+      if (btn.dataset.tab === 'marketingPage') {
+  bindMarketing();
+  renderMarketing();
+  mkBindLeadsChartControls();
+  mkRenderLeadsChart();
+}
       if (btn.dataset.tab === 'suppliesPage') renderSupplies();
       if (btn.dataset.tab === 'settingsPage') fillSettingsForm();
     });
@@ -416,6 +421,11 @@ function listenClientsRealtime(){
       qs.forEach(d => AppState.clients.push(d.data()));
       renderClients();   // внутри будем сортировать по выбору
       renderToday();
+// обновляем график, если открыта вкладка маркетинга
+if (document.querySelector('[data-tab="marketingPage"]').classList.contains('is-active')) {
+  mkBindLeadsChartControls();
+  mkRenderLeadsChart();
+}
 // Карточка №5: перестраиваем итоги при изменении клиентов
       const untilInput = document.getElementById('mkPotentialUntil');
       if (untilInput) {
@@ -2295,6 +2305,136 @@ function mkBuildDailyFirstContactsStats(clients) {
 
   return map;
 }
+
+// --- [MK#7] Получить список месяцев, в которых есть первые обращения (YYYY-MM)
+function mkListMonthsFromClients(clients){
+  const set = new Set();
+  (Array.isArray(clients)?clients:[]).forEach(c=>{
+    const ymd = String(c?.firstContactDate || '').slice(0,10);
+    if (ymd && ymd.length===10) set.add(ymd.slice(0,7)); // YYYY-MM
+  });
+  return Array.from(set).sort(); // по возрастанию
+}
+
+// --- [MK#7] Форматировать YYYY-MM в «Сентябрь 2025»
+function mkMonthHuman(ym){
+  const [y, m] = ym.split('-').map(Number);
+  const months = ['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+  if (!y || !m) return ym;
+  const name = months[m-1] || ym;
+  // с заглавной буквы + год
+  return name.charAt(0).toUpperCase() + name.slice(1) + ' ' + y;
+}
+
+// --- [MK#7] Данные для графика по дням и языкам
+// mode: 'all' | 'cold' | 'warm'
+function mkPrepareLeadsSeriesByMonth(clients, ym='YYYY-MM', mode='all'){
+  // строим карту по дням с разрезом по языкам: { ru:{c,o}, sk:{c,o}, ... }
+  const daily = mkBuildDailyFirstContactsStats(clients); // Map<YYYY-MM-DD, { langs: {ru:{c,o} ...} }>
+
+  // количество дней в месяце
+  const [y, m] = ym.split('-').map(Number);
+  const daysInMonth = new Date(y, m, 0).getDate();
+
+  // инициализация: по каждому языку массив из daysInMonth нулей
+  const langs = ['ru','sk','en','at','de'];
+  const byLang = {};
+  langs.forEach(k => byLang[k] = Array.from({length: daysInMonth}, ()=>0));
+
+  for (let d=1; d<=daysInMonth; d++){
+    const ymd = `${ym}-${String(d).padStart(2,'0')}`;
+    const rec = daily.get(ymd);
+    if (!rec) continue;
+    for (const k of langs){
+      const o = rec.langs[k] || { c:0, o:0 };
+      const val = (mode==='cold') ? o.c : (mode==='warm') ? o.o : (o.c + o.o);
+      byLang[k][d-1] = val;
+    }
+  }
+
+  return {
+    labels: Array.from({length: daysInMonth}, (_,i)=> String(i+1)), // "1".."30"
+    series: byLang
+  };
+}
+
+// --- [MK#7] Chart instance cache
+let MK_CHART = null;
+
+// --- [MK#7] Нарисовать/обновить график
+function mkRenderLeadsChart(){
+  const canvas = document.getElementById('mkLeadsChart');
+  if (!canvas) return;
+
+  const monthSel = document.getElementById('mkChartMonth');
+  const mode = (document.querySelector('input[name="mkChartMode"]:checked')?.value) || 'all';
+  const ym = monthSel?.value || (mkListMonthsFromClients(AppState.clients).slice(-1)[0] || '');
+
+  const { labels, series } = mkPrepareLeadsSeriesByMonth(AppState.clients || [], ym, mode);
+
+  const datasets = [
+    { key:'ru', label:'Русский',  data: series.ru },
+    { key:'sk', label:'Словацкий', data: series.sk },
+    { key:'en', label:'Английский', data: series.en },
+    { key:'at', label:'Австрия',  data: series.at },
+    { key:'de', label:'Немецкий', data: series.de },
+  ].map((d, idx)=>({
+    label: d.label,
+    data: d.data,
+    tension: 0.2,
+    pointRadius: 2,
+    borderWidth: 2
+    // Цвета Chart.js подберёт автоматически; если нужно — позже зададим вручную.
+  }));
+
+  const cfg = {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'bottom' },
+        title:  { display: true, text: mkMonthHuman(ym) }
+      },
+      scales: {
+        x: { title:{ display:true, text:'Дни'} },
+        y: { title:{ display:true, text:'Количество лидов'}, beginAtZero:true, ticks:{ precision:0 } }
+      }
+    }
+  };
+
+  if (MK_CHART) { MK_CHART.destroy(); }
+  MK_CHART = new Chart(canvas.getContext('2d'), cfg);
+}
+
+// --- [MK#7] Заполнить селект месяцев и навесить обработчики
+function mkBindLeadsChartControls(){
+  const sel = document.getElementById('mkChartMonth');
+  if (!sel) return;
+
+  // Заполняем список месяцев по клиентам
+  const months = mkListMonthsFromClients(AppState.clients || []);
+  sel.innerHTML = months.length
+    ? months.map(ym => `<option value="${ym}">${mkMonthHuman(ym)}</option>`).join('')
+    : `<option value="">—</option>`;
+
+  // Выставим последний месяц по умолчанию
+  if (months.length) sel.value = months[months.length - 1];
+
+  // Обработчики
+  if (!sel.dataset.bound){
+    sel.dataset.bound = '1';
+    sel.addEventListener('change', mkRenderLeadsChart);
+    document.querySelectorAll('input[name="mkChartMode"]').forEach(r=>{
+      r.addEventListener('change', mkRenderLeadsChart);
+    });
+  }
+}
+
+
+
 // === [NEW] Totals & Potential (карточка №5) ===============================
 
 function mkGetLatestAdsSpentTotal(marketingArr) {
@@ -2680,6 +2820,10 @@ function listenMarketingRealtime(){
       }
 
       renderMarketing();
+if (document.querySelector('[data-tab="marketingPage"]').classList.contains('is-active')) {
+  mkBindLeadsChartControls();
+  mkRenderLeadsChart();
+}
 
  if (typeof mkUpdateFinanceCard === 'function') mkUpdateFinanceCard();
 
