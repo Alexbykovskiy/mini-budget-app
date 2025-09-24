@@ -2060,9 +2060,9 @@ function renderMarketing() {
   if (!body) return;
 
   // 1) Источник данных
-  const items = Array.isArray(AppState.marketing) ? [...AppState.marketing] : [];
-  items.sort((a,b) => (String(a.date||'')+String(a.time||''))
-    .localeCompare(String(b.date||'')+String(b.time||'')));
+const items = Array.isArray(AppState.marketing) ? [...AppState.marketing] : [];
+items.sort((a,b) => (String(a.date||'')+String(a.time||''))
+  .localeCompare(String(b.date||'')+String(b.time||'')));
 
   const firstByDay = mkBuildDailyFirstContactsStats(AppState.clients || []);
 
