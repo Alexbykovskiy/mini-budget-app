@@ -1391,3 +1391,22 @@ dialog[open] .modal-body{
   margin-top: 8px;
   font-size: 12px;
 }
+
+/* Легенда для графика лидов */
+#mkChartCard .mk-legend {
+  margin-top: 10px;
+  font-size: 12px;
+  opacity: .85;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  justify-content: center;
+}
+#mkChartCard .mk-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 4px;
+  border: 1px solid rgba(255,255,255,.5);
+}

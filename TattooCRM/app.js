@@ -2395,9 +2395,9 @@ function mkRenderLeadsChart(){
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: { position: 'bottom' },
-        title:  { display: true, text: mkMonthHuman(ym) }
-      },
+  legend: { display: false },
+  title: { display: true, text: mkMonthHuman(ym) }
+},
       scales: {
         x: { title:{ display:true, text:'Дни'} },
         y: { title:{ display:true, text:'Количество лидов'}, beginAtZero:true, ticks:{ precision:0 } }
