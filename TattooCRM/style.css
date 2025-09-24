@@ -1374,3 +1374,44 @@ max-height: calc(var(--mk-row-h, 34px) * 10); /* 10 видимых «дней» 
   border-bottom: 1px solid rgba(255,255,255,0.12);
   text-transform: none;
 }
+
+
+/* ===== Маркетинг: прокрутка только у tbody ===== */
+#mkHistory .mk-table { table-layout: fixed; border-collapse: collapse; }
+
+#mkHistory .mk-table thead,
+#mkHistory .mk-table tfoot {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+#mkHistory .mk-table tbody {
+  display: block;           /* скроллим только тело */
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(var(--mk-row-h, 34px) * 10); /* 10 видимых «дней» */
+}
+
+/* каждая строка в tbody растягивается на всю ширину */
+#mkHistory .mk-table tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+/* спрятать полосы прокрутки, оставить скролл */
+#mkHistory .mk-table tbody::-webkit-scrollbar { width: 0; height: 0; }
+#mkHistory .mk-table tbody { scrollbar-width: none; -ms-overflow-style: none; }
+
+/* разделитель месяца */
+.mk-month-sep td {
+  text-align: left;
+  padding: 6px 10px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  background: rgba(255,255,255,0.08);
+  border-top: 1px solid rgba(255,255,255,0.18);
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+  text-transform: none;
+}
