@@ -1236,3 +1236,41 @@ dialog[open] .modal-body{
   align-items: center;
   gap: 4px;
 }
+
+/* ===== totals bar under marketing table ===== */
+.mk-totals {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(120px, 1fr));
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.mk-total-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  white-space: nowrap;
+}
+
+/* подписи слева серые, значения — нашими цветами */
+.mk-total-label { opacity: .8; }
+.mk-total-value { font-weight: 700; }
+
+.mk-total-euro { font-variant-numeric: tabular-nums; }
+
+/* цвета, как договаривались ранее */
+.mk-cold-txt { color: #8b9fb8; font-weight: 700; }   /* холодные */
+.mk-warm-txt { color: #9aa57a; font-weight: 700; }   /* не-холодные */
+.mk-total {                                          /* Σ — нейтрально-серая плашка */
+  color: #222; background: #b0b0b0; border: 1px solid rgba(255,255,255,0.4);
+  padding: 2px 8px; border-radius: 999px; font-weight: 700;
+}

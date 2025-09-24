@@ -2029,41 +2029,47 @@ function renderMarketing() {
   const body = document.getElementById('mkHistoryBody');
   if (!body) return;
 
-  // 1) Маркетинговая лента по датам (сортируем по date+time)
+  // 1) Источник данных
   const items = Array.isArray(AppState.marketing) ? [...AppState.marketing] : [];
   items.sort((a,b) => (String(a.date||'')+String(a.time||''))
     .localeCompare(String(b.date||'')+String(b.time||'')));
 
-  // 2) Первая статистика: первые обращения по дням и языкам (cold/other)
   const firstByDay = mkBuildDailyFirstContactsStats(AppState.clients || []);
 
-  // 3) Накапливаем IG и высчитываем расход дня
-  let totalFollowers = 0;
-  let prevSpentTotal = 0;
+  // 2) Агрегации
+  let totalFollowers = 0;   // итог подписчиков (кумулятив IG дельт)
+  let prevSpentTotal = 0;   // для вычисления расхода дня
+  let totalSpent = 0;       // итог затрат
+  let sumCold = 0;          // итог холодных по всем дням и всем языкам
+  let sumOther = 0;         // итог не-холодных по всем дням и всем языкам
 
+  // 3) Рендер строк
   const rows = items.map(e => {
-    // IG кумулятив
     totalFollowers += Number(e.delta || 0);
 
-    // Расход дня = (накопит.)spentTotal - предыдущее накопит.
     const daySpent = Number(e.spentTotal || 0) - prevSpentTotal;
     prevSpentTotal = Number(e.spentTotal || 0);
+    totalSpent = prevSpentTotal;
 
-    // нужная запись «первых обращений» на эту дату
     const rec = firstByDay.get(e.date) || {
       langs: { ru:{c:0,o:0}, sk:{c:0,o:0}, en:{c:0,o:0}, at:{c:0,o:0}, de:{c:0,o:0} }
     };
     const L = rec.langs;
 
-    // шаблон ячейки языка: две пилюли на одной линии
- // C (синяя цифра) | Σ (серая плашка) | N (красная цифра)
-const langCell = (o) => `
-  <span class="mk-langcell" title="C / Σ / N">
-    <span class="mk-txt mk-cold-txt mk-mono">${o.c}</span>
-    <span class="mk-pill mk-total mk-mono">${o.c + o.o}</span>
-    <span class="mk-txt mk-warm-txt mk-mono">${o.o}</span>
-  </span>
-`;
+    // суммируем по языкам для итогов
+    const dayCold  = L.ru.c + L.sk.c + L.en.c + L.at.c + L.de.c;
+    const dayOther = L.ru.o + L.sk.o + L.en.o + L.at.o + L.de.o;
+    sumCold  += dayCold;
+    sumOther += dayOther;
+
+    // ячейка языка: C (синяя цифра) | Σ (серая плашка) | N (зелёная цифра)
+    const langCell = (o) => `
+      <span class="mk-langcell" title="C / Σ / N">
+        <span class="mk-txt mk-cold-txt mk-mono">${o.c}</span>
+        <span class="mk-pill mk-total mk-mono">${o.c + o.o}</span>
+        <span class="mk-txt mk-warm-txt mk-mono">${o.o}</span>
+      </span>
+    `;
 
     return `
       <tr>
@@ -2083,11 +2089,38 @@ const langCell = (o) => `
     ? rows.join('')
     : `<tr><td colspan="8">Пока нет данных</td></tr>`;
 
-  // (опционально) обновим верхнюю карточку про инстаграм, если у тебя есть этот элемент
+  // 4) Итоговая полоса
+  const totalsHost = document.getElementById('mkTotals');
+  if (totalsHost) {
+    const sumSigma = sumCold + sumOther;
+    totalsHost.innerHTML = `
+      <div class="mk-total-item">
+        <span class="mk-total-label">Подписчики:</span>
+        <span class="mk-total-value mk-mono">${totalFollowers}</span>
+      </div>
+      <div class="mk-total-item">
+        <span class="mk-total-label">Затраты:</span>
+        <span class="mk-total-value mk-total-euro mk-mono">€${(Number(totalSpent)||0).toFixed(2)}</span>
+      </div>
+      <div class="mk-total-item">
+        <span class="mk-total-label">Холодные:</span>
+        <span class="mk-total-value mk-cold-txt mk-mono">${sumCold}</span>
+      </div>
+      <div class="mk-total-item">
+        <span class="mk-total-label">Σ всего:</span>
+        <span class="mk-total"><span class="mk-mono">${sumSigma}</span></span>
+      </div>
+      <div class="mk-total-item">
+        <span class="mk-total-label">Не&nbsp;холодные:</span>
+        <span class="mk-total-value mk-warm-txt mk-mono">${sumOther}</span>
+      </div>
+    `;
+  }
+
+  // (опционально) обновление карточки про Instagram
   const igBox = document.getElementById('mk-instagram-followers');
   if (igBox) igBox.textContent = `${totalFollowers} новых подписчиков`;
 }
-
 
 // === helper: нормализован ли клиент как «в работе» ===
 // Учитываем тех, у кого есть КОНСУЛЬТАЦИЯ / ПРЕДОПЛАТА / ЭСКИЗ / СЕАНС (или массив sessions)
