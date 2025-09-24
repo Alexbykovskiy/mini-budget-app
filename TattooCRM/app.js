@@ -174,6 +174,15 @@ window.addEventListener('DOMContentLoaded', async () => {
   try { BOOT.show(); BOOT.set(0,'ok'); } catch(_) {}
 
   bindTabbar();  bindHeader();
+// Привязка кнопки «Проверить календарь»
+const btnTest = document.querySelector('#btnTestCalendar');
+if (btnTest && !btnTest.dataset.bound) {
+  btnTest.dataset.bound = '1';
+  btnTest.addEventListener('click', async () => {
+    console.log('[TEST] кнопка нажата');
+    await testCalendarOnce();   // см. функцию ниже
+  });
+}
   bindOnboarding();
   bindClientsModal();
   bindSettings();
@@ -314,6 +323,8 @@ function showPage(id){
   $$('.page').forEach(p => p.classList.remove('is-active'));
   $(`#${id}`).classList.add('is-active');
 }
+
+
 
 // ---------- Header ----------
 function bindHeader(){
@@ -986,6 +997,38 @@ try { BOOT.set(7,'ok'); BOOT.hide(); } catch(_) {}
 
     const calId = await TCRM_Calendar.ensureCalendarId('Tattoo CRM');
 
+// --- безопасная подгрузка календарной либы ---
+await waitFor(() => window.gapi && gapi.client, 10000);
+if (!gapi.client.calendar || !gapi.client.calendar.events) {
+  // если модуль когда-нибудь даст обёртку — используем её,
+  // иначе грузим стандартным способом
+  if (typeof TCRM_Calendar.ensureLibrary === 'function') {
+    await TCRM_Calendar.ensureLibrary();
+  } else {
+    await new Promise((res, rej) => {
+      try { gapi.client.load('calendar', 'v3').then(res, rej); }
+      catch (e) { rej(e); }
+    });
+  }
+}
+
+// --- безопасная подгрузка календарной либы ---
+await waitFor(() => window.gapi && gapi.client, 10000);
+if (!gapi.client.calendar || !gapi.client.calendar.events) {
+  // если модуль когда-нибудь даст обёртку — используем её,
+  // иначе грузим стандартным способом
+  if (typeof TCRM_Calendar.ensureLibrary === 'function') {
+    await TCRM_Calendar.ensureLibrary();
+  } else {
+    await new Promise((res, rej) => {
+      try { gapi.client.load('calendar', 'v3').then(res, rej); }
+      catch (e) { rej(e); }
+    });
+  }
+}
+
+
+
     const now = new Date().toISOString();
     const res = await gapi.client.calendar.events.list({
       calendarId: calId,
@@ -1014,6 +1057,84 @@ try { BOOT.set(7,'ok'); BOOT.hide(); } catch(_) {}
     el.innerHTML = '<div class="bad">Ошибка загрузки календаря</div>';
   }
 }
+
+// === Тестер календаря (кнопка + консоль) ===
+async function testCalendarOnce() {
+  const box = document.querySelector('#todayCalendar');
+  if (box) box.innerHTML = '<div class="subtle">Тест календаря…</div>';
+
+  try {
+    // 1) Токен
+    const token = await ensureDriveAccessToken({ forceConsent: false });
+    if (!token) throw new Error('Нет access_token');
+    TCRM_Calendar.setAuthToken(token);
+
+    // 2) gapi calendar lib (подстраховка: грузим, если нет)
+    await waitFor(() => window.gapi && gapi.client, 10000);
+    if (!gapi.client.calendar || !gapi.client.calendar.events) {
+      // есть два пути: через наш модуль или напрямую
+      if (typeof TCRM_Calendar.ensureLibrary === 'function') {
+        await TCRM_Calendar.ensureLibrary();
+      } else {
+        await new Promise((res, rej) => {
+          try { gapi.client.load('calendar', 'v3').then(res, rej); } catch (e) { rej(e); }
+        });
+      }
+    }
+
+    // 3) Календарь «Tattoo CRM» (создастся при отсутствии)
+    const calId = await TCRM_Calendar.ensureCalendarId('Tattoo CRM');
+    console.log('[TEST] calId =', calId);
+
+// --- безопасная подгрузка календарной либы ---
+await waitFor(() => window.gapi && gapi.client, 10000);
+if (!gapi.client.calendar || !gapi.client.calendar.events) {
+  // если модуль когда-нибудь даст обёртку — используем её,
+  // иначе грузим стандартным способом
+  if (typeof TCRM_Calendar.ensureLibrary === 'function') {
+    await TCRM_Calendar.ensureLibrary();
+  } else {
+    await new Promise((res, rej) => {
+      try { gapi.client.load('calendar', 'v3').then(res, rej); }
+      catch (e) { rej(e); }
+    });
+  }
+}
+    // 4) Чтение ближайших событий
+    const now = new Date().toISOString();
+    const res = await gapi.client.calendar.events.list({
+      calendarId: calId,
+      timeMin: now,
+      maxResults: 5,
+      singleEvents: true,
+      orderBy: 'startTime'
+    });
+    console.log('[TEST] events.list result:', res);
+
+    const items = res.result?.items || [];
+    if (!items.length) {
+      if (box) box.innerHTML = '<div class="subtle">Календарь подключен, но событий нет</div>';
+      toast('Календарь OK: событий нет');
+      return;
+    }
+
+    // Показ в блоке
+    if (box) {
+      box.innerHTML = items.map(ev => {
+        const start = ev.start?.dateTime || ev.start?.date || '';
+        return `<div class="row"><b>${ev.summary || '(без названия)'}</b><span style="margin-left:auto">${start}</span></div>`;
+      }).join('');
+    }
+    toast(`Календарь OK: ${items.length} событ.`);
+  } catch (e) {
+    console.error('[TEST] calendar fail:', e);
+    if (box) box.innerHTML = `<div class="bad">Тест не прошёл: ${e?.message || e}</div>`;
+    toast('Ошибка календаря (см. консоль)');
+  }
+}
+
+// Доступно из консоли:
+window.tcrmCalTest = testCalendarOnce;
 
 
 // ---------- Clients ----------
