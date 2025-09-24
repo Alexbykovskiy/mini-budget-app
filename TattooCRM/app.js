@@ -2060,9 +2060,9 @@ function renderMarketing() {
   if (!body) return;
 
   // 1) Источник данных
-const items = Array.isArray(AppState.marketing) ? [...AppState.marketing] : [];
-items.sort((a,b) => (String(a.date||'')+String(a.time||''))
-  .localeCompare(String(b.date||'')+String(b.time||'')));
+  const items = Array.isArray(AppState.marketing) ? [...AppState.marketing] : [];
+  items.sort((a,b) => (String(a.date||'')+String(a.time||''))
+    .localeCompare(String(b.date||'')+String(b.time||'')));
 
   const firstByDay = mkBuildDailyFirstContactsStats(AppState.clients || []);
 
@@ -2083,47 +2083,56 @@ const langSums = {
 const daysCount = items.length; // кол-во строк (дней) в таблице
 
   // 3) Рендер строк
- const rows = [];
-let prevMonthKey = ''; // YYYY-MM
+  const rows = items.map(e => {
+    totalFollowers += Number(e.delta || 0);
 
-items.forEach(e => {
-  // вставка разделителя месяца
-  const monthKey = String(e.date || '').slice(0,7); // 'YYYY-MM'
-  if (monthKey && monthKey !== prevMonthKey) {
-    rows.push(`<tr class="mk-month-sep"><td colspan="8">${mkMonthLabel(e.date)}</td></tr>`);
-    prevMonthKey = monthKey;
-  }
+    const daySpent = Number(e.spentTotal || 0) - prevSpentTotal;
+    prevSpentTotal = Number(e.spentTotal || 0);
+    totalSpent = prevSpentTotal;
 
-  // обычная строка дня
-  rows.push(`
-    <tr class="mk-day-row">
-      <td>${e.date || '—'}</td>
-      <td class="mk-mono">+${Number(e.delta || 0)}</td>
-      <td class="mk-mono">€${(isFinite(daySpent) ? daySpent : 0).toFixed(2)}</td>
-      <td>${langCell(L.ru)}</td>
-      <td>${langCell(L.sk)}</td>
-      <td>${langCell(L.en)}</td>
-      <td>${langCell(L.at)}</td>
-      <td>${langCell(L.de)}</td>
-    </tr>
-  `);
-});
+    const rec = firstByDay.get(e.date) || {
+      langs: { ru:{c:0,o:0}, sk:{c:0,o:0}, en:{c:0,o:0}, at:{c:0,o:0}, de:{c:0,o:0} }
+    };
+    const L = rec.langs;
+
+    // суммируем по языкам для итогов
+    const dayCold  = L.ru.c + L.sk.c + L.en.c + L.at.c + L.de.c;
+    const dayOther = L.ru.o + L.sk.o + L.en.o + L.at.o + L.de.o;
+    sumCold  += dayCold;
+    sumOther += dayOther;
+// НОВОЕ: копим по языкам
+langSums.ru.c += L.ru.c; langSums.ru.o += L.ru.o;
+langSums.sk.c += L.sk.c; langSums.sk.o += L.sk.o;
+langSums.en.c += L.en.c; langSums.en.o += L.en.o;
+langSums.at.c += L.at.c; langSums.at.o += L.at.o;
+langSums.de.c += L.de.c; langSums.de.o += L.de.o;
+
+    // ячейка языка: C (синяя цифра) | Σ (серая плашка) | N (зелёная цифра)
+    const langCell = (o) => `
+      <span class="mk-langcell" title="C / Σ / N">
+        <span class="mk-txt mk-cold-txt mk-mono">${o.c}</span>
+        <span class="mk-pill mk-total mk-mono">${o.c + o.o}</span>
+        <span class="mk-txt mk-warm-txt mk-mono">${o.o}</span>
+      </span>
+    `;
+
+    return `
+      <tr>
+        <td>${e.date || '—'}</td>
+        <td class="mk-mono">+${e.delta || 0} (${totalFollowers})</td>
+        <td class="mk-mono">€${(isFinite(daySpent) ? daySpent : 0).toFixed(2)}</td>
+        <td>${langCell(L.ru)}</td>
+        <td>${langCell(L.sk)}</td>
+        <td>${langCell(L.en)}</td>
+        <td>${langCell(L.at)}</td>
+        <td>${langCell(L.de)}</td>
+      </tr>
+    `;
+  });
 
   body.innerHTML = rows.length
     ? rows.join('')
     : `<tr><td colspan="8">Пока нет данных</td></tr>`;
-
-// === ограничение видимой высоты на 10 «дней»: меряем реальную высоту строки ===
-{
-  const tbody = document.querySelector('#mkHistory .mk-table tbody');
-  // Берём первую «обычную» строку дня (не раздельник месяца)
-  const probe = tbody && tbody.querySelector('tr.mk-day-row') || tbody && tbody.querySelector('tr');
-  if (tbody && probe) {
-    const h = Math.round(probe.getBoundingClientRect().height) || 34; // fallback
-    tbody.style.setProperty('--mk-row-h', `${h}px`);
-    // Примечание: сам лимит стоит в CSS через calc(var(--mk-row-h) * 10)
-  }
-}
 
   // 4) Итоги по столбцам — в <tfoot><tr id="mkTotalsRow">
 const foot = document.getElementById('mkTotalsRow');
@@ -2189,16 +2198,6 @@ function isQualifiedClient(c) {
     );
 
   return hasDeposit || hasSessions || inWorkByStatus;
-}
-
-// Названия месяцев по-русски
-const MK_MONTHS_RU = ['январь','февраль','март','апрель','май','июнь',
-  'июль','август','сентябрь','октябрь','ноябрь','декабрь'];
-
-function mkMonthLabel(ymd /* 'YYYY-MM-DD' */) {
-  const [y, m] = String(ymd || '').split('-');
-  const name = MK_MONTHS_RU[(parseInt(m,10) || 1) - 1] || '';
-  return `${name.charAt(0).toUpperCase() + name.slice(1)} ${y}`;
 }
 
 // === helper: получить YYYY-MM-DD из даты/строки ===
