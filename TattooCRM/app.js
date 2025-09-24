@@ -340,20 +340,20 @@ function bindHeader(){
 // ---------- Onboarding ----------
 function bindOnboarding() {
   // 1) Обработка результата redirect – запускается при каждой загрузке
-  FB.auth.getRedirectResult().then(async (cred) => {
-    if (!cred.user) return; // redirect ещё не выполнялся
-    await afterLogin(cred);
-  } catch (e) {
+ FB.auth.getRedirectResult().then(async (cred) => {
+  if (!cred.user) return; // redirect ещё не выполнялся
+  await afterLogin(cred);
+}).catch(async (e) => {
   console.warn('popup auth failed, fallback to redirect', e?.code || e);
 
   const provider = new firebase.auth.GoogleAuthProvider();
   provider.addScope('profile');
   provider.addScope('email');
   provider.addScope('https://www.googleapis.com/auth/drive.file');
-  provider.addScope('https://www.googleapis.com/auth/calendar.events'); // ← ДОБАВЬ ЭТО
+  provider.addScope('https://www.googleapis.com/auth/calendar.events');
 
   await FB.auth.signInWithRedirect(provider);
-}
+});
 
 
 
