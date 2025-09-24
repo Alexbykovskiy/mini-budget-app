@@ -1199,3 +1199,26 @@ dialog[open] .modal-body{
   align-items: center;
   gap: 4px;
 }
+
+/* цифры без плашек */
+.mk-txt {
+  display: inline-block;
+  min-width: 22px;          /* чтобы визуально совпадало с шириной плашки */
+  padding: 2px 0;           /* по высоте как у pill */
+  text-align: center;
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 0 2px;
+  vertical-align: middle;
+}
+
+/* цвета: холодные (синий), тёплые/остальные (красный) */
+.mk-cold-txt { color: #0077ff; }
+.mk-warm-txt { color: #dc3545; }  /* такой же оттенок как у .mk-warm */
+
+/* на всякий: немного увеличим зазор между элементами в ячейке языка */
+.mk-langcell {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
