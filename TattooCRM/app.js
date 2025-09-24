@@ -2117,10 +2117,10 @@ langSums.de.c += L.de.c; langSums.de.o += L.de.o;
     `;
 
     return `
-      <tr>
-        <td>${e.date || '—'}</td>
-        <td class="mk-mono">+${Number(e.delta || 0)}</td>
-        <td class="mk-mono">€${(isFinite(daySpent) ? daySpent : 0).toFixed(2)}</td>
+  <tr>
+    <td>${formatDateHuman(e.date) || '—'}</td>
+    <td class="mk-mono">+${Number(e.delta || 0)}</td>
+    <td class="mk-mono">€${(isFinite(daySpent) ? daySpent : 0).toFixed(2)}</td>
         <td>${langCell(L.ru)}</td>
         <td>${langCell(L.sk)}</td>
         <td>${langCell(L.en)}</td>
