@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Tattoo CRM — Clients · Calendar · Marketing</title>
   <link rel="stylesheet" href="./style.css" />
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
 </head>
 <body>
  <div class="background-fixed"></div>
@@ -51,32 +51,21 @@
       <div class="section">
         <h3>Напоминания</h3>
         <div id="remindersList"></div>
-      </div>
-
-<section class="page" id="todayPage">
-  <h2>Сегодня</h2>
-
-  <div id="todaySchedule"></div>
-  <div id="futureList"></div>
-  <div id="remindersList"></div>
+      <!-- Визуальный календарь -->
+<div class="panel glass" style="margin-top:16px">
+  <div class="row" style="align-items:center; gap:8px">
+    <h3 style="margin:0">Календарь (Tattoo CRM)</h3>
+    <button id="btnTestCalendar" class="btn ghost" type="button">Проверить календарь</button>
+  </div>
 
   <!-- Мини-виджет ближайших событий -->
-  <div id="todayCalendar" class="card glass" style="margin-top:20px"></div>
+  <div id="todayCalendar" class="card glass" style="margin-top:12px"></div>
 
   <!-- Полный календарь (месячный вид) -->
-  <div id="calendarUI" class="card glass" style="margin-top:20px"></div>
-</section>
+  <div id="calendarUI" class="card glass" style="margin-top:12px"></div>
+</div>
 
     </section>
-<div class="row" style="gap:8px; align-items:center">
-  <h3>Календарь (Tattoo CRM)</h3>
-  <button id="btnTestCalendar" class="btn ghost" type="button">Проверить календарь</button>
-</div>
-<div id="todayCalendar" class="card glass"></div>
-<!-- Подключаем стили/скрипты FullCalendar -->
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-
 
     <!-- Вкладка: Клиенты -->
     <section id="clientsPage" class="page">
@@ -636,11 +625,11 @@
   <script src="./firebase-config.js"></script>
 
   <!-- Модуль для работы с Google Drive -->
-  <script src="./drive.js"></script>
+ <script src="./drive.js"></script>
 <script src="calendar.js"></script>
 
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<!-- FullCalendar (JS) — НУЖНО -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
 
 <script src="./app.js"></script>
 </div> <!-- .container -->
@@ -652,6 +641,5 @@
     <button id="confirmYes" class="btn danger">Удалить</button>
   </div>
 </dialog>
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
 </body>
 </html>
