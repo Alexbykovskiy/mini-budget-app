@@ -286,12 +286,7 @@ body {
 /* Переписываем карточки/панели под tattoo-style */
 .glass, .card, .card-client, .modal-body, .toolbar, .tabbar {
   position: relative;
-  background:
-    linear-gradient(120deg,
-      rgba(255,255,255,0.06) 8%,
-      rgba(0,0,0,0.06) 100%
-    ),
-    rgba(0,0,0,0.50) !important;
+  background: rgba(0,0,0,0.35) !important;   /* чисто прозрачный тёмный слой */
   backdrop-filter: blur(16px) saturate(1.15);
   -webkit-backdrop-filter: blur(16px) saturate(1.15);
   border-radius: 24px !important;
@@ -299,8 +294,7 @@ body {
   box-shadow: 0 6px 24px rgba(0,0,0,0.15), 0 2px 8px rgba(255,255,255,0.05) inset;
   color: #eee !important;
   overflow: hidden;
-}
-.glass::before, .card::before, .card-client::before,
+}.glass::before, .card::before, .card-client::before,
 .modal-body::before, .toolbar::before, .tabbar::before {
   content: '';
   position: absolute;
