@@ -406,7 +406,32 @@
   </div>
 </section>
 
-    <div id="mkHistory" class="glass" style="padding:10px; overflow-x:auto">
+   <div id="mkHistory" class="glass" style="padding:10px; overflow-x:auto">
+
+  <!-- 🔹 Форма для добавления записи -->
+  <div class="grid four" style="margin-bottom:10px; gap:8px">
+    <label class="field">
+      <span>Дата</span>
+      <input type="date" id="mkDate">
+    </label>
+    <label class="field">
+      <span>Время</span>
+      <input type="time" id="mkTime">
+    </label>
+    <label class="field">
+      <span>+Подписчики</span>
+      <input type="number" id="mkDelta" placeholder="+0">
+    </label>
+    <label class="field">
+      <span>Сумма на рекламу (общая)</span>
+      <input type="number" id="mkSpentTotal" placeholder="€">
+    </label>
+  </div>
+  <div class="row" style="justify-content:flex-end; margin-bottom:12px">
+    <button type="button" class="btn success" id="saveMkBtn">Сохранить</button>
+  </div>
+  <!-- 🔹 Конец формы -->
+
   <table class="mk-table">
     <thead>
       <tr>
