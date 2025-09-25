@@ -830,6 +830,16 @@ dialog[open] .modal-body{
   user-select: none;
   transition: background .15s ease, box-shadow .15s ease, transform .04s ease;
 }
+
+/* Принудительно делаем стеклянный фон и размытие для stat-card с классом glass */
+.stat-card.glass {
+  background: var(--glass-bg) !important;             /* тот же фон, что в «Сегодня» */
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  border: 1px solid var(--glass-brd);
+  box-shadow: var(--shadow);
+}
+
 .stat-card:hover {
   background: rgba(255,255,255,0.11);
   box-shadow:
