@@ -885,8 +885,9 @@ dialog[open] .modal-body{
   font-size: 12px;
   line-height: 1.25;
   text-align: left;                /* всё выравниваем в колонку */
+  padding: 12px 14px;              /* равномерный паддинг со всех сторон */
+  box-sizing: border-box;          /* чтобы паддинги не ломали ширину */
 }
-
 .stat-card-demo .mk-card-title {
   font-size: 14px;
   font-weight: 700;
