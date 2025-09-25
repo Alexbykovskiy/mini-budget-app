@@ -1,14 +1,13 @@
 :root{
   --c-deep:#002D37;
-  --c-teal:#186663;
-  --c-silver:#A6B5B4;
+    --c-silver:#A6B5B4;
   --c-brown:#8C7361;
   --c-sand:#D2AF94;
   --c-white:#ffffff;
   --c-text:#e9f2f2;
 
   --blur: 16px;
-  --glass-bg: rgba(0,45,55,.22);
+  --glass-bg: rgba(0,0,0,0,25);
   --glass-brd: rgba(214, 214, 214, .18);
   --rad: 16px;
   --rad-pill: 24px;
