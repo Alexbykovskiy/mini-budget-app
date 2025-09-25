@@ -1382,13 +1382,20 @@ function renderClients(){
     srcSel.dataset.filled = '1';
   }
 
-  let arr = [...(AppState.clients || [])];
-// сортировка
+ let arr = [.(AppState.clients || [])];
+
 const sortMode = $('#sortClients')?.value || 'updatedAt';
-if (sortMode === 'name') {
-  arr.sort((a,b) => (a.displayName||'').localeCompare(b.displayName||''));
-} else {
-  arr.sort((a,b) => (b.updatedAt||'').localeCompare(a.updatedAt||''));
+
+// helpers
+const byName    = (a,b) => (a.displayName || '').localeCompare(b.displayName || '');
+const byUpdated = (a,b) => (b.updatedAt || '').localeCompare(a.updatedAt || '');
+const fc = (c) => String(c.firstcontactdate || c.firstContactDate || c.firstContact || ''); // канон + легаси
+const byFirst   = (a,b) => fc(b).localeCompare(fc(a)); // новые сверху, старые снизу
+
+switch (sortMode) {
+  case 'name':  arr.sort(byName);    break;
+  case 'first': arr.sort(byFirst);   break;
+  default:      arr.sort(byUpdated); break;
 }
   if (term) arr = arr.filter(c => [c.displayName,c.phone,(c.styles||[]).join(',')].join(' ').toLowerCase().includes(term));
   if (src)  arr = arr.filter(c => c.source === src);
