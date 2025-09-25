@@ -976,7 +976,7 @@ dialog[open] .modal-body{
 .stat-card-results .mk-list { list-style: none; margin: 0; padding: 0; }
 .stat-card-results .mk-list li { padding: 3px 0; display: flex; justify-content: space-between; gap: 8px; }
 .stat-card-results .mk-list .left { overflow: hidden; text-overflow: ellipsis; }
-.stat-card-results .mk-list .right { font-weight: 700; opacity: .9; }
+.stat-card-results .mk-list .right { font-weight: 400; opacity: .75; }
 .stat-card-results .mk-link { text-decoration: underline dotted; cursor: pointer; }
 
 
