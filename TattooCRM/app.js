@@ -1067,6 +1067,33 @@ async function renderFullCalendar() {
   }
 }
 
+// --- Sync единственного напоминания в Google Calendar ---
+async function syncReminderToCalendar(rem) {
+  try {
+    if (!window.TCRM_Calendar) return;
+    const token = await ensureDriveAccessToken({ forceConsent: false });
+    if (!token) return;
+
+    TCRM_Calendar.setAuthToken(token);
+    const calId = await TCRM_Calendar.ensureCalendarId('Tattoo CRM');
+
+    // попробуем найти клиента для описания события
+    const client = (window.AppState?.clients || []).find(c => c.id === rem.clientId) || null;
+
+    const eid = await TCRM_Calendar.upsertReminderEvent(calId, rem, client);
+    if (eid && rem.gcalEventId !== eid) {
+      rem.gcalEventId = eid;
+      await FB.db.collection('TattooCRM').doc('app')
+        .collection('reminders').doc(rem.id)
+        .set({ gcalEventId: eid }, { merge: true });
+    }
+  } catch (e) {
+    console.warn('syncReminderToCalendar', e);
+  }
+}
+
+
+
    async function renderTodayCalendar() {
   const el = document.querySelector('#todayCalendar');
   if (!el) return;
@@ -4239,6 +4266,53 @@ async function migrateAllToGoogleCalendar() {
 }
 window.tcrmMigrateToGoogleCalendar = migrateAllToGoogleCalendar;
 
+// --- Одноразовая миграция всех данных в Google Calendar ---
+async function migrateAllToGoogleCalendar() {
+  try {
+    // авторизация
+    const token = await ensureDriveAccessToken({ forceConsent: true });
+    if (!token) { toast && toast('Нет токена Google'); return; }
+
+    TCRM_Calendar.setAuthToken(token);
+    const calId = await TCRM_Calendar.ensureCalendarId('Tattoo CRM');
+
+    // 1) Клиенты: консультации и сеансы
+    const cs = await FB.db.collection('TattooCRM').doc('app').collection('clients').get();
+    for (const doc of cs.docs) {
+      const client = doc.data();
+      try {
+        await syncClientToCalendar(null, client);
+        // запишем обновлённые gcal id обратно, если появились
+        const patch = {};
+        if (client.gcalConsultEventId) patch.gcalConsultEventId = client.gcalConsultEventId;
+        if (Array.isArray(client.sessions)) patch.sessions = client.sessions;
+        if (Object.keys(patch).length) await doc.ref.set(patch, { merge: true });
+      } catch (e1) {
+        console.warn('sync client fail', client?.id, e1);
+      }
+      await new Promise(r => setTimeout(r, 150)); // троттлинг
+    }
+
+    // 2) Напоминания
+    const rs = await FB.db.collection('TattooCRM').doc('app').collection('reminders').get();
+    for (const d of rs.docs) {
+      const rem = d.data();
+      try { await syncReminderToCalendar(rem); } 
+      catch (e2) { console.warn('sync reminder fail', rem?.id, e2); }
+      await new Promise(r => setTimeout(r, 120));
+    }
+
+    toast && toast('Миграция завершена');
+    console.log('[migrate] done');
+  } catch (e) {
+    console.error('migrateAllToGoogleCalendar', e);
+    toast && toast('Ошибка миграции (смотри консоль)');
+  }
+}
+
+// вынесем в глобал, чтобы вызывать из консоли
+window.tcrmMigrateToGoogleCalendar = migrateAllToGoogleCalendar;
+
 
 // Инициализация карточек
 document.addEventListener('DOMContentLoaded', async () => {
@@ -4282,7 +4356,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         mkRenderCardTotals(totals2);
       });
     }
-
+const btnMig = document.getElementById('btnMigrateAll');
+if (btnMig) btnMig.addEventListener('click', () => {
+  if (window.tcrmMigrateToGoogleCalendar) window.tcrmMigrateToGoogleCalendar();
+});
    // --- Карточка №6: Финансы ---
     // единый апдейтер (функция будет ниже в файле)
     mkUpdateFinanceCard();
