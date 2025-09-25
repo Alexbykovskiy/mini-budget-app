@@ -712,11 +712,18 @@ async function createPostSessionReminders(client, sessionISO, titles) {
       date: ymd, title, createdAt: new Date().toISOString()
     };
     await FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(id).set(doc);
+
+    // ⬇️ ДОБАВЛЯЕМ: синхронизируем каждый follow-up reminder
+    try { 
+      await syncReminderToCalendar(doc); 
+    } catch(eSync) { 
+      console.warn('follow-up sync fail', eSync); 
+    }
+
     ids.push(id);
   }
   return ids;
 }
-
 // Форматировать YYYY-MM-DD в "21 декабря 2025 г."
 function formatDateHuman(ymd) {
   if (!ymd) return '';
@@ -960,25 +967,46 @@ if (ev.kind === 'reminder' && ev.id) {
   btn.style.padding = '2px 8px';
 
   btn.addEventListener('click', async (e) => {
-    // ключевой анти-залипательный блок
-    e.stopPropagation();   // не даём клику подняться до карточки (чтобы та не открывала клиента)
-    e.preventDefault();    // на всякий случай — никаких дефолтных действий
+  e.stopPropagation();
+  e.preventDefault();
 
-    const ok = await confirmDlg('Удалить это напоминание?');
-    if (!ok) return;
+  const ok = await confirmDlg('Удалить это напоминание?');
+  if (!ok) return;
+
+  try {
+    // 1) Прочитаем документ, чтобы получить gcalEventId
+    const remRef = FB.db.collection('TattooCRM').doc('app')
+      .collection('reminders').doc(ev.id);
+    const snap = await remRef.get();
+    const gcalId = snap.exists ? (snap.data()?.gcalEventId || null) : null;
+
+    // 2) Если есть событие в Google — удалим его
     try {
-      await FB.db.collection('TattooCRM').doc('app')
-        .collection('reminders').doc(ev.id).delete();
-
-      // локально убираем строку, либо дождёмся snapshot
-      if (row && row.remove) row.remove();
-
-      toast('Напоминание удалено');
-    } catch (e2) {
-      console.warn(e2);
-      toast('Не удалось удалить напоминание');
+      if (gcalId && window.TCRM_Calendar) {
+        const token = await ensureDriveAccessToken({ forceConsent: false }); // как в рендере календаря
+        if (token) {
+          TCRM_Calendar.setAuthToken(token);
+          const calId = await TCRM_Calendar.ensureCalendarId('Tattoo CRM');
+          await TCRM_Calendar.deleteEvent(calId, gcalId);
+        }
+      }
+    } catch (gerr) {
+      // не падаем, просто лог
+      console.warn('calendar reminder delete', gerr);
     }
-  });
+
+    // 3) Удалим сам документ напоминания в Firestore
+    await remRef.delete();
+
+    // 4) Локально уберём строку (или подождём snapshot)
+    if (row && row.remove) row.remove();
+
+    toast('Напоминание удалено');
+  } catch (e2) {
+    console.warn(e2);
+    toast('Не удалось удалить напоминание');
+  }
+});
 
   row.appendChild(btn);
 }
@@ -1191,6 +1219,29 @@ if (!gapi.client.calendar || !gapi.client.calendar.events) {
 // Доступно из консоли:
 window.tcrmCalTest = testCalendarOnce;
 
+
+async function syncReminderToCalendar(rem) {
+  if (!window.TCRM_Calendar) return;
+  try {
+    const token = await ensureDriveAccessToken({ forceConsent: false });
+    if (!token) return;
+    TCRM_Calendar.setAuthToken(token);
+    const calId = await TCRM_Calendar.ensureCalendarId('Tattoo CRM');
+
+    // найдём клиента, чтобы подставить имя в description
+    const client = (AppState.clients || []).find(c => c.id === rem.clientId) || null;
+
+    const eid = await TCRM_Calendar.upsertReminderEvent(calId, rem, client);
+    if (eid && rem.gcalEventId !== eid) {
+      rem.gcalEventId = eid;
+      await FB.db.collection('TattooCRM').doc('app')
+        .collection('reminders').doc(rem.id)
+        .set({ gcalEventId: eid }, { merge: true });
+    }
+  } catch (e) {
+    console.warn('syncReminderToCalendar', e);
+  }
+}
 
 // ---------- Clients ----------
 function bindClientsModal(){
@@ -2314,6 +2365,18 @@ notes: $('#fNotes').value.trim(),
     const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
     // 1) Сохраняем клиента
 await ref.set(client, { merge:true });
+
+// После await ref.set(client, { merge: true });
+try {
+  await syncClientToCalendar(prevClient, client);
+  const patch = {};
+  if (client.gcalConsultEventId) patch.gcalConsultEventId = client.gcalConsultEventId;
+  if (Array.isArray(client.sessions)) patch.sessions = client.sessions;
+  if (Object.keys(patch).length) await ref.set(patch, { merge: true });
+} catch (e) {
+  console.warn('calendar sync failed', e);
+}
+
 // NEW: зафиксируем смену статуса
 try { await logStatusChange(id, prevStatus, $('#fStatus').value); } catch(_) {}
 
@@ -2368,10 +2431,18 @@ try {
         };
 
         await FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(remId).set(reminder);
+
+        // ⬇️ ДОБАВЛЯЕМ: синхронизируем с Google Calendar
+        try { 
+          await syncReminderToCalendar(reminder); 
+        } catch(eSync) { 
+          console.warn('autoReminder sync fail', eSync); 
+        }
       }
     } catch (e) {
       console.warn('autoReminder', e);
     }
+
     toast('Сохранено');
   } catch(e) {
     console.warn('saveClientFromDialog', e);
@@ -2397,13 +2468,40 @@ async function deleteClientFromDialog(){
     const folderId = data?.driveFolderId || null;
 
     // 3) Удалим связанные напоминания (если создавались автосозданием)
-    const rs = await FB.db.collection('TattooCRM').doc('app').collection('reminders')
-      .where('clientId', '==', id).get();
-    const batch = FB.db.batch();
-    rs.forEach(d => {
-      batch.delete(FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(d.id));
-    });
-    await batch.commit();
+const rs = await FB.db.collection('TattooCRM').doc('app').collection('reminders')
+  .where('clientId', '==', id).get();
+
+// 3.1) Попробуем удалить их события в Google Calendar (если есть)
+try {
+  if (window.TCRM_Calendar) {
+    const token = await ensureDriveAccessToken({ forceConsent: false });
+    if (token) {
+      TCRM_Calendar.setAuthToken(token);
+      const calId = await TCRM_Calendar.ensureCalendarId('Tattoo CRM');
+
+      for (const d of rs.docs) {
+        const data = d.data() || {};
+        const gcalId = data.gcalEventId || null;
+        if (gcalId) {
+          try {
+            await TCRM_Calendar.deleteEvent(calId, gcalId);
+          } catch (eDel) {
+            console.warn('calendar reminder delete (client)', gcalId, eDel);
+          }
+        }
+      }
+    }
+  }
+} catch (gerr) {
+  console.warn('calendar bulk delete (client)', gerr);
+}
+
+// 3.2) Теперь удалим документы напоминаний из Firestore (как было)
+const batch = FB.db.batch();
+rs.forEach(d => {
+  batch.delete(FB.db.collection('TattooCRM').doc('app').collection('reminders').doc(d.id));
+});
+await batch.commit();
 
     // 4) Удалим сам документ клиента в Firestore — КЛЮЧЕВО!
     await ref.delete();
@@ -4103,6 +4201,43 @@ function mkResetFilters() {
   // перерисовать результаты
   mkRenderResults(MK_CLIENTS_CACHE);
 }
+
+
+// Одноразовая миграция всех существующих консультаций/сеансов/напоминаний в Google Calendar
+async function migrateAllToGoogleCalendar() {
+  try {
+    const token = await ensureDriveAccessToken({ forceConsent: true });
+    if (!token) { toast('Нет токена Google'); return; }
+    TCRM_Calendar.setAuthToken(token);
+    const calId = await TCRM_Calendar.ensureCalendarId('Tattoo CRM');
+
+    // 1) Клиенты — синк консультаций/сеансов
+    const cs = await FB.db.collection('TattooCRM').doc('app').collection('clients').get();
+    for (const doc of cs.docs) {
+      const client = doc.data();
+      await syncClientToCalendar(null, client);
+      const patch = {};
+      if (client.gcalConsultEventId) patch.gcalConsultEventId = client.gcalConsultEventId;
+      if (Array.isArray(client.sessions)) patch.sessions = client.sessions;
+      if (Object.keys(patch).length) await doc.ref.set(patch, { merge: true });
+      await new Promise(r => setTimeout(r, 200)); // лёгкий троттлинг
+    }
+
+    // 2) Напоминания
+    const rs = await FB.db.collection('TattooCRM').doc('app').collection('reminders').get();
+    for (const d of rs.docs) {
+      const rem = d.data();
+      await syncReminderToCalendar(rem);
+      await new Promise(r => setTimeout(r, 150));
+    }
+
+    toast('Миграция завершена');
+  } catch (e) {
+    console.error('migrateAllToGoogleCalendar', e);
+    toast('Ошибка миграции (консоль)');
+  }
+}
+window.tcrmMigrateToGoogleCalendar = migrateAllToGoogleCalendar;
 
 
 // Инициализация карточек
