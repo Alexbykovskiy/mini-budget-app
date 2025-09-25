@@ -1476,3 +1476,21 @@ dialog[open] .modal-body{
 #calendarUI {
   min-height: 620px;
 }
+
+
+/* --- Marketing: Leads chart box --- */
+.mk-chart-box{
+  width:50%;                 /* как просил: половина ширины таблицы/контейнера */
+  padding:10px;
+}
+.mk-chart-box .chip{
+  padding:6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  font-size: 12px;
+}
+@media (max-width: 1024px){
+  .mk-chart-box{ width:100%; }
+  .mk-chart-box .chart-wrap{ height:240px; }
+}

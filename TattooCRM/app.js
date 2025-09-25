@@ -2906,14 +2906,21 @@ function mkRenderLeadsChart(){
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
-      plugins: {
-  legend: { display: false },
-  title: { display: true, text: mkMonthHuman(ym) }
+     plugins: {
+  legend: { display: true, position: 'bottom' },
+  title:  { display: true, text: mkMonthHuman(ym) }
 },
-      scales: {
-        x: { title:{ display:true, text:'Дни'} },
-        y: { title:{ display:true, text:'Количество лидов'}, beginAtZero:true, ticks:{ precision:0 } }
-      }
+scales: {
+  x: {
+    title:{ display:true, text:'Дни' },
+    ticks:{ autoSkip:false, maxRotation:70, minRotation:50 } // диагональные подписи
+  },
+  y: {
+    title:{ display:true, text:'Количество лидов' },
+    beginAtZero:true,
+    ticks:{ precision:0 }
+  }
+}
     }
   };
 

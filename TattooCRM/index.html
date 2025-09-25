@@ -442,6 +442,21 @@
     </tbody>
   </table>
 </div>
+<!-- График: Дни \ Лиды -->
+<div class="glass mk-chart-box" style="margin:12px 0">
+  <div class="row chart-head" style="justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px">
+    <h3 style="margin:0">Дни \ Лиды</h3>
+    <div class="controls" style="display:flex; gap:8px; align-items:center">
+      <select id="mkChartMonth" class="chip"></select>
+      <label class="chip"><input type="radio" name="mkChartMode" value="all" checked> Все</label>
+      <label class="chip"><input type="radio" name="mkChartMode" value="cold"> Холодные</label>
+      <label class="chip"><input type="radio" name="mkChartMode" value="warm"> Не холодные</label>
+    </div>
+  </div>
+  <div class="chart-wrap" style="position:relative; height:280px">
+    <canvas id="mkLeadsChart"></canvas>
+  </div>
+</div>
   <table class="mk-table">
     <thead>
       <tr>
@@ -663,8 +678,14 @@
  <script src="./drive.js"></script>
 <script src="calendar.js"></script>
 
+<!-- Chart.js для графика лидов -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
 <!-- FullCalendar (JS) — НУЖНО -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+
+
+
 
 <script src="./app.js"></script>
 </div> <!-- .container -->
