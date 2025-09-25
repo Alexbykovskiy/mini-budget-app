@@ -1382,8 +1382,7 @@ function renderClients(){
     srcSel.dataset.filled = '1';
   }
 
- let arr = [.(AppState.clients || [])];
-
+let arr = [...(AppState.clients || [])];
 const sortMode = $('#sortClients')?.value || 'updatedAt';
 
 // helpers
