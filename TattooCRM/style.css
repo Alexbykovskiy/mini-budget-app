@@ -1478,47 +1478,43 @@ dialog[open] .modal-body{
 }
 
 
-/* --- Marketing: Leads chart box --- */
 .mk-chart-box{
   width:100%;
   padding: 8px 12px 10px;
   box-sizing: border-box;
 }
+
+/* Заголовок слева, фильтры справа — в одну строку */
 .mk-chart-head{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:12px;
+  gap:16px;
   margin-bottom:6px;
+  flex-wrap:nowrap;                 /* не переносить */
 }
 .mk-chart-title{
   margin:0;
   font-size:16px;
   font-weight:700;
   line-height:1.2;
+  flex:0 0 auto;
 }
 .mk-chart-controls{
   display:flex;
   align-items:center;
+  justify-content:flex-end;
   gap:8px;
-  flex-wrap:wrap;
-}
-.mk-chart-box .chip{
-  padding:6px 10px;
-  border-radius: 999px;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.12);
-  font-size: 12px;
-}
-.mk-chart-wrap{
-  position:relative;
-  height:300px;              /* при необходимости 280–320 */
-}
-.mk-chart-wrap canvas{
-  display:block;
-  width:100% !important;
-  height:100% !important;
+  flex:1 1 auto;
+  flex-wrap:nowrap;                 /* держим в одной строке */
+  white-space:nowrap;               /* текст на чипах не ломать */
 }
 
-/* Больше не нужны, можно оставить — не мешают; можно удалить: */
-/* .mk-chart-box .countries, .chip-check {...} */
+/* чипы делаем компактнее, чтобы влезали справа */
+.mk-chart-box .chip{
+  padding:6px 10px;
+  border-radius:999px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  font-size:12px;
+}
