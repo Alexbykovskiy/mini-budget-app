@@ -1127,10 +1127,10 @@ dialog[open] .modal-body{
   min-width: 0;
   font-size: var(--tc-fs-text);
   line-height: 1.25;
-  opacity: .95;
+  font-weight: 300;       /* тонкий шрифт */
+  opacity: .8;            /* чуть мягче */
   overflow-wrap: anywhere;
 }
-
 #mk-card-totals.totals-card .tc-value{
   flex: 0 0 auto;
   font-size: var(--tc-fs-text);
@@ -1139,6 +1139,7 @@ dialog[open] .modal-body{
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+
 
 #mk-card-totals.totals-card .tc-date{
   font-size: var(--tc-fs-text);
@@ -1173,6 +1174,76 @@ dialog[open] .modal-body{
 /* подстраховка: списки строго вертикально */
 #mk-card-totals.totals-card .tc-list { list-style: none; margin: 0; padding: 0; display: block; }
 #mk-card-totals.totals-card .tc-row  { display: flex; align-items: baseline; gap: 10px; padding: 3px 0; }
+
+
+/* ================= Card #6: Finance ================= */
+#mk-card-finance {
+  display: block !important;     /* как инфо-карты 1–5 */
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: left;
+  padding: 12px 14px;            /* единые внутренние отступы */
+}
+
+/* Заголовок карточки — жирный, как в других */
+#mk-card-finance .mk-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+}
+
+/* Строка чекбокса — компактная, как подзаголовок */
+#mk-card-finance .mk-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 2px 0 8px 0;
+  cursor: pointer;
+}
+
+/* Чекбокс визуально как в superfilter (.mk-check) */
+#mk-card-finance .mk-switch input[type="checkbox"] {
+  appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.6);
+  display: inline-block;
+  position: relative;
+  margin: 0;
+}
+#mk-card-finance .mk-switch input[type="checkbox"]:checked {
+  background: rgba(255,255,255,.9);
+  border-color: rgba(255,255,255,1);
+}
+
+/* Список метрик — как у карточек 1–4 */
+#mk-finance-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: block;
+}
+#mk-finance-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 0;
+}
+
+/* Подписи тонкие, значения жирные — единая логика */
+#mk-finance-list .label {
+  font-weight: 300;      /* тонкий */
+  opacity: .9;
+}
+#mk-finance-list .value {
+  font-weight: 700;      /* жирный */
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
 
 /* ===== Marketing Table ===== */
 .mk-table {
