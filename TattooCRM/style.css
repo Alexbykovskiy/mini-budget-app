@@ -1494,3 +1494,22 @@ dialog[open] .modal-body{
   .mk-chart-box{ width:100%; }
   .mk-chart-box .chart-wrap{ height:240px; }
 }
+
+/* --- Marketing: country chips for leads chart --- */
+.mk-chart-box .countries { display:flex; gap:6px; align-items:center; }
+.chip-check { position: relative; display:inline-flex; }
+.chip-check input { position:absolute; inset:0; opacity:0; pointer-events:auto; }
+.chip-check span{
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:999px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  font-size:12px;
+  user-select:none;
+}
+.chip-check input:checked + span{
+  background: rgba(255,255,255,.14);
+  border-color: rgba(255,255,255,.24);
+  font-weight:600;
+}

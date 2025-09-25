@@ -681,6 +681,8 @@ function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;',
 
 function pad2(n){ return n < 10 ? '0'+n : ''+n; }
 
+
+
 // Вернуть локальную YYYY-MM-DD для объекта Date (без UTC-сдвига)
 function ymdLocal(dt){
   return `${dt.getFullYear()}-${pad2(dt.getMonth()+1)}-${pad2(dt.getDate())}`;
@@ -692,6 +694,14 @@ function addDaysLocal(dateObj, days){
                      dateObj.getHours(), dateObj.getMinutes(), 0, 0);
   d.setDate(d.getDate() + days);
   return d;
+}
+
+// === Leads Chart: выбранные страны из чекбоксов ===
+function mkSelectedCountries(){
+  const box = document.getElementById('mkChartCountries');
+  if (!box) return ['RU','SK','EN','AT','DE']; // дефолт, если блок ещё не смонтирован
+  return Array.from(box.querySelectorAll('input[type="checkbox"]:checked'))
+    .map(i => (i.value || '').toUpperCase());
 }
 
 
