@@ -1383,7 +1383,12 @@ function renderClients(){
   }
 
 let arr = [...(AppState.clients || [])];
-const sortMode = $('#sortClients')?.value || 'updatedAt';
+const sel = $('#sortClients');
+if (sel && !sel.dataset.init) {  // выставляем один раз
+  sel.value = sel.value || 'first';
+  sel.dataset.init = '1';
+}
+const sortMode = $('#sortClients')?.value || 'first';
 
 // helpers
 const byName    = (a,b) => (a.displayName || '').localeCompare(b.displayName || '');
