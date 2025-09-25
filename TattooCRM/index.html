@@ -408,7 +408,7 @@
 
    <div id="mkHistory" class="glass" style="padding:10px; overflow-x:auto">
 
- <div class="card glass" style="margin-bottom:12px; padding:10px">
+<div class="card glass mk-form" style="margin-bottom:12px; padding:10px">
   <table style="width:100%; border-collapse:collapse; text-align:center">
     <thead>
       <tr>
@@ -422,16 +422,16 @@
     <tbody>
       <tr>
         <td>
-          <input type="date" id="mkDate" style="width:100%">
+          <input type="date" id="mkDate" class="chip mk-pill-input">
         </td>
         <td>
-          <input type="time" id="mkTime" style="width:100%">
+          <input type="time" id="mkTime" class="chip mk-pill-input">
         </td>
         <td>
-          <input type="number" id="mkDelta" placeholder="+0" style="width:100%">
+          <input type="number" id="mkDelta" class="chip mk-pill-input" placeholder="+0" inputmode="numeric">
         </td>
         <td>
-          <input type="number" id="mkSpentTotal" placeholder="€" style="width:100%">
+          <input type="number" id="mkSpentTotal" class="chip mk-pill-input" placeholder="€" inputmode="decimal">
         </td>
         <td>
           <button type="button" class="btn success" id="saveMkBtn">Сохранить</button>
@@ -440,7 +440,6 @@
     </tbody>
   </table>
 </div>
-
   <table class="mk-table">
     <thead>
       <tr>
