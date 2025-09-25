@@ -1480,8 +1480,9 @@ dialog[open] .modal-body{
 
 /* --- Marketing: Leads chart box --- */
 .mk-chart-box{
-  width:50%;                 /* как просил: половина ширины таблицы/контейнера */
-  padding:10px;
+  width:100%;               
+   padding: 8px 12px 10px;     /* маленькие паддинги: сверху/слева-справа/снизу */
+  box-sizing: border-box;
 }
 .mk-chart-box .chip{
   padding:6px 10px;
@@ -1491,8 +1492,7 @@ dialog[open] .modal-body{
   font-size: 12px;
 }
 @media (max-width: 1024px){
-  .mk-chart-box{ width:100%; }
-  .mk-chart-box .chart-wrap{ height:240px; }
+  .mk-chart-box .chart-wrap{ height:260px; }
 }
 
 /* --- Marketing: country chips for leads chart --- */

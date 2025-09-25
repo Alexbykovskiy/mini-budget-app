@@ -2960,6 +2960,16 @@ function mkBindLeadsChartControls(){
       r.addEventListener('change', mkRenderLeadsChart);
     });
   }
+// --- чекбоксы стран ---
+  const countriesBox = document.getElementById('mkChartCountries');
+  if (countriesBox && !countriesBox.dataset.bound) {
+    countriesBox.addEventListener('change', (e) => {
+      if (e.target && e.target.matches('input[type="checkbox"]')) {
+        mkRenderLeadsChart(); // перерисовываем график при переключении стран
+      }
+    });
+    countriesBox.dataset.bound = '1';
+  }
 }
 
 
