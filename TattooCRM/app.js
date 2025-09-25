@@ -1822,7 +1822,13 @@ const fSourceSel = $('#fSource'); if (fSourceSel) fSourceSel.value = c?.source |
 {
   const firstContactEl = $('#fFirstContact');
   if (firstContactEl) {
-    const legacyFCD = c?.firstContactDate || c?.firstContact || c?.first_contact || '';
+    // читаем приоритетно новый ключ firstcontactdate, затем легаси-варианты
+  const legacyFCD =
+      c?.firstcontactdate
+  || c?.firstContactDate
+   || c?.firstContact
+   || c?.first_contact
+   || '';
     // Новый клиент → сегодня; существующий → что было (или пусто)
     firstContactEl.value = isNew ? ymdLocal(new Date()) : (legacyFCD || '');
   }
@@ -2016,6 +2022,71 @@ async function openClientById(clientId){
   }
 }
 
+// === One-time migration: normalize to "firstcontactdate" ===
+async function migrateFirstContactDate() {
+  const col = FB.db.collection('TattooCRM').doc('app').collection('clients');
+  const snap = await col.get();
+
+  let batch = FB.db.batch();
+  let count = 0, writes = 0;
+  for (const doc of snap.docs) {
+    const c = doc.data() || {};
+    // возьмём значение из любого известного поля
+    const fcd =
+         c.firstcontactdate
+      || c.firstContactDate
+      || c.firstContact
+      || c.first_contact
+      || '';
+
+    if (!fcd) continue;
+
+    // пишем каноническое поле + оставляем дубликаты для обратной совместимости
+    batch.set(doc.ref, {
+      firstcontactdate: fcd,
+      firstContactDate: fcd,
+      firstContact:     fcd,
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+
+    writes++;
+    // батчим безопасно пачками < 500
+    if (writes >= 400) {
+      await batch.commit();
+      batch = FB.db.batch();
+      writes = 0;
+    }
+    count++;
+  }
+
+  if (writes) await batch.commit();
+  console.log('migrateFirstContactDate: updated docs =', count);
+}
+
+// (опционально) Чистка легаси-полей — запускать только когда убедишься, что в UI всё ок:
+async function cleanupLegacyFirstContactFields() {
+  const col = FB.db.collection('TattooCRM').doc('app').collection('clients');
+  const snap = await col.get();
+  let batch = FB.db.batch(); let writes = 0, count = 0;
+
+  for (const doc of snap.docs) {
+    const c = doc.data() || {};
+    if (!c.firstcontactdate) continue; // безопасно: чистим только когда уже есть канон
+
+    batch.set(doc.ref, {
+      firstContactDate: firebase.firestore.FieldValue.delete?.() ?? undefined,
+      firstContact:     firebase.firestore.FieldValue.delete?.() ?? undefined,
+      first_contact:    firebase.firestore.FieldValue.delete?.() ?? undefined,
+    }, { merge: true });
+
+    writes++; count++;
+    if (writes >= 400) { await batch.commit(); batch = FB.db.batch(); writes = 0; }
+  }
+
+  if (writes) await batch.commit();
+  console.log('cleanupLegacyFirstContactFields: cleaned docs =', count);
+}
+
 // --- Cold Lead Mode ---
 // Прячет лишние поля, если выбран статус "Холодный лид"
 // --- Cold Lead Mode ---
@@ -2105,7 +2176,9 @@ if (statusVal === 'Холодный лид') {
     link: $('#fLink').value.trim() || '',
 
     // важное: пишем в оба поля
-    firstContactDate: fcd,
+   // canonical: firstcontactdate + дубликаты для обратной совместимости
+   firstcontactdate: fcd,
+   firstContactDate: fcd,
     firstContact:     fcd,
 
     lang: $('#fLang').value || '',
@@ -2161,7 +2234,18 @@ if (amountMax != null && amountMin == null) amountMin = amountMax;
 if (amountMin != null && amountMax != null && amountMin > amountMax) {
   const t = amountMin; amountMin = amountMax; amountMax = t;
 }
-
+// --- First Contact Date (общий кейс) ---
+{
+  const prev = (AppState.clients || []).find(x => x.id === id) || {};
+  const inputFCD = ($('#fFirstContact').value || '').trim();
+  var fcd =
+      inputFCD
+   || prev.firstcontactdate
+   || prev.firstContactDate
+   || prev.firstContact
+   || prev.first_contact
+   || (isNew ? ymdLocal(new Date()) : '');
+}
  const client = {
   id,
   displayName,
@@ -2171,6 +2255,10 @@ source: $('#fSource').value.trim(),
 lang: $('#fLang').value || '',
 gender: $('#fGender').value || '',
 
+// canonical: firstcontactdate + дубликаты для обратной совместимости
+firstcontactdate: fcd,
+firstContactDate: fcd,
+firstContact:     fcd,
 
 first: ($('#fFirst').value === 'true'),
   type: $('#fType').value.trim(),
