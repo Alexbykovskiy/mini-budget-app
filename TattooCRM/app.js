@@ -2649,8 +2649,11 @@ function mkBuildDailyFirstContactsStats(clients) {
   const list = Array.isArray(clients) ? clients : [];
   for (const c of list) {
     // 1) дата первого обращения
-    let ymd = String(c?.firstContactDate || '').slice(0, 10);
-    if ((!ymd || ymd.length !== 10) && typeof ymdOf === 'function') ymd = ymdOf(c?.firstContactDate);
+   // поддерживаем канон firstcontactdate + легаси firstContactDate
+let ymd = String(c?.firstcontactdate || c?.firstContactDate || '').slice(0, 10);
+if ((!ymd || ymd.length !== 10) && typeof ymdOf === 'function') {
+  ymd = ymdOf(c?.firstcontactdate || c?.firstContactDate);
+}
     if (!ymd) continue;
 
     // 2) язык/страна (только наши 5 кодов)
@@ -2674,7 +2677,7 @@ function mkBuildDailyFirstContactsStats(clients) {
 function mkListMonthsFromClients(clients){
   const set = new Set();
   (Array.isArray(clients)?clients:[]).forEach(c=>{
-    const ymd = String(c?.firstContactDate || '').slice(0,10);
+    const ymd = String(c?.firstcontactdate || c?.firstContactDate || '').slice(0,10);
     if (ymd && ymd.length===10) set.add(ymd.slice(0,7)); // YYYY-MM
   });
   return Array.from(set).sort(); // по возрастанию
