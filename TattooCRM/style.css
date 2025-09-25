@@ -1041,6 +1041,47 @@ dialog[open] .modal-body{
   padding: 4px 10px;
 }
 
+
+/* --- Marketing → Card #4 (Конверсия из лидов) --- */
+.stat-card-conv {
+  display: block !important;
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: left;
+  padding: 12px 14px;
+}
+
+.stat-card-conv .mk-card-title {
+  font-size: 14px;
+  font-weight: 700;  /* жирный заголовок */
+  margin-bottom: 6px;
+}
+
+.stat-card-conv .mk-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: block !important;
+}
+
+.stat-card-conv .mk-list .mk-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 0;
+}
+
+.stat-card-conv .mk-list .label {
+  font-weight: 300;       /* тонкий */
+  font-style: italic;     /* курсив */
+  opacity: .85;
+}
+
+.stat-card-conv .mk-list .value {
+  font-weight: 600;       /* значения чуть жирнее, чтобы выделялись */
+}
+
+
 /* ================= Card #5: isolated styles ================= */
 #mk-card-totals.totals-card {
   /* оставляем внешний "glass" от оболочки .stat-card .glass */
