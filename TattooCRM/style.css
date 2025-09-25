@@ -302,13 +302,7 @@ body {
   border-radius: inherit;
   pointer-events: none;
   z-index: 2;
-  background:
-    linear-gradient(135deg,
-      rgba(255,255,255,0.36) 0%,
-      rgba(255,255,255,0.15) 32%,
-      rgba(255,255,255,0.00) 68%
-    );
-}
+  }
 .glass::after, .card::after, .card-client::after,
 .modal-body::after, .toolbar::after, .tabbar::after {
   content: "";
@@ -318,11 +312,7 @@ body {
   pointer-events: none;
   z-index: 3;
   border: 1.5px solid transparent;
-  background: linear-gradient(135deg, rgba(255,255,255,0.50) 15%, rgba(255,255,255,0.00) 90%) border-box;
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0) border-box;
-  -webkit-mask-composite: xor;
+    -webkit-mask-composite: xor;
   mask:
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0) border-box;
