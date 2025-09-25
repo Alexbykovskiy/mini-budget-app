@@ -481,13 +481,20 @@ renderFullCalendar();
 // ---------- Firestore realtime ----------
 function listenClientsRealtime(){
   FB.db.collection('TattooCRM').doc('app').collection('clients')
-    .orderBy('updatedAt', 'desc')   // базовая сортировка
+    .orderBy('updatedAt', 'desc')
     .onSnapshot((qs)=>{
       AppState.clients = [];
       qs.forEach(d => AppState.clients.push(d.data()));
-      renderClients();   // внутри будем сортировать по выбору
+      renderClients();
       renderToday();
-// обновляем график, если открыта вкладка маркетинга
+     // ВАЖНО: после загрузки клиентов пересобрать таблицу маркетинга
+     renderMarketing();
+
+      // если открыта вкладка маркетинга — обновим график тоже
+      if (document.querySelector('[data-tab="marketingPage"]').classList.contains('is-active')) {
+        mkBindLeadsChartControls();
+        mkRenderLeadsChart();
+      }// обновляем график, если открыта вкладка маркетинга
 if (document.querySelector('[data-tab="marketingPage"]').classList.contains('is-active')) {
   mkBindLeadsChartControls();
   mkRenderLeadsChart();
