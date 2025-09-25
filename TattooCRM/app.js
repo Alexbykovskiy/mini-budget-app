@@ -3271,6 +3271,7 @@ async function saveMarketingEntry(){
 
   const delta = Number($('#mkDelta').value || 0);          // +подписчики
   const spentTotal = Number($('#mkSpentTotal').value || 0); // общий расход к дате
+setMkNowDefaults();
 
   const id = `mk_${date}_${time.replace(':','')}`;
   const entry = { id, date, time, delta, spentTotal };
@@ -3294,6 +3295,17 @@ async function saveMarketingEntry(){
     toast('Ошибка сохранения маркетинга');
   }
 }
+function setMkNowDefaults(){
+  const now = new Date();
+  const dEl = document.getElementById('mkDate');
+  const tEl = document.getElementById('mkTime');
+const cut = document.getElementById('mkPotentialUntil');
+if (cut && !cut.value) cut.value = ymdLocal(new Date());
+  if (dEl && !dEl.value) dEl.value = ymdLocal(now);                  // YYYY-MM-DD локально
+  if (tEl && !tEl.value) tEl.value = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`; // HH:MM
+}
+
+
 /** Привязка клика к кнопке Сохранить (однократно) */
 function bindMarketing(){
   const btn = document.getElementById('saveMkBtn');
@@ -3301,7 +3313,9 @@ function bindMarketing(){
     btn.dataset.bound = '1';
     btn.addEventListener('click', saveMarketingEntry);
   }
+  setMkNowDefaults(); // ← автозаполнить дату/время при открытии формы
 }
+
 
 /** Реалтайм-подписка на коллекцию marketing */
 function listenMarketingRealtime(){
