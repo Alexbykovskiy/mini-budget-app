@@ -9,12 +9,21 @@ window.TCRM_Calendar = (() => {
   let calendarId = null;
 
   // ---- utils ----
-  const TZ = 'Europe/Bratislava'; // твой таймзон по умолчанию
-  function ensureDateTimeLocal(s) {
-    // ожидаем 'YYYY-MM-DDTHH:MM'
-    // возвращаем {dateTime, timeZone}
-    return { dateTime: s, timeZone: TZ };
-  }
+  const TZ = 'Europe/Bratislava';
+
+// Приводим к 'YYYY-MM-DDTHH:MM:00'
+function ensureDateTimeLocal(s) {
+  // s: 'YYYY-MM-DDTHH:MM' или уже с секундами
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(s)) s = s + ':00';
+  return { dateTime: s, timeZone: TZ };
+}
+
+// Форматируем объект Date в локальное 'YYYY-MM-DDTHH:MM:00'
+function fmtLocal(dt) {
+  const pad = n => String(n).padStart(2, '0');
+  return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}` +
+         `T${pad(dt.getHours())}:${pad(dt.getMinutes())}:00`;
+}
   function allDayRange(ymd /* 'YYYY-MM-DD' */) {
     const d = new Date(`${ymd}T00:00:00`);
     const end = new Date(d);
@@ -92,14 +101,15 @@ window.TCRM_Calendar = (() => {
   async function upsertSessionEvent(calId, client, session /* {dt, price, gcalEventId?} */, opts = {}) {
     // сессия: старт=dt, длительность по умолчанию 3ч (можно поменять)
     const start = ensureDateTimeLocal(session.dt);
-    const endDate = new Date(session.dt);
-    endDate.setHours(endDate.getHours() + (opts.durationHours || 3));
-    const endISO = endDate.toISOString().slice(0,16); // 'YYYY-MM-DDTHH:MM'
-    const body = {
-      summary: `Сеанс: ${client.displayName || client.name || 'Без имени'}`,
-      description: client?.notes || '',
-      start, end: { dateTime: endISO, timeZone: TZ }
-    };
+const endDate = new Date(session.dt);
+endDate.setHours(endDate.getHours() + (opts.durationHours || 3));
+const endISO = fmtLocal(endDate);
+const body = {
+  summary: `Сеанс: ${client.displayName || client.name || 'Без имени'}`,
+  description: client?.notes || '',
+  start,
+  end: { dateTime: endISO, timeZone: TZ }
+};
     if (session.gcalEventId) {
       const up = await gapi.client.calendar.events.patch({
         calendarId: calId,
@@ -118,15 +128,16 @@ window.TCRM_Calendar = (() => {
 
   async function upsertConsultEvent(calId, client /* {consultDate:'YYYY-MM-DDTHH:MM', ...} */, opts = {}) {
     if (!client.consultDate) return null;
-    const start = ensureDateTimeLocal(client.consultDate);
-    const endDate = new Date(client.consultDate);
-    endDate.setMinutes(endDate.getMinutes() + (opts.durationMinutes || 30));
-    const endISO = endDate.toISOString().slice(0,16);
-    const body = {
-      summary: `Консультация: ${client.displayName || client.name || 'Без имени'}`,
-      description: client?.notes || '',
-      start, end: { dateTime: endISO, timeZone: TZ }
-    };
+   const start = ensureDateTimeLocal(client.consultDate);
+const endDate = new Date(client.consultDate);
+endDate.setMinutes(endDate.getMinutes() + (opts.durationMinutes || 30));
+const endISO = fmtLocal(endDate);
+const body = {
+  summary: `Консультация: ${client.displayName || client.name || 'Без имени'}`,
+  description: client?.notes || '',
+  start,
+  end: { dateTime: endISO, timeZone: TZ }
+};
     if (client.gcalConsultEventId) {
       const up = await gapi.client.calendar.events.patch({
         calendarId: calId,

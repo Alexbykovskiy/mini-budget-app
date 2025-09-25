@@ -375,6 +375,7 @@ function bindOnboarding() {
   btn.addEventListener('click', async () => {
     try {
       const provider = new firebase.auth.GoogleAuthProvider();
+
       provider.addScope('profile');
       provider.addScope('email');
      provider.addScope('https://www.googleapis.com/auth/drive.file');
@@ -392,7 +393,8 @@ provider.addScope('https://www.googleapis.com/auth/calendar.events'); // мож�
       provider.addScope('profile');
       provider.addScope('email');
       provider.addScope('https://www.googleapis.com/auth/drive.file');
-      provider.addScope('https://www.googleapis.com/auth/calendar.events');
+provider.addScope('https://www.googleapis.com/auth/calendar');
+provider.addScope('https://www.googleapis.com/auth/calendar.events');
 
       // Редирект — после возврата сработает getRedirectResult() выше
       await FB.auth.signInWithRedirect(provider);
