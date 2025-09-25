@@ -7,7 +7,7 @@
   --c-text:#e9f2f2;
 
   --blur: 16px;
-  --glass-bg: rgba(0,0,0,0,25);
+  --glass-bg: rgba(200,200,200,200,0,5);
   --glass-brd: rgba(214, 214, 214, .18);
   --rad: 16px;
   --rad-pill: 24px;
