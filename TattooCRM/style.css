@@ -1486,7 +1486,7 @@ dialog[open] .modal-body{
 
 .mk-chart-wrap{
   position:relative;
-  height:900px;          /* было 300px → стало 900px (в 3 раза выше) */
+  height:300px;          /* было 300px → стало 900px (в 3 раза выше) */
 }
 @media (max-width: 1280px){ .mk-chart-wrap{ height:600px; } }
 @media (max-width: 900px){  .mk-chart-wrap{ height:360px; } }
