@@ -2880,8 +2880,44 @@ function mkPrepareLeadsSeriesByMonth(clients, ym='YYYY-MM', mode='all'){
   };
 }
 
+// --- [MK#7] Данные IG (+подписчики за день) по месяцу YYYY-MM
+function mkPrepareIgSeriesByMonth(marketing = [], ym = 'YYYY-MM') {
+  const [y, m] = ym.split('-').map(Number);
+  const daysInMonth = new Date(y, m, 0).getDate();
+  const data = Array.from({ length: daysInMonth }, () => 0);
+
+  for (const rec of (marketing || [])) {
+    const d = String(rec?.date || '');
+    if (!d.startsWith(ym + '-')) continue;
+    const day = Number(d.slice(8, 10)) || 0;
+    const delta = Number(rec?.delta || 0); // поле delta мы и так сохраняем в маркетинге
+    if (day >= 1 && day <= daysInMonth) data[day - 1] += delta;
+  }
+  return data;
+}
+
+
 // --- [MK#7] Chart instance cache
 let MK_CHART = null;
+// --- [MK#7] Данные для IG (+подписчики в день) по месяцу
+function mkPrepareIgSeriesByMonth(marketing = [], ym = 'YYYY-MM') {
+  // определяем длину месяца
+  const [y, m] = ym.split('-').map(Number);
+  const daysInMonth = new Date(y, m, 0).getDate();
+  const data = Array.from({ length: daysInMonth }, () => 0);
+
+  marketing.forEach(rec => {
+    const d = String(rec?.date || '');
+    if (!d.startsWith(ym + '-')) return;
+    const day = Number(d.slice(8, 10)) || 0;
+    const delta = Number(rec?.delta || 0);
+    if (day >= 1 && day <= daysInMonth) data[day - 1] += delta;
+  });
+
+  return data;
+}
+
+
 
 // --- [MK#7] Нарисовать/обновить график
 function mkRenderLeadsChart(){
@@ -2892,22 +2928,37 @@ function mkRenderLeadsChart(){
   const mode = (document.querySelector('input[name="mkChartMode"]:checked')?.value) || 'all';
   const ym = monthSel?.value || (mkListMonthsFromClients(AppState.clients).slice(-1)[0] || '');
 
-  const { labels, series } = mkPrepareLeadsSeriesByMonth(AppState.clients || [], ym, mode);
+ const { labels, series } = mkPrepareLeadsSeriesByMonth(AppState.clients || [], ym, mode);
 
-      const datasets = [
+const datasets = [
   { key:'ru', label:'Русский',  data: series.ru, borderColor:'#186663', backgroundColor:'#186663' },
   { key:'sk', label:'Словацкий', data: series.sk, borderColor:'#A6B5B4', backgroundColor:'#A6B5B4' },
   { key:'en', label:'Английский', data: series.en, borderColor:'#8C7361', backgroundColor:'#8C7361' },
   { key:'at', label:'Австрия',  data: series.at, borderColor:'#D2AF94', backgroundColor:'#D2AF94' },
   { key:'de', label:'Немецкий', data: series.de, borderColor:'#002D37', backgroundColor:'#002D37' },
-  ].map((d, idx)=>({
-    label: d.label,
-    data: d.data,
-    tension: 0.2,
-    pointRadius: 2,
-    borderWidth: 2
-    // Цвета Chart.js подберёт автоматически; если нужно — позже зададим вручную.
-  }));
+].map((d)=>({
+  label: d.label,
+  data: d.data,
+  tension: 0.2,
+  pointRadius: 2,
+  borderWidth: 2
+}));
+
+// NEW: если включён тумблер IG — добавляем дневной прирост подписчиков как столбики
+const igOn = document.getElementById('mkChartIG')?.checked;
+if (igOn) {
+  const igData = mkPrepareIgSeriesByMonth(AppState.marketing || [], ym);
+  datasets.push({
+    label: 'IG (+подписчики)',
+    data: igData,
+    type: 'bar',
+    yAxisID: 'y',
+    borderWidth: 1,
+    pointRadius: 0,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    borderColor: 'rgba(255,255,255,0.8)'
+  });
+}
 
   const cfg = {
     type: 'line',
@@ -2962,6 +3013,14 @@ function mkBindLeadsChartControls(){
       r.addEventListener('change', mkRenderLeadsChart);
     });
   }
+
+// NEW: тумблер IG (+подписчики/день)
+const ig = document.getElementById('mkChartIG');
+if (ig && !ig.dataset.bound) {
+  ig.dataset.bound = '1';
+  ig.addEventListener('change', mkRenderLeadsChart);
+}
+
 // --- чекбоксы стран ---
   const countriesBox = document.getElementById('mkChartCountries');
   if (countriesBox && !countriesBox.dataset.bound) {
