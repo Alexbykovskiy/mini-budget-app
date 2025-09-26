@@ -2924,11 +2924,13 @@ scales: {
   x: {
     title:{ display:true, text:'Дни' },
     ticks:{ autoSkip:false, maxRotation:70, minRotation:50 } // диагональные подписи
+grid: { color: '#ffffff' }   // ← сетка по оси X белая
   },
   y: {
     title:{ display:true, text:'Количество лидов' },
     beginAtZero:true,
     ticks:{ precision:0 }
+grid: { color: '#ffffff' }   // ← сетка по оси Y белая
   }
 }
     }
