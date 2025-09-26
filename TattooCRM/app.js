@@ -3037,7 +3037,32 @@ if (ig && !ig.dataset.bound) {
 
 // === [NEW] Totals & Potential (карточка №5) ===============================
 
+// Сумма всех подписок (суммируем delta по маркетингу)
+function mkGetTotalSubscribers(marketingArr){
+  return (Array.isArray(marketingArr) ? marketingArr : [])
+    .reduce((s, m) => s + (Number(m?.delta || 0)), 0);
+}
+
+// Стоимость: за подписчика и за «не холодного» лида
+function mkCalcCostsForTotals(clientsArr, marketingArr, adsSpent){
+  const followers = mkGetTotalSubscribers(marketingArr);
+
+  const nonCold = (Array.isArray(clientsArr) ? clientsArr : []).reduce((n, c) => {
+    const st = (typeof normalizeStatus === 'function')
+      ? normalizeStatus(c?.status || c?.stage || c?.type)
+      : String(c?.status || c?.stage || c?.type || '').toLowerCase();
+    return n + (st !== 'cold' ? 1 : 0); // все статусы, кроме «cold»
+  }, 0);
+
+  return {
+    perSubscriber: followers > 0 ? adsSpent / followers : 0,
+    perLeadNonCold: nonCold  > 0 ? adsSpent / nonCold  : 0
+  };
+}
+
+
 function mkGetLatestAdsSpentTotal(marketingArr) {
+const costs = mkCalcCostsForTotals(clientsArr, marketingArr, adsSpent);
   const arr = Array.isArray(marketingArr) ? [...marketingArr] : [];
   arr.sort((a,b) => (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
   const last = arr[arr.length - 1];
@@ -3178,6 +3203,7 @@ return {
   sessionsDone: { count: doneCount, sum: doneSum },
   sessionsPlanned: { count: planCount, sum: planSum },
   potential: { min: potMin, max: potMax }
+costs // <-- новое поле
 };
 
 // закрываем функцию 👇
@@ -3337,13 +3363,19 @@ function mkRenderCardTotals(totals) {
   if (!totals) return;
   const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
 
-  set('mk-ads-spent', `€${totals.adsSpent.toFixed(2)}`);
-  set('mk-deposits', `${totals.deposits.count} шт., €${totals.deposits.sum.toFixed(2)}`);
-  set('mk-sessions-done', `${totals.sessionsDone.count} шт., €${totals.sessionsDone.sum.toFixed(2)}`);
-  set('mk-sessions-planned', `${totals.sessionsPlanned.count} шт., €${totals.sessionsPlanned.sum.toFixed(2)}`);
+  set('mk-ads-spent',        `€${totals.adsSpent.toFixed(2)}`);
+  set('mk-deposits',         `${totals.deposits.count} шт. €${totals.deposits.sum.toFixed(2)}`);
+  set('mk-sessions-done',    `${totals.sessionsDone.count} шт. €${totals.sessionsDone.sum.toFixed(2)}`);
+  set('mk-sessions-planned', `${totals.sessionsPlanned.count} шт. €${totals.sessionsPlanned.sum.toFixed(2)}`);
+
+  // Новые строки:
+  const cps = totals?.costs?.perSubscriber  || 0;
+  const cpl = totals?.costs?.perLeadNonCold || 0;
+  set('mk-cost-per-sub',  cps > 0 ? `€${cps.toFixed(2)}` : '—');
+  set('mk-cost-per-lead', cpl > 0 ? `€${cpl.toFixed(2)}` : '—');
+
   set('mk-potential-range', `€${totals.potential.min.toFixed(2)} — €${totals.potential.max.toFixed(2)}`);
-}
-// ===== Карточка №6: Финансы =====
+}// ===== Карточка №6: Финансы =====
 function mkUpdateFinanceCard() {
   const cutoff = document.getElementById('mkPotentialUntil')?.value || '';
   const useSup = !!document.getElementById('mkIncludeSupplies')?.checked;
