@@ -2883,9 +2883,6 @@ function mkPrepareLeadsSeriesByMonth(clients, ym='YYYY-MM', mode='all'){
 // --- [MK#7] Chart instance cache
 let MK_CHART = null;
 
-// --- [MK#7] Нарисовать/обновить график
-let MK_CHART = null;
-
 function mkRenderLeadsChart(){
   const canvas = document.getElementById('mkLeadsChart');
   if (!canvas) return;
