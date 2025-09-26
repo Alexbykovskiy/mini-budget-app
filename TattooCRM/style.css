@@ -1518,3 +1518,10 @@ dialog[open] .modal-body{
   border: 1px solid rgba(255,255,255,.12);
   font-size:12px;
 }
+
+/* Одна активная группа: неактивную приглушаем и отключаем клики */
+.mk-chart-controls{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.mk-metrics.off, .mk-modes.off{
+  opacity:.45;
+  pointer-events:none;
+}

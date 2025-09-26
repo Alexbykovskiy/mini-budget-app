@@ -2889,9 +2889,9 @@ function mkRenderLeadsChart(){
 
   const monthSel = document.getElementById('mkChartMonth');
   const ym = monthSel?.value || (mkListMonthsFromClients(AppState.clients).slice(-1)[0] || '');
-  const metric = (document.querySelector('input[name="mkChartMetric"]:checked')?.value) || 'leads';
-  const mode   = (document.querySelector('input[name="mkChartMode"]:checked')?.value)   || 'all';
-
+ const metricChecked = document.querySelector('input[name="mkChartMetric"]:checked');
+const metric = metricChecked ? metricChecked.value : 'leads';   // нет метрики → показываем лиды
+const mode   = (document.querySelector('input[name="mkChartMode"]:checked')?.value) || 'all';
   let labels = [];
   let datasets = [];
   let yTitle = 'Количество лидов';
@@ -2974,26 +2974,41 @@ function mkBindLeadsChartControls(){
   if (months.length) sel.value = months[months.length - 1];
 
   // Обработчики
-  if (!sel.dataset.bound){
-    sel.dataset.bound = '1';
-    sel.addEventListener('change', mkRenderLeadsChart);
-    document.querySelectorAll('input[name="mkChartMode"]').forEach(r=>{
-      r.addEventListener('change', mkRenderLeadsChart);
-document.querySelectorAll('input[name="mkChartMetric"]').forEach(r=>{
-  r.addEventListener('change', mkRenderLeadsChart);
-});
-    });
-  }
-// --- чекбоксы стран ---
-  const countriesBox = document.getElementById('mkChartCountries');
-  if (countriesBox && !countriesBox.dataset.bound) {
-    countriesBox.addEventListener('change', (e) => {
-      if (e.target && e.target.matches('input[type="checkbox"]')) {
-        mkRenderLeadsChart(); // перерисовываем график при переключении стран
-      }
-    });
-    countriesBox.dataset.bound = '1';
-  }
+  if (!sel.dataset.bound) {
+  sel.dataset.bound = '1';
+  sel.addEventListener('change', mkRenderLeadsChart);
+
+  const modes   = document.querySelectorAll('input[name="mkChartMode"]');
+  const metrics = document.querySelectorAll('input[name="mkChartMetric"]');
+  const modesBox   = document.getElementById('mkModes');
+  const metricsBox = document.getElementById('mkMetrics');
+
+  // 1) переключение режима лидов — делает активной группу режимов
+  modes.forEach(r => r.addEventListener('change', () => {
+    // снять выбор метрик (чтобы «не было двух одновременно»)
+    metrics.forEach(x => x.checked = false);
+    // визуально включить modes и выключить metrics
+    modesBox?.classList.remove('off');
+    metricsBox?.classList.add('off');
+    mkRenderLeadsChart();
+  }));
+
+  // 2) переключение метрики — делает активной группу метрик
+  metrics.forEach(r => r.addEventListener('change', () => {
+    // визуально включить metrics и выключить modes
+    metricsBox?.classList.remove('off');
+    modesBox?.classList.add('off');
+    mkRenderLeadsChart();
+  }));
+}
+
+ // 👇 Маленький UX-штрих: выставляем стартовое состояние групп
+  const anyMetric = document.querySelector('input[name="mkChartMetric"]:checked');
+  document.getElementById('mkMetrics')?.classList.toggle('off', !anyMetric);
+  document.getElementById('mkModes')?.classList.toggle('off',  !!anyMetric);
+
+  // первичный рендер (уже после выставления классов)
+  mkRenderLeadsChart();
 }
 
 // === IG-подписчики по дням месяца (сумма дельт за день)
