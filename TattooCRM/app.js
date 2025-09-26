@@ -3190,6 +3190,8 @@ for (const c of clientsArr) {
   potMax += maxNum;
 }
 
+ const costs = mkCalcCostsForTotals(clientsArr, marketingArr, adsSpent);
+
 return {
     adsSpent,
     deposits: { count: depCount, sum: depSum },
