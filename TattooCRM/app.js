@@ -3061,13 +3061,6 @@ function mkCalcCostsForTotals(clientsArr, marketingArr, adsSpent){
 }
 
 
-function mkGetLatestAdsSpentTotal(marketingArr) {
-const costs = mkCalcCostsForTotals(clientsArr, marketingArr, adsSpent);
-  const arr = Array.isArray(marketingArr) ? [...marketingArr] : [];
-  arr.sort((a,b) => (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
-  const last = arr[arr.length - 1];
-  return Number(last?.spentTotal || 0);
-}
 
 // === helper: нормализован ли клиент как «в работе» ===
 // Учитываем тех, у кого есть КОНСУЛЬТАЦИЯ / ПРЕДОПЛАТА / ЭСКИЗ / СЕАНС (или массив sessions)
@@ -3198,14 +3191,14 @@ for (const c of clientsArr) {
 }
 
 return {
-  adsSpent,
-  deposits: { count: depCount, sum: depSum },
-  sessionsDone: { count: doneCount, sum: doneSum },
-  sessionsPlanned: { count: planCount, sum: planSum },
-  potential: { min: potMin, max: potMax }
-costs // <-- новое поле
-};
-
+    adsSpent,
+    deposits: { count: depCount, sum: depSum },
+    sessionsDone: { count: doneCount, sum: doneSum },
+    sessionsPlanned: { count: planCount, sum: planSum },
+    potential: { min: potMin, max: potMax },
+    costs
+  };
+}
 // закрываем функцию 👇
 }
 // === [NEW] Финансы (карточка №6) ===============================
