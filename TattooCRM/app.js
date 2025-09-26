@@ -3059,73 +3059,67 @@ function mkCalcTotalsAndPotential(clients, marketingArr, cutoffYmd) {
     }
   }
 
-  // 4) Потенциал: только клиенты «в работе» + фильтр по самой ранней "ориентировочной дате"
-  let potMin = 0, potMax = 0;
+  // 4) Потенциал: ТОЛЬКО клиенты с назначенным сеансом (не done) и с озвученной вилкой от-до
+let potMin = 0, potMax = 0;
 
-  for (const c of clientsArr) {
-    if (!isQualifiedClient(c)) continue;
-
-    // --- решаем, включать ли ЭТОГО клиента в потенциал до cutoff ---
-    let includeForCutoff = true;
-    if (cutoff) {
-      // Самая ранняя НЕпроведённая сессия (если есть)
-      const sessions = Array.isArray(c?.sessions) ? c.sessions : [];
-      const plannedYmds = sessions
-        .filter(s => !(typeof s === 'object' ? s.done : false))
-        .map(s => ymdOf(typeof s === 'object' ? s.dt : s))
-        .filter(Boolean)
-        .sort();
-
-      if (plannedYmds.length) {
-        // если ближайшая запланированная позже cutoff — потенциал уедет «в следующий период»
-        includeForCutoff = plannedYmds[0] <= cutoff;
-      } else if (c?.consult && c?.consultDate) {
-        // без сеансов, но консультация с датой — включаем, только если она до cutoff
-        includeForCutoff = ymdOf(c.consultDate) <= cutoff;
-      } else {
-        // вообще без дат — оставляем (может случиться в любой момент)
-        includeForCutoff = true;
-      }
-    }
-    if (!includeForCutoff) continue;
-
-    // Озвученный диапазон
-    let aMin = c?.amountMin, aMax = c?.amountMax;
-    if (aMin == null && aMax == null && c?.amount != null) {
-      const n = Number(c.amount);
-      if (!isNaN(n)) { aMin = n; aMax = n; }
-    }
-    let minNum = Number(aMin || 0);
-    let maxNum = Number(aMax || 0);
-
-    // Вычитаем депозит и ПРОВЕДЁННЫЕ до cutoff
-    const dep = Number(c?.deposit || 0);
-    let doneSumClient = 0;
-    const sessions = Array.isArray(c?.sessions) ? c.sessions : [];
-    for (const s of sessions) {
+for (const c of clientsArr) {
+  // есть ли НЕпроведённые сеансы с датой?
+  const sessions = Array.isArray(c?.sessions) ? c.sessions : [];
+  const plannedYmds = sessions
+    .filter(s => {
       const obj = (typeof s === 'object') ? s : { dt: s, price: 0, done: false };
-      if (!obj.done) continue;
+      if (obj.done) return false;
       const ymd = ymdOf(obj.dt);
-      if (!cutoff || (ymd && ymd <= cutoff)) {
-        doneSumClient += Number(obj.price || 0);
-      }
-    }
+      return !!ymd; // только с датой
+    })
+    .map(s => ymdOf(typeof s === 'object' ? s.dt : s))
+    .filter(Boolean)
+    .sort();
 
-    minNum = Math.max(0, minNum - dep - doneSumClient);
-    maxNum = Math.max(0, maxNum - dep - doneSumClient);
+  if (!plannedYmds.length) continue; // нет назначенных сеансов ⇒ не считаем
 
-    potMin += minNum;
-    potMax += maxNum;
+  // уважаем "до даты", если указана
+  if (cutoff && plannedYmds[0] > cutoff) continue;
+
+  // вилка от-до (или amount как точка)
+  let aMin = c?.amountMin, aMax = c?.amountMax;
+  if (aMin == null && aMax == null && c?.amount != null) {
+    const n = Number(c.amount);
+    if (!isNaN(n)) { aMin = n; aMax = n; }
   }
 
-  return {
-    adsSpent,
-    deposits: { count: depCount, sum: depSum },
-    sessionsDone: { count: doneCount, sum: doneSum },
-    sessionsPlanned: { count: planCount, sum: planSum },
-    potential: { min: potMin, max: potMax }
-  };
+  // без вилки/суммы — пропускаем (ничего «реально считать»)
+  if (aMin == null && aMax == null) continue;
+
+  let minNum = Number(aMin || 0);
+  let maxNum = Number(aMax || 0);
+
+  // Вычитаем депозит и уже ПРОВЕДЁННЫЕ сеансы до cutoff — чтобы видеть остаток «реально ожидаемых» денег
+  const dep = Number(c?.deposit || 0);
+  let doneSumClient = 0;
+  for (const s of sessions) {
+    const obj = (typeof s === 'object') ? s : { dt: s, price: 0, done: false };
+    if (!obj.done) continue;
+    const ymd = ymdOf(obj.dt);
+    if (!cutoff || (ymd && ymd <= cutoff)) {
+      doneSumClient += Number(obj.price || 0);
+    }
+  }
+
+  minNum = Math.max(0, minNum - dep - doneSumClient);
+  maxNum = Math.max(0, maxNum - dep - doneSumClient);
+
+  potMin += minNum;
+  potMax += maxNum;
 }
+
+return {
+  adsSpent,
+  deposits: { count: depCount, sum: depSum },
+  sessionsDone: { count: doneCount, sum: doneSum },
+  sessionsPlanned: { count: planCount, sum: planSum },
+  potential: { min: potMin, max: potMax }
+};
 
 // === [NEW] Финансы (карточка №6) ===============================
 
