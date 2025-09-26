@@ -447,20 +447,37 @@
   <!-- шапка: слева заголовок, справа фильтры -->
   <div class="mk-chart-head">
     <h3 class="mk-chart-title">Дни \ Лиды</h3>
-   <div class="mk-chart-controls">
-  <select id="mkChartMonth" class="chip"></select>
-
-  <!-- Метрика: IG / Реклама -->
-  <div class="mk-metrics" id="mkMetrics">
-    <label class="chip"><input type="radio" name="mkChartMetric" value="subs"> Подписчики IG</label>
-    <label class="chip"><input type="radio" name="mkChartMetric" value="ads"> Расходы рекламы</label>
+    <div class="mk-chart-controls">
+      <select id="mkChartMonth" class="chip"></select>
+      <label class="chip"><input type="radio" name="mkChartMode" value="all" checked> Все</label>
+      <label class="chip"><input type="radio" name="mkChartMode" value="cold"> Холодные</label>
+      <label class="chip"><input type="radio" name="mkChartMode" value="warm"> Не холодные</label>
+    </div>
   </div>
 
-  <!-- Режим лидов: Все / Холодные / Не холодные -->
-  <div class="mk-modes" id="mkModes">
-    <label class="chip"><input type="radio" name="mkChartMode" value="all" checked> Все</label>
-    <label class="chip"><input type="radio" name="mkChartMode" value="cold"> Холодные</label>
-    <label class="chip"><input type="radio" name="mkChartMode" value="warm"> Не холодные</label>
+  <!-- график на всю ширину блока -->
+  <div class="mk-chart-wrap">
+    <canvas id="mkLeadsChart"></canvas>
+  </div>
+</div>  <table class="mk-table">
+    <thead>
+      <tr>
+        <th>Дата</th>
+        <th title="+ за день">IG</th>
+        <th title="Расход дня">€</th>
+        <th>RU</th><th>SK</th><th>EN</th><th>AT</th><th>DE</th>
+      </tr>
+    </thead>
+    <tbody id="mkHistoryBody"></tbody>
+    <tfoot>
+       <tr id="mkTotalsRow" class="mk-tfoot-line"></tr>
+    </tfoot>
+  </table>
+
+  <div class="mk-legend" style="margin-top:8px; font-size:12px; opacity:.85">
+    <span class="mk-dot mk-dot-cold"></span> — холодные &nbsp;|&nbsp;
+    <span class="mk-pill mk-total mk-mono">Σ</span> — всего &nbsp;|&nbsp;
+    <span class="mk-dot mk-dot-warm"></span> — все остальные (лиды/консы/депозиты/сеансы)
   </div>
 </div>
 

@@ -2883,57 +2883,31 @@ function mkPrepareLeadsSeriesByMonth(clients, ym='YYYY-MM', mode='all'){
 // --- [MK#7] Chart instance cache
 let MK_CHART = null;
 
+// --- [MK#7] Нарисовать/обновить график
 function mkRenderLeadsChart(){
   const canvas = document.getElementById('mkLeadsChart');
   if (!canvas) return;
 
   const monthSel = document.getElementById('mkChartMonth');
+  const mode = (document.querySelector('input[name="mkChartMode"]:checked')?.value) || 'all';
   const ym = monthSel?.value || (mkListMonthsFromClients(AppState.clients).slice(-1)[0] || '');
- const metricChecked = document.querySelector('input[name="mkChartMetric"]:checked');
-const metric = metricChecked ? metricChecked.value : 'leads';   // нет метрики → показываем лиды
-const mode   = (document.querySelector('input[name="mkChartMode"]:checked')?.value) || 'all';
-  let labels = [];
-  let datasets = [];
-  let yTitle = 'Количество лидов';
 
-  if (metric === 'leads') {
-    const { labels: L, series } = mkPrepareLeadsSeriesByMonth(AppState.clients || [], ym, mode);
-    labels = L;
-    datasets = [
-      { key:'ru', label:'Русский',   data: series.ru, borderColor:'#186663', backgroundColor:'#186663' },
-      { key:'sk', label:'Словацкий', data: series.sk, borderColor:'#A6B5B4', backgroundColor:'#A6B5B4' },
-      { key:'en', label:'Английский',data: series.en, borderColor:'#8C7361', backgroundColor:'#8C7361' },
-      { key:'at', label:'Австрия',   data: series.at, borderColor:'#D2AF94', backgroundColor:'#D2AF94' },
-      { key:'de', label:'Немецкий',  data: series.de, borderColor:'#002D37', backgroundColor:'#002D37' },
-    ].map(d => ({ label:d.label, data:d.data, tension:0.2, pointRadius:2, borderWidth:2 }));
-    yTitle = 'Количество лидов';
-  } else if (metric === 'subs') {
-    const s = mkPrepareSubsSeriesByMonth(AppState.marketing || [], ym);
-    labels = s.labels;
-    datasets = [{
-      label: 'Подписчики IG',
-      data: s.data,
-      borderColor: '#4DA3FF',
-      backgroundColor: 'rgba(77,163,255,.25)',
-      tension: 0.2,
-      pointRadius: 2,
-      borderWidth: 2
-    }];
-    yTitle = 'Подписчики (IG)';
-  } else { // 'ads'
-    const s = mkPrepareAdsSeriesByMonth(AppState.marketing || [], ym);
-    labels = s.labels;
-    datasets = [{
-      label: 'Расходы на рекламу (€)',
-      data: s.data,
-      borderColor: '#FFB347',
-      backgroundColor: 'rgba(255,179,71,.25)',
-      tension: 0.2,
-      pointRadius: 2,
-      borderWidth: 2
-    }];
-    yTitle = 'Расходы на рекламу (€)';
-  }
+  const { labels, series } = mkPrepareLeadsSeriesByMonth(AppState.clients || [], ym, mode);
+
+      const datasets = [
+  { key:'ru', label:'Русский',  data: series.ru, borderColor:'#186663', backgroundColor:'#186663' },
+  { key:'sk', label:'Словацкий', data: series.sk, borderColor:'#A6B5B4', backgroundColor:'#A6B5B4' },
+  { key:'en', label:'Английский', data: series.en, borderColor:'#8C7361', backgroundColor:'#8C7361' },
+  { key:'at', label:'Австрия',  data: series.at, borderColor:'#D2AF94', backgroundColor:'#D2AF94' },
+  { key:'de', label:'Немецкий', data: series.de, borderColor:'#002D37', backgroundColor:'#002D37' },
+  ].map((d, idx)=>({
+    label: d.label,
+    data: d.data,
+    tension: 0.2,
+    pointRadius: 2,
+    borderWidth: 2
+    // Цвета Chart.js подберёт автоматически; если нужно — позже зададим вручную.
+  }));
 
   const cfg = {
     type: 'line',
@@ -2942,20 +2916,25 @@ const mode   = (document.querySelector('input[name="mkChartMode"]:checked')?.val
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
-      layout: { padding: { top: 8, right: 8, left: 8, bottom: 18 } },
-      plugins: {
-        legend: { display: true, position: 'bottom' },
-        title:  { display: true, text: mkMonthHuman(ym) }
-      },
-      scales: {
-        x: { title:{ display:true, text:'Дни' },
-             ticks:{ autoSkip:false, maxRotation:70, minRotation:50 } },
-        y: { title:{ display:true, text: yTitle }, beginAtZero:true, ticks:{ precision:0 } }
-      }
+     plugins: {
+  legend: { display: true, position: 'bottom' },
+  title:  { display: true, text: mkMonthHuman(ym) }
+},
+scales: {
+  x: {
+    title:{ display:true, text:'Дни' },
+    ticks:{ autoSkip:false, maxRotation:70, minRotation:50 } // диагональные подписи
+  },
+  y: {
+    title:{ display:true, text:'Количество лидов' },
+    beginAtZero:true,
+    ticks:{ precision:0 }
+  }
+}
     }
   };
 
-  if (MK_CHART) MK_CHART.destroy();
+  if (MK_CHART) { MK_CHART.destroy(); }
   MK_CHART = new Chart(canvas.getContext('2d'), cfg);
 }
 
@@ -2974,89 +2953,24 @@ function mkBindLeadsChartControls(){
   if (months.length) sel.value = months[months.length - 1];
 
   // Обработчики
-  if (!sel.dataset.bound) {
-  sel.dataset.bound = '1';
-  sel.addEventListener('change', mkRenderLeadsChart);
-
-  const modes   = document.querySelectorAll('input[name="mkChartMode"]');
-  const metrics = document.querySelectorAll('input[name="mkChartMetric"]');
-  const modesBox   = document.getElementById('mkModes');
-  const metricsBox = document.getElementById('mkMetrics');
-
-  // 1) переключение режима лидов — делает активной группу режимов
-  modes.forEach(r => r.addEventListener('change', () => {
-    // снять выбор метрик (чтобы «не было двух одновременно»)
-    metrics.forEach(x => x.checked = false);
-    // визуально включить modes и выключить metrics
-    modesBox?.classList.remove('off');
-    metricsBox?.classList.add('off');
-    mkRenderLeadsChart();
-  }));
-
-  // 2) переключение метрики — делает активной группу метрик
-  metrics.forEach(r => r.addEventListener('change', () => {
-    // визуально включить metrics и выключить modes
-    metricsBox?.classList.remove('off');
-    modesBox?.classList.add('off');
-    mkRenderLeadsChart();
-  }));
-}
-
- // 👇 Маленький UX-штрих: выставляем стартовое состояние групп
-  const anyMetric = document.querySelector('input[name="mkChartMetric"]:checked');
-  document.getElementById('mkMetrics')?.classList.toggle('off', !anyMetric);
-  document.getElementById('mkModes')?.classList.toggle('off',  !!anyMetric);
-
-  // первичный рендер (уже после выставления классов)
-  mkRenderLeadsChart();
-}
-
-// === IG-подписчики по дням месяца (сумма дельт за день)
-function mkPrepareSubsSeriesByMonth(marketing, ym){
-  const [y,m] = (ym||'').split('-').map(Number);
-  const daysInMonth = new Date(y, m, 0).getDate() || 31;
-  const data = Array.from({length: daysInMonth}, ()=>0);
-  (Array.isArray(marketing)?marketing:[]).forEach(e=>{
-    const d = String(e.date||'');
-    if (d.startsWith(ym)) {
-      const day = parseInt(d.slice(8,10), 10);
-      data[day-1] += Number(e.delta||0) || 0;
-    }
-  });
-  return { labels: Array.from({length: daysInMonth}, (_,i)=> String(i+1)), data };
-}
-
-// === Ежедневные расходы на рекламу (разница cumulative spentTotal)
-function mkPrepareAdsSeriesByMonth(marketing, ym){
-  const [y,m] = (ym||'').split('-').map(Number);
-  const daysInMonth = new Date(y, m, 0).getDate() || 31;
-  const data = Array.from({length: daysInMonth}, ()=>0);
-
-  const items = Array.isArray(marketing) ? [...marketing] : [];
-  items.sort((a,b) => (String(a.date||'')+String(a.time||''))
-    .localeCompare(String(b.date||'')+String(b.time||'')));
-
-  // кумулятив до начала месяца — чтобы корректно посчитать 1-е число
-  let prevSpent = 0;
-  const monthStart = ym + '-01';
-  for (const e of items) {
-    const d = String(e.date||'');
-    if (d < monthStart) prevSpent = Number(e.spentTotal||0) || 0;
-    else break;
+  if (!sel.dataset.bound){
+    sel.dataset.bound = '1';
+    sel.addEventListener('change', mkRenderLeadsChart);
+    document.querySelectorAll('input[name="mkChartMode"]').forEach(r=>{
+      r.addEventListener('change', mkRenderLeadsChart);
+    });
   }
-
-  for (const e of items) {
-    const d = String(e.date||''); if (!d) continue;
-    if (!d.startsWith(ym)) { prevSpent = Number(e.spentTotal||prevSpent) || 0; continue; }
-    const diff = (Number(e.spentTotal||0) || 0) - prevSpent;
-    prevSpent = Number(e.spentTotal||0) || prevSpent;
-    const day = parseInt(d.slice(8,10), 10);
-    data[day-1] += Math.max(0, diff); // не даём уйти в минус
+// --- чекбоксы стран ---
+  const countriesBox = document.getElementById('mkChartCountries');
+  if (countriesBox && !countriesBox.dataset.bound) {
+    countriesBox.addEventListener('change', (e) => {
+      if (e.target && e.target.matches('input[type="checkbox"]')) {
+        mkRenderLeadsChart(); // перерисовываем график при переключении стран
+      }
+    });
+    countriesBox.dataset.bound = '1';
   }
-
-  return { labels: Array.from({length: daysInMonth}, (_,i)=> String(i+1)), data };
 }
-
 
 
 
