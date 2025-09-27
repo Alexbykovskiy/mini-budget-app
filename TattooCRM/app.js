@@ -3203,12 +3203,17 @@ for (const c of clientsArr) {
   potMax += maxNum;
 }
 
- const costs = mkCalcCostsForTotals(clientsArr, marketingArr, adsSpent);
+  const costs = mkCalcCostsForTotals(clientsArr, marketingArr, adsSpent);
 
+// --- [NEW] общие суммы «мне» и «в студию» по всем клиентам ---
+const sumMe     = (Array.isArray(clientsArr) ? clientsArr : []).reduce((s, c) => s + Number(c?.amountMe || 0), 0);
+const sumStudio = (Array.isArray(clientsArr) ? clientsArr : []).reduce((s, c) => s + Number(c?.amountStudio || 0), 0);
 
-// Общие суммы распределения оплаты по всем клиентам
-const sumMe     = clientsArr.reduce((s, c) => s + Number(c?.amountMe || 0), 0);
-const sumStudio = clientsArr.reduce((s, c) => s + Number(c?.amountStudio || 0), 0);
+// --- [NEW] процентное соотношение (текст) ---
+const totalAll = sumMe + sumStudio;
+const ratioText = totalAll > 0
+  ? `${(sumMe / totalAll * 100).toFixed(1)}% / ${(sumStudio / totalAll * 100).toFixed(1)}%`
+  : '—';
 
 return {
   adsSpent,
@@ -3217,7 +3222,8 @@ return {
   sessionsPlanned: { count: planCount, sum: planSum },
   potential: { min: potMin, max: potMax },
   costs,
-  amounts: { me: sumMe, studio: sumStudio } // ← НОВОЕ
+  // --- [NEW] блок со сводными суммами и процентами
+  amounts: { me: sumMe, studio: sumStudio, ratioText }
 };
 }
 // === [NEW] Финансы (карточка №6) ===============================
@@ -3387,6 +3393,7 @@ function mkRenderCardTotals(totals) {
   set('mk-cost-per-lead', cpl > 0 ? `€${cpl.toFixed(2)}` : '—');
 set('mk-total-amount-me',     `€${Number(totals.amounts?.me || 0).toFixed(2)}`);
 set('mk-total-amount-studio', `€${Number(totals.amounts?.studio || 0).toFixed(2)}`);
+set('mk-total-amount-ratio', totals.amounts?.ratio || '—');
 
   set('mk-potential-range', `€${totals.potential.min.toFixed(2)} — €${totals.potential.max.toFixed(2)}`);
 }// ===== Карточка №6: Финансы =====
