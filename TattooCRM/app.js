@@ -4477,6 +4477,53 @@ async function migrateAllToGoogleCalendar() {
 // вынесем в глобал, чтобы вызывать из консоли
 window.tcrmMigrateToGoogleCalendar = migrateAllToGoogleCalendar;
 
+function mkBuildClientLog(clientsArr) {
+  const rows = [];
+
+  (Array.isArray(clientsArr) ? clientsArr : []).forEach(c => {
+    if (Array.isArray(c.sessions)) {
+      c.sessions.forEach(s => {
+        if (s.done) { // только проведённые
+          rows.push({
+            date: s.date ? new Date(s.date) : null,
+            name: c.displayName || '(без имени)',
+            me: Number(c.amountMe || 0),
+            studio: Number(c.amountStudio || 0)
+          });
+        }
+      });
+    }
+  });
+
+  // сортируем по дате (новые сверху)
+  rows.sort((a, b) => (b.date?.getTime() || 0) - (a.date?.getTime() || 0));
+  return rows;
+}
+
+function mkRenderClientLog(rows) {
+  const ul = $('#mk-client-log');
+  if (!ul) return;
+
+  ul.innerHTML = '';
+
+  if (!rows.length) {
+    ul.innerHTML = '<li class="mk-row"><span class="label">Нет данных</span></li>';
+    return;
+  }
+
+  rows.forEach(r => {
+    const dateStr = r.date ? r.date.toLocaleDateString('ru-RU') : '—';
+    const li = document.createElement('li');
+    li.className = 'mk-row';
+    li.innerHTML = `
+      <span class="label">${dateStr} — ${r.name}</span>
+      <span class="value">€${r.me} / €${r.studio}</span>
+    `;
+    ul.appendChild(li);
+  });
+}
+
+
 
 // Инициализация карточек
 document.addEventListener('DOMContentLoaded', async () => {
@@ -4511,13 +4558,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (!untilInput.value) untilInput.value = defYmd;
 
       // Первый рендер итогов
-      const totals1 = mkCalcTotalsAndPotential(MK_CLIENTS_CACHE, AppState.marketing, untilInput.value);
-      mkRenderCardTotals(totals1);
+     const totals1 = mkCalcTotalsAndPotential(MK_CLIENTS_CACHE, AppState.marketing, untilInput.value);
+mkRenderCardTotals(totals1);
+
+// --- [NEW] Карточка №7: журнал клиентов (проведённые сеансы)
+const logRows1 = mkBuildClientLog(MK_CLIENTS_CACHE);
+mkRenderClientLog(logRows1);
+
 
       // Пересчёт при смене даты
       untilInput.addEventListener('change', () => {
         const totals2 = mkCalcTotalsAndPotential(MK_CLIENTS_CACHE, AppState.marketing, untilInput.value);
         mkRenderCardTotals(totals2);
+const logRows2 = mkBuildClientLog(MK_CLIENTS_CACHE);
+mkRenderClientLog(logRows2);
       });
     }
 const btnMig = document.getElementById('btnMigrateAll');
