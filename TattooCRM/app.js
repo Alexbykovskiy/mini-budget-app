@@ -3205,14 +3205,20 @@ for (const c of clientsArr) {
 
  const costs = mkCalcCostsForTotals(clientsArr, marketingArr, adsSpent);
 
+
+// Общие суммы распределения оплаты по всем клиентам
+const sumMe     = clientsArr.reduce((s, c) => s + Number(c?.amountMe || 0), 0);
+const sumStudio = clientsArr.reduce((s, c) => s + Number(c?.amountStudio || 0), 0);
+
 return {
-    adsSpent,
-    deposits: { count: depCount, sum: depSum },
-    sessionsDone: { count: doneCount, sum: doneSum },
-    sessionsPlanned: { count: planCount, sum: planSum },
-    potential: { min: potMin, max: potMax },
-    costs
-  };
+  adsSpent,
+  deposits: { count: depCount, sum: depSum },
+  sessionsDone: { count: doneCount, sum: doneSum },
+  sessionsPlanned: { count: planCount, sum: planSum },
+  potential: { min: potMin, max: potMax },
+  costs,
+  amounts: { me: sumMe, studio: sumStudio } // ← НОВОЕ
+};
 }
 // === [NEW] Финансы (карточка №6) ===============================
 
@@ -3379,6 +3385,8 @@ function mkRenderCardTotals(totals) {
   const cpl = totals?.costs?.perLeadNonCold || 0;
   set('mk-cost-per-sub',  cps > 0 ? `€${cps.toFixed(2)}` : '—');
   set('mk-cost-per-lead', cpl > 0 ? `€${cpl.toFixed(2)}` : '—');
+set('mk-total-amount-me',     `€${Number(totals.amounts?.me || 0).toFixed(2)}`);
+set('mk-total-amount-studio', `€${Number(totals.amounts?.studio || 0).toFixed(2)}`);
 
   set('mk-potential-range', `€${totals.potential.min.toFixed(2)} — €${totals.potential.max.toFixed(2)}`);
 }// ===== Карточка №6: Финансы =====
