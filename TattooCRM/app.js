@@ -3393,7 +3393,7 @@ function mkRenderCardTotals(totals) {
   set('mk-cost-per-lead', cpl > 0 ? `€${cpl.toFixed(2)}` : '—');
 set('mk-total-amount-me',     `€${Number(totals.amounts?.me || 0).toFixed(2)}`);
 set('mk-total-amount-studio', `€${Number(totals.amounts?.studio || 0).toFixed(2)}`);
-set('mk-total-amount-ratio', totals.amounts?.ratio || '—');
+set('mk-total-amount-ratio', totals.amounts?.ratioText || '—');
 
   set('mk-potential-range', `€${totals.potential.min.toFixed(2)} — €${totals.potential.max.toFixed(2)}`);
 }// ===== Карточка №6: Финансы =====
