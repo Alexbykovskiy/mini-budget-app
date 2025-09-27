@@ -1984,6 +1984,10 @@ $('#fStatus').onchange = (e) => {
     minEl.value = (aMin ?? '');
     maxEl.value = (aMax ?? '');
 
+// --- [NEW] суммы распределения оплаты ---
+$('#fAmountMe').value = (c?.amountMe ?? '');
+$('#fAmountStudio').value = (c?.amountStudio ?? '');
+
     // Сеансы — рендерим список полей
     const list = $('#sessionsList');
 const rawSessions = c?.sessions || (c?.nextDate ? [c.nextDate] : []);
@@ -2290,8 +2294,13 @@ if (statusVal === 'Холодный лид') {
     firstContact:     fcd,
 
     lang: $('#fLang').value || '',
-    gender: $('#fGender').value || '',
-    updatedAt: new Date().toISOString()
+gender: $('#fGender').value || '',
+
+// --- [NEW] для холодных лидов суммы считаем 0 ---
+amountMe: 0,
+amountStudio: 0,
+
+updatedAt: new Date().toISOString()
   };
 
   const i = AppState.clients.findIndex(x => x.id === id);
@@ -2375,10 +2384,14 @@ zones: Array.from($('#fZones').selectedOptions).map(o=>o.value),status: $('#fSta
 qual: $('#fQual').value,
 qualNote: $('#fQualNote').value.trim(),            // ← добавили
 deposit: Number($('#fDeposit').value || 0),
+
+// --- [NEW] суммы распределения оплаты ---
+amountMe: Number(($('#fAmountMe')?.value || '').trim() || 0),
+amountStudio: Number(($('#fAmountStudio')?.value || '').trim() || 0),
+
 amountMin,                 // новая модель
 amountMax,                 // новая модель
-amount: (amountMax ?? amountMin ?? 0),  // легаси: пишем число для старого поля
-notes: $('#fNotes').value.trim(),
+amount: (amountMax ?? amountMin ?? 0),  // легаси: пишем число для старого поляnotes: $('#fNotes').value.trim(),
   sessions: Array.from(document.querySelectorAll('#sessionsList .row'))
   .map(row => {
     const dt = row.querySelector('.sessionDate')?.value;
