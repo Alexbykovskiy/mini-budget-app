@@ -4484,11 +4484,11 @@ function mkBuildClientLog(clientsArr) {
     if (Array.isArray(c.sessions)) {
       c.sessions.forEach(s => {
         if (s.done) { // только проведённые
-          rows.push({
-            date: s.date ? new Date(s.date) : null,
-            name: c.displayName || '(без имени)',
-            me: Number(c.amountMe || 0),
-            studio: Number(c.amountStudio || 0)
+        rows.push({
+  ymd: ymdOf(typeof s === 'object' ? s.dt : s), // ← подтверждённый сеанс: берём s.dt
+  name: c.displayName || '(без имени)',
+  me: Number(c.amountMe || 0),
+  studio: Number(c.amountStudio || 0)
           });
         }
       });
@@ -4496,7 +4496,7 @@ function mkBuildClientLog(clientsArr) {
   });
 
   // сортируем по дате (новые сверху)
-  rows.sort((a, b) => (b.date?.getTime() || 0) - (a.date?.getTime() || 0));
+  rows.sort((a, b) => String(b.ymd || '').localeCompare(String(a.ymd || '')));
   return rows;
 }
 
@@ -4512,7 +4512,7 @@ function mkRenderClientLog(rows) {
   }
 
   rows.forEach(r => {
-    const dateStr = r.date ? r.date.toLocaleDateString('ru-RU') : '—';
+    const dateStr = r.ymd ? formatDateHuman(r.ymd) : '—';
     const li = document.createElement('li');
     li.className = 'mk-row';
     li.innerHTML = `
