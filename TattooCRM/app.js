@@ -311,11 +311,17 @@ function bindTabbar(){
   renderTodayCalendar();
   renderFullCalendar(); // ← добавили
 }
-      if (btn.dataset.tab === 'marketingPage') {
+     if (btn.dataset.tab === 'marketingPage') {
   bindMarketing();
   renderMarketing();
   mkBindLeadsChartControls();
   mkRenderLeadsChart();
+
+  // --- [NEW] Форс-рендер диаграмм «Общий отчёт»
+  mkBindCostsForm();
+  mkRenderLeadsDonut(AppState.clients || MK_CLIENTS_CACHE);
+  mkRenderCostsChartManual();
+  mkRenderCountriesChart(AppState.clients || MK_CLIENTS_CACHE);
 }
       if (btn.dataset.tab === 'suppliesPage') renderSupplies();
       if (btn.dataset.tab === 'settingsPage') fillSettingsForm();
