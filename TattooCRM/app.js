@@ -3272,20 +3272,20 @@ function mkCalcStudioSplit(clients) {
 function mkRenderCardStudioSplit(data) {
   if (!data) return;
   const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
-  const € = n => `€${Number(n || 0).toFixed(2)}`;
+const eur = n => `€${Number(n || 0).toFixed(2)}`;
 
   // Мои клиенты
-  set('mk8-my-amount-me',     €(data.my.me));
-  set('mk8-my-amount-studio', €(data.my.studio));
-  set('mk8-my-ratio',         data.my.ratioText);
+set('mk8-my-amount-me',     eur(data.my.me));
+set('mk8-my-amount-studio', eur(data.my.studio));
+set('mk8-my-ratio',         data.my.ratioText);
 
-  // Студийные клиенты
-  set('mk8-st-amount-me',     €(data.st.me));
-  set('mk8-st-amount-studio', €(data.st.studio));
-  set('mk8-st-ratio',         data.st.ratioText);
+// Студийные клиенты
+set('mk8-st-amount-me',     eur(data.st.me));
+set('mk8-st-amount-studio', eur(data.st.studio));
+set('mk8-st-ratio',         data.st.ratioText);
 
-  // Баланс
-  set('mk8-studio-balance',   €(data.balance));
+// Баланс
+set('mk8-studio-balance',   eur(data.balance));
 }
 
 
