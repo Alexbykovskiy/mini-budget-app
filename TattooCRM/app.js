@@ -506,6 +506,14 @@ if (document.querySelector('[data-tab="marketingPage"]').classList.contains('is-
       if (untilInput) {
         const totals = mkCalcTotalsAndPotential(AppState.clients, AppState.marketing, untilInput.value);
         mkRenderCardTotals(totals);
+// --- [NEW] Карточка №8: студийная аналитика
+const split = mkCalcStudioSplit(AppState.clients);
+mkRenderCardStudioSplit(split);
+
+// --- [NEW] KPI и общий отчёт (блок после «Заглушка 9»)
+const kpi = mkCalcKPI(AppState.clients, AppState.marketing, totals);
+mkRenderKPI(kpi);
+mkRenderSummary(AppState.clients, AppState.marketing);
  // Карточка №6: обновить финансы
       if (typeof mkUpdateFinanceCard === 'function') mkUpdateFinanceCard();
 // --- [NEW] Карточка №8: обновить студийную аналитику при изменении клиентов
