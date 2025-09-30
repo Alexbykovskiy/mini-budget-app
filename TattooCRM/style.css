@@ -1526,11 +1526,7 @@ dialog[open] .modal-body{
   font-size:12px;
 }
 
-.mk-summary-kpi {
-  display: flex;
-  justify-content: space-around;
-  margin: 16px 0;
-}
+
 .mk-summary-kpi .kpi {
   text-align: center;
 }
