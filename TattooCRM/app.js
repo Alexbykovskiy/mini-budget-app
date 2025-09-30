@@ -4755,20 +4755,70 @@ function mkRenderClientLog(rows) {
 }
 
 function mkRenderSummary(clients, marketing) {
-  const subs = marketing.reduce((s, m) => s + Number(m.subs || 0), 0);
-  const earned = clients.reduce((s, c) => s + Number(c.amountMe || 0) + Number(c.deposit || 0), 0);
-  const potential = clients.reduce((s, c) => s + (c.amountMax || 0), 0);
+  const elDate = document.getElementById('mk-summary-date');
+  const euro = n => `€${(Number(n)||0).toFixed(2)}`;
 
-  document.getElementById('mk-subs-count').textContent = subs;
-  document.getElementById('mk-earned').textContent = `€${earned.toFixed(2)}`;
-  document.getElementById('mk-potential').textContent = `€${potential.toFixed(2)}`;
+  // ---- 0) Источник: журнал маркетинга (таблица ниже)
+  const items = Array.isArray(marketing) ? marketing.slice() : [];
+  items.sort((a,b)=> (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
 
-  // Диаграмма обращений
+  // ---- 1) Шапка: "от <первая дата> — <сегодня> · N дней"
+  const fmt = (ymd) => {
+    if (!ymd) return '';
+    const [y,m,d] = String(ymd).split('-').map(x=>parseInt(x,10));
+    const dt = new Date(y, (m||1)-1, d||1);
+    return dt.toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit', year:'numeric'});
+  };
+  const firstYmd = items.length ? items[0].date : null;
+  const today = new Date();
+  const todayYmd = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  let days = 0;
+  if (firstYmd) {
+    const d0 = new Date(firstYmd);
+    const diff = Math.ceil((today.setHours(0,0,0,0) - d0.setHours(0,0,0,0)) / 86400000);
+    days = Math.max(0, diff + 1); // инклюзивно
+  }
+  if (elDate) elDate.textContent = firstYmd
+    ? `${fmt(firstYmd)} — ${fmt(todayYmd)} · ${days} ${days % 10 === 1 && days % 100 !== 11 ? 'день' : (days % 10 >= 2 && days % 10 <= 4 && (days % 100 < 10 || days % 100 >= 20) ? 'дня' : 'дней')}`
+    : `${fmt(todayYmd)} · 0 дней`;
+
+  // ---- 2) KPI
+  // Подписки: сумма IG-добавлений (delta) из журнала
+  const subs = items.reduce((s, e) => s + Number(e.delta || 0), 0);
+
+  // Заработано: все предоплаты + все проведённые сеансы
+  let earned = 0;
+  for (const c of (clients || [])) {
+    earned += Number(c?.deposit || 0);
+    const sessions = Array.isArray(c?.sessions) ? c.sessions : [];
+    for (const s of sessions) {
+      const obj = (typeof s === 'object') ? s : { price: Number(s)||0, done:false };
+      if (obj.done) earned += Number(obj.price || 0);
+    }
+  }
+
+  // Потенциал: из карточки №5 (максимум)
+  let potential = 0;
+  try {
+    const until = document.getElementById('mkPotentialUntil')?.value || '';
+    const totals = typeof mkCalcTotalsAndPotential === 'function'
+      ? mkCalcTotalsAndPotential(clients, items, until)
+      : null;
+    potential = Number(totals?.potential?.max || 0);
+  } catch(_){}
+
+  // Проставляем KPI
+  const byId = (id) => document.getElementById(id);
+  byId('mk-subs-count') && (byId('mk-subs-count').textContent = subs);
+  byId('mk-earned') && (byId('mk-earned').textContent = euro(earned));
+  byId('mk-potential') && (byId('mk-potential').textContent = euro(potential));
+
+  // ---- 3) Диаграмма «Обращения»
   const leads = {
-    cold: clients.filter(c => c.status === 'Холодный лид').length,
-    lead: clients.filter(c => c.status === 'Лид').length,
-    consult: clients.filter(c => c.status.includes('консультация')).length,
-    session: clients.filter(c => c.sessions?.some(s => s.done)).length
+    cold: (clients||[]).filter(c => /холод/i.test(String(c?.status||c?.stage||''))).length,
+    lead: (clients||[]).filter(c => /^лид$/i.test(String(c?.status||''))).length,
+    consult: (clients||[]).filter(c => /консул/i.test(String(c?.status||''))).length,
+    session: (clients||[]).filter(c => Array.isArray(c?.sessions) && c.sessions.some(s => (typeof s==='object'? s.done : false))).length
   };
   new Chart(document.getElementById('mk-chart-leads'), {
     type: 'doughnut',
@@ -4778,13 +4828,19 @@ function mkRenderSummary(clients, marketing) {
         data: [leads.cold, leads.lead, leads.consult, leads.session],
         backgroundColor: ['#186663','#8C7361','#A6B5B4','#D2AF94']
       }]
-    }
+    },
+    options: { plugins: { legend: { position: 'bottom' } }, cutout:'65%' }
   });
 
-  // Диаграмма расходов (общая сумма + страны)
-  const totalSpent = marketing.reduce((s, m) => s + Number(m.amount || 0), 0);
-  const spentSk = marketing.filter(m => m.country === 'Slovakia').reduce((s, m) => s + Number(m.amount || 0), 0);
-  const spentAt = marketing.filter(m => m.country === 'Austria').reduce((s, m) => s + Number(m.amount || 0), 0);
+  // ---- 4) Диаграмма «Расходы» (Всего / Словакия / Австрия) из журнала
+  const byCountry = (cc) => items
+    .filter(m => (m.country||'').toLowerCase().startsWith(cc))
+    .reduce((s,m)=> s + Number(m.amount || m.daySpent || 0), 0);
+
+  // «Всего» для пончика берём сумму дневных/внесённых значений
+  const totalSpent = items.reduce((s, m) => s + Number(m.amount || m.daySpent || 0), 0);
+  const spentSk = byCountry('slovak');   // Slovakia
+  const spentAt = byCountry('austr');    // Austria
 
   new Chart(document.getElementById('mk-chart-costs'), {
     type: 'doughnut',
@@ -4794,11 +4850,10 @@ function mkRenderSummary(clients, marketing) {
         data: [totalSpent, spentSk, spentAt],
         backgroundColor: ['#002D37','#186663','#D2AF94']
       }]
-    }
+    },
+    options: { plugins: { legend: { position: 'bottom' } }, cutout:'65%' }
   });
 }
-
-
 
 // Инициализация карточек
 document.addEventListener('DOMContentLoaded', async () => {
