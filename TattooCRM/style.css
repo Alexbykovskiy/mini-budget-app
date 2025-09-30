@@ -1667,3 +1667,58 @@ dialog[open] .modal-body{
   border: 1px solid rgba(255,255,255,.18);
 }
 .mk-costs-total{ margin-left:auto; font-weight:700; font-variant-numeric: tabular-nums; }
+
+
+/* --- Marketing → Card #9 (Воронка привлечения): стили как у карточки №5 --- */
+#mk-card-acq {
+  /* те же переменные, что у totals-card */
+  --tc-fs-title: 16px;
+  --tc-fs-text: 12px;
+  --tc-gap-y: 6px;
+
+  display: block !important;      /* один столбец */
+  text-align: left !important;
+  padding: 12px 14px;             /* как у инфо-карт */
+}
+
+/* Заголовок — как .tc-title */
+#mk-card-acq .mk-card-title{
+  font-size: var(--tc-fs-title);
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: var(--tc-gap-y);
+}
+
+/* Список — как .tc-list/.tc-row */
+#mk-card-acq .mk-list{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: block;
+}
+#mk-card-acq .mk-row{
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 3px 0;
+}
+
+/* Подписи и значения — как .tc-label/.tc-value */
+#mk-card-acq .label{
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--tc-fs-text);
+  line-height: 1.25;
+  font-weight: 300;      /* тонкий, как в карточке №5 */
+  opacity: .8;
+  overflow-wrap: anywhere;
+}
+#mk-card-acq .value{
+  flex: 0 0 auto;
+  font-size: var(--tc-fs-text);
+  line-height: 1.25;
+  font-weight: 400;      /* сбиваем жирность, чтобы не наследовать .stat-card span */
+  white-space: nowrap;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
