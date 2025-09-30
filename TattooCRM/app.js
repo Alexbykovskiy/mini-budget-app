@@ -508,6 +508,11 @@ if (document.querySelector('[data-tab="marketingPage"]').classList.contains('is-
         mkRenderCardTotals(totals);
  // Карточка №6: обновить финансы
       if (typeof mkUpdateFinanceCard === 'function') mkUpdateFinanceCard();
+// --- [NEW] Карточка №8: обновить студийную аналитику при изменении клиентов
+{
+  const split = mkCalcStudioSplit(AppState.clients);
+  mkRenderCardStudioSplit(split);
+}
       }
     }, (err)=> {
       console.error(err);
@@ -2761,6 +2766,9 @@ function mkEodMs(ymd) {
   return Date.parse(`${ymd}T23:59:59.999Z`);
 }
 
+
+
+
 // Determine if a status is "cold"
 function mkIsColdStatus(st) {
   let s = (typeof normalizeStatus === 'function')
@@ -3226,6 +3234,61 @@ return {
   amounts: { me: sumMe, studio: sumStudio, ratioText }
 };
 }
+
+// === [NEW] Карточка №8: Студийная аналитика ===============================
+
+// «Это студийный источник?» — true, если source == "Студия" (без учета регистра и пробелов)
+function _isStudioSource(src) {
+  return String(src || '').trim().toLowerCase() === 'студия';
+}
+
+// Суммируем по группе клиентов: суммы мне / студии + текстовое соотношение
+function _mkSumMeStudio(list) {
+  const me = (Array.isArray(list) ? list : []).reduce((s, c) => s + Number(c?.amountMe || 0), 0);
+  const studio = (Array.isArray(list) ? list : []).reduce((s, c) => s + Number(c?.amountStudio || 0), 0);
+  const total = me + studio;
+  const ratioText = total > 0
+    ? `${(me / total * 100).toFixed(1)}% / ${(studio / total * 100).toFixed(1)}%`
+    : '—';
+  return { me, studio, ratioText };
+}
+
+// Главный расчёт: разбиваем клиентов на «мои» и «студийные» по полю source
+function mkCalcStudioSplit(clients) {
+  const arr = Array.isArray(clients) ? clients : [];
+  const myClients = arr.filter(c => !_isStudioSource(c?.source)); // все КРОМЕ «Студия»
+  const stClients = arr.filter(c =>  _isStudioSource(c?.source)); // только «Студия»
+
+  const my = _mkSumMeStudio(myClients);
+  const st = _mkSumMeStudio(stClients);
+
+  // Баланс: что я заплатил студии (из Мои.клиенты → amountStudio) минус что студия заплатила мне (из Студийные.клиенты → amountMe)
+  const balance = my.studio - st.me; // >0 значит я «в минусе» к студии; <0 — студия «в минусе» ко мне
+
+  return { my, st, balance };
+}
+
+// Рендер в карточку №8 (см. id'шники в index.html)
+function mkRenderCardStudioSplit(data) {
+  if (!data) return;
+  const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+  const € = n => `€${Number(n || 0).toFixed(2)}`;
+
+  // Мои клиенты
+  set('mk8-my-amount-me',     €(data.my.me));
+  set('mk8-my-amount-studio', €(data.my.studio));
+  set('mk8-my-ratio',         data.my.ratioText);
+
+  // Студийные клиенты
+  set('mk8-st-amount-me',     €(data.st.me));
+  set('mk8-st-amount-studio', €(data.st.studio));
+  set('mk8-st-ratio',         data.st.ratioText);
+
+  // Баланс
+  set('mk8-studio-balance',   €(data.balance));
+}
+
+
 // === [NEW] Финансы (карточка №6) ===============================
 
 // Берём последнее total по рекламе
@@ -4565,6 +4628,12 @@ mkRenderCardTotals(totals1);
 const logRows1 = mkBuildClientLog(MK_CLIENTS_CACHE);
 mkRenderClientLog(logRows1);
 
+// --- [NEW] Карточка №8: первичный рендер студийной аналитики
+{
+  const split1 = mkCalcStudioSplit(MK_CLIENTS_CACHE);
+  mkRenderCardStudioSplit(split1);
+}
+
 
       // Пересчёт при смене даты
       untilInput.addEventListener('change', () => {
@@ -4572,6 +4641,11 @@ mkRenderClientLog(logRows1);
         mkRenderCardTotals(totals2);
 const logRows2 = mkBuildClientLog(MK_CLIENTS_CACHE);
 mkRenderClientLog(logRows2);
+// Перерисуем и карточку №8 (она от даты не зависит, но держим в актуальном состоянии)
+{
+  const split2 = mkCalcStudioSplit(MK_CLIENTS_CACHE);
+  mkRenderCardStudioSplit(split2);
+}
       });
     }
 const btnMig = document.getElementById('btnMigrateAll');
