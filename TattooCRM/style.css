@@ -1789,42 +1789,51 @@ dialog[open] .modal-body{
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
-
-/* --- Card #7: Журнал клиентов — стиль как у карточек 5/9 --- */
-#mk-card-log {
-  font-size: 12px;            /* мелкий общий кегль как у totals */
-  line-height: 1.25;
-  padding: 12px 14px;         /* равномерно, как у 5 */
-  box-sizing: border-box;
+/* --- Card #7: Журнал клиентов — как у карточек 5/9 --- */
+#mk-card-log{
+  display:block !important;
+  font-size:12px;             /* общий кегль */
+  line-height:1.25;
+  text-align:left;
+  padding:12px 14px;
 }
-#mk-card-log .mk-card-title {
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-/* Список в виде «лейбл слева — значение справа», без точек */
-#mk-card-log .mk-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-#mk-card-log .mk-list .mk-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 4px 0;             /* больше воздуха между строками */
-}
-#mk-card-log .mk-list .label {
-  font-weight: 400;           /* тонкий, как в 5 и 9 */
-  opacity: .9;
-}
-#mk-card-log .mk-list .value {
-  font-weight: 700;           /* цифры жирные */
+#mk-card-log .mk-card-title{
+  font-size:14px;
+  font-weight:700;
+  margin:0 0 6px 0;
 }
 
-@media (max-width: 480px) {
-  #mk-card-log { font-size: 11px; }
-  #mk-card-log .mk-card-title { font-size: 13px; }
+/* список без буллетов */
+#mk-card-log .mk-list{ list-style:none; margin:0; padding:0; }
+
+/* строки — колонками, с воздухом */
+#mk-card-log .mk-list .mk-row{
+  display:flex; align-items:baseline; gap:10px; padding:3px 0;
 }
+
+/* СБРОС глобального .stat-card span (иначе 14.5px/600) */
+#mk-card-log .mk-row .label,
+#mk-card-log .mk-row .value{
+  all:unset;                  /* снять чужие font-size/weight/letter-spacing */
+  font-size:12px;             /* как у №5/№9 */
+  line-height:1.25;
+}
+
+/* подписи слева — тонкие */
+#mk-card-log .mk-row .label{
+  flex:1 1 auto; min-width:0;
+  font-weight:300; opacity:.8; overflow-wrap:anywhere;
+}
+
+/* цифры справа — жирные, моноцифры */
+#mk-card-log .mk-row .value{
+  margin-left:auto; flex:0 0 auto;
+  font-weight:700; white-space:nowrap; text-align:right;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width:480px){
+  #mk-card-log{ font-size:11px; }
+  #mk-card-log .mk-card-title{ font-size:13px; }
+}
+
