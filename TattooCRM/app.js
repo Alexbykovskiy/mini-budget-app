@@ -541,9 +541,6 @@ try {
 // --- [NEW] Карточка №8: студийная аналитика
 const split = mkCalcStudioSplit(AppState.clients);
 mkRenderCardStudioSplit(split);
-// --- [NEW] Карточка №8: студийная аналитика
-const split = mkCalcStudioSplit(AppState.clients);
-mkRenderCardStudioSplit(split);
 
 // --- [NEW] KPI и общий отчёт (блок после «Заглушка 9»)
 const kpi = mkCalcKPI(AppState.clients, AppState.marketing, totals);
