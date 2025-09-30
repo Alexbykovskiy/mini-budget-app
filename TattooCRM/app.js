@@ -284,6 +284,8 @@ renderFullCalendar();
 initCalendarStack({ forceConsent: false }).catch(console.warn);
 
 listenMarketingRealtime();
+mkBindCostsForm();
+listenManualCostsRealtime();
 toast('Добро пожаловать обратно 👋');
     } catch (e) {
       console.warn('restore session failed', e);
@@ -515,6 +517,7 @@ mkRenderCardStudioSplit(split);
 const kpi = mkCalcKPI(AppState.clients, AppState.marketing, totals);
 mkRenderKPI(kpi);
 mkRenderSummary(AppState.clients, AppState.marketing);
+mkRenderCountriesChart(AppState.clients);
  // Карточка №6: обновить финансы
       if (typeof mkUpdateFinanceCard === 'function') mkUpdateFinanceCard();
 // === обновляем KPI и Общий отчёт после прихода данных журнала ===
