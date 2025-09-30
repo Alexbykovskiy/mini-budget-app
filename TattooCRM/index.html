@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
 
+
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Tattoo CRM — Clients · Calendar · Marketing</title>
@@ -485,6 +486,37 @@
   </div>
 </div>
     <div class="stat-card"><span>Заглушка 9</span></div>
+
+<div class="stat-card glass" id="mk-card-summary">
+  <div class="mk-card-title">Общий отчёт</div>
+  <div class="mk-subtitle" id="mk-summary-date">Отчёт на 11.09.2025 (за 0 дней)</div>
+
+  <div class="mk-summary-kpi">
+    <div class="kpi">
+      <span class="kpi-label">Подписки</span>
+      <span class="kpi-value" id="mk-subs-count">0</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-label">Заработано</span>
+      <span class="kpi-value" id="mk-earned">€0</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-label">Потенциал</span>
+      <span class="kpi-value" id="mk-potential">€0</span>
+    </div>
+  </div>
+
+  <div class="mk-summary-charts">
+    <div class="chart-block">
+      <h4>Обращения</h4>
+      <canvas id="mk-chart-leads"></canvas>
+    </div>
+    <div class="chart-block">
+      <h4>Расходы</h4>
+      <canvas id="mk-chart-costs"></canvas>
+    </div>
+  </div>
+</div> 
   </div>
 </section>
 
@@ -769,7 +801,7 @@
 
 
 
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="./app.js"></script>
 </div> <!-- .container -->
 <!-- Confirm dialog (универсальный) -->

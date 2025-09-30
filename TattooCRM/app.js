@@ -512,6 +512,9 @@ if (document.querySelector('[data-tab="marketingPage"]').classList.contains('is-
 {
   const split = mkCalcStudioSplit(AppState.clients);
   mkRenderCardStudioSplit(split);
+const kpi = mkCalcKPI(AppState.clients, AppState.marketing, totals);
+mkRenderKPI(kpi);
+mkRenderSummary(AppState.clients, AppState.marketing);
 }
       }
     }, (err)=> {
@@ -4586,6 +4589,50 @@ function mkRenderClientLog(rows) {
   });
 }
 
+function mkRenderSummary(clients, marketing) {
+  const subs = marketing.reduce((s, m) => s + Number(m.subs || 0), 0);
+  const earned = clients.reduce((s, c) => s + Number(c.amountMe || 0) + Number(c.deposit || 0), 0);
+  const potential = clients.reduce((s, c) => s + (c.amountMax || 0), 0);
+
+  document.getElementById('mk-subs-count').textContent = subs;
+  document.getElementById('mk-earned').textContent = `€${earned.toFixed(2)}`;
+  document.getElementById('mk-potential').textContent = `€${potential.toFixed(2)}`;
+
+  // Диаграмма обращений
+  const leads = {
+    cold: clients.filter(c => c.status === 'Холодный лид').length,
+    lead: clients.filter(c => c.status === 'Лид').length,
+    consult: clients.filter(c => c.status.includes('консультация')).length,
+    session: clients.filter(c => c.sessions?.some(s => s.done)).length
+  };
+  new Chart(document.getElementById('mk-chart-leads'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Холодные', 'Лиды', 'Консультации', 'Сеансы'],
+      datasets: [{
+        data: [leads.cold, leads.lead, leads.consult, leads.session],
+        backgroundColor: ['#186663','#8C7361','#A6B5B4','#D2AF94']
+      }]
+    }
+  });
+
+  // Диаграмма расходов (общая сумма + страны)
+  const totalSpent = marketing.reduce((s, m) => s + Number(m.amount || 0), 0);
+  const spentSk = marketing.filter(m => m.country === 'Slovakia').reduce((s, m) => s + Number(m.amount || 0), 0);
+  const spentAt = marketing.filter(m => m.country === 'Austria').reduce((s, m) => s + Number(m.amount || 0), 0);
+
+  new Chart(document.getElementById('mk-chart-costs'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Всего', 'Словакия', 'Австрия'],
+      datasets: [{
+        data: [totalSpent, spentSk, spentAt],
+        backgroundColor: ['#002D37','#186663','#D2AF94']
+      }]
+    }
+  });
+}
+
 
 
 // Инициализация карточек
@@ -4632,6 +4679,10 @@ mkRenderClientLog(logRows1);
 {
   const split1 = mkCalcStudioSplit(MK_CLIENTS_CACHE);
   mkRenderCardStudioSplit(split1);
+ // --- KPI / Общий отчёт (карточка №10 под Заглушкой 9)
+  const kpi1 = mkCalcKPI(MK_CLIENTS_CACHE, AppState.marketing, totals1);
+  mkRenderKPI(kpi1);
+  mkRenderSummary(AppState.clients || MK_CLIENTS_CACHE, AppState.marketing);
 }
 
 
@@ -4645,6 +4696,9 @@ mkRenderClientLog(logRows2);
 {
   const split2 = mkCalcStudioSplit(MK_CLIENTS_CACHE);
   mkRenderCardStudioSplit(split2);
+ const kpi2 = mkCalcKPI(MK_CLIENTS_CACHE, AppState.marketing, totals2);
+  mkRenderKPI(kpi2);
+  mkRenderSummary(AppState.clients || MK_CLIENTS_CACHE, AppState.marketing);
 }
       });
     }
