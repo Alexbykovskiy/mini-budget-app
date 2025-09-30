@@ -5012,7 +5012,28 @@ const cons =
   ).length;
 
   // «Потенциалы»: тёплые лиды, которые ещё НЕ стали клиентами
-  const pot = Math.max(0, leads - customers);
+  // «Потенциалы»: клиент имеет назначенный сеанс ИЛИ уже провёл хотя бы один
+const hasDoneSession = (c) =>
+  Array.isArray(c?.sessions) &&
+  c.sessions.some(s => {
+    const o = (typeof s === 'object') ? s : {};
+    // done-флажок или явный статус "done/проведён"
+    return !!(o.done === true || /done|провед/i.test(String(o.status || o.state || '')));
+  });
+
+const hasPlannedSession = (c) => {
+  const arr = Array.isArray(c?.sessions) ? c.sessions : [];
+  return arr.some(s => {
+    const o = (typeof s === 'object') ? s : {};
+    const isDone = !!(o.done === true || /done|провед/i.test(String(o.status || o.state || '')));
+    // Любое поле даты/времени: date/when/dt/start/startAt/datetime
+    const hasDate = !!(o.date || o.when || o.dt || o.start || o.startAt || o.datetime);
+    return !isDone && hasDate;
+  });
+};
+
+// Кол-во уникальных клиентов с назначенными ИЛИ уже проведёнными сеансами
+const pot = (clients || []).filter(c => hasDoneSession(c) || hasPlannedSession(c)).length;
 
   // безопасное деление
   const div = (a, b) => (b > 0 ? a / b : NaN);
