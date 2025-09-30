@@ -322,6 +322,17 @@ function bindTabbar(){
   mkRenderLeadsDonut(AppState.clients || MK_CLIENTS_CACHE);
   mkRenderCostsChartManual();
   mkRenderCountriesChart(AppState.clients || MK_CLIENTS_CACHE);
+
+// === [MK#9] Форс-рендер карточки «Заглушка 9» при открытии вкладки
+try {
+  const m9 = mkCalcAcqFunnelMetrics(
+    AppState.clients || MK_CLIENTS_CACHE || [],
+    AppState.marketing || []
+  );
+  mkRenderAcqCard(m9);
+} catch (e) {
+  console.warn('mk9 render on tab open', e);
+}
 }
       if (btn.dataset.tab === 'suppliesPage') renderSupplies();
       if (btn.dataset.tab === 'settingsPage') fillSettingsForm();
@@ -514,7 +525,22 @@ if (document.querySelector('[data-tab="marketingPage"]').classList.contains('is-
       const untilInput = document.getElementById('mkPotentialUntil');
       if (untilInput) {
         const totals = mkCalcTotalsAndPotential(AppState.clients, AppState.marketing, untilInput.value);
-        mkRenderCardTotals(totals);
+       mkRenderCardTotals(totals);
+
+// === [MK#9] Acquisition Funnel: пересчёт карточки «Заглушка 9»
+try {
+  const m9 = mkCalcAcqFunnelMetrics(
+    AppState.clients || [],
+    AppState.marketing || []
+  );
+  mkRenderAcqCard(m9);
+} catch (e) {
+  console.warn('mk9 refresh after clients update', e);
+}
+
+// --- [NEW] Карточка №8: студийная аналитика
+const split = mkCalcStudioSplit(AppState.clients);
+mkRenderCardStudioSplit(split);
 // --- [NEW] Карточка №8: студийная аналитика
 const split = mkCalcStudioSplit(AppState.clients);
 mkRenderCardStudioSplit(split);
@@ -3827,6 +3853,19 @@ function listenMarketingRealtime(){
       if (untilInput) {
         const totals = mkCalcTotalsAndPotential(AppState.clients || MK_CLIENTS_CACHE, AppState.marketing, untilInput.value);
         mkRenderCardTotals(totals);
+
+// === [MK#9] Acquisition Funnel: пересчёт карточки «Заглушка 9» при обновлении маркетинга
+try {
+  const m9 = mkCalcAcqFunnelMetrics(
+    AppState.clients || MK_CLIENTS_CACHE || [],
+    AppState.marketing || []
+  );
+  mkRenderAcqCard(m9);
+} catch (e) {
+  console.warn('mk9 refresh after marketing update', e);
+}
+
+
       }
 
       renderMarketing();
@@ -4949,6 +4988,71 @@ function listenManualCostsRealtime() {
   } catch (e) {
     console.warn('listenManualCostsRealtime', e);
   }
+}
+
+// === [MK#9] Acquisition Funnel metrics ===
+function mkCalcAcqFunnelMetrics(clients = [], marketing = []) {
+  // Расходы: берём последнее "spentTotal" из журнала
+  const spent = mkGetLatestAdsSpentTotal(marketing) || 0;
+
+  // Подписчики: сумма delta по дням
+  const subs = (marketing || []).reduce((s, m) => s + Number(m?.delta || 0), 0);
+
+  // Тёплые лиды: все, у кого статус НЕ "Холодный лид"
+  const leads = (clients || []).filter(c => !/холод/i.test(String(c?.status || ''))).length;
+
+  // Консультации: флаг consult ИЛИ статус содержит "конс"
+  const cons = (clients || []).filter(c =>
+    (c?.consult === true) || /конс/i.test(String(c?.status || ''))
+  ).length;
+
+  // Клиенты: есть депозит ИЛИ есть хотя бы один завершённый сеанс
+  const customers = (clients || []).filter(c =>
+    Number(c?.deposit || 0) > 0 ||
+    (Array.isArray(c?.sessions) && c.sessions.some(s => s?.done))
+  ).length;
+
+  // «Потенциалы»: тёплые лиды, которые ещё НЕ стали клиентами
+  const pot = Math.max(0, leads - customers);
+
+  // безопасное деление
+  const div = (a, b) => (b > 0 ? a / b : NaN);
+
+  return {
+    spent,
+    subs,
+    cps: div(spent, subs),        // цена подписчика
+    leads,
+    cpl: div(spent, leads),       // цена лида
+    cons,
+    cpc: div(spent, cons),        // цена консультации
+    pot,
+    cpp: div(spent, pot),         // цена «потенциала»
+    customers,
+    cac: div(spent, customers)    // CAC
+  };
+}
+
+function mkRenderAcqCard(m) {
+  const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  const euro0 = n => '€' + (isFinite(n) ? Math.round(n) : 0);
+  const money = n => (isFinite(n) ? (Math.round(n * 100) / 100).toFixed(2) : '—');
+
+  setTxt('mk9-spent', euro0(m.spent));
+  setTxt('mk9-subs', String(m.subs));
+  setTxt('mk9-cps',  isFinite(m.cps) ? money(m.cps) : '—');
+
+  setTxt('mk9-leads', String(m.leads));
+  setTxt('mk9-cpl',  isFinite(m.cpl) ? money(m.cpl) : '—');
+
+  setTxt('mk9-cons', String(m.cons));
+  setTxt('mk9-cpc',  isFinite(m.cpc) ? money(m.cpc) : '—');
+
+  setTxt('mk9-pot',  String(m.pot));
+  setTxt('mk9-cpp',  isFinite(m.cpp) ? money(m.cpp) : '—');
+
+  setTxt('mk9-customers', String(m.customers));
+  setTxt('mk9-cac',  isFinite(m.cac) ? money(m.cac) : '—');
 }
 
 
