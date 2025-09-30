@@ -2778,6 +2778,163 @@ function mkEodMs(ymd) {
 }
 
 
+/* ===== SUMMARY: helpers ===== */
+
+// берём последнее "общая сумма на рекламу (spentTotal)" из истории маркетинга
+function mkGetLatestAdsSpentTotal(marketingArr){
+  const arr = Array.isArray(marketingArr) ? marketingArr.slice() : [];
+  arr.sort((a,b)=> (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
+  return Number(arr.length ? (arr[arr.length-1].spentTotal||0) : 0);
+}
+
+// KPI агрегаты (подписки, заработано, потенциал)
+function mkCalcKPI(clients = [], marketing = [], totalsMaybe = null){
+  // 1) подписки: суммируем delta
+  const subs = (marketing||[]).reduce((s,m)=> s + Number(m?.delta||0), 0);
+
+  // 2) заработано: депозиты + суммы завершённых сеансов
+  let earned = 0;
+  for (const c of (clients||[])){
+    earned += Number(c?.deposit||0);
+    const sessions = Array.isArray(c?.sessions) ? c.sessions : [];
+    for (const s of sessions){
+      if (s?.done) earned += Number(s?.price||0);
+    }
+  }
+
+  // 3) потенциал: берём из уже рассчитанных итогов, если пришли; иначе сами считаем:
+  //   - незавершённые сеансы (цена) + диапазон озвученной суммы (мин/макс)
+  let pot = 0;
+  for (const c of (clients||[])){
+    const sessions = Array.isArray(c?.sessions) ? c.sessions : [];
+    for (const s of sessions){
+      if (!s?.done) pot += Number(s?.price||0);
+    }
+    // если нет сеансов, учитываем озвученный диапазон (берём максимум реалистично)
+    if (!sessions.length){
+      const mn = Number(c?.amountMin ?? NaN);
+      const mx = Number(c?.amountMax ?? NaN);
+      if (!Number.isNaN(mx)) pot += mx;
+      else if (!Number.isNaN(mn)) pot += mn;
+    }
+  }
+
+  // округление по деньгам
+  const euro = n => '€' + (Number(n)||0).toFixed(0);
+
+  return {
+    subs,
+    earnedRaw: earned,
+    potentialRaw: pot,
+    earned: euro(earned),
+    potential: euro(pot),
+    adsSpent: euro(mkGetLatestAdsSpentTotal(marketing))
+  };
+}
+
+/* ===== SUMMARY: UI fill ===== */
+function mkRenderKPI(kpi){
+  // защитимся, если карточка ещё не в DOM
+  const byId = id => document.getElementById(id);
+  if (!byId('mk-subs-count')) return;
+
+  byId('mk-subs-count').textContent = (kpi?.subs||0);
+  byId('mk-earned').textContent     = (kpi?.earned||'€0');
+  byId('mk-potential').textContent  = (kpi?.potential||'€0');
+
+  // подпишем дату отчёта «сегодня»
+  try{
+    const d = new Date();
+    const dd = d.toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit', year:'numeric'});
+    byId('mk-summary-date').textContent = `Отчёт на ${dd}`;
+  }catch(_){}
+}
+
+/* ===== SUMMARY: charts (Chart.js) ===== */
+let MK_SUMMARY_LEADS = null;
+let MK_SUMMARY_COSTS = null;
+
+function mkRenderSummary(clients = [], marketing = []){
+  const elLeads = document.getElementById('mk-chart-leads');
+  const elCosts = document.getElementById('mk-chart-costs');
+  if (!elLeads || !elCosts || typeof Chart !== 'function') return;
+
+  // ---- 1) LEADS donut: распределение статусов
+  const counts = {
+    cold: 0, consult: 0, deposit: 0, session: 0, other: 0
+  };
+  (clients||[]).forEach(c=>{
+    const raw = String(c?.status || c?.stage || c?.type || '').toLowerCase();
+    const s = (typeof normalizeStatus === 'function') ? normalizeStatus(raw) : raw;
+    if (s.includes('cold') || s.includes('холод')) counts.cold++;
+    else if (s.includes('consult') || s.includes('конс')) counts.consult++;
+    else if (s.includes('deposit') || s.includes('предоплат') || s.includes('эскиз')) counts.deposit++;
+    else if (s.startsWith('session') || s.includes('сеанс')) counts.session++;
+    else counts.other++;
+  });
+
+  const donutCfg = {
+    type: 'doughnut',
+    data: {
+      labels: ['Холодные','Консультации','Предоплата/эскиз','Сеансы','Прочие'],
+      datasets: [{
+        data: [counts.cold,counts.consult,counts.deposit,counts.session,counts.other],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { position: 'bottom' }
+      },
+      cutout: '65%'
+    }
+  };
+
+  if (MK_SUMMARY_LEADS) MK_SUMMARY_LEADS.destroy();
+  MK_SUMMARY_LEADS = new Chart(elLeads.getContext('2d'), donutCfg);
+
+  // ---- 2) COSTS bar: динамика расходов по дням (берём последние 12 записей)
+  const arr = Array.isArray(marketing) ? marketing.slice() : [];
+  arr.sort((a,b)=> (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
+
+  // превращаем cumulated spentTotal -> дневные расходы
+  const last12 = arr.slice(-12);
+  const labels = last12.map(r => (r.date || '').slice(5)); // "MM-DD"
+  const daySpends = [];
+  let prev = 0;
+  last12.forEach(r=>{
+    const total = Number(r?.spentTotal||0);
+    daySpends.push(Math.max(0, total - prev));
+    prev = total;
+  });
+
+  const barCfg = {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Расход/день, €',
+        data: daySpends
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--grid-color') } },
+        y: {
+          beginAtZero: true,
+          grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--grid-color') }
+        }
+      },
+      plugins: { legend: { display: false } }
+    }
+  };
+
+  if (MK_SUMMARY_COSTS) MK_SUMMARY_COSTS.destroy();
+  MK_SUMMARY_COSTS = new Chart(elCosts.getContext('2d'), barCfg);
+}
 
 
 // Determine if a status is "cold"

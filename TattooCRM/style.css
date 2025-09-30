@@ -1561,55 +1561,78 @@ dialog[open] .modal-body{
   height: 200px;
 }
 
-/* Внутренняя сетка в широком блоке */
-#mk-card-summary .mk-summary-kpi{
-  display:grid;
-  grid-template-columns: repeat(3, minmax(0,1fr));
-  gap:16px;
-  margin: 16px 0 20px;
+/* ===== SUMMARY (Общий отчёт) ===== */
+.stat-card--full{
+  grid-column: 1 / -1;
+  padding: 18px 18px 14px;
+  background: radial-gradient(120% 120% at 0% 0%, rgba(56,115,255,.12), rgba(0,0,0,.0)) , var(--glass-bg, rgba(255,255,255,.04));
+  border: 1px solid rgba(255,255,255,.08);
+}
+#mk-card-summary .mk-card-title{
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+#mk-summary-date{
+  opacity:.8;
+  font-size: 12.5px;
+  margin-top: 2px;
 }
 
-#mk-card-summary .mk-summary-charts{
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap:20px;
+/* KPI row */
+.mk-summary-kpi{
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 12px;
+  margin: 12px 0 6px;
 }
-
-/* Карточки KPI внутри отчёта */
-#mk-card-summary .kpi{
-  padding:12px 14px;
-  border-radius:14px;
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.08);
-  backdrop-filter: blur(6px);
-  text-align:center;
+.kpi{
+  padding: 14px 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
 }
-#mk-card-summary .kpi-label{opacity:.8;font-size:13px;margin-bottom:6px}
-#mk-card-summary .kpi-value{font-size:22px;font-weight:700;letter-spacing:.2px}
-
-/* Блоки диаграмм */
-#mk-card-summary .chart-block{
-  padding:12px 14px;
-  border-radius:14px;
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.08);
-  backdrop-filter: blur(6px);
-}
-#mk-card-summary .chart-block h4{
-  margin:0 0 10px;
-  font-size:14px;
-  opacity:.9;
-}
-
-/* канвас растягивается по ширине карточки, высота адаптивная */
-#mk-card-summary .chart-block canvas{
-  width:100%;
-  height:260px; /* можно 220–280px */
+.kpi-label{
   display:block;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.6px;
+  opacity:.75;
+  margin-bottom:6px;
+}
+.kpi-value{
+  display:block;
+  font-variant-numeric: tabular-nums;
+  font-size: 34px;
+  line-height: 1.05;
+  font-weight: 800;
 }
 
-/* Адаптив */
-@media (max-width: 900px){
-  #mk-card-summary .mk-summary-kpi{grid-template-columns: 1fr}
-  #mk-card-summary .mk-summary-charts{grid-template-columns: 1fr}
+/* charts */
+.mk-summary-charts{
+  display:grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin-top: 8px;
+}
+.chart-block{
+  padding: 12px;
+  border: 1px dashed rgba(255,255,255,.14);
+  border-radius: 12px;
+  background: rgba(255,255,255,.03);
+  min-height: 220px;
+}
+.chart-block h4{
+  margin:0 0 8px;
+  font-size: 13px;
+  letter-spacing:.3px;
+  opacity:.85;
+}
+.chart-block canvas{
+  width:100% !important;
+  height:180px !important;  /* фиксированная высота, как в инфографике */
+}
+
+/* dark grid lines for charts (универсально) */
+:root{
+  --grid-color: rgba(255,255,255,.3);
 }
