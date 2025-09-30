@@ -4900,6 +4900,88 @@ function mkRenderClientLog(rows) {
   });
 }
 
+const COSTS_LS_KEY = 'mkCostsManual_v1';
+
+function summaryDocRef() {
+  return FB?.db
+    ?.collection('TattooCRM').doc('app')
+    .collection('summary').doc('costsManual');
+}
+
+function applyManualCostsToUI() {
+  const sk = document.getElementById('mkCostSk');
+  const at = document.getElementById('mkCostAt');
+  const total = document.getElementById('mkCostTotal');
+  if (sk) sk.value = Number(AppState.manualCosts?.sk || 0);
+  if (at) at.value = Number(AppState.manualCosts?.at || 0);
+  if (total) {
+    const v = (Number(sk?.value || 0) + Number(at?.value || 0));
+    total.textContent = `Всего: €${v.toFixed(0)}`;
+  }
+}
+
+async function mkSaveManualCosts(vsk, vat) {
+  AppState.manualCosts = { sk: vsk, at: vat };
+  // локально
+  try { localStorage.setItem(COSTS_LS_KEY, JSON.stringify(AppState.manualCosts)); } catch (_){}
+  // Firestore (если доступен)
+  try {
+    const ref = summaryDocRef();
+    if (ref) await ref.set({ sk: vsk, at: vat, updatedAt: new Date().toISOString() }, { merge: true });
+    toast('Расходы сохранены');
+  } catch (e) {
+    console.warn('save firestore', e);
+    // оффлайн — тоже ок, остаёмся на локалке
+    toast('Сохранено локально');
+  }
+}
+
+function mkBindCostsForm() {
+  const sk = document.getElementById('mkCostSk');
+  const at = document.getElementById('mkCostAt');
+  const save = document.getElementById('mkCostSave');
+  if (!sk || !at || !save) return;
+
+  const upd = () => applyManualCostsToUI();
+  if (!sk.dataset.bound) { sk.dataset.bound = '1'; sk.addEventListener('input', upd); }
+  if (!at.dataset.bound) { at.dataset.bound = '1'; at.addEventListener('input', upd); }
+  if (!save.dataset.bound) {
+    save.dataset.bound = '1';
+    save.addEventListener('click', async () => {
+      const vsk = Number(sk.value || 0);
+      const vat = Number(at.value || 0);
+      await mkSaveManualCosts(vsk, vat);
+      mkRenderCostsChartManual();
+    });
+  }
+}
+
+function listenManualCostsRealtime() {
+  // 1) сначала подхватываем локальные значения
+  try {
+    const raw = localStorage.getItem(COSTS_LS_KEY);
+    if (raw) AppState.manualCosts = JSON.parse(raw);
+  } catch (_){}
+  applyManualCostsToUI();
+  mkRenderCostsChartManual();
+
+  // 2) затем подписываемся на Firestore (если доступен)
+  try {
+    const ref = summaryDocRef();
+    if (!ref) return;
+    ref.onSnapshot(snap => {
+      const d = snap.exists ? snap.data() : { sk:0, at:0 };
+      AppState.manualCosts = { sk: Number(d.sk||0), at: Number(d.at||0) };
+      try { localStorage.setItem(COSTS_LS_KEY, JSON.stringify(AppState.manualCosts)); } catch (_){}
+      applyManualCostsToUI();
+      mkRenderCostsChartManual();
+    });
+  } catch (e) {
+    console.warn('listenManualCostsRealtime', e);
+  }
+}
+
+
 function mkRenderSummary(clients, marketing) {
   const elDate = document.getElementById('mk-summary-date');
   const euro = n => `€${(Number(n)||0).toFixed(2)}`;
@@ -5005,6 +5087,14 @@ function mkRenderSummary(clients, marketing) {
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     MK_CLIENTS_CACHE = await mkFetchClientsFallback();
+mkBindCostsForm();
+listenManualCostsRealtime();
+
+// первый рендер карточки «Общий отчёт»
+mkRenderLeadsDonut(AppState.clients || MK_CLIENTS_CACHE);
+mkRenderCostsChartManual();
+mkRenderCountriesChart(AppState.clients || MK_CLIENTS_CACHE);
+
 
     // Карточка №1
     const { counts } = mkBuildOverviewFromClients(MK_CLIENTS_CACHE);
