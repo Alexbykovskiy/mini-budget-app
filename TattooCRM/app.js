@@ -2916,46 +2916,7 @@ function mkRenderSummary(clients = [], marketing = []){
   if (MK_SUMMARY_LEADS) MK_SUMMARY_LEADS.destroy();
   MK_SUMMARY_LEADS = new Chart(elLeads.getContext('2d'), donutCfg);
 
-  // ---- 2) COSTS bar: динамика расходов по дням (берём последние 12 записей)
-  const arr = Array.isArray(marketing) ? marketing.slice() : [];
-  arr.sort((a,b)=> (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
-
-  // превращаем cumulated spentTotal -> дневные расходы
-  const last12 = arr.slice(-12);
-  const labels = last12.map(r => (r.date || '').slice(5)); // "MM-DD"
-  const daySpends = [];
-  let prev = 0;
-  last12.forEach(r=>{
-    const total = Number(r?.spentTotal||0);
-    daySpends.push(Math.max(0, total - prev));
-    prev = total;
-  });
-
-  const barCfg = {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Расход/день, €',
-        data: daySpends
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        x: { grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--grid-color') } },
-        y: {
-          beginAtZero: true,
-          grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--grid-color') }
-        }
-      },
-      plugins: { legend: { display: false } }
-    }
-  };
-
-  if (MK_SUMMARY_COSTS) MK_SUMMARY_COSTS.destroy();
-  MK_SUMMARY_COSTS = new Chart(elCosts.getContext('2d'), barCfg);
+  
 }
 
 /* ====== Ручные расходы (SK/AT) + диаграммы Summary ====== */
