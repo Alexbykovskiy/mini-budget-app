@@ -4887,10 +4887,12 @@ function mkRenderClientLog(rows) {
   const ul = $('#mk-client-log');
   if (!ul) return;
 
+  const euro0 = v => `€${(Number(v) || 0).toFixed(0)}`; // €123
+
   ul.innerHTML = '';
 
   if (!rows.length) {
-    ul.innerHTML = '<li class="mk-row"><span class="label">Нет данных</span></li>';
+    ul.innerHTML = '<li class="mk-row"><span class="label">Нет данных</span><span class="value">—</span></li>';
     return;
   }
 
@@ -4900,12 +4902,11 @@ function mkRenderClientLog(rows) {
     li.className = 'mk-row';
     li.innerHTML = `
       <span class="label">${dateStr} — ${r.name}</span>
-      <span class="value">€${r.me} / €${r.studio}</span>
+      <span class="value">${euro0(r.me)} / ${euro0(r.studio)}</span>
     `;
     ul.appendChild(li);
   });
 }
-
 const COSTS_LS_KEY = 'mkCostsManual_v1';
 
 function summaryDocRef() {
