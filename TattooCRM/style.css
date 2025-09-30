@@ -1689,6 +1689,15 @@ dialog[open] .modal-body{
   margin-bottom: var(--tc-gap-y);
 }
 
+/* Описание тонкое */
+#mk-card-acq .tc-label,
+#mk-card-acq .label { font-weight: 300; opacity: .8; }
+
+/* Цифры толстые */
+#mk-card-acq .tc-value,
+#mk-card-acq .value { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+
 /* Список — как .tc-list/.tc-row */
 #mk-card-acq .mk-list{
   list-style: none;

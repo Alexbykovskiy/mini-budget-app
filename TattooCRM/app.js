@@ -5056,25 +5056,22 @@ const pot = (clients || []).filter(c => hasDoneSession(c) || hasPlannedSession(c
 function mkRenderAcqCard(m) {
   const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   const euro0 = n => '€' + (isFinite(n) ? Math.round(n) : 0);
-  const money = n => (isFinite(n) ? (Math.round(n * 100) / 100).toFixed(2) : '—');
+
+  // раньше money возвращал "12.34", теперь вернёт "€12.34"
+  const money = n => (isFinite(n) ? `€${(Math.round(n * 100) / 100).toFixed(2)}` : '—');
 
   setTxt('mk9-spent', euro0(m.spent));
   setTxt('mk9-subs', String(m.subs));
-  setTxt('mk9-cps',  isFinite(m.cps) ? money(m.cps) : '—');
-
+  setTxt('mk9-cps', money(m.cps));
   setTxt('mk9-leads', String(m.leads));
-  setTxt('mk9-cpl',  isFinite(m.cpl) ? money(m.cpl) : '—');
-
+  setTxt('mk9-cpl', money(m.cpl));
   setTxt('mk9-cons', String(m.cons));
-  setTxt('mk9-cpc',  isFinite(m.cpc) ? money(m.cpc) : '—');
-
+  setTxt('mk9-cpc', money(m.cpc));
   setTxt('mk9-pot',  String(m.pot));
-  setTxt('mk9-cpp',  isFinite(m.cpp) ? money(m.cpp) : '—');
-
+  setTxt('mk9-cpp',  money(m.cpp));
   setTxt('mk9-customers', String(m.customers));
-  setTxt('mk9-cac',  isFinite(m.cac) ? money(m.cac) : '—');
+  setTxt('mk9-cac',  money(m.cac));
 }
-
 
 function mkRenderSummary(clients, marketing) {
   const elDate = document.getElementById('mk-summary-date');
