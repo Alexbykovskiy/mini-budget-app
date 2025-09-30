@@ -4999,9 +4999,11 @@ function mkCalcAcqFunnelMetrics(clients = [], marketing = []) {
   const leads = (clients || []).filter(c => !/холод/i.test(String(c?.status || ''))).length;
 
   // Консультации: флаг consult ИЛИ статус содержит "конс"
-  const cons = (clients || []).filter(c =>
-    (c?.consult === true) || /конс/i.test(String(c?.status || ''))
-  ).length;
+  // 1) пробуем взять точную цифру из конверсии (лиды -> консультация)
+// 2) если кэша ещё нет — fallback на статус
+const cons =
+  Number(AppState?.convReached?.consultation?.n) ||
+  (clients || []).filter(c => normalizeStatus(c?.status) === 'consultation').length;
 
   // Клиенты: есть депозит ИЛИ есть хотя бы один завершённый сеанс
   const customers = (clients || []).filter(c =>
@@ -5184,6 +5186,9 @@ mkRenderCountriesChart(AppState.clients || MK_CLIENTS_CACHE);
     const conv = mkBuildReachedConversion(MK_CLIENTS_CACHE, logsMap);
     mkRenderCardConversion(conv);
     console.log('[conv reached]', conv);
+// Кэшируем конверсии для других карточек (в т.ч. Заглушка 9)
+ AppState.convReached = conv;
+ AppState.statusLogsMap = logsMap; // пригодится и в будущем
 // --- Карточка №5: Totals + Potential ---
     const untilInput = document.getElementById('mkPotentialUntil');
     if (untilInput) {
