@@ -516,6 +516,20 @@ mkRenderKPI(kpi);
 mkRenderSummary(AppState.clients, AppState.marketing);
  // Карточка №6: обновить финансы
       if (typeof mkUpdateFinanceCard === 'function') mkUpdateFinanceCard();
+// === обновляем KPI и Общий отчёт после прихода данных журнала ===
+try {
+  const untilInput = document.getElementById('mkPotentialUntil');
+  const totals = (typeof mkCalcTotalsAndPotential === 'function')
+    ? mkCalcTotalsAndPotential(AppState.clients || MK_CLIENTS_CACHE, AppState.marketing, untilInput?.value || '')
+    : null;
+
+  const kpi = mkCalcKPI(AppState.clients || MK_CLIENTS_CACHE, AppState.marketing, totals);
+  mkRenderKPI(kpi);
+  mkRenderSummary(AppState.clients || MK_CLIENTS_CACHE, AppState.marketing);
+} catch(e) {
+  console.warn('mk summary refresh after marketing update', e);
+}
+
 // --- [NEW] Карточка №8: обновить студийную аналитику при изменении клиентов
 {
   const split = mkCalcStudioSplit(AppState.clients);

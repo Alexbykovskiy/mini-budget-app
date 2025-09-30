@@ -1636,3 +1636,10 @@ dialog[open] .modal-body{
 :root{
   --grid-color: rgba(255,255,255,.3);
 }
+
+/* Fix layout: summary card must be block, not flex */
+#mk-card-summary{
+  display:block;                /* переопределяем .stat-card {display:flex} */
+  align-items: initial !important;
+  justify-content: initial !important;
+}
