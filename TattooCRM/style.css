@@ -1731,3 +1731,61 @@ dialog[open] .modal-body{
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+
+/* ================= Card #9: clone of Card #5 ================= */
+#mk-card-acq.totals-card{
+  /* те же переменные, что у карточки №5 */
+  --tc-fs-title: 16px;
+  --tc-fs-text: 12px;     /* мелкий кегль */
+  --tc-gap-y: 6px;
+
+  display: block !important;   /* один столбец, как у №5 */
+  text-align: left !important; /* левое выравнивание подписей */
+  padding: 12px 14px;
+}
+
+/* Заголовок */
+#mk-card-acq.totals-card .tc-title{
+  font-size: var(--tc-fs-title);
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: var(--tc-gap-y);
+}
+
+/* Список — без буллетов */
+#mk-card-acq.totals-card .tc-list{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Строки: тонкий межстрочный, как у №5 */
+#mk-card-acq.totals-card .tc-row{
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 3px 0; /* как в №5 */
+}
+
+/* Подписи слева — тонкие, занимают всю ширину слева */
+#mk-card-acq.totals-card .tc-label{
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--tc-fs-text);
+  line-height: 1.25;
+  font-weight: 300;     /* тонкий вес — как в №5 */
+  opacity: .8;
+  overflow-wrap: anywhere;
+}
+
+/* Цифры справа — жирные, моноширинные цифры */
+#mk-card-acq.totals-card .tc-value{
+  margin-left: auto;    /* уводим к правому краю */
+  flex: 0 0 auto;
+  font-size: var(--tc-fs-text);
+  line-height: 1.25;
+  font-weight: 700;     /* толще, чем подписи */
+  white-space: nowrap;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
