@@ -2866,8 +2866,6 @@ function mkRenderKPI(kpi){
 }
 
 /* ===== SUMMARY: charts (Chart.js) ===== */
-let MK_SUMMARY_LEADS = null;
-let MK_SUMMARY_COSTS = null;
 
 function mkRenderSummary(clients = [], marketing = []){
   const elLeads = document.getElementById('mk-chart-leads');
