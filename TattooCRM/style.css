@@ -1639,3 +1639,31 @@ dialog[open] .modal-body{
   align-items: initial !important;
   justify-content: initial !important;
 }
+
+/* Сетка диаграмм: 3 → 2 → 1 колонки */
+#mk-card-summary .mk-summary-charts{
+  display:grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+}
+@media (max-width: 1200px){
+  #mk-card-summary .mk-summary-charts{ grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 680px){
+  #mk-card-summary .mk-summary-charts{ grid-template-columns: 1fr; }
+}
+
+/* Форма расходов */
+.mk-costs-form{
+  display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+  margin: 0 0 8px 0;
+}
+.mk-costs-field{
+  display:flex; align-items:center; gap:6px; font-size:12px; opacity:.9;
+}
+.mk-costs-form .mk-pill-input{
+  width:100px; padding:6px 10px; border-radius:10px;
+  background: transparent; color: inherit;
+  border: 1px solid rgba(255,255,255,.18);
+}
+.mk-costs-total{ margin-left:auto; font-weight:700; font-variant-numeric: tabular-nums; }

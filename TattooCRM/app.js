@@ -160,6 +160,7 @@ const AppState = {
   appointments: [],
   supplies: [],
   marketing: [],            // ← добавили
+ manualCosts: { sk: 0, at: 0 },   // ← ДОБАВИТЬ
   autoSyncTimer: null
 };
 let syncInProgress = false;
@@ -2950,6 +2951,139 @@ function mkRenderSummary(clients = [], marketing = []){
   MK_SUMMARY_COSTS = new Chart(elCosts.getContext('2d'), barCfg);
 }
 
+/* ====== Ручные расходы (SK/AT) + диаграммы Summary ====== */
+let MK_SUMMARY_LEADS = null;
+let MK_SUMMARY_COSTS = null;
+let MK_SUMMARY_COUNTRIES = null;
+
+function summaryDocRef(){
+  return FB.db.collection('TattooCRM').doc('app').collection('summary').doc('costsManual');
+}
+
+function mkBindCostsForm(){
+  const sk = document.getElementById('mkCostSk');
+  const at = document.getElementById('mkCostAt');
+  const save = document.getElementById('mkCostSave');
+  const total = document.getElementById('mkCostTotal');
+  if (!sk || !at || !save || !total) return;
+
+  const updTotal = () => {
+    const vsk = Number(sk.value || 0);
+    const vat = Number(at.value || 0);
+    total.textContent = `Всего: €${(vsk + vat).toFixed(0)}`;
+  };
+  if (!sk.dataset.bound){ sk.dataset.bound = '1'; sk.addEventListener('input', updTotal); }
+  if (!at.dataset.bound){ at.dataset.bound = '1'; at.addEventListener('input', updTotal); }
+  if (!save.dataset.bound){
+    save.dataset.bound = '1';
+    save.addEventListener('click', async ()=>{
+      const vsk = Number(sk.value || 0);
+      const vat = Number(at.value || 0);
+      AppState.manualCosts = { sk: vsk, at: vat };
+      try{
+        await summaryDocRef().set({ sk: vsk, at: vat, updatedAt: new Date().toISOString() }, { merge: true });
+        toast('Расходы сохранены');
+      }catch(e){ console.warn(e); toast('Не удалось сохранить расходы'); }
+      mkRenderCostsChartManual(); // перерисуем диаграмму
+    });
+  }
+}
+
+function listenManualCostsRealtime(){
+  try{
+    summaryDocRef().onSnapshot(snap=>{
+      const d = snap.exists ? snap.data() : { sk:0, at:0 };
+      AppState.manualCosts = { sk: Number(d.sk||0), at: Number(d.at||0) };
+      const sk = document.getElementById('mkCostSk');
+      const at = document.getElementById('mkCostAt');
+      if (sk && at){
+        sk.value = AppState.manualCosts.sk || 0;
+        at.value = AppState.manualCosts.at || 0;
+        const total = document.getElementById('mkCostTotal');
+        if (total) total.textContent = `Всего: €${(AppState.manualCosts.sk + AppState.manualCosts.at).toFixed(0)}`;
+      }
+      mkRenderCostsChartManual();
+    });
+  }catch(e){ console.warn('listenManualCostsRealtime', e); }
+}
+
+// 1) Обращения (без изменений, но уничтожаем старый инстанс)
+function mkRenderLeadsDonut(clients){
+  const el = document.getElementById('mk-chart-leads');
+  if (!el || typeof Chart!=='function') return;
+
+  const leads = {
+    cold: (clients||[]).filter(c => /холод/i.test(String(c?.status||''))).length,
+    lead: (clients||[]).filter(c => /^лид$/i.test(String(c?.status||''))).length,
+    consult: (clients||[]).filter(c => /консул/i.test(String(c?.status||''))).length,
+    session: (clients||[]).filter(c => Array.isArray(c?.sessions) && c.sessions.some(s=>s?.done)).length
+  };
+
+  if (MK_SUMMARY_LEADS) MK_SUMMARY_LEADS.destroy();
+  MK_SUMMARY_LEADS = new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Холодные','Лиды','Консультации','Сеансы'],
+      datasets: [{ data:[leads.cold, leads.lead, leads.consult, leads.session],
+        backgroundColor:['#186663','#8C7361','#A6B5B4','#D2AF94'] }]
+    },
+    options:{ plugins:{ legend:{ position:'bottom' } }, cutout:'65%' }
+  });
+}
+
+// 2) Расходы (ручные SK/AT → Всего = сумма)
+function mkRenderCostsChartManual(){
+  const el = document.getElementById('mk-chart-costs');
+  if (!el || typeof Chart!=='function') return;
+  const sk = Number(AppState.manualCosts?.sk || 0);
+  const at = Number(AppState.manualCosts?.at || 0);
+  const total = sk + at;
+
+  if (MK_SUMMARY_COSTS) MK_SUMMARY_COSTS.destroy();
+  MK_SUMMARY_COSTS = new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Всего','Словакия','Австрия'],
+      datasets: [{ data:[total, sk, at], backgroundColor:['#002D37','#186663','#D2AF94'] }]
+    },
+    options:{ plugins:{ legend:{ position:'bottom' } }, cutout:'65%' }
+  });
+}
+
+// 3) По странам (суммарно из «детальной статистики по дням»)
+function mkRenderCountriesChart(clients){
+  const el = document.getElementById('mk-chart-countries');
+  if (!el || typeof Chart!=='function') return;
+
+  // строим карту по дням/языкам и суммируем
+  const map = (typeof mkBuildDailyFirstContactsStats === 'function')
+    ? mkBuildDailyFirstContactsStats(clients || [])
+    : new Map();
+
+  const totals = { ru:0, sk:0, en:0, at:0, de:0 };
+  map.forEach(rec=>{
+    for (const k in totals){
+      const o = rec?.langs?.[k] || { c:0, o:0 };
+      totals[k] += (o.c + o.o);
+    }
+  });
+
+  const labels = ['Русский','Словакия','Английский','Австрия','Немецкий'];
+  const data   = [totals.ru, totals.sk, totals.en, totals.at, totals.de];
+
+  if (MK_SUMMARY_COUNTRIES) MK_SUMMARY_COUNTRIES.destroy();
+  MK_SUMMARY_COUNTRIES = new Chart(el.getContext('2d'), {
+    type: 'bar',
+    data: { labels, datasets:[{ label:'Обращения', data }] },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:false } },
+      scales:{ y:{ beginAtZero:true, ticks:{ precision:0 } } }
+    }
+  });
+}
+
+
 
 // Determine if a status is "cold"
 function mkIsColdStatus(st) {
@@ -4917,6 +5051,9 @@ mkRenderClientLog(logRows1);
   const kpi1 = mkCalcKPI(MK_CLIENTS_CACHE, AppState.marketing, totals1);
   mkRenderKPI(kpi1);
   mkRenderSummary(AppState.clients || MK_CLIENTS_CACHE, AppState.marketing);
+mkRenderLeadsDonut(AppState.clients || MK_CLIENTS_CACHE);
+mkRenderCostsChartManual();
+mkRenderCountriesChart(AppState.clients || MK_CLIENTS_CACHE);
 }
 
 

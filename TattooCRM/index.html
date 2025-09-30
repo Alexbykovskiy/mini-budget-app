@@ -507,16 +507,36 @@
   </div>
 
   <div class="mk-summary-charts">
+    <!-- 1) Обращения -->
     <div class="chart-block">
       <h4>Обращения</h4>
       <canvas id="mk-chart-leads"></canvas>
     </div>
+
+    <!-- 2) Расходы (ручной ввод SK/AT, "Всего" = сумма) -->
     <div class="chart-block">
       <h4>Расходы</h4>
+
+      <!-- форма ввода над графиком -->
+      <div class="mk-costs-form">
+        <label class="mk-costs-field">SK €
+          <input id="mkCostSk" class="mk-pill-input" type="number" step="1" min="0" placeholder="0">
+        </label>
+        <label class="mk-costs-field">AT €
+          <input id="mkCostAt" class="mk-pill-input" type="number" step="1" min="0" placeholder="0">
+        </label>
+        <button id="mkCostSave" class="mk-btn">Сохранить</button>
+        <span id="mkCostTotal" class="mk-costs-total">Всего: €0</span>
+      </div>
+
       <canvas id="mk-chart-costs"></canvas>
     </div>
-  </div>
-</div> 
+
+    <!-- 3) По странам (просто считаем все обращения по языкам/странам) -->
+    <div class="chart-block">
+      <h4>Обращения по странам</h4>
+      <canvas id="mk-chart-countries"></canvas>
+    </div>
   </div>
 </section>
 
