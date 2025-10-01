@@ -1824,6 +1824,32 @@ dialog[open] .modal-body{
   flex:1 1 auto; min-width:0;
   font-weight:300; opacity:.8; overflow-wrap:anywhere;
 }
+#mk-card-log .mk-head{
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+#mk-card-log .mk-head .mk-card-title{
+  /* как и было: жирный заголовок слева */
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;               /* чтобы не было двойных отступов */
+}
+#mk-card-log .mk-head .mk-colhint{
+  margin-left: auto;       /* уводим подпись вправо */
+  text-align: right;
+  white-space: nowrap;
+  font-size: 12px;         /* как в карточках 5/9 */
+  line-height: 1.25;
+  font-weight: 300;        /* тонкий шрифт */
+  opacity: .8;
+}
+
+/* чтобы стиль 5/9 оставался в списке: тонкие подписи слева, жирные цифры справа */
+#mk-card-log .mk-list .label{ font-weight: 300; opacity: .85; }
+#mk-card-log .mk-list .value{ font-weight: 700; text-align: right; }
 
 /* цифры справа — жирные, моноцифры */
 #mk-card-log .mk-row .value{
