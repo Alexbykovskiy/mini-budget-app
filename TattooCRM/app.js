@@ -962,6 +962,7 @@ if (OPEN_CLIENT_ON_TILE_CLICK) {
 
   await setSessionDone(clientId, dt, true);
   toast('Сеанс подтверждён');
+mkRefreshAfterClientsChange();
 });
 
         el.appendChild(btn);
@@ -2370,6 +2371,9 @@ updatedAt: new Date().toISOString()
   if (i >= 0) AppState.clients[i] = client; else AppState.clients.push(client);
   renderClients();
 
+mkRefreshAfterClientsChange();
+
+
   try {
     const ref = FB.db.collection('TattooCRM').doc('app').collection('clients').doc(id);
     await ref.set(client, { merge:true });
@@ -2585,6 +2589,7 @@ async function deleteClientFromDialog(){
   // 1) Уберём из локального стейта, чтобы UI сразу очистился
   AppState.clients = AppState.clients.filter(x => x.id !== id);
   renderClients();
+mkRefreshAfterClientsChange();
 
   try {
     // 2) Прочитаем документ, чтобы узнать driveFolderId (если есть)
@@ -4924,6 +4929,26 @@ function applyManualCostsToUI() {
   if (total) {
     const v = (Number(sk?.value || 0) + Number(at?.value || 0));
     total.textContent = `Всего: €${v.toFixed(0)}`;
+  }
+}
+
+// Локальный быстрый пересчёт после любых изменений клиентов
+function mkRefreshAfterClientsChange() {
+  try {
+    // 1) «Сегодня» (сводка сверху)
+    renderToday();
+
+    // 2) Маркетинг + воронка/карточки статистики
+    renderMarketing();
+
+    // 3) Если сейчас открыта вкладка «Статистика» — обновим график лидов
+    const tab = document.querySelector('[data-tab="marketingPage"]');
+    if (tab && tab.classList.contains('is-active')) {
+      mkBindLeadsChartControls?.();
+      mkRenderLeadsChart?.();
+    }
+  } catch (e) {
+    console.warn('mkRefreshAfterClientsChange()', e);
   }
 }
 
