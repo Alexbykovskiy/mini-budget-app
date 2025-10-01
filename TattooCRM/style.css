@@ -1838,15 +1838,14 @@ dialog[open] .modal-body{
   margin: 0;               /* чтобы не было двойных отступов */
 }
 #mk-card-log .mk-head .mk-colhint{
-  margin-left: auto;       /* уводим подпись вправо */
+  margin-left: auto;
   text-align: right;
   white-space: nowrap;
-  font-size: 12px;         /* как в карточках 5/9 */
+  font-size: 12px;          /* как у карточек 5/9 */
   line-height: 1.25;
-  font-weight: 300;        /* тонкий шрифт */
-  opacity: .8;
+  font-weight: 700;         /* ЖИРНЫЙ */
+  opacity: 1;               /* убираем полупрозрачность */
 }
-
 /* чтобы стиль 5/9 оставался в списке: тонкие подписи слева, жирные цифры справа */
 #mk-card-log .mk-list .label{ font-weight: 300; opacity: .85; }
 #mk-card-log .mk-list .value{ font-weight: 700; text-align: right; }
