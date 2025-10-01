@@ -1837,3 +1837,62 @@ dialog[open] .modal-body{
   #mk-card-log .mk-card-title{ font-size:13px; }
 }
 
+/* --- Card #8: Студийная аналитика — стиль как у #5/#9, но в 2 колонки --- */
+#mk-card-studio-split{
+  display: grid !important;                /* переопределяем .stat-card flex */
+  grid-template-columns: repeat(2, 1fr);   /* две колонки */
+  grid-auto-rows: min-content;
+  gap: 12px;
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 12px;                         /* как в #5 */
+  line-height: 1.25;
+}
+#mk-card-studio-split .mk-card-title{
+  grid-column: 1 / -1;                     /* заголовок на всю ширину */
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+#mk-card-studio-split .mk-subtitle{
+  font-size: 12px;
+  font-weight: 700;
+  opacity: .85;
+  margin: 4px 0 2px;
+  padding-bottom: 2px;
+  border-bottom: 1px dashed rgba(255,255,255,0.12);
+}
+
+/* списки и строки — типографика ровно как в totals-card (#5/#9) */
+#mk-card-studio-split ul{ list-style: none; margin: 0; padding: 0; }
+#mk-card-studio-split .tc-row{
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 3px 0;
+}
+#mk-card-studio-split .tc-label{
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 300;        /* тонкий текст слева */
+  opacity: .8;
+  overflow-wrap: anywhere;
+}
+#mk-card-studio-split .tc-value{
+  flex: 0 0 auto;
+  font-weight: 600;        /* значения жирнее справа */
+  white-space: nowrap;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* нижний блок «Баланс со студией» — на всю ширину */
+#mk-card-studio-split .mk-block:last-child{
+  grid-column: 1 / -1;
+}
+
+/* мобильная адаптация — одна колонка */
+@media (max-width: 920px){
+  #mk-card-studio-split{ grid-template-columns: 1fr; }
+}
