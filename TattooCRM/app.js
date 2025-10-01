@@ -3732,9 +3732,11 @@ function mkRenderCardFinance(data) {
   const list = document.getElementById('mk-finance-list');
   if (!list || !data) return;
 
+  const elAds = document.getElementById('mk-finance-ads');
+  if (elAds) elAds.textContent = `€${data.ads.spent.toFixed(2)}`;
+
   list.innerHTML = `
-    <li><b>Выручка (gross)</b> — сеансы + депозиты: <b>€${data.gross.toFixed(2)}</b></li>
-    <li>Деньги с проведённых сеансов за период: €${data.sessionsSum.toFixed(2)}</li>
+    <li><b>Выручка (gross)</b> — сеансы + депозиты: <b>€${data.gross.toFixed(2)}</b></li>    <li>Деньги с проведённых сеансов за период: €${data.sessionsSum.toFixed(2)}</li>
     <li><b>Чистая выручка (net)</b> ${data.ads.spent>0?'(минус реклама'+(document.getElementById('mkIncludeSupplies')?.checked?', расходники':'')+')':''}: <b>€${data.net.toFixed(2)}</b></li>
     <li>Средний чек: €${data.avgCheck.toFixed(2)}</li>
     <li>Средний «чистый» чек: €${data.avgNetCheck.toFixed(2)}</li>
