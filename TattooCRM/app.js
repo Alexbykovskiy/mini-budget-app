@@ -5222,6 +5222,8 @@ mkRenderCountriesChart(AppState.clients || MK_CLIENTS_CACHE);
      const totals1 = mkCalcTotalsAndPotential(MK_CLIENTS_CACHE, AppState.marketing, untilInput.value);
 mkRenderCardTotals(totals1);
 
+
+
 // --- [NEW] Карточка №7: журнал клиентов (проведённые сеансы)
 const logRows1 = mkBuildClientLog(MK_CLIENTS_CACHE);
 mkRenderClientLog(logRows1);
