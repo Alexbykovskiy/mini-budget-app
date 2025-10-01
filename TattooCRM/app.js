@@ -3628,12 +3628,8 @@ function mkCalcFinanceMetrics(clients, marketingArr, suppliesArr, cutoffYmd, use
   const list = Array.isArray(clients) ? clients : [];
   const cutoff = cutoffYmd ? String(cutoffYmd) : '';
   // период = календарный месяц cutoff-даты
-  const co = cutoff ? new Date(cutoff) : new Date();
-  const ymStart = new Date(co.getFullYear(), co.getMonth(), 1);
-  const ymEnd   = new Date(co.getFullYear(), co.getMonth()+1, 0);
-  const startYMD = ymdOf(ymStart.toISOString());
-  const endYMD   = ymdOf(ymEnd.toISOString());
-
+  // Считаем за всё время (без ограничения по месяцу).
+// Раньше тут вычислялся месяц по cutoff-дате.
   const adsSpent = mkGetLatestAdsSpentTotal(marketingArr); // реклама «на сегодня»
 
   let depositsSum = 0;
@@ -3653,10 +3649,8 @@ function mkCalcFinanceMetrics(clients, marketingArr, suppliesArr, cutoffYmd, use
 
     // сеансы
     const sessions = Array.isArray(c?.sessions) ? c.sessions : [];
-    const doneBeforePeriod = sessions.some(s => {
-      const dt = ymdOf(typeof s === 'string' ? s : s?.dt);
-      return (typeof s === 'object' && s.done) && dt && dt < startYMD;
-    });
+    // без деления на периоды
+const doneBeforePeriod = false;
 
     let hadInPeriod = false;
 
@@ -3667,13 +3661,13 @@ function mkCalcFinanceMetrics(clients, marketingArr, suppliesArr, cutoffYmd, use
 
       if (!dt) continue;
 
-      // суммируем деньги только за сеансы текущего месяца
-      if (dt >= startYMD && dt <= endYMD && isDone) {
-        sessionsSum += price;
-        sessionsCnt += 1;
-        sessionPrices.push(price);
-        hadInPeriod = true;
-      }
+     // суммируем все завершённые сеансы за всё время
+if (isDone) {
+  sessionsSum += price;
+  sessionsCnt += 1;
+  sessionPrices.push(price);
+  hadInPeriod = true; // «в период» = «участвует в общем подсчёте»
+}
     }
 
     // уникальные платящие за период
@@ -3729,6 +3723,7 @@ function mkCalcFinanceMetrics(clients, marketingArr, suppliesArr, cutoffYmd, use
 }
 
 function mkRenderCardFinance(data) {
+
   const list = document.getElementById('mk-finance-list');
   if (!list || !data) return;
 
@@ -3736,7 +3731,7 @@ function mkRenderCardFinance(data) {
   if (elAds) elAds.textContent = `€${data.ads.spent.toFixed(2)}`;
 
   list.innerHTML = `
-    <li><b>Выручка (gross)</b> — сеансы + депозиты: <b>€${data.gross.toFixed(2)}</b></li>    <li>Деньги с проведённых сеансов за период: €${data.sessionsSum.toFixed(2)}</li>
+    <li><b>Выручка (gross)</b> — сеансы + депозиты: <b>€${data.gross.toFixed(2)}</b></li>    <li>Деньги с проведённых сеансов: €${data.sessionsSum.toFixed(2)}</li>
     <li><b>Чистая выручка (net)</b> ${data.ads.spent>0?'(минус реклама'+(document.getElementById('mkIncludeSupplies')?.checked?', расходники':'')+')':''}: <b>€${data.net.toFixed(2)}</b></li>
     <li>Средний чек: €${data.avgCheck.toFixed(2)}</li>
     <li>Средний «чистый» чек: €${data.avgNetCheck.toFixed(2)}</li>
