@@ -3713,8 +3713,7 @@ if (isDone) {
   const repeatPct = uniqueCount > 0 ? Math.round((repeatClientIds.size / uniqueCount) * 100) : 0;
 
   return {
-    period: { startYMD, endYMD },
-    gross, sessionsSum, net,
+        gross, sessionsSum, net,
     avgCheck, avgNetCheck,
     medianCheck: med, p25, p75,
     ads: { spent: adsSpent, roi, profitPerEuro, costPerClient },
