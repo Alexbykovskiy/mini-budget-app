@@ -3742,11 +3742,7 @@ function mkRenderCardFinance(data) {
     <li>Прибыль на 1 € рекламы: €${data.ads.profitPerEuro.toFixed(2)}</li>
     <li>Стоимость нового клиента с рекламы: €${data.ads.costPerClient.toFixed(2)}</li>
 
-    <li class="mk-sub">Клиенты</li>
-    <li>Уникальные платящие: ${data.clients.uniqueCount}</li>
-    <li>% возвратов / повторных: ${data.clients.repeatPct}%</li>
-    <li>Доля отмен: ${data.clients.cancelPct}%</li>
-  `;
+     `;
 }
 
 function mkRenderCardTotals(totals) {
