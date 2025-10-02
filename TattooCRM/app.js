@@ -3449,6 +3449,7 @@ function mkCalcTotalsAndPotential(clients, marketingArr, cutoffYmd) {
   // 3) Сеансы (проведённые — всегда; запланированные — только до cutoff включ.)
   let doneCount = 0, doneSum = 0;
   let planCount = 0, planSum = 0;
+const donePrices = []; // <— NEW
 
   for (const c of clientsArr) {
     const sessions = Array.isArray(c?.sessions) ? c.sessions : [];
@@ -3460,6 +3461,7 @@ function mkCalcTotalsAndPotential(clients, marketingArr, cutoffYmd) {
       if (obj.done) {
         doneCount++; 
         doneSum += price;
+donePrices.push(Number(obj.price || 0)); // <— NEW
       } else {
         if (!cutoff || (ymd && ymd <= cutoff)) {
           planCount++; 
@@ -3535,6 +3537,13 @@ const ratioText = totalAll > 0
   ? `${(sumMe / totalAll * 100).toFixed(1)}% / ${(sumStudio / totalAll * 100).toFixed(1)}%`
   : '—';
 
+// --- [NEW] Чеки для «Кратких итогов» ---
+const avgCheck    = doneCount ? (doneSum / doneCount) : 0;
+const avgNetCheck = doneCount ? ((doneSum - adsSpent) / doneCount) : 0;
+const { p25, med, p75 } = typeof _quantiles === 'function'
+  ? _quantiles(donePrices)
+  : { p25: 0, med: 0, p75: 0 };
+
 return {
   adsSpent,
   deposits: { count: depCount, sum: depSum },
@@ -3544,6 +3553,7 @@ return {
   costs,
   // --- [NEW] блок со сводными суммами и процентами
   amounts: { me: sumMe, studio: sumStudio, ratioText }
+checks: { avg: avgCheck, avgNet: avgNetCheck, median: med, p25, p75 }
 };
 }
 
@@ -3750,6 +3760,12 @@ function mkRenderCardTotals(totals) {
   set('mk-sessions-done',    `${totals.sessionsDone.count} шт. €${totals.sessionsDone.sum.toFixed(2)}`);
   set('mk-sessions-planned', `${totals.sessionsPlanned.count} шт. €${totals.sessionsPlanned.sum.toFixed(2)}`);
 
+// --- [NEW] Чеки ---
+const ch = totals.checks || {};
+set('mk-avg-check',      `€${(ch.avg    || 0).toFixed(2)}`);
+set('mk-avg-net-check',  `€${(ch.avgNet || 0).toFixed(2)}`);
+set('mk-med-check',      `€${(ch.median || 0).toFixed(2)}`);
+set('mk-p25p75-range',   `€${(ch.p25    || 0).toFixed(2)}—€${(ch.p75 || 0).toFixed(2)}`);
   // Новые строки:
   const cps = totals?.costs?.perSubscriber  || 0;
   const cpl = totals?.costs?.perLeadNonCold || 0;
