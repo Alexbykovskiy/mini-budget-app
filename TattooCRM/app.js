@@ -4073,7 +4073,14 @@ if (cachedTok) {
   driveAccessToken = cachedTok;
   gapi.client.setToken({ access_token: driveAccessToken });
 } else {
-  await withTimeout(ensureDriveAccessToken({ forceConsent }), 8000, 'gis_token_timeout');
+  try {
+  await withTimeout(ensureDriveAccessToken({ forceConsent }), 15000, 'gis_token_timeout');
+} catch (e) {
+  console.warn('GIS token timeout — продолжаем оффлайн', e);
+  const __ds = document.querySelector('#driveStatus');
+  if (__ds) __ds.textContent = 'Drive: оффлайн';
+  try { BOOT.set(5,'err','Drive отложен'); } catch(_) {}
+}
 }
 
 // 5) Drive library (папки)
@@ -5191,7 +5198,17 @@ function mkRenderSummary(clients, marketing) {
     consult: (clients||[]).filter(c => /консул/i.test(String(c?.status||''))).length,
     session: (clients||[]).filter(c => Array.isArray(c?.sessions) && c.sessions.some(s => (typeof s==='object'? s.done : false))).length
   };
-  new Chart(document.getElementById('mk-chart-leads'), {
+  const elLead = document.getElementById('mk-chart-leads');
+if (elLead && typeof Chart === 'function') {
+  if (MK_SUMMARY_LEADS) MK_SUMMARY_LEADS.destroy();         // ← разрушить старый
+  MK_SUMMARY_LEADS = new Chart(elLead.getContext('2d'), {   // ← создать новый
+    type: 'doughnut',
+    data: { labels: ['Холодные','Лиды','Консультации','Сеансы'],
+            datasets: [{ data:[leads.cold, leads.lead, leads.consult, leads.session],
+                          backgroundColor:['#186663','#8C7361','#A6B5B4','#D2AF94'] }] },
+    options: { plugins: { legend: { position: 'bottom' } }, cutout: '65%' }
+  });
+}
     type: 'doughnut',
     data: {
       labels: ['Холодные', 'Лиды', 'Консультации', 'Сеансы'],
