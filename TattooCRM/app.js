@@ -3734,7 +3734,8 @@ function mkRenderCardFinance(data) {
   <li><b>Чистая выручка (net)</b>: <b>€${data.net.toFixed(2)}</b></li>
     <li>Средний чек: €${data.avgCheck.toFixed(2)}</li>
     <li>Средний «чистый» чек: €${data.avgNetCheck.toFixed(2)}</li>
-    <li>Медианный чек: €${data.medianCheck.toFixed(2)} (P25–P75: €${data.p25.toFixed(2)}–€${data.p75.toFixed(2)})</li>
+    <li>Медианный чек: €${data.medianCheck.toFixed(2)}</li>
+<li>Диапазон P25–P75: €${data.p25.toFixed(2)} – €${data.p75.toFixed(2)}</li>
 
     <li class="mk-sub">Эффективность рекламы</li>
     <li>Выручка на 1 € рекламы: €${data.ads.roi.toFixed(2)}</li>
