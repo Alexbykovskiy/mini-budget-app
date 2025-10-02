@@ -3732,11 +3732,7 @@ function mkRenderCardFinance(data) {
  list.innerHTML = `
   <li><b>Выручка (gross)</b>: <b>€${data.gross.toFixed(2)}</b></li>
   <li><b>Чистая выручка (net)</b>: <b>€${data.net.toFixed(2)}</b></li>
-    <li>Средний чек: €${data.avgCheck.toFixed(2)}</li>
-    <li>Средний «чистый» чек: €${data.avgNetCheck.toFixed(2)}</li>
-    <li>Медианный чек: €${data.medianCheck.toFixed(2)}</li>
-<li>Диапазон P25–P75: €${data.p25.toFixed(2)} – €${data.p75.toFixed(2)}</li>
-
+    
     <li class="mk-sub">Эффективность рекламы</li>
     <li>Выручка на 1 € рекламы: €${data.ads.roi.toFixed(2)}</li>
     <li>Прибыль на 1 € рекламы: €${data.ads.profitPerEuro.toFixed(2)}</li>
@@ -3785,6 +3781,20 @@ function mkUpdateFinanceCard() {
   if (elU) elU.textContent = String(u);
   if (elR) elR.textContent = `${Number(r).toFixed(0)}%`;
 }
+
+function mkRenderChecksInTotals(m) {
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('mk-avg-check',      `€${m.avgCheck.toFixed(2)}`);
+  set('mk-avg-net-check',  `€${m.avgNetCheck.toFixed(2)}`);
+  set('mk-median-check',   `€${m.medianCheck.toFixed(2)}`);
+  set('mk-p25p75-range',   `€${m.p25.toFixed(2)} — €${m.p75.toFixed(2)}`);
+}
+
+// внутри mkUpdateFinanceCard():
+const metrics = mkCalcFinanceMetrics(/* ...источники данных... */);
+mkRenderCardFinance(metrics);
+mkRenderChecksInTotals(metrics);     // ← вот этот вызов
+
 
 
 /** Сохранение записи маркетинга из формы */
