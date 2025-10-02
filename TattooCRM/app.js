@@ -3781,6 +3781,13 @@ function mkUpdateFinanceCard() {
     useSup
   );
   mkRenderCardFinance(data);
+ // Обновляем мини-блок «Клиенты» в карточке №4
+  const u = data?.clients?.uniqueCount ?? 0;
+  const r = data?.clients?.repeatPct ?? 0;
+  const elU = document.getElementById('mk-cl-unique');
+  const elR = document.getElementById('mk-cl-repeat');
+  if (elU) elU.textContent = String(u);
+  if (elR) elR.textContent = `${Number(r).toFixed(0)}%`;
 }
 
 
