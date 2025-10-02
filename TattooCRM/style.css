@@ -1925,3 +1925,35 @@ dialog[open] .modal-body{
 @media (max-width: 920px){
   #mk-card-studio-split{ grid-template-columns: 1fr; }
 }
+
+/* Список «Финансы»: строки как в totals-card */
+#mk-card-finance .mk-list{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: block;
+}
+#mk-card-finance .mk-list .mk-row{
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 3px 0;
+}
+#mk-card-finance .mk-list .label{
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.25;
+  font-weight: 300;       /* тонкий, как у карточки №5 */
+  opacity: .8;
+  overflow-wrap: anywhere;
+}
+#mk-card-finance .mk-list .value{
+  flex: 0 0 auto;
+  font-size: 12px;
+  line-height: 1.25;
+  white-space: nowrap;
+  text-align: right;      /* суммы по правому краю */
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;       /* цифры плотнее */
+}
