@@ -3552,8 +3552,8 @@ return {
   potential: { min: potMin, max: potMax },
   costs,
   // --- [NEW] блок со сводными суммами и процентами
-  amounts: { me: sumMe, studio: sumStudio, ratioText }
-checks: { avg: avgCheck, avgNet: avgNetCheck, median: med, p25, p75 }
+  amounts: { me: sumMe, studio: sumStudio, ratioText }, // ← ВАЖНО: запятая!
+  checks: { avg: avgCheck, avgNet: avgNetCheck, median: med, p25, p75 }
 };
 }
 
