@@ -5209,18 +5209,7 @@ if (elLead && typeof Chart === 'function') {
     options: { plugins: { legend: { position: 'bottom' } }, cutout: '65%' }
   });
 }
-    type: 'doughnut',
-    data: {
-      labels: ['Холодные', 'Лиды', 'Консультации', 'Сеансы'],
-      datasets: [{
-        data: [leads.cold, leads.lead, leads.consult, leads.session],
-        backgroundColor: ['#186663','#8C7361','#A6B5B4','#D2AF94']
-      }]
-    },
-    options: { plugins: { legend: { position: 'bottom' } }, cutout:'65%' }
-  });
-
-  // ---- 4) Диаграмма «Расходы» (Всего / Словакия / Австрия) из журнала
+     // ---- 4) Диаграмма «Расходы» (Всего / Словакия / Австрия) из журнала
   const byCountry = (cc) => items
     .filter(m => (m.country||'').toLowerCase().startsWith(cc))
     .reduce((s,m)=> s + Number(m.amount || m.daySpent || 0), 0);
