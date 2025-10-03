@@ -122,24 +122,24 @@ main{padding: 12px; padding-bottom: 84px;}
 }
 
 /* === Финансы (карточка 6) выравнивание и шрифты === */
+/* === Финансы (карточка 6) выравнивание и шрифты === */
 .card-finance .title {
   font-weight: 600;           /* заголовки жирные */
-  font-size: 1rem;
+  font-size: 0.9rem;          /* было 1rem → меньше */
 }
 
 .card-finance .label {
   font-weight: 300;           /* подписи тонкие */
-  color: #888;                /* серый тон */
-  font-size: 0.85rem;
+  color: #666;                /* серый чуть темнее, чем #888 */
+  font-size: 0.75rem;         /* было 0.85rem → меньше */
 }
 
 .card-finance .value {
   font-weight: 600;           /* суммы жирные */
   text-align: right;          /* выравнивание по правому краю */
   font-variant-numeric: tabular-nums; /* одинаковая ширина цифр */
+  font-size: 0.9rem;          /* добавлено: меньше, чем было */
 }
-
-
 
 .badge{padding:4px 8px; border-radius: 10px; font-size:12px; background: rgba(24,102,99,.32); border:1px solid rgba(24,102,99,.44)}
 .meta{opacity:.7; font-size:12px}
