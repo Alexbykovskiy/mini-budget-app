@@ -3732,25 +3732,38 @@ if (isDone) {
 }
 
 function mkRenderCardFinance(data) {
-
   const list = document.getElementById('mk-finance-list');
-  if (!list || !data) return;
-
   const elAds = document.getElementById('mk-finance-ads');
+  if (!list || !data) return;
   if (elAds) elAds.textContent = `€${data.ads.spent.toFixed(2)}`;
 
- list.innerHTML = `
-  <li><b>Выручка (gross)</b>: <b>€${data.gross.toFixed(2)}</b></li>
-  <li><b>Чистая выручка (net)</b>: <b>€${data.net.toFixed(2)}</b></li>
-    
-    <li class="mk-sub">Эффективность рекламы</li>
-    <li>Выручка на 1 € рекламы: €${data.ads.roi.toFixed(2)}</li>
-    <li>Прибыль на 1 € рекламы: €${data.ads.profitPerEuro.toFixed(2)}</li>
-    <li>Стоимость нового клиента с рекламы: €${data.ads.costPerClient.toFixed(2)}</li>
+  list.innerHTML = `
+    <li class="mk-row">
+      <span class="label">Выручка (gross)</span>
+      <span class="value">€${data.gross.toFixed(2)}</span>
+    </li>
+    <li class="mk-row">
+      <span class="label">Чистая выручка (net)</span>
+      <span class="value">€${data.net.toFixed(2)}</span>
+    </li>
 
-     `;
+    <li class="mk-row"><span class="label">Средний чек</span>
+      <span class="value">€${data.avgCheck.toFixed(2)}</span></li>
+    <li class="mk-row"><span class="label">Средний «чистый» чек</span>
+      <span class="value">€${data.avgNetCheck.toFixed(2)}</span></li>
+    <li class="mk-row"><span class="label">Медианный чек</span>
+      <span class="value">€${data.medianCheck.toFixed(2)}</span></li>
+    <li class="mk-row"><span class="label">Диапазон P25–P75</span>
+      <span class="value">€${data.p25.toFixed(2)} — €${data.p75.toFixed(2)}</span></li>
+
+    <li class="mk-row"><span class="label">Выручка на 1 € рекламы</span>
+      <span class="value">€${data.ads.roi.toFixed(2)}</span></li>
+    <li class="mk-row"><span class="label">Прибыль на 1 € рекламы</span>
+      <span class="value">€${data.ads.profitPerEuro.toFixed(2)}</span></li>
+    <li class="mk-row"><span class="label">Стоимость нового клиента с рекламы</span>
+      <span class="value">€${data.ads.costPerClient.toFixed(2)}</span></li>
+  `;
 }
-
 function mkRenderCardTotals(totals) {
   if (!totals) return;
   const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
