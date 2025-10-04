@@ -1248,6 +1248,15 @@ dialog[open] .modal-body{
   background: rgba(255,255,255,0.9);
 }
 
+/* === Card #6 (Финансы): фон убираем, выравнивание чёткое === */
+#financeCard {
+  background: transparent !important;       /* снимаем общий тёмный фон .card/.glass */
+  border-color: transparent !important;     /* убираем рамку, если не нужна */
+}
+#financeCard::before,
+#financeCard::after {
+  display: none !important;                 /* гасим декоративные оверлеи .card/.glass */
+}
 
 
 /* ===== Marketing Table ===== */
