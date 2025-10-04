@@ -1258,6 +1258,51 @@ dialog[open] .modal-body{
   display: none !important;                 /* гасим декоративные оверлеи .card/.glass */
 }
 
+/* === Card #6: убрать маркеры и развести текст/суммы по краям === */
+#financeCard .mk-list,
+#financeCard #mk-finance-list {
+  list-style: none !important;     /* убираем кружочки */
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#financeCard .mk-list .mk-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 3px 0;
+}
+
+#financeCard .mk-list .label {
+  flex: 1 1 auto;                  /* тянем подпись влево */
+  min-width: 0;
+  text-align: left;
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 1.25;
+  opacity: .85;
+  overflow-wrap: anywhere;
+}
+
+#financeCard .mk-list .value {
+  margin-left: auto;               /* уводим сумму вправо */
+  flex: 0 0 auto;
+  text-align: right;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1.25;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* на всякий случай — строка "Расходы на рекламу" (она не в <li>) */
+#financeCard .tc-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
 
 /* ===== Marketing Table ===== */
 .mk-table {
