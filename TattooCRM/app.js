@@ -4229,6 +4229,7 @@ const MK_STATUS_LABELS = {
    total:       'Всего клиентов',
   cold:        'Холодные лиды',
   lead:        'Лиды',
+ warm:        'Тёплые лиды',        // ← добавь это
   consultation:'Консультации',
   prepay:      'Предоплата/эскиз',
   session:     'Сеансы',
@@ -4266,25 +4267,19 @@ function normalizeStatus(raw) {
   const s = (raw || '').toString().trim().toLowerCase();
   if (!s) return '';
 
-  if (s === 'lead' || s.startsWith('лид')) return 'lead';
   if (s.includes('холод')) return 'cold';
 
- // ✅ Тёплые лиды
+  // NEW: тёплые лиды (учтём ё/е и англ. warm)
   if (s.includes('тёпл') || s.includes('тепл') || s.includes('warm')) return 'warm';
 
-
-  if (s.includes('конс')) return 'consultation'; // "запись на конс.", "конс. подтверждена", "консультация"
+  if (s === 'lead' || s.startsWith('лид')) return 'lead';
+  if (s.includes('конс')) return 'consultation';
   if (s.includes('предоплат') || s.includes('эскиз') || s.includes('скетч')) return 'prepay';
-
   if (s.includes('сеанс') || s.includes('session')) return 'session';
-
   if (s.includes('отмен')) return 'canceled';
-
   if (s.includes('слил') || s.includes('пропал') || s.includes('no show') || s.includes('ghost')) return 'dropped';
-
   return '';
 }
-
 // Сбор депозитов из разных схем (массив/поле)
 function extractDepositsFromClient(c) {
   let count = 0, sum = 0;
@@ -4351,8 +4346,17 @@ function normalizeQual(qRaw='') {
 
 // Главный расчёт
 function mkBuildOverviewFromClients(clients) {
-  const counts = { total: clients.length, cold: 0, lead: 0, consultation: 0, prepay: 0, session: 0, canceled: 0, dropped: 0 };
-
+  const counts = {
+    total: clients.length,
+    cold: 0,
+    warm: 0,                 // ← добавь это
+    lead: 0,
+    consultation: 0,
+    prepay: 0,
+    session: 0,
+    canceled: 0,
+    dropped: 0
+  };
   let depCount = 0, depSum = 0;
 
   for (const c of clients) {
@@ -4444,7 +4448,7 @@ function mkRenderCardStatuses(counts) {
   const list = document.getElementById('mk-status-list');
   if (!list) return;
 
-  const order = ['total', 'cold', 'lead', 'consultation', 'prepay', 'session', 'canceled', 'dropped'];
+  const order = ['total', 'cold', 'warm', 'lead', 'consultation', 'prepay', 'session', 'canceled', 'dropped'];
   const html = order.map(key => {
     const label = MK_STATUS_LABELS[key] || key;
     const val = counts[key] ?? 0;
