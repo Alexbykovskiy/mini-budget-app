@@ -3747,15 +3747,7 @@ function mkRenderCardFinance(data) {
       <span class="value">€${data.net.toFixed(2)}</span>
     </li>
 
-    <li class="mk-row"><span class="label">Средний чек</span>
-      <span class="value">€${data.avgCheck.toFixed(2)}</span></li>
-    <li class="mk-row"><span class="label">Средний «чистый» чек</span>
-      <span class="value">€${data.avgNetCheck.toFixed(2)}</span></li>
-    <li class="mk-row"><span class="label">Медианный чек</span>
-      <span class="value">€${data.medianCheck.toFixed(2)}</span></li>
-    <li class="mk-row"><span class="label">Диапазон P25–P75</span>
-      <span class="value">€${data.p25.toFixed(2)} — €${data.p75.toFixed(2)}</span></li>
-
+    
     <li class="mk-row"><span class="label">Выручка на 1 € рекламы</span>
       <span class="value">€${data.ads.roi.toFixed(2)}</span></li>
     <li class="mk-row"><span class="label">Прибыль на 1 € рекламы</span>
