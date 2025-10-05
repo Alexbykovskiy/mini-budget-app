@@ -2910,28 +2910,30 @@ function mkRenderSummary(clients = [], marketing = []){
   if (!elLeads || !elCosts || typeof Chart !== 'function') return;
 
   // ---- 1) LEADS donut: распределение статусов
-  const counts = {
-    cold: 0, consult: 0, deposit: 0, session: 0, other: 0
-  };
-  (clients||[]).forEach(c=>{
-    const raw = String(c?.status || c?.stage || c?.type || '').toLowerCase();
-    const s = (typeof normalizeStatus === 'function') ? normalizeStatus(raw) : raw;
-    if (s.includes('cold') || s.includes('холод')) counts.cold++;
-    else if (s.includes('consult') || s.includes('конс')) counts.consult++;
-    else if (s.includes('deposit') || s.includes('предоплат') || s.includes('эскиз')) counts.deposit++;
-    else if (s.startsWith('session') || s.includes('сеанс')) counts.session++;
-    else counts.other++;
-  });
+ const counts = { cold: 0, warm: 0, lead: 0, consult: 0, deposit: 0, session: 0, other: 0 };
+
+(clients||[]).forEach(c=>{
+  const raw = String(c?.status || c?.stage || c?.type || '').toLowerCase();
+  const s = (typeof normalizeStatus === 'function') ? normalizeStatus(raw) : raw;
+
+  if (s === 'cold'   || s.includes('холод'))       counts.cold++;
+  else if (s === 'warm')                            counts.warm++;
+  else if (s === 'lead' || s === 'лид')             counts.lead++;
+  else if (s === 'consult' || s.includes('конс'))   counts.consult++;
+  else if (s === 'deposit')                         counts.deposit++;
+  else if (s === 'session' || s.includes('сеанс'))  counts.session++;
+  else                                              counts.other++;
+});
 
   const donutCfg = {
     type: 'doughnut',
     data: {
-      labels: ['Холодные','Консультации','Предоплата/эскиз','Сеансы','Прочие'],
-      datasets: [{
-        data: [counts.cold,counts.consult,counts.deposit,counts.session,counts.other],
-        borderWidth: 0,
-        hoverOffset: 4
-      }]
+      labels: ['Холодные','Тёплые','Лиды','Консультации','Предоплата/эскиз','Сеансы','Прочие'],
+datasets: [{
+  data: [counts.cold,counts.warm,counts.lead,counts.consult,counts.deposit,counts.session,counts.other],
+  borderWidth: 0,
+  hoverOffset: 4
+}]
     },
     options: {
       plugins: {
@@ -3008,25 +3010,32 @@ function mkRenderLeadsDonut(clients){
   const el = document.getElementById('mk-chart-leads');
   if (!el || typeof Chart!=='function') return;
 
+  const arr = Array.isArray(clients) ? clients : [];
+  const norm = (c) => normalizeStatus(c?.status || c?.stage || c?.type || '');
+
   const leads = {
-    cold: (clients||[]).filter(c => /холод/i.test(String(c?.status||''))).length,
-    lead: (clients||[]).filter(c => /^лид$/i.test(String(c?.status||''))).length,
-    consult: (clients||[]).filter(c => /консул/i.test(String(c?.status||''))).length,
-    session: (clients||[]).filter(c => Array.isArray(c?.sessions) && c.sessions.some(s=>s?.done)).length
+    cold:   arr.filter(c => norm(c).includes('cold')).length,
+    warm:   arr.filter(c => norm(c) === 'warm').length,
+    lead:   arr.filter(c => norm(c) === 'lead').length,
+    consult:arr.filter(c => norm(c) === 'consult').length,
+    session:arr.filter(c => norm(c) === 'session').length
   };
 
   if (MK_SUMMARY_LEADS) MK_SUMMARY_LEADS.destroy();
   MK_SUMMARY_LEADS = new Chart(el.getContext('2d'), {
     type: 'doughnut',
     data: {
-      labels: ['Холодные','Лиды','Консультации','Сеансы'],
-      datasets: [{ data:[leads.cold, leads.lead, leads.consult, leads.session],
-        backgroundColor:['#186663','#8C7361','#A6B5B4','#D2AF94'] }]
+      labels: ['Холодные','Тёплые','Лиды','Консультации','Сеансы'],
+      datasets: [{
+        data: [leads.cold, leads.warm, leads.lead, leads.consult, leads.session],
+        backgroundColor: ['#186663','#A6B5B4','#8C7361','#D2AF94','#002D37'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
     },
     options:{ plugins:{ legend:{ position:'bottom' } }, cutout:'65%' }
   });
 }
-
 // 2) Расходы (ручные SK/AT → Всего = сумма)
 function mkRenderCostsChartManual(){
   const el = document.getElementById('mk-chart-costs');
@@ -4259,6 +4268,10 @@ function normalizeStatus(raw) {
 
   if (s === 'lead' || s.startsWith('лид')) return 'lead';
   if (s.includes('холод')) return 'cold';
+
+ // ✅ Тёплые лиды
+  if (s.includes('тёпл') || s.includes('тепл') || s.includes('warm')) return 'warm';
+
 
   if (s.includes('конс')) return 'consultation'; // "запись на конс.", "конс. подтверждена", "консультация"
   if (s.includes('предоплат') || s.includes('эскиз') || s.includes('скетч')) return 'prepay';
