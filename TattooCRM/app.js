@@ -4448,7 +4448,7 @@ function mkRenderCardStatuses(counts) {
   const list = document.getElementById('mk-status-list');
   if (!list) return;
 
-  const order = ['total', 'cold', 'warm', 'lead', 'consultation', 'prepay', 'session', 'canceled', 'dropped'];
+  const order = ['total', 'cold', 'lead', 'warm', 'consultation', 'prepay', 'session', 'canceled', 'dropped'];
   const html = order.map(key => {
     const label = MK_STATUS_LABELS[key] || key;
     const val = counts[key] ?? 0;
