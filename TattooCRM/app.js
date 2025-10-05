@@ -4349,8 +4349,8 @@ function mkBuildOverviewFromClients(clients) {
   const counts = {
     total: clients.length,
     cold: 0,
-    warm: 0,                 // ← добавь это
     lead: 0,
+warm: 0,                 // ← добавь это
     consultation: 0,
     prepay: 0,
     session: 0,
