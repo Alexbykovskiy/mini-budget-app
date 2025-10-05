@@ -3769,7 +3769,7 @@ function mkRenderCardTotals(totals) {
 const ch = totals.checks || {};
 set('mk-avg-check',      `€${(ch.avg    || 0).toFixed(2)}`);
 set('mk-avg-net-check',  `€${(ch.avgNet || 0).toFixed(2)}`);
-set('mk-med-check',      `€${(ch.median || 0).toFixed(2)}`);
+set('mk-median-check',   `€${(ch.median || 0).toFixed(2)}`);
 set('mk-p25p75-range',   `€${(ch.p25    || 0).toFixed(2)}—€${(ch.p75 || 0).toFixed(2)}`);
   // Новые строки:
   const cps = totals?.costs?.perSubscriber  || 0;
