@@ -510,56 +510,78 @@ renderFullCalendar();
   }
 }
 // ---------- Firestore realtime ----------
-function listenClientsRealtime() {
+function listenClientsRealtime(){
   FB.db.collection('TattooCRM').doc('app').collection('clients')
     .orderBy('updatedAt', 'desc')
-    .onSnapshot((qs) => {
+    .onSnapshot((qs)=>{
       AppState.clients = [];
       qs.forEach(d => AppState.clients.push(d.data()));
-
-      // Базовые рендеры
       renderClients();
       renderToday();
-      renderMarketing();
+     // ВАЖНО: после загрузки клиентов пересобрать таблицу маркетинга
+     renderMarketing();
 
-      // Если открыта вкладка «Статистика» — обновим график лидов
-      const mktTab = document.querySelector('[data-tab="marketingPage"]');
-      if (mktTab && mktTab.classList.contains('is-active')) {
-        mkBindLeadsChartControls?.();
-        mkRenderLeadsChart?.();
-      }
-
-      // Карточка №5 и сопутствующие пересчёты
+      // если открыта вкладка маркетинга — обновим график тоже
+      if (document.querySelector('[data-tab="marketingPage"]').classList.contains('is-active')) {
+        mkBindLeadsChartControls();
+        mkRenderLeadsChart();
+      }// обновляем график, если открыта вкладка маркетинга
+if (document.querySelector('[data-tab="marketingPage"]').classList.contains('is-active')) {
+  mkBindLeadsChartControls();
+  mkRenderLeadsChart();
+}
+// Карточка №5: перестраиваем итоги при изменении клиентов
       const untilInput = document.getElementById('mkPotentialUntil');
       if (untilInput) {
         const totals = mkCalcTotalsAndPotential(AppState.clients, AppState.marketing, untilInput.value);
-        mkRenderCardTotals(totals);
+       mkRenderCardTotals(totals);
 
-        // MK#9
-        try {
-          const m9 = mkCalcAcqFunnelMetrics(AppState.clients || [], AppState.marketing || []);
-          mkRenderAcqCard(m9);
-        } catch (e) { console.warn('mk9 refresh after clients update', e); }
+// === [MK#9] Acquisition Funnel: пересчёт карточки «Заглушка 9»
+try {
+  const m9 = mkCalcAcqFunnelMetrics(
+    AppState.clients || [],
+    AppState.marketing || []
+  );
+  mkRenderAcqCard(m9);
+} catch (e) {
+  console.warn('mk9 refresh after clients update', e);
+}
 
-        // Карточка №8
-        try {
-          const split = mkCalcStudioSplit(AppState.clients);
-          mkRenderCardStudioSplit(split);
-        } catch (e) { console.warn('studio split refresh', e); }
+// --- [NEW] Карточка №8: студийная аналитика
+const split = mkCalcStudioSplit(AppState.clients);
+mkRenderCardStudioSplit(split);
 
-        // KPI + Summary
-        try {
-          const kpi = mkCalcKPI(AppState.clients, AppState.marketing, totals);
-          mkRenderKPI(kpi);
-          mkRenderSummary(AppState.clients, AppState.marketing);
-        } catch (e) { console.warn('summary refresh', e); }
+// --- [NEW] KPI и общий отчёт (блок после «Заглушка 9»)
+const kpi = mkCalcKPI(AppState.clients, AppState.marketing, totals);
+mkRenderKPI(kpi);
+mkRenderSummary(AppState.clients, AppState.marketing);
+mkRenderCountriesChart(AppState.clients);
+ // Карточка №6: обновить финансы
+      if (typeof mkUpdateFinanceCard === 'function') mkUpdateFinanceCard();
+// === обновляем KPI и Общий отчёт после прихода данных журнала ===
+try {
+  const untilInput = document.getElementById('mkPotentialUntil');
+  const totals = (typeof mkCalcTotalsAndPotential === 'function')
+    ? mkCalcTotalsAndPotential(AppState.clients || MK_CLIENTS_CACHE, AppState.marketing, untilInput?.value || '')
+    : null;
 
-        // Если вкладка «Статистика» открыта — пересчитать всё под выбранный период
-        if (mktTab && mktTab.classList.contains('is-active')) {
-          if (typeof mkRerenderStatsAll === 'function') mkRerenderStatsAll();
-        }
+  const kpi = mkCalcKPI(AppState.clients || MK_CLIENTS_CACHE, AppState.marketing, totals);
+  mkRenderKPI(kpi);
+  mkRenderSummary(AppState.clients || MK_CLIENTS_CACHE, AppState.marketing);
+} catch(e) {
+  console.warn('mk summary refresh after marketing update', e);
+}
+
+// --- [NEW] Карточка №8: обновить студийную аналитику при изменении клиентов
+{
+  const split = mkCalcStudioSplit(AppState.clients);
+  mkRenderCardStudioSplit(split);
+const kpi = mkCalcKPI(AppState.clients, AppState.marketing, totals);
+mkRenderKPI(kpi);
+mkRenderSummary(AppState.clients, AppState.marketing);
+}
       }
-    }, (err) => {
+    }, (err)=> {
       console.error(err);
       toast('Ошибка чтения клиентов');
     });
@@ -597,14 +619,10 @@ function listenSuppliesRealtime(){
       AppState.supplies = [];
       qs.forEach(d => AppState.supplies.push(d.data()));
       // перерисуем список, если открыта вкладка
-      {
-  const supTab = document.querySelector('[data-tab="suppliesPage"]');
-  if (supTab && supTab.classList.contains('is-active')) {
-    renderSupplies();
-    if (typeof mkUpdateFinanceCard === 'function') mkUpdateFinanceCard();
-  }
-}
-
+      if (document.querySelector('[data-tab="suppliesPage"]').classList.contains('is-active')) {
+        renderSupplies();
+if (typeof mkUpdateFinanceCard === 'function') mkUpdateFinanceCard();
+      }
     }, (err)=> {
       console.error(err);
       toast('Ошибка чтения расходников');
@@ -2696,9 +2714,6 @@ function mkApplyDateMode(mode, from=null, to=null) {
   }
 
   mkRerenderStatsAll(); // ← полный пересчёт страницы статистики
-// ↓↓↓ ДОБАВЬ ЭТИ 2 СТРОКИ ↓↓↓
-  if (typeof renderMarketing === 'function') renderMarketing();   // детальная таблица по дням
-  if (typeof mkRenderLeadsChart === 'function') mkRenderLeadsChart(); // график "Дни \ Лиды"
 }
 
 // Инициализация панели дат (вешаем обработчики)
@@ -2713,24 +2728,6 @@ function mkInitDatebar(){
   const inFrom   = root.querySelector('#mkFrom');
   const inTo     = root.querySelector('#mkTo');
   const btnApply = root.querySelector('#mkApplyRange');
-// авто-применение при изменении полей даты
-  if (inFrom && !inFrom.dataset.bound) {
-    inFrom.dataset.bound = '1';
-    inFrom.addEventListener('change', ()=>{
-      const f = inFrom.value || null;
-      const t = inTo?.value || null;
-      mkApplyDateMode('range', f, t);
-    });
-  }
-  if (inTo && !inTo.dataset.bound) {
-    inTo.dataset.bound = '1';
-    inTo.addEventListener('change', ()=>{
-      const f = inFrom?.value || null;
-      const t = inTo.value || null;
-      mkApplyDateMode('range', f, t);
-    });
-  }
-
 
   // Быстрые пресеты
   if (btnWeek)  btnWeek.addEventListener('click', ()=>{
@@ -2789,8 +2786,6 @@ function mkRerenderStatsAll(){
   mkInitDatebar();
 
   const { clients, marketing } = mkGetPeriodData();
-
-MK_CLIENTS_CACHE = Array.isArray(clients) ? clients : [];
 
   // === Карточка №1: статусы
   const { counts } = mkBuildOverviewFromClients(clients);
@@ -3442,65 +3437,6 @@ function mkPrepareIgSeriesByMonth(marketing = [], ym = 'YYYY-MM') {
 }
 
 
-// Сгенерировать список дат по дням: [from..to] включительно
-function mkListDays(fromYmd, toYmd){
-  const days = [];
-  if (!fromYmd || !toYmd) return days;
-  let d = new Date(fromYmd);
-  const end = new Date(toYmd);
-  while (d <= end){
-    const y = d.getFullYear();
-    const m = String(d.getMonth()+1).padStart(2,'0');
-    const day = String(d.getDate()).padStart(2,'0');
-    days.push(`${y}-${m}-${day}`);
-    d.setDate(d.getDate()+1);
-  }
-  return days;
-}
-
-// Разложить лиды по дням выбранного диапазона
-function mkPrepareLeadsSeriesByRange(clientsArr, labelsYmd, mode='all'){
-  const idxByDay = new Map(labelsYmd.map((d,i)=>[d,i]));
-  const make = ()=>Array(labelsYmd.length).fill(0);
-
-  const S = { ru:make(), sk:make(), en:make(), at:make(), de:make() };
-
-  (Array.isArray(clientsArr) ? clientsArr : []).forEach(c=>{
-    // фильтруем по режиму (all / noncold / cold) — логика как в месячной версии
-    const st = normalizeStatus(c?.status || c?.stage || c?.type);
-    if (mode === 'noncold' && st === 'cold') return;
-    if (mode === 'cold'    && st !== 'cold') return;
-
-    const ymd = mkClientFirstContactYMD(c);
-    const i = idxByDay.get(ymd);
-    if (i == null) return;
-
-    const lang = String(c?.lang || '').trim().toLowerCase();
-    const key =
-      (lang === 'ru') ? 'ru' :
-      (lang === 'sk') ? 'sk' :
-      (lang === 'en') ? 'en' :
-      (lang === 'de') ? 'de' :
-      'at'; // «Австрия/прочее» как раньше
-    S[key][i] += 1;
-  });
-
-  return S;
-}
-
-// IG: суммируем delta маркетинга по дням выбранного диапазона
-function mkPrepareIgSeriesByRange(marketingArr, labelsYmd){
-  const idxByDay = new Map(labelsYmd.map((d,i)=>[d,i]));
-  const data = Array(labelsYmd.length).fill(0);
-  (Array.isArray(marketingArr) ? marketingArr : []).forEach(m=>{
-    const d = String(m?.date || '').slice(0,10);
-    const i = idxByDay.get(d);
-    if (i != null) data[i] += Number(m?.delta || 0);
-  });
-  return data;
-}
-
-
 // --- [MK#7] Chart instance cache
 let MK_CHART = null;
 // --- [MK#7] Данные для IG (+подписчики в день) по месяцу
@@ -3528,106 +3464,117 @@ function mkRenderLeadsChart(){
   const canvas = document.getElementById('mkLeadsChart');
   if (!canvas) return;
 
-  // Режим (как и раньше)
+  const monthSel = document.getElementById('mkChartMonth');
   const mode = (document.querySelector('input[name="mkChartMode"]:checked')?.value) || 'all';
+  const ym = monthSel?.value || (mkListMonthsFromClients(AppState.clients).slice(-1)[0] || '');
 
-  // Берём ИМЕННО периодные данные (привязка к глобальному MK_DATE):
-  const { clients, marketing } = mkGetPeriodData(); // <- уже отфильтрованы по MK_DATE
+ const { labels, series } = mkPrepareLeadsSeriesByMonth(AppState.clients || [], ym, mode);
 
-  // Список дней на оси X: если «всё время» — берём последние 30 дней
-  let from = MK_DATE.from, to = MK_DATE.to, title = '';
-  if (MK_DATE.mode === 'all') {
-    const today = mkTodayYmd();
-    from = mkShiftDays(today, -29);
-    to = today;
-    title = 'Последние 30 дней';
-  } else {
-    title = (from && to) ? `${from} — ${to}` : '';
-  }
+const datasets = [
+  { key:'ru', label:'Русский',  data: series.ru, borderColor:'#186663', backgroundColor:'#186663' },
+  { key:'sk', label:'Словацкий', data: series.sk, borderColor:'#A6B5B4', backgroundColor:'#A6B5B4' },
+  { key:'en', label:'Английский', data: series.en, borderColor:'#8C7361', backgroundColor:'#8C7361' },
+  { key:'at', label:'Австрия',  data: series.at, borderColor:'#D2AF94', backgroundColor:'#D2AF94' },
+  { key:'de', label:'Немецкий', data: series.de, borderColor:'#002D37', backgroundColor:'#002D37' },
+].map((d)=>({
+  label: d.label,
+  data: d.data,
+  tension: 0.2,
+  pointRadius: 2,
+  borderWidth: 2
+}));
 
-  const labels = mkListDays(from, to); // массив 'YYYY-MM-DD' по дням
+// NEW: если включён тумблер IG — добавляем дневной прирост подписчиков как столбики
+const igOn = document.getElementById('mkChartIG')?.checked;
+if (igOn) {
+  const igData = mkPrepareIgSeriesByMonth(AppState.marketing || [], ym);
+  datasets.push({
+    label: 'IG (+подписчики)',
+    data: igData,
+    type: 'bar',
+    yAxisID: 'y',
+    borderWidth: 1,
+    pointRadius: 0,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    borderColor: 'rgba(255,255,255,0.8)'
+  });
+}
 
-  // Подготовка рядов по дням и по языкам/странам
-  const series = mkPrepareLeadsSeriesByRange(clients, labels, mode);
-
-  // Формируем датасеты как раньше
-  const datasets = [
-    { key:'ru', label:'Русский',   data: series.ru, borderColor:'#186663', backgroundColor:'#186663' },
-    { key:'sk', label:'Словацкий', data: series.sk, borderColor:'#A6B5B4', backgroundColor:'#A6B5B4' },
-    { key:'en', label:'Английский',data: series.en, borderColor:'#8C7361', backgroundColor:'#8C7361' },
-    { key:'at', label:'Австрия',   data: series.at, borderColor:'#D2AF94', backgroundColor:'#D2AF94' },
-    { key:'de', label:'Немецкий',  data: series.de, borderColor:'#002D37', backgroundColor:'#002D37' },
-  ].map(d => ({ label:d.label, data:d.data, tension:0.2, pointRadius:2, borderWidth:2 }));
-
-  // IG как было — но считаем тоже по диапазону (сумма delta по дням)
-  const igOn = document.getElementById('mkChartIG')?.checked;
-  if (igOn) {
-    const igData = mkPrepareIgSeriesByRange(marketing, labels); // см. новую функцию ниже
-    datasets.push({
-      label: 'IG (+подписчики)',
-      data: igData,
-      type: 'bar',
-      yAxisID: 'y',
-      borderWidth: 1,
-      pointRadius: 0,
-      backgroundColor: 'rgba(255,255,255,0.25)',
-      borderColor: 'rgba(255,255,255,0.8)'
-    });
-  }
-
-   const cfg = {
+  const cfg = {
     type: 'line',
     data: { labels, datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: true, position: 'bottom' },
-        // используем уже подготовленный выше текст `title`
-        title:  { display: !!title, text: title }
-      },
-      scales: {
-        x: { title:{ display:true, text:'Дни' },
-             ticks:{ autoSkip:false, maxRotation:70, minRotation:50 },
-             grid: { color: 'rgba(255,255,255,0.3)' } },
-        y: { title:{ display:true, text:'Количество лидов' },
-             beginAtZero:true, ticks:{ precision:0 },
-             grid: { color: 'rgba(255,255,255,0.3)' } }
-      }
-    }
+     plugins: {
+  legend: { display: true, position: 'bottom' },
+  title:  { display: true, text: mkMonthHuman(ym) }
+},
+scales: {
+  x: {
+    title:{ display:true, text:'Дни' },
+    ticks:{ autoSkip:false, maxRotation:70, minRotation:50 },
+    grid: {  color: 'rgba(255,255,255,0.3)' }   // ← сетка по оси X белая
+  },
+  y: {
+    title:{ display:true, text:'Количество лидов' },
+    beginAtZero:true,
+    ticks:{ precision:0 },
+    grid: {  color: 'rgba(255,255,255,0.3)'}   // ← сетка по оси Y белая
+  }
+}  
+  }
   };
 
-  if (MK_CHART) MK_CHART.destroy();
+  if (MK_CHART) { MK_CHART.destroy(); }
   MK_CHART = new Chart(canvas.getContext('2d'), cfg);
-} // ← ОБЯЗАТЕЛЬНО: закрываем mkRenderLeadsChart()
+}
 
 // --- [MK#7] Заполнить селект месяцев и навесить обработчики
-// --- [MK#7] навешиваем только переключатели режимов и IG
 function mkBindLeadsChartControls(){
-  document.querySelectorAll('input[name="mkChartMode"]').forEach(r=>{
-    if (!r.dataset.bound){
-      r.dataset.bound = '1';
-      r.addEventListener('change', mkRenderLeadsChart);
-    }
-  });
+  const sel = document.getElementById('mkChartMonth');
+  if (!sel) return;
 
-  const ig = document.getElementById('mkChartIG');
-  if (ig && !ig.dataset.bound) {
-    ig.dataset.bound = '1';
-    ig.addEventListener('change', mkRenderLeadsChart);
+  // Заполняем список месяцев по клиентам
+  const months = mkListMonthsFromClients(AppState.clients || []);
+  sel.innerHTML = months.length
+    ? months.map(ym => `<option value="${ym}">${mkMonthHuman(ym)}</option>`).join('')
+    : `<option value="">—</option>`;
+
+  // Выставим последний месяц по умолчанию
+  if (months.length) sel.value = months[months.length - 1];
+
+  // Обработчики
+  if (!sel.dataset.bound){
+    sel.dataset.bound = '1';
+    sel.addEventListener('change', mkRenderLeadsChart);
+    document.querySelectorAll('input[name="mkChartMode"]').forEach(r=>{
+      r.addEventListener('change', mkRenderLeadsChart);
+    });
   }
 
+// NEW: тумблер IG (+подписчики/день)
+const ig = document.getElementById('mkChartIG');
+if (ig && !ig.dataset.bound) {
+  ig.dataset.bound = '1';
+  ig.addEventListener('change', mkRenderLeadsChart);
+}
+
+// --- чекбоксы стран ---
   const countriesBox = document.getElementById('mkChartCountries');
   if (countriesBox && !countriesBox.dataset.bound) {
     countriesBox.addEventListener('change', (e) => {
       if (e.target && e.target.matches('input[type="checkbox"]')) {
-        mkRenderLeadsChart();
+        mkRenderLeadsChart(); // перерисовываем график при переключении стран
       }
     });
     countriesBox.dataset.bound = '1';
   }
 }
+
+
+
 // === [NEW] Totals & Potential (карточка №5) ===============================
 
 // Сумма всех подписок (суммируем delta по маркетингу)
@@ -4141,9 +4088,6 @@ function listenMarketingRealtime(){
       // локально сортируем по дате+времени, чтобы не требовать составного индекса
       arr.sort((a,b) => (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
       AppState.marketing = arr;
- if (document.querySelector('[data-tab="marketingPage"]').classList.contains('is-active')) {
-        if (typeof mkRerenderStatsAll === 'function') mkRerenderStatsAll();
-      }
  // Карточка №5: обновляем итоги и потенциал при новых данных маркетинга
       const untilInput = document.getElementById('mkPotentialUntil');
       if (untilInput) {
@@ -4165,13 +4109,11 @@ try {
       }
 
       renderMarketing();
-{
-  const mktTab = document.querySelector('[data-tab="marketingPage"]');
-  if (mktTab && mktTab.classList.contains('is-active')) {
-    mkBindLeadsChartControls();
-    mkRenderLeadsChart();
-  }
+if (document.querySelector('[data-tab="marketingPage"]').classList.contains('is-active')) {
+  mkBindLeadsChartControls();
+  mkRenderLeadsChart();
 }
+
  if (typeof mkUpdateFinanceCard === 'function') mkUpdateFinanceCard();
 
     }, err => console.error('marketing', err));
@@ -5607,3 +5549,4 @@ if (btnMig) btnMig.addEventListener('click', () => {
   } catch (e) {
     console.warn('[marketing overview] render failed:', e);
   }
+});
