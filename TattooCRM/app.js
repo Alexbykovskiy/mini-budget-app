@@ -510,87 +510,59 @@ renderFullCalendar();
   }
 }
 // ---------- Firestore realtime ----------
-function listenClientsRealtime(){
+function listenClientsRealtime() {
   FB.db.collection('TattooCRM').doc('app').collection('clients')
     .orderBy('updatedAt', 'desc')
-    .onSnapshot((qs)=>{
+    .onSnapshot((qs) => {
       AppState.clients = [];
       qs.forEach(d => AppState.clients.push(d.data()));
+
+      // Базовые рендеры
       renderClients();
       renderToday();
-     // ВАЖНО: после загрузки клиентов пересобрать таблицу маркетинга
-     renderMarketing();
+      renderMarketing();
 
-      // если открыта вкладка маркетинга — обновим график тоже
-      {
-    const mktTab = document.querySelector('[data-tab="marketingPage"]');
-    if (mktTab && mktTab.classList.contains('is-active')) {
-      mkBindLeadsChartControls();
-      mkRenderLeadsChart();
-    }
-  }
-      // обновляем график, если открыта вкладка маркетинга
-// Карточка №5: перестраиваем итоги при изменении клиентов
+      // Если открыта вкладка «Статистика» — обновим график лидов
+      const mktTab = document.querySelector('[data-tab="marketingPage"]');
+      if (mktTab && mktTab.classList.contains('is-active')) {
+        mkBindLeadsChartControls?.();
+        mkRenderLeadsChart?.();
+      }
+
+      // Карточка №5 и сопутствующие пересчёты
       const untilInput = document.getElementById('mkPotentialUntil');
       if (untilInput) {
         const totals = mkCalcTotalsAndPotential(AppState.clients, AppState.marketing, untilInput.value);
-       mkRenderCardTotals(totals);
+        mkRenderCardTotals(totals);
 
-// === [MK#9] Acquisition Funnel: пересчёт карточки «Заглушка 9»
-try {
-  const m9 = mkCalcAcqFunnelMetrics(
-    AppState.clients || [],
-    AppState.marketing || []
-  );
-  mkRenderAcqCard(m9);
-} catch (e) {
-  console.warn('mk9 refresh after clients update', e);
-}
+        // MK#9
+        try {
+          const m9 = mkCalcAcqFunnelMetrics(AppState.clients || [], AppState.marketing || []);
+          mkRenderAcqCard(m9);
+        } catch (e) { console.warn('mk9 refresh after clients update', e); }
 
-// --- [NEW] Карточка №8: студийная аналитика
-const split = mkCalcStudioSplit(AppState.clients);
-mkRenderCardStudioSplit(split);
+        // Карточка №8
+        try {
+          const split = mkCalcStudioSplit(AppState.clients);
+          mkRenderCardStudioSplit(split);
+        } catch (e) { console.warn('studio split refresh', e); }
 
-// --- [NEW] KPI и общий отчёт (блок после «Заглушка 9»)
-const kpi = mkCalcKPI(AppState.clients, AppState.marketing, totals);
-mkRenderKPI(kpi);
-mkRenderSummary(AppState.clients, AppState.marketing);
-mkRenderCountriesChart(AppState.clients);
- // Карточка №6: обновить финансы
-      if (typeof mkUpdateFinanceCard === 'function') mkUpdateFinanceCard();
-// === обновляем KPI и Общий отчёт после прихода данных журнала ===
-try {
-  const untilInput = document.getElementById('mkPotentialUntil');
-  const totals = (typeof mkCalcTotalsAndPotential === 'function')
-    ? mkCalcTotalsAndPotential(AppState.clients || MK_CLIENTS_CACHE, AppState.marketing, untilInput?.value || '')
-    : null;
+        // KPI + Summary
+        try {
+          const kpi = mkCalcKPI(AppState.clients, AppState.marketing, totals);
+          mkRenderKPI(kpi);
+          mkRenderSummary(AppState.clients, AppState.marketing);
+        } catch (e) { console.warn('summary refresh', e); }
 
-  const kpi = mkCalcKPI(AppState.clients || MK_CLIENTS_CACHE, AppState.marketing, totals);
-  mkRenderKPI(kpi);
-  mkRenderSummary(AppState.clients || MK_CLIENTS_CACHE, AppState.marketing);
-} catch(e) {
-  console.warn('mk summary refresh after marketing update', e);
-}
-
-// --- [NEW] Карточка №8: обновить студийную аналитику при изменении клиентов
-{
-  const split = mkCalcStudioSplit(AppState.clients);
-  mkRenderCardStudioSplit(split);
-const kpi = mkCalcKPI(AppState.clients, AppState.marketing, totals);
-mkRenderKPI(kpi);
-mkRenderSummary(AppState.clients, AppState.marketing);
- // --- гарантируем синхрон с выбранным периодом на вкладке "Статистика"
-      {
-  const mktTab = document.querySelector('[data-tab="marketingPage"]');
-  if (mktTab && mktTab.classList.contains('is-active')) {
-    if (typeof mkRerenderStatsAll === 'function') mkRerenderStatsAll();
-  }
-}
-}             // ← закрылся if (untilInput) {                   ✅
-}, (err)=> {  // ← теперь это закрытие колбэка onSnapshot      ✅
-  console.error(err);
-  toast('Ошибка чтения клиентов');
-});
+        // Если вкладка «Статистика» открыта — пересчитать всё под выбранный период
+        if (mktTab && mktTab.classList.contains('is-active')) {
+          if (typeof mkRerenderStatsAll === 'function') mkRerenderStatsAll();
+        }
+      }
+    }, (err) => {
+      console.error(err);
+      toast('Ошибка чтения клиентов');
+    });
 }
 function listenRemindersRealtime(){
   FB.db.collection('TattooCRM').doc('app').collection('reminders')
