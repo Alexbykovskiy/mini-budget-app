@@ -587,7 +587,7 @@ mkRenderSummary(AppState.clients, AppState.marketing);
   }
 }
       }
-    , (err)=> {
+     (err)=> {
       console.error(err);
       toast('Ошибка чтения клиентов');
     });
