@@ -3464,9 +3464,8 @@ function mkRenderLeadsChart(){
   const canvas = document.getElementById('mkLeadsChart');
   if (!canvas) return;
 
-  const monthSel = document.getElementById('mkChartMonth');
-  const mode = (document.querySelector('input[name="mkChartMode"]:checked')?.value) || 'all';
-  const ym = monthSel?.value || (mkListMonthsFromClients(AppState.clients).slice(-1)[0] || '');
+ const mode = (document.querySelector('input[name="mkChartMode"]:checked')?.value) || 'all';
+const ym = mkListMonthsFromClients(AppState.clients).slice(-1)[0] || '';
 
  const { labels, series } = mkPrepareLeadsSeriesByMonth(AppState.clients || [], ym, mode);
 
@@ -3533,46 +3532,19 @@ scales: {
 
 // --- [MK#7] Заполнить селект месяцев и навесить обработчики
 function mkBindLeadsChartControls(){
-  const sel = document.getElementById('mkChartMonth');
-  if (!sel) return;
-
-  // Заполняем список месяцев по клиентам
-  const months = mkListMonthsFromClients(AppState.clients || []);
-  sel.innerHTML = months.length
-    ? months.map(ym => `<option value="${ym}">${mkMonthHuman(ym)}</option>`).join('')
-    : `<option value="">—</option>`;
-
-  // Выставим последний месяц по умолчанию
-  if (months.length) sel.value = months[months.length - 1];
-
-  // Обработчики
-  if (!sel.dataset.bound){
-    sel.dataset.bound = '1';
-    sel.addEventListener('change', mkRenderLeadsChart);
-    document.querySelectorAll('input[name="mkChartMode"]').forEach(r=>{
+  document.querySelectorAll('input[name="mkChartMode"]').forEach(r=>{
+    if (!r.dataset.bound){
+      r.dataset.bound = '1';
       r.addEventListener('change', mkRenderLeadsChart);
-    });
-  }
+    }
+  });
 
-// NEW: тумблер IG (+подписчики/день)
-const ig = document.getElementById('mkChartIG');
-if (ig && !ig.dataset.bound) {
-  ig.dataset.bound = '1';
-  ig.addEventListener('change', mkRenderLeadsChart);
-}
-
-// --- чекбоксы стран ---
-  const countriesBox = document.getElementById('mkChartCountries');
-  if (countriesBox && !countriesBox.dataset.bound) {
-    countriesBox.addEventListener('change', (e) => {
-      if (e.target && e.target.matches('input[type="checkbox"]')) {
-        mkRenderLeadsChart(); // перерисовываем график при переключении стран
-      }
-    });
-    countriesBox.dataset.bound = '1';
+  const ig = document.getElementById('mkChartIG');
+  if (ig && !ig.dataset.bound) {
+    ig.dataset.bound = '1';
+    ig.addEventListener('change', mkRenderLeadsChart);
   }
 }
-
 
 
 // === [NEW] Totals & Potential (карточка №5) ===============================
