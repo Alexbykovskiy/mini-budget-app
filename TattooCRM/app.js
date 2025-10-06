@@ -586,7 +586,8 @@ mkRenderSummary(AppState.clients, AppState.marketing);
     if (typeof mkRerenderStatsAll === 'function') mkRerenderStatsAll();
   }
 }
-}, (err)=> {   // ← ВАЖНО: запятая и второй колбэк внутри onSnapshot(...)
+}             // ← закрылся if (untilInput) {                   ✅
+}, (err)=> {  // ← теперь это закрытие колбэка onSnapshot      ✅
   console.error(err);
   toast('Ошибка чтения клиентов');
 });
