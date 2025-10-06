@@ -2801,12 +2801,13 @@ function mkRerenderStatsAll(){
 
   // === Карточка №4: «как в Excel»
   (async ()=>{
-    const logsMap = await mkFetchStatusLogsForClients(clients);
-    const conv = mkBuildReachedConversion(clients, logsMap);
-    mkRenderCardConversion(conv);
-    AppState.convReached  = conv;
-    AppState.statusLogsMap = logsMap;
-  })();
+  const logsMap = await mkFetchStatusLogsForClients(clients);
+  const range = (MK_DATE.mode === 'all') ? null : { from: MK_DATE.from, to: MK_DATE.to };
+  const conv = mkBuildReachedConversion(clients, logsMap, range);
+  mkRenderCardConversion(conv);
+  AppState.convReached   = conv;
+  AppState.statusLogsMap = logsMap;
+})();
 
   // === Карточка №5: итоги и потенциал (используем input с датой как раньше)
   const untilInput = document.getElementById('mkPotentialUntil');
@@ -4484,27 +4485,51 @@ function extractDepositsFromClient(c) {
   return { count, sum };
 }
 
-// --- "Как в Excel": считаем ДОСТИЖЕНИЯ статусов (to == ...), если клиент когда-либо был лидом ---
-function mkBuildReachedConversion(clients, logsMap) {
+// --- "Как в Excel": считаем ДОСТИЖЕНИЯ статусов (to == .),
+// теперь с учётом периода по дате логов
+function mkBuildReachedConversion(clients, logsMap, range = null) {
   const TARGETS = ['consultation', 'prepay', 'session', 'canceled', 'dropped'];
   const counts = { consultation:0, prepay:0, session:0, canceled:0, dropped:0 };
   let denom = 0;
 
   const norm = (x) => normalizeStatus(x);
 
+  // Границы периода в миллисекундах
+  let fromMs = -Infinity, toMs = Infinity;
+  if (range && (range.from || range.to)) {
+    const f = range.from ? `${range.from}T00:00:00`       : '1970-01-01T00:00:00';
+    const t = range.to   ? `${range.to}T23:59:59.999`     : '9999-12-31T23:59:59.999';
+    fromMs = Date.parse(f); if (!isFinite(fromMs)) fromMs = -Infinity;
+    toMs   = Date.parse(t); if (!isFinite(toMs))   toMs   = Infinity;
+  }
+
+  const logMs = (row) => {
+    const s = row?.ts || row?.at || row?.date || row?.time || '';
+    const p = Date.parse(s);
+    if (isFinite(p)) return p;
+    // фолбэк: id у нас = Date.now() при записи
+    const n = Number(row?._id);
+    return isFinite(n) ? n : NaN;
+  };
+  const inRange = (row) => {
+    if (fromMs === -Infinity && toMs === Infinity) return true;
+    const ms = logMs(row);
+    return isFinite(ms) && ms >= fromMs && ms <= toMs;
+  };
+
   for (const c of (clients || [])) {
     const logs = logsMap.get(c.id) || [];
 
     // был ли когда-то лидом (по логам или текущее состояние)
     const wasLead = logs.some(r => norm(r?.to) === 'lead' || norm(r?.from) === 'lead')
-               || norm(c?.status) === 'lead';
+                 || norm(c?.status) === 'lead';
     if (!wasLead) continue;
 
     denom++;
 
     // клиент может попасть в несколько корзин — как в Excel
     for (const t of TARGETS) {
-      const hit = logs.some(r => norm(r?.to) === t);
+      const hit = logs.some(r => norm(r?.to) === t && inRange(r));
       if (hit) counts[t] += 1;
     }
   }
@@ -4520,7 +4545,6 @@ function mkBuildReachedConversion(clients, logsMap) {
     dropped:      { n: counts.dropped,      p: pct(counts.dropped)      }
   };
 }
-
 function normalizeQual(qRaw='') {
   const q = String(qRaw).toLowerCase();
   if (q.includes('целевой') && !q.includes('условно')) return 'target';
