@@ -3439,6 +3439,65 @@ function mkPrepareIgSeriesByMonth(marketing = [], ym = 'YYYY-MM') {
 }
 
 
+// Сгенерировать список дат по дням: [from..to] включительно
+function mkListDays(fromYmd, toYmd){
+  const days = [];
+  if (!fromYmd || !toYmd) return days;
+  let d = new Date(fromYmd);
+  const end = new Date(toYmd);
+  while (d <= end){
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    days.push(`${y}-${m}-${day}`);
+    d.setDate(d.getDate()+1);
+  }
+  return days;
+}
+
+// Разложить лиды по дням выбранного диапазона
+function mkPrepareLeadsSeriesByRange(clientsArr, labelsYmd, mode='all'){
+  const idxByDay = new Map(labelsYmd.map((d,i)=>[d,i]));
+  const make = ()=>Array(labelsYmd.length).fill(0);
+
+  const S = { ru:make(), sk:make(), en:make(), at:make(), de:make() };
+
+  (Array.isArray(clientsArr) ? clientsArr : []).forEach(c=>{
+    // фильтруем по режиму (all / noncold / cold) — логика как в месячной версии
+    const st = normalizeStatus(c?.status || c?.stage || c?.type);
+    if (mode === 'noncold' && st === 'cold') return;
+    if (mode === 'cold'    && st !== 'cold') return;
+
+    const ymd = mkClientFirstContactYMD(c);
+    const i = idxByDay.get(ymd);
+    if (i == null) return;
+
+    const lang = String(c?.lang || '').trim().toLowerCase();
+    const key =
+      (lang === 'ru') ? 'ru' :
+      (lang === 'sk') ? 'sk' :
+      (lang === 'en') ? 'en' :
+      (lang === 'de') ? 'de' :
+      'at'; // «Австрия/прочее» как раньше
+    S[key][i] += 1;
+  });
+
+  return S;
+}
+
+// IG: суммируем delta маркетинга по дням выбранного диапазона
+function mkPrepareIgSeriesByRange(marketingArr, labelsYmd){
+  const idxByDay = new Map(labelsYmd.map((d,i)=>[d,i]));
+  const data = Array(labelsYmd.length).fill(0);
+  (Array.isArray(marketingArr) ? marketingArr : []).forEach(m=>{
+    const d = String(m?.date || '').slice(0,10);
+    const i = idxByDay.get(d);
+    if (i != null) data[i] += Number(m?.delta || 0);
+  });
+  return data;
+}
+
+
 // --- [MK#7] Chart instance cache
 let MK_CHART = null;
 // --- [MK#7] Данные для IG (+подписчики в день) по месяцу
