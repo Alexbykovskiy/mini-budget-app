@@ -586,11 +586,10 @@ mkRenderSummary(AppState.clients, AppState.marketing);
     if (typeof mkRerenderStatsAll === 'function') mkRerenderStatsAll();
   }
 }
-      }
-     (err)=> {
-      console.error(err);
-      toast('Ошибка чтения клиентов');
-    });
+}, (err)=> {   // ← ВАЖНО: запятая и второй колбэк внутри onSnapshot(...)
+  console.error(err);
+  toast('Ошибка чтения клиентов');
+});
 }
 function listenRemindersRealtime(){
   FB.db.collection('TattooCRM').doc('app').collection('reminders')
