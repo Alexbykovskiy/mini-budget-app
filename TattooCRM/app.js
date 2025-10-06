@@ -202,9 +202,9 @@ bindSupplies();
       const logsMap = AppState.statusLogsMap
         || await mkFetchStatusLogsForClients(baseClients);
 
-      const range = (window.MK_DATE && (MK_DATE.from || MK_DATE.to))
-   ? { from: MK_DATE.from || null, to: MK_DATE.to || null }
-   : null;
+     const range = (window.MK_DATE && (MK_DATE.from || MK_DATE.to))
+  ? { from: MK_DATE.from || null, to: MK_DATE.to || null }
+  : null;
 
       const lists = mkBuildReachedConversionLists(baseClients, logsMap, range);
 
