@@ -529,7 +529,7 @@ function listenClientsRealtime(){
       mkRenderLeadsChart();
     }
   }
-      }// обновляем график, если открыта вкладка маркетинга
+      // обновляем график, если открыта вкладка маркетинга
 // Карточка №5: перестраиваем итоги при изменении клиентов
       const untilInput = document.getElementById('mkPotentialUntil');
       if (untilInput) {
