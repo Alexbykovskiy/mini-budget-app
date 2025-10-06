@@ -538,15 +538,15 @@ if (document.querySelector('[data-tab="marketingPage"]').classList.contains('is-
 
 // === [MK#9] Acquisition Funnel: пересчёт карточки «Заглушка 9»
 try {
-  const m9 = mkCalcAcqFunnelMetrics(
-    AppState.clients || [],
-    AppState.marketing || []
-  );
+  const src = (typeof mkGetPeriodData === 'function') ? mkGetPeriodData() : {
+    clients:   AppState.clients || MK_CLIENTS_CACHE || [],
+    marketing: AppState.marketing || []
+  };
+  const m9 = mkCalcAcqFunnelMetrics(src.clients, src.marketing);
   mkRenderAcqCard(m9);
 } catch (e) {
-  console.warn('mk9 refresh after clients update', e);
+  console.warn('mk9 render on tab open', e);
 }
-
 // --- [NEW] Карточка №8: студийная аналитика
 const split = mkCalcStudioSplit(AppState.clients);
 mkRenderCardStudioSplit(split);
@@ -2836,20 +2836,27 @@ function mkRerenderStatsAll(){
     mkRenderCardStudioSplit(split);
   }
 
-  // === KPI / общий отчёт и графики внизу (пончик, расходы вручную, страны)
+   // === KPI / общий отчёт и графики внизу (пончик, расходы вручную, страны)
   if (typeof mkCalcKPI === 'function' && typeof mkRenderKPI === 'function') {
     const cutoff = document.getElementById('mkPotentialUntil')?.value || '';
     const totals = mkCalcTotalsAndPotential(clients, marketing, cutoff);
     const kpi = mkCalcKPI(clients, marketing, totals);
     mkRenderKPI(kpi);
   }
+
+  // [NEW] Карточка №9: Acquisition/Funnel — теперь тоже под влиянием MK_DATE
+  if (typeof mkCalcAcqFunnelMetrics === 'function' && typeof mkRenderAcqCard === 'function') {
+    const acq = mkCalcAcqFunnelMetrics(clients, marketing);
+    mkRenderAcqCard(acq);
+  }
+
   if (typeof mkRenderSummary === 'function')         mkRenderSummary(clients, marketing);
   if (typeof mkRenderLeadsDonut === 'function')      mkRenderLeadsDonut(clients);
   if (typeof mkRenderCostsChartManual === 'function') mkRenderCostsChartManual();
   if (typeof mkRenderCountriesChart === 'function')  mkRenderCountriesChart(clients);
 
-  // === История маркетинга (таблица «Дата/IG/€/RU/SK/…») и график лидов
-  if (typeof renderMarketing === 'function') renderMarketing();  // см. патч в 3.2 (он сам внутри фильтрует по MK_DATE)
+  // === История маркетинга ...
+  if (typeof renderMarketing === 'function') renderMarketing();
   if (typeof mkBindLeadsChartControls === 'function') mkBindLeadsChartControls();
   if (typeof mkRenderLeadsChart === 'function')       mkRenderLeadsChart();
 }
@@ -3993,15 +4000,26 @@ function mkUpdateFinanceCard() {
   const cutoff = document.getElementById('mkPotentialUntil')?.value || '';
   const useSup = !!document.getElementById('mkIncludeSupplies')?.checked;
 
+  // [NEW] Если на странице «Статистика» — уважать текущий период MK_DATE
+  let C = AppState.clients || MK_CLIENTS_CACHE;
+  let M = AppState.marketing || [];
+  try {
+    const statsOpen = document.querySelector('[data-tab="marketingPage"]')?.classList.contains('is-active');
+    if (statsOpen && typeof mkGetPeriodData === 'function') {
+      const src = mkGetPeriodData();             // { clients, marketing } уже отфильтрованы
+      C = src.clients;
+      M = src.marketing;
+    }
+  } catch (_) {}
+
   const data = mkCalcFinanceMetrics(
-    AppState.clients || MK_CLIENTS_CACHE,
-    AppState.marketing,
+    C,
+    M,
     AppState.supplies,
     cutoff,
     useSup
   );
-  mkRenderCardFinance(data);
- // Обновляем мини-блок «Клиенты» в карточке №4
+  mkRenderCardFinance(data); // Обновляем мини-блок «Клиенты» в карточке №4
   const u = data?.clients?.uniqueCount ?? 0;
   const r = data?.clients?.repeatPct ?? 0;
   const elU = document.getElementById('mk-cl-unique');
