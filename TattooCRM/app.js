@@ -2800,13 +2800,13 @@ function mkRerenderStatsAll(){
   mkRenderResults(clients);
 
   // === Карточка №4: «как в Excel»
-  (async ()=>{
-  const logsMap = await mkFetchStatusLogsForClients(clients);
-const range = (MK_DATE.mode === 'all') ? null : { from: MK_DATE.from, to: MK_DATE.to };
-const conv = mkBuildReachedConversion(clients, logsMap, range);
-mkRenderCardConversion(conv);
-  AppState.convReached   = conv;
-  AppState.statusLogsMap = logsMap;
+ (async ()=>{
+  const baseClients = AppState.clients || []; // ← ВСЕ клиенты, а не отфильтрованные
+  const logsMap = await mkFetchStatusLogsForClients(baseClients);
+  const range = (MK_DATE.mode === 'all') ? null : { from: MK_DATE.from, to: MK_DATE.to };
+  const conv = mkBuildReachedConversion(baseClients, logsMap, range);
+  mkRenderCardConversion(conv);
+  AppState.convReached = conv;
 })();
 
   // === Карточка №5: итоги и потенциал (используем input с датой как раньше)
