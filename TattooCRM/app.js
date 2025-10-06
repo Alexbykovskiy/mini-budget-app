@@ -4541,7 +4541,7 @@ function mkBuildReachedConversion(clients, logsMap, range = null) {
 
   const norm = (x) => normalizeStatus(x);
 
-  // === Период (включительно по дню)
+  // Границы периода (включительно по дню)
   let fromMs = -Infinity, toMs = Infinity;
   if (range && (range.from || range.to)) {
     const f = range.from ? `${range.from}T00:00:00`       : '1970-01-01T00:00:00';
@@ -4550,12 +4550,11 @@ function mkBuildReachedConversion(clients, logsMap, range = null) {
     toMs   = Date.parse(t); if (!isFinite(toMs))   toMs   = Infinity;
   }
 
-  // === Хелперы для дат логов и дат YYYY-MM-DD
   const logMs = (row) => {
     const s = row?.ts || row?.at || row?.date || row?.time || '';
     const p = Date.parse(s);
     if (isFinite(p)) return p;
-    const n = Number(row?._id);                // fallback: id как Date.now()
+    const n = Number(row?._id);
     return isFinite(n) ? n : NaN;
   };
   const inRange = (row) => {
@@ -4570,54 +4569,44 @@ function mkBuildReachedConversion(clients, logsMap, range = null) {
     return isFinite(ms) && ms >= fromMs && ms <= toMs;
   };
 
-  // === Числители, которые считаем по ДАТЕ СТАТУСА (НЕ зависят от первого обращения)
-  // !!! Если ты уже делал ранее патч для consultation — всё ок, этот блок его включает.
-  let consultAll = 0;  // консультация по дате её лога
-  let droppedAll = 0;  // "слился" по дате его лога
-
   for (const c of (clients || [])) {
-  const logs = logsMap.get(c.id) || [];
+    const logs = logsMap.get(c.id) || [];
 
-  // клиент считается "обратившимся", если он когда-то был в статусе lead
-  const wasLead = logs.some(r => norm(r?.to) === 'lead' || norm(r?.from) === 'lead')
-               || norm(c?.status) === 'lead';
-  if (!wasLead) continue;
+    // "Обратившийся" = был когда-то лидом
+    const wasLead = logs.some(r => norm(r?.to) === 'lead' || norm(r?.from) === 'lead')
+                 || norm(c?.status) === 'lead';
+    if (!wasLead) continue;
 
-  // дата первого обращения — для знаменателя
-  const firstYmd = mkClientFirstContactYMD(c);
-  const firstInRange =
-    !range || (!range.from && !range.to)
-      ? true
-      : (firstYmd && firstYmd >= (range.from || '0000-01-01') && firstYmd <= (range.to || '9999-12-31'));
+    const firstYmd =
+      mkClientFirstContactYMD(c); // читает firstcontactdate / firstContactDate / firstContact
+    const firstInRange =
+      !range || (!range.from && !range.to) ? true : inRangeYmd(firstYmd);
 
-  // помощник: был ли переход в статус t ВНУТРИ выбранного периода
-  const hit = (t) => logs.some(r => norm(r?.to) === t && inRange(r));
+    const hit = (t) => logs.some(r => norm(r?.to) === t && inRange(r));
 
-  if (firstInRange) {
-    // этот клиент попал в знаменатель — считаем все цели
-    denom++;
-    for (const t of TARGETS) if (hit(t)) counts[t] += 1;
-  } else {
-    // первый контакт вне периода — всё равно учитываем статусы,
-    // которые должны зависеть ТОЛЬКО от даты статуса:
-    if (hit('session'))      counts.session += 1;       // ← сеансы по дате статуса
-    if (hit('consultation')) counts.consultation += 1;  // ← (как ты просил ранее)
-    if (hit('dropped'))      counts.dropped += 1;       // ← опционально, если нужно
+    if (firstInRange) {
+      // попадает в знаменатель — считаем все цели
+      denom++;
+      for (const t of TARGETS) if (hit(t)) counts[t] += 1;
+    } else {
+      // первый контакт вне периода — но цели, зависящие ТОЛЬКО от даты статуса, учитываем
+      if (hit('session'))      counts.session += 1;
+      if (hit('consultation')) counts.consultation += 1;
+      if (hit('dropped'))      counts.dropped += 1;
+    }
   }
-}
 
   const pct = (n) => denom > 0 ? Math.round((n / denom) * 100) : 0;
 
   return {
     denom,
-    consultation: { n: consultAll,        p: pct(consultAll)        },
-    prepay:       { n: counts.prepay,     p: pct(counts.prepay)     },
-    session:      { n: counts.session,    p: pct(counts.session)    },
-    canceled:     { n: counts.canceled,   p: pct(counts.canceled)   },
-    dropped:      { n: droppedAll,        p: pct(droppedAll)        },
+    consultation: { n: counts.consultation, p: pct(counts.consultation) },
+    prepay:       { n: counts.prepay,       p: pct(counts.prepay)       },
+    session:      { n: counts.session,      p: pct(counts.session)      },
+    canceled:     { n: counts.canceled,     p: pct(counts.canceled)     },
+    dropped:      { n: counts.dropped,      p: pct(counts.dropped)      },
   };
 }
-
 function mkBuildReachedConversionLists(clients, logsMap, range = null) {
   const norm = (x) => normalizeStatus(x);
   const targets = ['consultation','prepay','session','canceled','dropped'];
