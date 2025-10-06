@@ -3935,11 +3935,11 @@ function mkRenderCardFinance(data) {
 
   list.innerHTML = `
     <li class="mk-row">
-      <span class="label">Выручка (gross)</span>
+      <span class="label">Выручка</span>
       <span class="value">€${data.gross.toFixed(2)}</span>
     </li>
     <li class="mk-row">
-      <span class="label">Чистая выручка (net)</span>
+      <span class="label">Прибыль</span>
       <span class="value">€${data.net.toFixed(2)}</span>
     </li>
 
