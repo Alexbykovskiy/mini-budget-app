@@ -5309,15 +5309,9 @@ function mkCalcPeriodSpent(marketing = []) {
 
 // === [MK#9] Acquisition Funnel metrics ===
 function mkCalcAcqFunnelMetrics(clients = [], marketing = []) {
-  // Маркетинг и подписчики — за текущий MK_DATE:
   const mkItems = mkFilterByDate(Array.isArray(marketing) ? marketing : [], 'date');
-
-  // ГЛАВНОЕ изменение: траты считаем по периоду, как в «Итоге» таблицы
-  const spent = mkCalcPeriodSpent(marketing) || 0;
-
-  // Подписчики тоже по периоду (чтобы CPS/CPA были консистентны)
-  const subs  = mkItems.reduce((s, m) => s + Number(m?.delta || 0), 0);
-
+  const spent   = mkCalcPeriodSpent(marketing) || 0;
+  const subs    = mkItems.reduce((s, m) => s + Number(m?.delta || 0), 0);
   // Остальная логика как была:
   const leads = (clients || []).filter(c => !/холод/i.test(String(c?.status || ''))).length;
   // Консультации: флаг consult ИЛИ статус содержит "конс"
