@@ -2757,14 +2757,29 @@ function mkInitDatebar(){
   });
 }
 
-// Вернуть источники данных, уже отфильтрованные по MK_DATE
-function mkGetPeriodData() {
-  return {
-    clients:   mkFilterByDate(AppState.clients || [],   /* поле в clients: */ 'createdDate' /* если иное — поменяй тут */),
-    marketing: mkFilterByDate(AppState.marketing || [], /* поле в marketing: */ 'date')
-  };
+// --- дата для фильтрации клиента (канон + легаси)
+function mkClientFirstContactYMD(c){
+  return String(
+    c?.firstcontactdate ||
+    c?.firstContactDate ||
+    c?.firstContact ||
+    ''
+  ).slice(0,10);
 }
 
+// Вернуть источники данных, уже отфильтрованные по MK_DATE
+function mkGetPeriodData() {
+  const allClients = Array.isArray(AppState.clients) ? AppState.clients : [];
+  const filteredClients = allClients.filter(c => mkInPeriod(mkClientFirstContactYMD(c)));
+
+  const allMarketing = Array.isArray(AppState.marketing) ? AppState.marketing : [];
+  const filteredMarketing = mkFilterByDate(allMarketing, 'date');
+
+  return {
+    clients:   filteredClients,
+    marketing: filteredMarketing
+  };
+}
 // Главный пересчёт всей страницы «Статистика»
 function mkRerenderStatsAll(){
   // Инициализатор (на случай, если вызвали напрямую)
