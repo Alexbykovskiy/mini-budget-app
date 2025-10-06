@@ -3604,34 +3604,33 @@ function mkRenderLeadsChart(){
   }
 
   const cfg = {
-    type: 'line',
-    data: { labels: labels.map(d => d.slice(8,10)), datasets }, // показываем день месяца
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: true, position: 'bottom' },
-        title: { display: true, text: title }
-      },
-      scales: {
-        x: { title:{ display:true, text:'Дни' }, ticks:{ autoSkip:false, maxRotation:70, minRotation:50 },
-             grid:{ color:'rgba(255,255,255,0.3)' } },
-        y: { title:{ display:true, text:'Количество лидов' }, beginAtZero:true, ticks:{ precision:0 },
-             grid:{ color:'rgba(255,255,255,0.3)' } }
-      }
+  type: 'line',
+  data: { labels, datasets },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: true, position: 'bottom' },
+      title:  { display: true, text: mkMonthHuman(ym) }
+    },
+    scales: {
+      x: { title:{ display:true, text:'Дни' },
+           ticks:{ autoSkip:false, maxRotation:70, minRotation:50 },
+           grid: { color: 'rgba(255,255,255,0.3)' } },
+      y: { title:{ display:true, text:'Количество лидов' },
+           beginAtZero:true, ticks:{ precision:0 },
+           grid: { color: 'rgba(255,255,255,0.3)' } }
     }
-  };
+  }
+};
 
-  if (MK_CHART) MK_CHART.destroy();
-  MK_CHART = new Chart(canvas.getContext('2d'), cfg);
-}
+if (MK_CHART) { MK_CHART.destroy(); }
+MK_CHART = new Chart(canvas.getContext('2d'), cfg);
 
 // --- [MK#7] Заполнить селект месяцев и навесить обработчики
+// --- [MK#7] навешиваем только переключатели режимов и IG
 function mkBindLeadsChartControls(){
-  // Никакого селекта месяца больше не используем — график живёт по MK_DATE
-
-  // Режимы группировки (all / noncold / cold — как было)
   document.querySelectorAll('input[name="mkChartMode"]').forEach(r=>{
     if (!r.dataset.bound){
       r.dataset.bound = '1';
@@ -3639,14 +3638,12 @@ function mkBindLeadsChartControls(){
     }
   });
 
-  // Тумблер IG (+подписчики/день)
   const ig = document.getElementById('mkChartIG');
   if (ig && !ig.dataset.bound) {
     ig.dataset.bound = '1';
     ig.addEventListener('change', mkRenderLeadsChart);
   }
 
-  // Чекбоксы стран
   const countriesBox = document.getElementById('mkChartCountries');
   if (countriesBox && !countriesBox.dataset.bound) {
     countriesBox.addEventListener('change', (e) => {
@@ -3657,8 +3654,6 @@ function mkBindLeadsChartControls(){
     countriesBox.dataset.bound = '1';
   }
 }
-
-
 // === [NEW] Totals & Potential (карточка №5) ===============================
 
 // Сумма всех подписок (суммируем delta по маркетингу)
