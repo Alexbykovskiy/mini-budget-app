@@ -2872,12 +2872,27 @@ const src = Array.isArray(AppState.marketing) ? [...AppState.marketing] : [];
 const items = mkFilterByDate(src, 'date');   // ← фильтруем по 'date'
 items.sort((a,b) => (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
 
+// === База для расчёта расхода дня в ограниченном периоде ===
+  // Если выбран не "всё время", найдём ПОСЛЕДНЕЕ cumulative-значение spentTotal
+  // ДО начала периода, чтобы первая видимая дата не тащила суммы "за все предыдущие дни".
+  const fromYmd = (MK_DATE && MK_DATE.mode !== 'all') ? (MK_DATE.from || null) : null;
+
+  let baseSpentBefore = 0;
+  if (fromYmd) {
+    // ищем последнюю запись "до from"
+    const prev = src
+      .filter(r => String(r.date || '') < fromYmd)
+      .sort((a,b) => (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')))
+      .pop();
+    if (prev) baseSpentBefore = Number(prev.spentTotal || 0);
+  }
+
   const firstByDay = mkBuildDailyFirstContactsStats(AppState.clients || []);
 
   // 2) Агрегации
-  let totalFollowers = 0;   // итог подписчиков (кумулятив IG дельт)
-  let prevSpentTotal = 0;   // для вычисления расхода дня
-  let totalSpent = 0;       // итог затрат
+  let totalFollowers = 0;        // итог подписчиков (кумулятив IG дельт)
+  let prevSpentTotal = baseSpentBefore; // стартуем от базы ДО периода
+  let totalSpent = 0;            // суммируем ТОЛЬКО за выбранный период
   let sumCold = 0;          // итог холодных по всем дням и всем языкам
   let sumOther = 0;         // итог не-холодных по всем дням и всем языкам
 // НОВОЕ: суммы по каждому языку (cold/other)
@@ -2891,12 +2906,13 @@ const langSums = {
 const daysCount = items.length; // кол-во строк (дней) в таблице
 
   // 3) Рендер строк
-  const rows = items.map(e => {
+   const rows = items.map(e => {
     totalFollowers += Number(e.delta || 0);
 
-    const daySpent = Number(e.spentTotal || 0) - prevSpentTotal;
-    prevSpentTotal = Number(e.spentTotal || 0);
-    totalSpent = prevSpentTotal;
+    const currTotal = Number(e.spentTotal || 0);
+    const daySpent = currTotal - prevSpentTotal; // расход за конкретный день
+    prevSpentTotal = currTotal;                   // сдвигаем «вчера» → «сегодня»
+    totalSpent += isFinite(daySpent) ? daySpent : 0;  // копим сумму за период
 
     const rec = firstByDay.get(e.date) || {
       langs: { ru:{c:0,o:0}, sk:{c:0,o:0}, en:{c:0,o:0}, at:{c:0,o:0}, de:{c:0,o:0} }
