@@ -2786,7 +2786,7 @@ function mkRerenderStatsAll(){
   mkInitDatebar();
 
   const { clients, marketing } = mkGetPeriodData();
-
+  MK_CLIENTS_CACHE = clients.slice(); // теперь суперфильтр видит клиентов именно за выбранный период
   // === Карточка №1: статусы
   const { counts } = mkBuildOverviewFromClients(clients);
   mkRenderCardStatuses(counts);
