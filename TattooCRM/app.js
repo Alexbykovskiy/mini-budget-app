@@ -4488,32 +4488,26 @@ function extractDepositsFromClient(c) {
 // --- "Как в Excel": считаем ДОСТИЖЕНИЯ статусов (to == .) ПО ДАТЕ ЛОГА
 function mkBuildReachedConversion(clients, logsMap, range = null) {
   const TARGETS = ['consultation', 'prepay', 'session', 'canceled', 'dropped'];
-  const counts = { consultation:0, prepay:0, session:0, canceled:0, dropped:0 };
+  const counts = { consultation: 0, prepay: 0, session: 0, canceled: 0, dropped: 0 };
   let denom = 0;
 
   const norm = (x) => normalizeStatus(x);
 
-  // границы периода (как было)
+  // === Период (включительно по дню)
   let fromMs = -Infinity, toMs = Infinity;
   if (range && (range.from || range.to)) {
-    const f = range.from ? `${range.from}T00:00:00`   : '1970-01-01T00:00:00';
-    const t = range.to   ? `${range.to}T23:59:59.999` : '9999-12-31T23:59:59.999';
+    const f = range.from ? `${range.from}T00:00:00`       : '1970-01-01T00:00:00';
+    const t = range.to   ? `${range.to}T23:59:59.999`     : '9999-12-31T23:59:59.999';
     fromMs = Date.parse(f); if (!isFinite(fromMs)) fromMs = -Infinity;
     toMs   = Date.parse(t); if (!isFinite(toMs))   toMs   = Infinity;
   }
 
-  const inRangeYmd = (ymd) => {
-    if (!ymd) return false;
-    if (fromMs === -Infinity && toMs === Infinity) return true;
-    const ms = Date.parse(`${ymd}T00:00:00`);
-    return isFinite(ms) && ms >= fromMs && ms <= toMs;
-  };
-
+  // === Хелперы для дат логов и дат YYYY-MM-DD
   const logMs = (row) => {
     const s = row?.ts || row?.at || row?.date || row?.time || '';
     const p = Date.parse(s);
     if (isFinite(p)) return p;
-    const n = Number(row?._id);
+    const n = Number(row?._id);                // fallback: id как Date.now()
     return isFinite(n) ? n : NaN;
   };
   const inRange = (row) => {
@@ -4521,32 +4515,41 @@ function mkBuildReachedConversion(clients, logsMap, range = null) {
     const ms = logMs(row);
     return isFinite(ms) && ms >= fromMs && ms <= toMs;
   };
+  const inRangeYmd = (ymd) => {
+    if (!ymd) return false;
+    if (fromMs === -Infinity && toMs === Infinity) return true;
+    const ms = Date.parse(`${ymd}T00:00:00`);
+    return isFinite(ms) && ms >= fromMs && ms <= toMs;
+  };
 
-  // --- НОВОЕ: числитель консультаций — среди всех лидов, по дате лога
-  let consultAll = 0;
+  // === Числители, которые считаем по ДАТЕ СТАТУСА (НЕ зависят от первого обращения)
+  // !!! Если ты уже делал ранее патч для consultation — всё ок, этот блок его включает.
+  let consultAll = 0;  // консультация по дате её лога
+  let droppedAll = 0;  // "слился" по дате его лога
 
   for (const c of (clients || [])) {
     const logs = logsMap.get(c.id) || [];
 
+    // участвует только тот, кто когда-либо был лидом
     const wasLead = logs.some(r => norm(r?.to) === 'lead' || norm(r?.from) === 'lead')
                  || norm(c?.status) === 'lead';
     if (!wasLead) continue;
 
-    // считаем консультацию независимо от знаменателя
-    const consultHit = logs.some(r => norm(r?.to) === 'consultation' && inRange(r));
-    if (consultHit) consultAll += 1;
+    // 1) Считаем события, привязанные к дате СТАТУСА — для всех "когда-либо лидов"
+    if (logs.some(r => norm(r?.to) === 'consultation' && inRange(r))) consultAll += 1;
+    if (logs.some(r => norm(r?.to) === 'dropped'      && inRange(r))) droppedAll += 1;
 
-    // ЗНАМЕНАТЕЛЬ: только если первый контакт попал в период
+    // 2) ЗНАМЕНАТЕЛЬ: «всего обратившихся» — по дате ПЕРВОГО обращения в пределах периода
     if (range && (range.from || range.to)) {
-      const firstYmd = mkClientFirstContactYMD(c);
+      const firstYmd = mkClientFirstContactYMD(c); // есть в твоём коде
       if (!inRangeYmd(firstYmd)) continue;
     }
-
     denom++;
 
-    // Остальные статусы считаем как раньше, НО консультацию здесь пропускаем
+    // 3) Остальные статусы считаем как раньше, но консультацию и "слился" пропускаем,
+    //    чтобы не было двойного учёта (их мы посчитали выше по дате события)
     for (const t of TARGETS) {
-      if (t === 'consultation') continue;
+      if (t === 'consultation' || t === 'dropped') continue;
       const hit = logs.some(r => norm(r?.to) === t && inRange(r));
       if (hit) counts[t] += 1;
     }
@@ -4556,13 +4559,14 @@ function mkBuildReachedConversion(clients, logsMap, range = null) {
 
   return {
     denom,
-    consultation: { n: consultAll,          p: pct(consultAll)          }, // ← ключевое изменение
-    prepay:       { n: counts.prepay,       p: pct(counts.prepay)       },
-    session:      { n: counts.session,      p: pct(counts.session)      },
-    canceled:     { n: counts.canceled,     p: pct(counts.canceled)     },
-    dropped:      { n: counts.dropped,      p: pct(counts.dropped)      },
+    consultation: { n: consultAll,        p: pct(consultAll)        },
+    prepay:       { n: counts.prepay,     p: pct(counts.prepay)     },
+    session:      { n: counts.session,    p: pct(counts.session)    },
+    canceled:     { n: counts.canceled,   p: pct(counts.canceled)   },
+    dropped:      { n: droppedAll,        p: pct(droppedAll)        },
   };
 }
+
 function normalizeQual(qRaw='') {
   const q = String(qRaw).toLowerCase();
   if (q.includes('целевой') && !q.includes('условно')) return 'target';
