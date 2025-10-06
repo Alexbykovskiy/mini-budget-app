@@ -2802,9 +2802,9 @@ function mkRerenderStatsAll(){
   // === Карточка №4: «как в Excel»
   (async ()=>{
   const logsMap = await mkFetchStatusLogsForClients(clients);
-  const range = (MK_DATE.mode === 'all') ? null : { from: MK_DATE.from, to: MK_DATE.to };
-  const conv = mkBuildReachedConversion(clients, logsMap, range);
-  mkRenderCardConversion(conv);
+const range = (MK_DATE.mode === 'all') ? null : { from: MK_DATE.from, to: MK_DATE.to };
+const conv = mkBuildReachedConversion(clients, logsMap, range);
+mkRenderCardConversion(conv);
   AppState.convReached   = conv;
   AppState.statusLogsMap = logsMap;
 })();
@@ -4485,8 +4485,7 @@ function extractDepositsFromClient(c) {
   return { count, sum };
 }
 
-// --- "Как в Excel": считаем ДОСТИЖЕНИЯ статусов (to == .),
-// теперь с учётом периода по дате логов
+// --- "Как в Excel": считаем ДОСТИЖЕНИЯ статусов (to == .) ПО ДАТЕ ЛОГА
 function mkBuildReachedConversion(clients, logsMap, range = null) {
   const TARGETS = ['consultation', 'prepay', 'session', 'canceled', 'dropped'];
   const counts = { consultation:0, prepay:0, session:0, canceled:0, dropped:0 };
@@ -4494,7 +4493,7 @@ function mkBuildReachedConversion(clients, logsMap, range = null) {
 
   const norm = (x) => normalizeStatus(x);
 
-  // Границы периода в миллисекундах
+  // границы периода (включительно по дню)
   let fromMs = -Infinity, toMs = Infinity;
   if (range && (range.from || range.to)) {
     const f = range.from ? `${range.from}T00:00:00`       : '1970-01-01T00:00:00';
@@ -4507,8 +4506,7 @@ function mkBuildReachedConversion(clients, logsMap, range = null) {
     const s = row?.ts || row?.at || row?.date || row?.time || '';
     const p = Date.parse(s);
     if (isFinite(p)) return p;
-    // фолбэк: id у нас = Date.now() при записи
-    const n = Number(row?._id);
+    const n = Number(row?._id);               // fallback: id как Date.now()
     return isFinite(n) ? n : NaN;
   };
   const inRange = (row) => {
@@ -4520,14 +4518,14 @@ function mkBuildReachedConversion(clients, logsMap, range = null) {
   for (const c of (clients || [])) {
     const logs = logsMap.get(c.id) || [];
 
-    // был ли когда-то лидом (по логам или текущее состояние)
+    // клиент считается в «обратившихся», если когда-то был лидом
     const wasLead = logs.some(r => norm(r?.to) === 'lead' || norm(r?.from) === 'lead')
                  || norm(c?.status) === 'lead';
     if (!wasLead) continue;
 
     denom++;
 
-    // клиент может попасть в несколько корзин — как в Excel
+    // считаем попадание в каждую «корзину» по логам ВНУТРИ выбранного периода
     for (const t of TARGETS) {
       const hit = logs.some(r => norm(r?.to) === t && inRange(r));
       if (hit) counts[t] += 1;
@@ -4545,6 +4543,7 @@ function mkBuildReachedConversion(clients, logsMap, range = null) {
     dropped:      { n: counts.dropped,      p: pct(counts.dropped)      }
   };
 }
+
 function normalizeQual(qRaw='') {
   const q = String(qRaw).toLowerCase();
   if (q.includes('целевой') && !q.includes('условно')) return 'target';
