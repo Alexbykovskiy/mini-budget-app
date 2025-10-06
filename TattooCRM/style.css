@@ -2040,3 +2040,47 @@ dialog[open] .modal-body{
 .btn.tiny{ padding:6px 10px; font-size:.85rem; }
 .mk-card-actions{ display:flex; justify-content:flex-end; gap:8px; margin:6px 0 8px; }
 .mk-subtitle.sm{ font-size:.9rem; opacity:.9; margin-top:6px; }
+
+/* === Conv Modal sizing (широкая модалка для составов) === */
+.modal{ padding:0; border:none; background:transparent; }
+.modal::backdrop{ background: rgba(0,0,0,.45); backdrop-filter: blur(4px); }
+
+/* ТЕЛО МОДАЛКИ: фиксируем адекватную ширину и высоту */
+.modal .modal-body{
+  width: clamp(720px, 80vw, 1100px);
+  max-height: 85vh;
+  overflow: auto;            /* только вертикальный скролл */
+  overflow-x: hidden;        /* гасим горизонтальный */
+  margin: 0;
+  border-radius: 20px;       /* стеклянная карточка остаётся, но размеры наши */
+  box-sizing: border-box;
+  overscroll-behavior: contain;
+}
+
+/* Основная двухколоночная сетка модалки */
+.modal .modal-body .grid.two{
+  display: grid;
+  grid-template-columns: 1.05fr 1.95fr; /* правой части больше места */
+  gap: 16px;
+}
+
+/* Внутренние панели и списки */
+.modal .panel{ overflow: hidden; }
+.modal .mk-list{ max-height: none; overflow: visible; padding-right: 2px; }
+
+/* Ряд списка: подпись слева, статус справа; переносы, чтобы не появлялся горизонтальный скролл */
+.modal .mk-row{ display:flex; justify-content: space-between; gap: 12px; }
+.modal .mk-row .label,
+.modal .mk-row .value{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.modal .mk-row .label{ flex: 1 1 auto; min-width: 0; }
+.modal .mk-row .value{ flex: 0 0 auto; opacity: .85; }
+
+/* Адаптив: на узких экранах модалка в 1 колонку и ~полная ширина */
+@media (max-width: 960px){
+  .modal .modal-body{ width: 92vw; max-height: 88vh; }
+  .modal .modal-body .grid.two{ grid-template-columns: 1fr; }
+}
