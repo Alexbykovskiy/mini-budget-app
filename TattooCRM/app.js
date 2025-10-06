@@ -4502,6 +4502,14 @@ function mkBuildReachedConversion(clients, logsMap, range = null) {
     toMs   = Date.parse(t); if (!isFinite(toMs))   toMs   = Infinity;
   }
 
+// внутри mkBuildReachedConversion, ПОД блоком with fromMs/toMs
+const inRangeYmd = (ymd) => {
+  if (!ymd) return false;
+  if (fromMs === -Infinity && toMs === Infinity) return true;
+  const ms = Date.parse(`${ymd}T00:00:00`);
+  return isFinite(ms) && ms >= fromMs && ms <= toMs;
+};
+
   const logMs = (row) => {
     const s = row?.ts || row?.at || row?.date || row?.time || '';
     const p = Date.parse(s);
@@ -4515,22 +4523,27 @@ function mkBuildReachedConversion(clients, logsMap, range = null) {
     return isFinite(ms) && ms >= fromMs && ms <= toMs;
   };
 
-  for (const c of (clients || [])) {
-    const logs = logsMap.get(c.id) || [];
+ for (const c of (clients || [])) {
+  const logs = logsMap.get(c.id) || [];
 
-    // клиент считается в «обратившихся», если когда-то был лидом
-    const wasLead = logs.some(r => norm(r?.to) === 'lead' || norm(r?.from) === 'lead')
-                 || norm(c?.status) === 'lead';
-    if (!wasLead) continue;
+  const wasLead = logs.some(r => norm(r?.to) === 'lead' || norm(r?.from) === 'lead')
+                || norm(c?.status) === 'lead';
+  if (!wasLead) continue;
 
-    denom++;
-
-    // считаем попадание в каждую «корзину» по логам ВНУТРИ выбранного периода
-    for (const t of TARGETS) {
-      const hit = logs.some(r => norm(r?.to) === t && inRange(r));
-      if (hit) counts[t] += 1;
-    }
+  // Новый фильтр: берем в знаменатель только тех, у кого "первый контакт" попадает в выбранный период
+  if (range && (range.from || range.to)) {
+    const firstYmd = mkClientFirstContactYMD(c); // читает firstcontactdate/firstContactDate/firstContact
+    if (!inRangeYmd(firstYmd)) continue;
   }
+
+  denom++;
+
+  // как и раньше: хиты статусов считаем по логам ВНУТРИ периода
+  for (const t of TARGETS) {
+    const hit = logs.some(r => norm(r?.to) === t && inRange(r));
+    if (hit) counts[t] += 1;
+  }
+}
 
   const pct = (n) => denom > 0 ? Math.round((n / denom) * 100) : 0;
 
