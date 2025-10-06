@@ -3651,7 +3651,7 @@ function mkCalcTotalsAndPotential(clients, marketingArr, cutoffYmd) {
   const cutoff = cutoffYmd ? String(cutoffYmd) : '';
 
   // 1) Реклама — последнее spentTotal
-  const adsSpent = mkGetLatestAdsSpentTotal(marketingArr);
+  const adsSpent = mkGetPeriodAdsSpent(marketingArr);
 
   // 2) Предоплаты (просто сумма и количество)
   let depCount = 0, depSum = 0;
@@ -3828,123 +3828,51 @@ set('mk8-studio-balance',   eur(data.balance));
 // === [NEW] Финансы (карточка №6) ===============================
 
 // Берём последнее total по рекламе
-function mkGetLatestAdsSpentTotal(marketingArr) {
-  const arr = Array.isArray(marketingArr) ? [...marketingArr] : [];
-  arr.sort((a,b) => (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
-  const last = arr[arr.length - 1];
-  return Number(last?.spentTotal || 0);
-}
+function mkGetPeriodAdsSpent(marketingMaybeFiltered) {
+  // Берём полный журнал для корректной базы "до периода"
+  const all = Array.isArray(AppState?.marketing)
+    ? AppState.marketing.slice()
+    : Array.isArray(marketingMaybeFiltered)
+    ? marketingMaybeFiltered.slice()
+    : [];
 
-// Медиана/квантили
-function _quantiles(nums) {
-  const a = nums.slice().sort((x,y)=>x-y);
-  const q = (p) => {
-    if (!a.length) return 0;
-    const idx = (a.length - 1) * p;
-    const lo = Math.floor(idx), hi = Math.ceil(idx);
-    return (a[lo] + a[hi]) / 2;
-  };
-  return { p25: q(0.25), med: q(0.5), p75: q(0.75) };
-}
+  if (!all.length) return 0;
 
-// Главный расчёт
-function mkCalcFinanceMetrics(clients, marketingArr, suppliesArr, cutoffYmd, useSupplies = false) {
-  const list = Array.isArray(clients) ? clients : [];
-  const cutoff = cutoffYmd ? String(cutoffYmd) : '';
-  // период = календарный месяц cutoff-даты
-  // Считаем за всё время (без ограничения по месяцу).
-// Раньше тут вычислялся месяц по cutoff-дате.
-  const adsSpent = mkGetLatestAdsSpentTotal(marketingArr); // реклама «на сегодня»
+  // Сортировка по дате и времени
+  all.sort((a, b) =>
+    (String(a.date || '') + String(a.time || '')).localeCompare(
+      String(b.date || '') + String(b.time || '')
+    )
+  );
 
-  let depositsSum = 0;
-  let sessionsSum = 0;
-  let sessionsCnt = 0;
-  const sessionPrices = [];
-
-  // клиенты
-  const payingClientIds = new Set();
-  const newPayingClientIds = new Set();
-  const repeatClientIds = new Set();
-  let canceledClients = 0;
-
-  for (const c of list) {
-    // депозиты учитываем как часть gross, если они в карточке клиента (без даты — берём как есть)
-    depositsSum += Number(c?.deposit || 0) || 0;
-
-    // сеансы
-    const sessions = Array.isArray(c?.sessions) ? c.sessions : [];
-    // без деления на периоды
-const doneBeforePeriod = false;
-
-    let hadInPeriod = false;
-
-    for (const s of sessions) {
-      const dt = ymdOf(typeof s === 'string' ? s : s?.dt);
-      const price = Number(typeof s === 'object' ? (s.price || 0) : 0);
-      const isDone = (typeof s === 'object' && !!s.done);
-
-      if (!dt) continue;
-
-     // суммируем все завершённые сеансы за всё время
-if (isDone) {
-  sessionsSum += price;
-  sessionsCnt += 1;
-  sessionPrices.push(price);
-  hadInPeriod = true; // «в период» = «участвует в общем подсчёте»
-}
-    }
-
-    // уникальные платящие за период
-    if (hadInPeriod) {
-      payingClientIds.add(c.id);
-      if (doneBeforePeriod) repeatClientIds.add(c.id);
-      else newPayingClientIds.add(c.id);
-    }
-
-    // отмены — грубо по текущему статусу клиента (оценка)
-    const st = normalizeStatus(c?.status || c?.stage || c?.type);
-    if (st === 'canceled') canceledClients += 1;
+  // Если режим "всё время" — берём просто последний cumulative
+  if (MK_DATE?.mode === 'all') {
+    return mkGetLatestAdsSpentTotal(all);
   }
 
-  const gross = depositsSum + sessionsSum;
+  const from = String(MK_DATE?.from || '0000-01-01');
+  const to = String(MK_DATE?.to || '9999-12-31');
 
-  // расходники: сейчас модели цены/списания нет → считаем 0, пока не появятся поля.
-  // Хук на будущее: если появится suppliesArr[i].cost или списания — суммируй здесь.
-  const suppliesCost = useSupplies ? 0 : 0;
+  // Кумулятив на конец периода
+  let cumEnd = 0;
+  for (const e of all) {
+    const d = String(e?.date || '');
+    if (d <= to) cumEnd = Number(e?.spentTotal || 0);
+    else break;
+  }
 
-  const net = Math.max(0, gross - adsSpent - suppliesCost);
+  // Кумулятив до начала периода
+  let cumBefore = 0;
+  for (const e of all) {
+    const d = String(e?.date || '');
+    if (d < from) cumBefore = Number(e?.spentTotal || 0);
+    else break;
+  }
 
-  // средние/медианы по «сеансам» (без депозитов)
-  const avgCheck    = sessionsCnt ? (sessionsSum / sessionsCnt) : 0;
-  const avgNetCheck = sessionsCnt ? ((sessionsSum - adsSpent - suppliesCost) / sessionsCnt) : 0;
-  const { p25, med, p75 } = _quantiles(sessionPrices);
-
-  // реклама
-  const roi = adsSpent > 0 ? (gross / adsSpent) : 0; // выручка на 1 €
-  const profitPerEuro = adsSpent > 0 ? ((gross - adsSpent - suppliesCost) / adsSpent) : 0;
-
-  // стоимость нового клиента (только «новые платящие» в текущем месяце)
-  const costPerClient = newPayingClientIds.size > 0
-    ? (adsSpent / newPayingClientIds.size)
-    : 0;
-
-  // отмены как доля среди «сеанс состоялся» + «отменил» (оценка)
-  const denomForCancel = sessionsCnt + canceledClients;
-  const cancelPct = denomForCancel > 0 ? Math.round((canceledClients / denomForCancel) * 100) : 0;
-
-  // возвраты
-  const uniqueCount = payingClientIds.size;
-  const repeatPct = uniqueCount > 0 ? Math.round((repeatClientIds.size / uniqueCount) * 100) : 0;
-
-  return {
-        gross, sessionsSum, net,
-    avgCheck, avgNetCheck,
-    medianCheck: med, p25, p75,
-    ads: { spent: adsSpent, roi, profitPerEuro, costPerClient },
-    clients: { uniqueCount, repeatPct, cancelPct }
-  };
+  // Расход за период
+  const spent = Math.max(0, cumEnd - cumBefore);
+  return spent;
 }
-
 function mkRenderCardFinance(data) {
   const list = document.getElementById('mk-finance-list');
   const elAds = document.getElementById('mk-finance-ads');
@@ -5287,8 +5215,7 @@ function listenManualCostsRealtime() {
 // === [MK#9] Acquisition Funnel metrics ===
 function mkCalcAcqFunnelMetrics(clients = [], marketing = []) {
   // Расходы: берём последнее "spentTotal" из журнала
-  const spent = mkGetLatestAdsSpentTotal(marketing) || 0;
-
+const spent = mkGetPeriodAdsSpent(marketing) || 0;
   // Подписчики: сумма delta по дням
   const subs = (marketing || []).reduce((s, m) => s + Number(m?.delta || 0), 0);
 
