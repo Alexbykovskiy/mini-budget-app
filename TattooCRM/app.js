@@ -4536,44 +4536,33 @@ function mkBuildReachedConversion(clients, logsMap, range = null) {
     const consultHit = logs.some(r => norm(r?.to) === 'consultation' && inRange(r));
     if (consultHit) consultAll += 1;
 
-   // ДО цикла объявим отдельные счётчики для статусов, которые хотим считать по дате статуса:
-let droppedAll = 0;    // <- "слился" по дате логов, независимо от первого обращения
-// (по желанию можно также: let consultAll = 0;)
+    // ЗНАМЕНАТЕЛЬ: только если первый контакт попал в период
+    if (range && (range.from || range.to)) {
+      const firstYmd = mkClientFirstContactYMD(c);
+      if (!inRangeYmd(firstYmd)) continue;
+    }
 
-// ... в цикле по клиентам ...
-// был ли когда-нибудь лидом?
-const wasLead = logs.some(r => norm(r?.to) === 'lead' || norm(r?.from) === 'lead')
-              || norm(c?.status) === 'lead';
-if (!wasLead) continue;
+    denom++;
 
-// 1) Считаем СЛИВ по дате статуса для всех "когда-либо лидов"
-const droppedHit = logs.some(r => norm(r?.to) === 'dropped' && inRange(r));
-if (droppedHit) droppedAll += 1;
+    // Остальные статусы считаем как раньше, НО консультацию здесь пропускаем
+    for (const t of TARGETS) {
+      if (t === 'consultation') continue;
+      const hit = logs.some(r => norm(r?.to) === t && inRange(r));
+      if (hit) counts[t] += 1;
+    }
+  }
 
-// 2) А вот знаменатель оставляем как "первый контакт в периоде"
-if (range && (range.from || range.to)) {
-  const firstYmd = mkClientFirstContactYMD(c);
-  if (!inRangeYmd(firstYmd)) continue; // клиент не идёт в denom и в привязанные к нему статусы
+  const pct = (n) => denom > 0 ? Math.round((n / denom) * 100) : 0;
+
+  return {
+    denom,
+    consultation: { n: consultAll,          p: pct(consultAll)          }, // ← ключевое изменение
+    prepay:       { n: counts.prepay,       p: pct(counts.prepay)       },
+    session:      { n: counts.session,      p: pct(counts.session)      },
+    canceled:     { n: counts.canceled,     p: pct(counts.canceled)     },
+    dropped:      { n: counts.dropped,      p: pct(counts.dropped)      },
+  };
 }
-denom++;
-
-// 3) Остальные статусы считаем как раньше, НО "dropped" здесь пропускаем,
-//    чтобы не было двойного учёта — его мы посчитали отдельно
-for (const t of TARGETS) {
-  if (t === 'dropped') continue; // ключевая строка
-  const hit = logs.some(r => norm(r?.to) === t && inRange(r));
-  if (hit) counts[t] += 1;
-}
-
-// ... а в конце, при возврате:
-return {
-  denom,
-  consultation: { n: counts.consultation, p: pct(counts.consultation) },
-  prepay:       { n: counts.prepay,       p: pct(counts.prepay)       },
-  session:      { n: counts.session,      p: pct(counts.session)      },
-  canceled:     { n: counts.canceled,     p: pct(counts.canceled)     },
-  dropped:      { n: droppedAll,          p: pct(droppedAll)          } // <- используем droppedAll
-};
 function normalizeQual(qRaw='') {
   const q = String(qRaw).toLowerCase();
   if (q.includes('целевой') && !q.includes('условно')) return 'target';
