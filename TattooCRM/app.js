@@ -2787,6 +2787,8 @@ function mkRerenderStatsAll(){
 
   const { clients, marketing } = mkGetPeriodData();
 
+MK_CLIENTS_CACHE = Array.isArray(clients) ? clients : [];
+
   // === Карточка №1: статусы
   const { counts } = mkBuildOverviewFromClients(clients);
   mkRenderCardStatuses(counts);
@@ -3464,115 +3466,107 @@ function mkRenderLeadsChart(){
   const canvas = document.getElementById('mkLeadsChart');
   if (!canvas) return;
 
-  const monthSel = document.getElementById('mkChartMonth');
+  // Режим (как и раньше)
   const mode = (document.querySelector('input[name="mkChartMode"]:checked')?.value) || 'all';
-  const ym = monthSel?.value || (mkListMonthsFromClients(AppState.clients).slice(-1)[0] || '');
 
- const { labels, series } = mkPrepareLeadsSeriesByMonth(AppState.clients || [], ym, mode);
+  // Берём ИМЕННО периодные данные (привязка к глобальному MK_DATE):
+  const { clients, marketing } = mkGetPeriodData(); // <- уже отфильтрованы по MK_DATE
 
-const datasets = [
-  { key:'ru', label:'Русский',  data: series.ru, borderColor:'#186663', backgroundColor:'#186663' },
-  { key:'sk', label:'Словацкий', data: series.sk, borderColor:'#A6B5B4', backgroundColor:'#A6B5B4' },
-  { key:'en', label:'Английский', data: series.en, borderColor:'#8C7361', backgroundColor:'#8C7361' },
-  { key:'at', label:'Австрия',  data: series.at, borderColor:'#D2AF94', backgroundColor:'#D2AF94' },
-  { key:'de', label:'Немецкий', data: series.de, borderColor:'#002D37', backgroundColor:'#002D37' },
-].map((d)=>({
-  label: d.label,
-  data: d.data,
-  tension: 0.2,
-  pointRadius: 2,
-  borderWidth: 2
-}));
+  // Список дней на оси X: если «всё время» — берём последние 30 дней
+  let from = MK_DATE.from, to = MK_DATE.to, title = '';
+  if (MK_DATE.mode === 'all') {
+    const today = mkTodayYmd();
+    from = mkShiftDays(today, -29);
+    to = today;
+    title = 'Последние 30 дней';
+  } else {
+    title = (from && to) ? `${from} — ${to}` : '';
+  }
 
-// NEW: если включён тумблер IG — добавляем дневной прирост подписчиков как столбики
-const igOn = document.getElementById('mkChartIG')?.checked;
-if (igOn) {
-  const igData = mkPrepareIgSeriesByMonth(AppState.marketing || [], ym);
-  datasets.push({
-    label: 'IG (+подписчики)',
-    data: igData,
-    type: 'bar',
-    yAxisID: 'y',
-    borderWidth: 1,
-    pointRadius: 0,
-    backgroundColor: 'rgba(255,255,255,0.25)',
-    borderColor: 'rgba(255,255,255,0.8)'
-  });
-}
+  const labels = mkListDays(from, to); // массив 'YYYY-MM-DD' по дням
+
+  // Подготовка рядов по дням и по языкам/странам
+  const series = mkPrepareLeadsSeriesByRange(clients, labels, mode);
+
+  // Формируем датасеты как раньше
+  const datasets = [
+    { key:'ru', label:'Русский',   data: series.ru, borderColor:'#186663', backgroundColor:'#186663' },
+    { key:'sk', label:'Словацкий', data: series.sk, borderColor:'#A6B5B4', backgroundColor:'#A6B5B4' },
+    { key:'en', label:'Английский',data: series.en, borderColor:'#8C7361', backgroundColor:'#8C7361' },
+    { key:'at', label:'Австрия',   data: series.at, borderColor:'#D2AF94', backgroundColor:'#D2AF94' },
+    { key:'de', label:'Немецкий',  data: series.de, borderColor:'#002D37', backgroundColor:'#002D37' },
+  ].map(d => ({ label:d.label, data:d.data, tension:0.2, pointRadius:2, borderWidth:2 }));
+
+  // IG как было — но считаем тоже по диапазону (сумма delta по дням)
+  const igOn = document.getElementById('mkChartIG')?.checked;
+  if (igOn) {
+    const igData = mkPrepareIgSeriesByRange(marketing, labels); // см. новую функцию ниже
+    datasets.push({
+      label: 'IG (+подписчики)',
+      data: igData,
+      type: 'bar',
+      yAxisID: 'y',
+      borderWidth: 1,
+      pointRadius: 0,
+      backgroundColor: 'rgba(255,255,255,0.25)',
+      borderColor: 'rgba(255,255,255,0.8)'
+    });
+  }
 
   const cfg = {
     type: 'line',
-    data: { labels, datasets },
+    data: { labels: labels.map(d => d.slice(8,10)), datasets }, // показываем день месяца
     options: {
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
-     plugins: {
-  legend: { display: true, position: 'bottom' },
-  title:  { display: true, text: mkMonthHuman(ym) }
-},
-scales: {
-  x: {
-    title:{ display:true, text:'Дни' },
-    ticks:{ autoSkip:false, maxRotation:70, minRotation:50 },
-    grid: {  color: 'rgba(255,255,255,0.3)' }   // ← сетка по оси X белая
-  },
-  y: {
-    title:{ display:true, text:'Количество лидов' },
-    beginAtZero:true,
-    ticks:{ precision:0 },
-    grid: {  color: 'rgba(255,255,255,0.3)'}   // ← сетка по оси Y белая
-  }
-}  
-  }
+      plugins: {
+        legend: { display: true, position: 'bottom' },
+        title: { display: true, text: title }
+      },
+      scales: {
+        x: { title:{ display:true, text:'Дни' }, ticks:{ autoSkip:false, maxRotation:70, minRotation:50 },
+             grid:{ color:'rgba(255,255,255,0.3)' } },
+        y: { title:{ display:true, text:'Количество лидов' }, beginAtZero:true, ticks:{ precision:0 },
+             grid:{ color:'rgba(255,255,255,0.3)' } }
+      }
+    }
   };
 
-  if (MK_CHART) { MK_CHART.destroy(); }
+  if (MK_CHART) MK_CHART.destroy();
   MK_CHART = new Chart(canvas.getContext('2d'), cfg);
 }
 
 // --- [MK#7] Заполнить селект месяцев и навесить обработчики
 function mkBindLeadsChartControls(){
-  const sel = document.getElementById('mkChartMonth');
-  if (!sel) return;
+  // Никакого селекта месяца больше не используем — график живёт по MK_DATE
 
-  // Заполняем список месяцев по клиентам
-  const months = mkListMonthsFromClients(AppState.clients || []);
-  sel.innerHTML = months.length
-    ? months.map(ym => `<option value="${ym}">${mkMonthHuman(ym)}</option>`).join('')
-    : `<option value="">—</option>`;
-
-  // Выставим последний месяц по умолчанию
-  if (months.length) sel.value = months[months.length - 1];
-
-  // Обработчики
-  if (!sel.dataset.bound){
-    sel.dataset.bound = '1';
-    sel.addEventListener('change', mkRenderLeadsChart);
-    document.querySelectorAll('input[name="mkChartMode"]').forEach(r=>{
+  // Режимы группировки (all / noncold / cold — как было)
+  document.querySelectorAll('input[name="mkChartMode"]').forEach(r=>{
+    if (!r.dataset.bound){
+      r.dataset.bound = '1';
       r.addEventListener('change', mkRenderLeadsChart);
-    });
+    }
+  });
+
+  // Тумблер IG (+подписчики/день)
+  const ig = document.getElementById('mkChartIG');
+  if (ig && !ig.dataset.bound) {
+    ig.dataset.bound = '1';
+    ig.addEventListener('change', mkRenderLeadsChart);
   }
 
-// NEW: тумблер IG (+подписчики/день)
-const ig = document.getElementById('mkChartIG');
-if (ig && !ig.dataset.bound) {
-  ig.dataset.bound = '1';
-  ig.addEventListener('change', mkRenderLeadsChart);
-}
-
-// --- чекбоксы стран ---
+  // Чекбоксы стран
   const countriesBox = document.getElementById('mkChartCountries');
   if (countriesBox && !countriesBox.dataset.bound) {
     countriesBox.addEventListener('change', (e) => {
       if (e.target && e.target.matches('input[type="checkbox"]')) {
-        mkRenderLeadsChart(); // перерисовываем график при переключении стран
+        mkRenderLeadsChart();
       }
     });
     countriesBox.dataset.bound = '1';
   }
 }
-
 
 
 // === [NEW] Totals & Potential (карточка №5) ===============================
