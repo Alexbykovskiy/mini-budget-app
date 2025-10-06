@@ -334,9 +334,11 @@ mkRerenderStatsAll(); // (3.3) полный пересчёт всей стати
 
 // === [MK#9] Форс-рендер карточки «Заглушка 9» при открытии вкладки
 try {
-  const { clients, marketing } = mkGetPeriodData();
-const m9 = mkCalcAcqFunnelMetrics(clients, marketing);
-mkRenderAcqCard(m9);
+  const m9 = mkCalcAcqFunnelMetrics(
+    AppState.clients || MK_CLIENTS_CACHE || [],
+    AppState.marketing || []
+  );
+  mkRenderAcqCard(m9);
 } catch (e) {
   console.warn('mk9 render on tab open', e);
 }
@@ -2851,12 +2853,8 @@ function mkRerenderStatsAll(){
   if (typeof renderMarketing === 'function') renderMarketing();  // см. патч в 3.2 (он сам внутри фильтрует по MK_DATE)
   if (typeof mkBindLeadsChartControls === 'function') mkBindLeadsChartControls();
   if (typeof mkRenderLeadsChart === 'function')       mkRenderLeadsChart();
-// === Карточка №9: Воронка привлечения — по текущему периоду
-  if (typeof mkCalcAcqFunnelMetrics === 'function' && typeof mkRenderAcqCard === 'function') {
-    const { clients, marketing } = mkGetPeriodData();
-    const m9 = mkCalcAcqFunnelMetrics(clients, marketing);
-    mkRenderAcqCard(m9);
-  }
+}
+
 // ---------- Marketing ----------
 
 /**
@@ -4087,9 +4085,11 @@ function listenMarketingRealtime(){
 
 // === [MK#9] Acquisition Funnel: пересчёт карточки «Заглушка 9» при обновлении маркетинга
 try {
- const { clients, marketing } = mkGetPeriodData();
-const m9 = mkCalcAcqFunnelMetrics(clients, marketing);
-mkRenderAcqCard(m9);
+  const m9 = mkCalcAcqFunnelMetrics(
+    AppState.clients || MK_CLIENTS_CACHE || [],
+    AppState.marketing || []
+  );
+  mkRenderAcqCard(m9);
 } catch (e) {
   console.warn('mk9 refresh after marketing update', e);
 }
@@ -5277,43 +5277,17 @@ function listenManualCostsRealtime() {
   }
 }
 
-// === [PATCH] Сколько потратили ЗА ВЫБРАННЫЙ ПЕРИОД (как в таблице «по дням»)
-function mkCalcPeriodSpent(marketing = []) {
-  const src = Array.isArray(marketing) ? [...marketing] : [];
-  const items = mkFilterByDate(src, 'date'); // записи строго внутри MK_DATE
-
-  // Отсортируем по date+time (как и при рендере таблицы)
-  items.sort((a,b) => (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
-
-  // Если выбран не "всё время" — найдём последнюю cumulative spentTotal ДО начала периода
-  const fromYmd = (MK_DATE && MK_DATE.mode !== 'all') ? (MK_DATE.from || null) : null;
-  let baseSpentBefore = 0;
-  if (fromYmd) {
-    const prev = src
-      .filter(r => String(r.date || '') < fromYmd)
-      .sort((a,b) => (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')))
-      .pop();
-    if (prev) baseSpentBefore = Number(prev.spentTotal || 0);
-  }
-
-  // Суммируем расход ДНЯ как разницу соседних cumulative-значений
-  let prev = baseSpentBefore;
-  let total = 0;
-  for (const e of items) {
-    const curr = Number(e.spentTotal || 0);
-    total += Math.max(0, curr - prev);
-    prev = curr;
-  }
-  return total;
-}
-
 // === [MK#9] Acquisition Funnel metrics ===
 function mkCalcAcqFunnelMetrics(clients = [], marketing = []) {
-  const mkItems = mkFilterByDate(Array.isArray(marketing) ? marketing : [], 'date');
-  const spent   = mkCalcPeriodSpent(marketing) || 0;
-  const subs    = mkItems.reduce((s, m) => s + Number(m?.delta || 0), 0);
-  // Остальная логика как была:
+  // Расходы: берём последнее "spentTotal" из журнала
+  const spent = mkGetLatestAdsSpentTotal(marketing) || 0;
+
+  // Подписчики: сумма delta по дням
+  const subs = (marketing || []).reduce((s, m) => s + Number(m?.delta || 0), 0);
+
+  // Тёплые лиды: все, у кого статус НЕ "Холодный лид"
   const leads = (clients || []).filter(c => !/холод/i.test(String(c?.status || ''))).length;
+
   // Консультации: флаг consult ИЛИ статус содержит "конс"
   // 1) пробуем взять точную цифру из конверсии (лиды -> консультация)
 // 2) если кэша ещё нет — fallback на статус
