@@ -579,7 +579,10 @@ try {
 const kpi = mkCalcKPI(AppState.clients, AppState.marketing, totals);
 mkRenderKPI(kpi);
 mkRenderSummary(AppState.clients, AppState.marketing);
-}
+ // --- гарантируем синхрон с выбранным периодом на вкладке "Статистика"
+      if (document.querySelector('[data-tab="marketingPage"]').classList.contains('is-active')) {
+        if (typeof mkRerenderStatsAll === 'function') mkRerenderStatsAll();
+      }
       }
     }, (err)=> {
       console.error(err);
@@ -2714,6 +2717,9 @@ function mkApplyDateMode(mode, from=null, to=null) {
   }
 
   mkRerenderStatsAll(); // ← полный пересчёт страницы статистики
+// ↓↓↓ ДОБАВЬ ЭТИ 2 СТРОКИ ↓↓↓
+  if (typeof renderMarketing === 'function') renderMarketing();   // детальная таблица по дням
+  if (typeof mkRenderLeadsChart === 'function') mkRenderLeadsChart(); // график "Дни \ Лиды"
 }
 
 // Инициализация панели дат (вешаем обработчики)
@@ -2728,6 +2734,24 @@ function mkInitDatebar(){
   const inFrom   = root.querySelector('#mkFrom');
   const inTo     = root.querySelector('#mkTo');
   const btnApply = root.querySelector('#mkApplyRange');
+// авто-применение при изменении полей даты
+  if (inFrom && !inFrom.dataset.bound) {
+    inFrom.dataset.bound = '1';
+    inFrom.addEventListener('change', ()=>{
+      const f = inFrom.value || null;
+      const t = inTo?.value || null;
+      mkApplyDateMode('range', f, t);
+    });
+  }
+  if (inTo && !inTo.dataset.bound) {
+    inTo.dataset.bound = '1';
+    inTo.addEventListener('change', ()=>{
+      const f = inFrom?.value || null;
+      const t = inTo.value || null;
+      mkApplyDateMode('range', f, t);
+    });
+  }
+
 
   // Быстрые пресеты
   if (btnWeek)  btnWeek.addEventListener('click', ()=>{
@@ -4141,6 +4165,9 @@ function listenMarketingRealtime(){
       // локально сортируем по дате+времени, чтобы не требовать составного индекса
       arr.sort((a,b) => (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
       AppState.marketing = arr;
+ if (document.querySelector('[data-tab="marketingPage"]').classList.contains('is-active')) {
+        if (typeof mkRerenderStatsAll === 'function') mkRerenderStatsAll();
+      }
  // Карточка №5: обновляем итоги и потенциал при новых данных маркетинга
       const untilInput = document.getElementById('mkPotentialUntil');
       if (untilInput) {
