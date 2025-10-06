@@ -5607,4 +5607,3 @@ if (btnMig) btnMig.addEventListener('click', () => {
   } catch (e) {
     console.warn('[marketing overview] render failed:', e);
   }
-});
