@@ -522,14 +522,14 @@ function listenClientsRealtime(){
      renderMarketing();
 
       // если открыта вкладка маркетинга — обновим график тоже
-      if (document.querySelector('[data-tab="marketingPage"]').classList.contains('is-active')) {
-        mkBindLeadsChartControls();
-        mkRenderLeadsChart();
+      {
+    const mktTab = document.querySelector('[data-tab="marketingPage"]');
+    if (mktTab && mktTab.classList.contains('is-active')) {
+      mkBindLeadsChartControls();
+      mkRenderLeadsChart();
+    }
+  }
       }// обновляем график, если открыта вкладка маркетинга
-if (document.querySelector('[data-tab="marketingPage"]').classList.contains('is-active')) {
-  mkBindLeadsChartControls();
-  mkRenderLeadsChart();
-}
 // Карточка №5: перестраиваем итоги при изменении клиентов
       const untilInput = document.getElementById('mkPotentialUntil');
       if (untilInput) {
@@ -580,9 +580,12 @@ const kpi = mkCalcKPI(AppState.clients, AppState.marketing, totals);
 mkRenderKPI(kpi);
 mkRenderSummary(AppState.clients, AppState.marketing);
  // --- гарантируем синхрон с выбранным периодом на вкладке "Статистика"
-      if (document.querySelector('[data-tab="marketingPage"]').classList.contains('is-active')) {
-        if (typeof mkRerenderStatsAll === 'function') mkRerenderStatsAll();
-      }
+      {
+  const mktTab = document.querySelector('[data-tab="marketingPage"]');
+  if (mktTab && mktTab.classList.contains('is-active')) {
+    if (typeof mkRerenderStatsAll === 'function') mkRerenderStatsAll();
+  }
+}
       }
     }, (err)=> {
       console.error(err);
@@ -622,10 +625,14 @@ function listenSuppliesRealtime(){
       AppState.supplies = [];
       qs.forEach(d => AppState.supplies.push(d.data()));
       // перерисуем список, если открыта вкладка
-      if (document.querySelector('[data-tab="suppliesPage"]').classList.contains('is-active')) {
-        renderSupplies();
-if (typeof mkUpdateFinanceCard === 'function') mkUpdateFinanceCard();
-      }
+      {
+  const supTab = document.querySelector('[data-tab="suppliesPage"]');
+  if (supTab && supTab.classList.contains('is-active')) {
+    renderSupplies();
+    if (typeof mkUpdateFinanceCard === 'function') mkUpdateFinanceCard();
+  }
+}
+
     }, (err)=> {
       console.error(err);
       toast('Ошибка чтения расходников');
@@ -4189,11 +4196,13 @@ try {
       }
 
       renderMarketing();
-if (document.querySelector('[data-tab="marketingPage"]').classList.contains('is-active')) {
-  mkBindLeadsChartControls();
-  mkRenderLeadsChart();
+{
+  const mktTab = document.querySelector('[data-tab="marketingPage"]');
+  if (mktTab && mktTab.classList.contains('is-active')) {
+    mkBindLeadsChartControls();
+    mkRenderLeadsChart();
+  }
 }
-
  if (typeof mkUpdateFinanceCard === 'function') mkUpdateFinanceCard();
 
     }, err => console.error('marketing', err));
