@@ -4493,28 +4493,27 @@ function mkBuildReachedConversion(clients, logsMap, range = null) {
 
   const norm = (x) => normalizeStatus(x);
 
-  // границы периода (включительно по дню)
+  // границы периода (как было)
   let fromMs = -Infinity, toMs = Infinity;
   if (range && (range.from || range.to)) {
-    const f = range.from ? `${range.from}T00:00:00`       : '1970-01-01T00:00:00';
-    const t = range.to   ? `${range.to}T23:59:59.999`     : '9999-12-31T23:59:59.999';
+    const f = range.from ? `${range.from}T00:00:00`   : '1970-01-01T00:00:00';
+    const t = range.to   ? `${range.to}T23:59:59.999` : '9999-12-31T23:59:59.999';
     fromMs = Date.parse(f); if (!isFinite(fromMs)) fromMs = -Infinity;
     toMs   = Date.parse(t); if (!isFinite(toMs))   toMs   = Infinity;
   }
 
-// внутри mkBuildReachedConversion, ПОД блоком with fromMs/toMs
-const inRangeYmd = (ymd) => {
-  if (!ymd) return false;
-  if (fromMs === -Infinity && toMs === Infinity) return true;
-  const ms = Date.parse(`${ymd}T00:00:00`);
-  return isFinite(ms) && ms >= fromMs && ms <= toMs;
-};
+  const inRangeYmd = (ymd) => {
+    if (!ymd) return false;
+    if (fromMs === -Infinity && toMs === Infinity) return true;
+    const ms = Date.parse(`${ymd}T00:00:00`);
+    return isFinite(ms) && ms >= fromMs && ms <= toMs;
+  };
 
   const logMs = (row) => {
     const s = row?.ts || row?.at || row?.date || row?.time || '';
     const p = Date.parse(s);
     if (isFinite(p)) return p;
-    const n = Number(row?._id);               // fallback: id как Date.now()
+    const n = Number(row?._id);
     return isFinite(n) ? n : NaN;
   };
   const inRange = (row) => {
@@ -4523,40 +4522,47 @@ const inRangeYmd = (ymd) => {
     return isFinite(ms) && ms >= fromMs && ms <= toMs;
   };
 
- for (const c of (clients || [])) {
-  const logs = logsMap.get(c.id) || [];
+  // --- НОВОЕ: числитель консультаций — среди всех лидов, по дате лога
+  let consultAll = 0;
 
-  const wasLead = logs.some(r => norm(r?.to) === 'lead' || norm(r?.from) === 'lead')
-                || norm(c?.status) === 'lead';
-  if (!wasLead) continue;
+  for (const c of (clients || [])) {
+    const logs = logsMap.get(c.id) || [];
 
-  // Новый фильтр: берем в знаменатель только тех, у кого "первый контакт" попадает в выбранный период
-  if (range && (range.from || range.to)) {
-    const firstYmd = mkClientFirstContactYMD(c); // читает firstcontactdate/firstContactDate/firstContact
-    if (!inRangeYmd(firstYmd)) continue;
+    const wasLead = logs.some(r => norm(r?.to) === 'lead' || norm(r?.from) === 'lead')
+                 || norm(c?.status) === 'lead';
+    if (!wasLead) continue;
+
+    // считаем консультацию независимо от знаменателя
+    const consultHit = logs.some(r => norm(r?.to) === 'consultation' && inRange(r));
+    if (consultHit) consultAll += 1;
+
+    // ЗНАМЕНАТЕЛЬ: только если первый контакт попал в период
+    if (range && (range.from || range.to)) {
+      const firstYmd = mkClientFirstContactYMD(c);
+      if (!inRangeYmd(firstYmd)) continue;
+    }
+
+    denom++;
+
+    // Остальные статусы считаем как раньше, НО консультацию здесь пропускаем
+    for (const t of TARGETS) {
+      if (t === 'consultation') continue;
+      const hit = logs.some(r => norm(r?.to) === t && inRange(r));
+      if (hit) counts[t] += 1;
+    }
   }
-
-  denom++;
-
-  // как и раньше: хиты статусов считаем по логам ВНУТРИ периода
-  for (const t of TARGETS) {
-    const hit = logs.some(r => norm(r?.to) === t && inRange(r));
-    if (hit) counts[t] += 1;
-  }
-}
 
   const pct = (n) => denom > 0 ? Math.round((n / denom) * 100) : 0;
 
   return {
     denom,
-    consultation: { n: counts.consultation, p: pct(counts.consultation) },
+    consultation: { n: consultAll,          p: pct(consultAll)          }, // ← ключевое изменение
     prepay:       { n: counts.prepay,       p: pct(counts.prepay)       },
     session:      { n: counts.session,      p: pct(counts.session)      },
     canceled:     { n: counts.canceled,     p: pct(counts.canceled)     },
-    dropped:      { n: counts.dropped,      p: pct(counts.dropped)      }
+    dropped:      { n: counts.dropped,      p: pct(counts.dropped)      },
   };
 }
-
 function normalizeQual(qRaw='') {
   const q = String(qRaw).toLowerCase();
   if (q.includes('целевой') && !q.includes('условно')) return 'target';
