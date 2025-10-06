@@ -2036,3 +2036,7 @@ dialog[open] .modal-body{
   font-variant-numeric: tabular-nums;
   font-weight: 700;       /* цифры плотнее */
 }
+
+.btn.tiny{ padding:6px 10px; font-size:.85rem; }
+.mk-card-actions{ display:flex; justify-content:flex-end; gap:8px; margin:6px 0 8px; }
+.mk-subtitle.sm{ font-size:.9rem; opacity:.9; margin-top:6px; }

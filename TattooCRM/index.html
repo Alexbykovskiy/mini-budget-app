@@ -349,8 +349,14 @@
   <ul class="mk-list" id="mk-filter-list"></ul>
 </div>
 
-    <div class="stat-card glass stat-card-conv" id="mk-card-conv">
+   <div class="stat-card glass stat-card-conv" id="mk-card-conv">
   <div class="mk-card-title">Конверсия из лидов</div>
+  <!-- ▼ ДОБАВИТЬ ЭТОТ БЛОК -->
+  <div class="mk-card-actions">
+    <button id="mk-conv-denom-btn" class="btn tiny" type="button"
+      title="Показать состав «всего обратившихся» и списки статусов">Состав</button>
+  </div>
+  <!-- ▲ -->
   <ul class="mk-list" id="mk-conv-list">
     <li class="mk-row">
       <span class="label">Всего обратившихся</span>
@@ -878,6 +884,52 @@
     <button id="confirmNo" class="btn ghost">Отмена</button>
     <button id="confirmYes" class="btn danger">Удалить</button>
   </div>
+</dialog>
+<!-- Модал: Состав конверсии -->
+<dialog id="convDenomDialog" class="modal">
+  <form method="dialog" class="modal-body glass">
+    <div class="modal-head">
+      <h3>Состав «всего обратившихся»</h3>
+      <button class="btn icon" value="cancel" title="Закрыть">✕</button>
+    </div>
+
+    <div class="grid two">
+      <div class="panel">
+        <div class="mk-subtitle">Обратившиеся (denom)</div>
+        <ul class="mk-list" id="convDenomList"></ul>
+      </div>
+
+      <div class="panel">
+        <div class="mk-subtitle">Статусы (по дате статуса в выбранный период)</div>
+        <div class="grid two">
+          <div>
+            <div class="mk-subtitle sm">→ Консультации</div>
+            <ul class="mk-list" id="convList-consultation"></ul>
+          </div>
+          <div>
+            <div class="mk-subtitle sm">→ Предоплата</div>
+            <ul class="mk-list" id="convList-prepay"></ul>
+          </div>
+          <div>
+            <div class="mk-subtitle sm">→ Сеансы</div>
+            <ul class="mk-list" id="convList-session"></ul>
+          </div>
+          <div>
+            <div class="mk-subtitle sm">→ Отменил</div>
+            <ul class="mk-list" id="convList-canceled"></ul>
+          </div>
+          <div>
+            <div class="mk-subtitle sm">→ Слился</div>
+            <ul class="mk-list" id="convList-dropped"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn" value="cancel">Закрыть</button>
+    </div>
+  </form>
 </dialog>
 </body>
 </html>

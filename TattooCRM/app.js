@@ -188,6 +188,52 @@ if (btnTest && !btnTest.dataset.bound) {
   bindClientsModal();
   bindSettings();
 bindSupplies();
+// Кнопка «Состав» в карточке конверсии
+(function bindConvDenomButton(){
+  const btn = document.getElementById('mk-conv-denom-btn');
+  const dlg = document.getElementById('convDenomDialog');
+  if (!btn || !dlg || btn.dataset.bound) return;
+  btn.dataset.bound = '1';
+
+  btn.addEventListener('click', async () => {
+    try {
+      // те же данные, что использует конверсия
+      const baseClients = AppState.clients || [];
+      const logsMap = AppState.statusLogsMap
+        || await mkFetchStatusLogsForClients(baseClients);
+
+      const range = (window.MK_DATE && MK_DATE.mode !== 'all')
+        ? { from: MK_DATE.from, to: MK_DATE.to }
+        : null;
+
+      const lists = mkBuildReachedConversionLists(baseClients, logsMap, range);
+
+      const put = (id, arr) => {
+        const box = document.getElementById(id);
+        if (!box) return;
+        box.innerHTML = (arr
+          .sort((a,b) => a.name.localeCompare(b.name))
+          .map(x => `<li class="mk-row">
+            <span class="label">${escapeHtml(x.name)}</span>
+            <span class="value">${escapeHtml(x.now || '')}</span>
+          </li>`).join('')) || '<li class="mk-row"><span class="label">— пусто —</span></li>';
+      };
+
+      put('convDenomList', lists.denom);
+      put('convList-consultation', lists.consultation);
+      put('convList-prepay',       lists.prepay);
+      put('convList-session',      lists.session);
+      put('convList-canceled',     lists.canceled);
+      put('convList-dropped',      lists.dropped);
+
+      dlg.showModal();
+    } catch (e) {
+      console.warn('[conv denom] error', e);
+      // fallback в консоль
+      try { console.log('[conv denom fallback]', lists); } catch(_) {}
+    }
+  });
+})();
 
 // boot: Firebase SDK виден
 try { if (window.firebase && window.FB) BOOT.set(1,'ok'); } catch(_) {}
@@ -4566,6 +4612,81 @@ function mkBuildReachedConversion(clients, logsMap, range = null) {
     dropped:      { n: droppedAll,        p: pct(droppedAll)        },
   };
 }
+
+function mkBuildReachedConversionLists(clients, logsMap, range = null) {
+  const norm = (x) => normalizeStatus(x);
+  const targets = ['consultation','prepay','session','canceled','dropped'];
+
+  // === Период (включительно по датам)
+  let fromMs = -Infinity, toMs = Infinity;
+  if (range && (range.from || range.to)) {
+    const f = range.from ? `${range.from}T00:00:00` : '1970-01-01T00:00:00';
+    const t = range.to   ? `${range.to}T23:59:59.999` : '9999-12-31T23:59:59.999';
+    fromMs = Date.parse(f); if (!isFinite(fromMs)) fromMs = -Infinity;
+    toMs   = Date.parse(t); if (!isFinite(toMs))   toMs   = Infinity;
+  }
+  const logMs = (row) => {
+    const s = row?.ts || row?.at || row?.date || row?.time || '';
+    const p = Date.parse(s);
+    if (isFinite(p)) return p;
+    const n = Number(row?._id);
+    return isFinite(n) ? n : NaN;
+  };
+  const inRange = (row) => {
+    if (fromMs === -Infinity && toMs === Infinity) return true;
+    const ms = logMs(row);
+    return isFinite(ms) && ms >= fromMs && ms <= toMs;
+  };
+  const inRangeYmd = (ymd) => {
+    if (!ymd) return false;
+    if (fromMs === -Infinity && toMs === Infinity) return true;
+    const ms = Date.parse(`${ymd}T00:00:00`);
+    return isFinite(ms) && ms >= fromMs && ms <= toMs;
+  };
+
+  const result = {
+    denom: [],
+    consultation: [],
+    prepay: [],
+    session: [],
+    canceled: [],
+    dropped: []
+  };
+
+  const pushUniq = (arr, c) => {
+    if (!arr.some(x => x.id === c.id)) arr.push({
+      id: c.id,
+      name: c.displayName || '(без имени)',
+      first: mkClientFirstContactYMD(c) || '',
+      now: norm(c?.status || c?.stage || c?.type)
+    });
+  };
+
+  for (const c of (clients || [])) {
+    const logs = logsMap.get(c.id) || [];
+
+    // участвует только тот, кто когда-либо был лидом
+    const wasLead = logs.some(r => norm(r?.to) === 'lead' || norm(r?.from) === 'lead')
+                 || norm(c?.status) === 'lead';
+    if (!wasLead) continue;
+
+    // статусы — по дате смены статуса внутри периода
+    for (const t of targets) {
+      const hit = logs.some(r => norm(r?.to) === t && inRange(r));
+      if (hit) pushUniq(result[t], c);
+    }
+
+    // denom — по дате первого обращения в пределах периода
+    if (range && (range.from || range.to)) {
+      const ymd = mkClientFirstContactYMD(c);
+      if (!inRangeYmd(ymd)) continue;
+    }
+    pushUniq(result.denom, c);
+  }
+
+  return result;
+}
+
 
 function normalizeQual(qRaw='') {
   const q = String(qRaw).toLowerCase();
