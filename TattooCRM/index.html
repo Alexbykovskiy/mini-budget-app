@@ -292,6 +292,22 @@
   <div class="section">
     <h2>Статистика</h2>
 
+<!-- === MK DATEBAR: глобальный фильтр периода для всей статистики === -->
+<div id="mkDatebar" class="toolbar glass mk-datebar">
+  <div class="row gap-8">
+    <button class="chip" data-mk-date="week">За неделю</button>
+    <button class="chip" data-mk-date="month">За месяц</button>
+    <button class="chip is-active" data-mk-date="all">За всё время</button>
+    <div class="pill-group">
+      <input id="mkFrom" type="date" placeholder="от">
+      <span class="divider">—</span>
+      <input id="mkTo" type="date" placeholder="до">
+      <button id="mkApplyRange" class="btn">Применить</button>
+    </div>
+  </div>
+  <div class="hint">Фильтр применяется ко всем карточкам/таблицам/графикам на этой странице.</div>
+</div>
+
 <!-- БЛОК: Статистика — краткая сводка -->
 <section class="block marketing-summary">
   <h2 class="chart-title">Статистика — краткая сводка</h2>

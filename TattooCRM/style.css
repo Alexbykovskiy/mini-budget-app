@@ -1304,6 +1304,26 @@ dialog[open] .modal-body{
 }
 
 
+/* === MK DATEBAR (Статистика: общий фильтр периода) === */
+.mk-datebar { margin-bottom: 12px; }
+.mk-datebar .chip.is-active {
+  border-color: rgba(255,255,255,.9);
+  background: rgba(255,255,255,.08);
+}
+.mk-datebar .pill-group {
+  display: flex; align-items: center; gap: 6px;
+  border-radius: var(--rad-pill);
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.04);
+  padding: 4px 6px;
+}
+.mk-datebar .pill-group input[type="date"] {
+  background: transparent; border: none; height: 32px;
+  padding: 0 8px; color: var(--c-text); outline: none;
+}
+.mk-datebar .pill-group .divider { opacity:.6; }
+
+
 /* ===== Marketing Table ===== */
 .mk-table {
   width: 100%;

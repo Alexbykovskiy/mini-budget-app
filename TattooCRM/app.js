@@ -284,8 +284,15 @@ renderFullCalendar();
 initCalendarStack({ forceConsent: false }).catch(console.warn);
 
 listenMarketingRealtime();
+
 mkBindCostsForm();
 listenManualCostsRealtime();
+// 3.3: если при загрузке уже открыта «Статистика» — инициализируем даты и пересчитываем
+const isStatsOpen = document.querySelector('[data-tab="marketingPage"]')?.classList.contains('is-active');
+if (isStatsOpen) {
+  mkInitDatebar();
+  mkRerenderStatsAll();
+}
 toast('Добро пожаловать обратно 👋');
     } catch (e) {
       console.warn('restore session failed', e);
@@ -314,6 +321,8 @@ function bindTabbar(){
      if (btn.dataset.tab === 'marketingPage') {
   bindMarketing();
   renderMarketing();
+mkInitDatebar();      // (3.3) инициализация панели выбора дат
+mkRerenderStatsAll(); // (3.3) полный пересчёт всей статистики под выбранный период
   mkBindLeadsChartControls();
   mkRenderLeadsChart();
 
@@ -2654,6 +2663,180 @@ await batch.commit();
   } finally {
     $('#clientDialog').close();
   }
+
+}
+
+
+// === [MK DATEBAR] Глобальный фильтр периода для вкладки «Статистика» ===
+const MK_DATE = {
+  mode: 'all',   // 'week' | 'month' | 'all' | 'range'
+  from: null,    // 'YYYY-MM-DD' или null
+  to: null       // 'YYYY-MM-DD' или null
+};
+
+function mkPad2(n){ return String(n).padStart(2,'0'); }
+function mkTodayYmd() {
+  const d = new Date();
+  return `${d.getFullYear()}-${mkPad2(d.getMonth()+1)}-${mkPad2(d.getDate())}`;
+}
+function mkShiftDays(ymd, days) {
+  const [Y,M,D] = (ymd||mkTodayYmd()).split('-').map(Number);
+  const dt = new Date(Y, M-1, D); dt.setDate(dt.getDate()+days);
+  return `${dt.getFullYear()}-${mkPad2(dt.getMonth()+1)}-${mkPad2(dt.getDate())}`;
+}
+function mkInPeriod(ymd /* 'YYYY-MM-DD' */) {
+  if (MK_DATE.mode === 'all') return true;
+  if (!ymd) return false;
+  const v = ymd;
+  const f = MK_DATE.from || '0000-01-01';
+  const t = MK_DATE.to   || '9999-12-31';
+  return v >= f && v <= t;
+}
+// Отфильтровать произвольный массив по полю даты
+function mkFilterByDate(arr, dateField) {
+  return (Array.isArray(arr)?arr:[]).filter(it => mkInPeriod(String(it?.[dateField] || '')));
+}
+
+// Поднять активное состояние кнопок, склеить период и пересчитать всё
+function mkApplyDateMode(mode, from=null, to=null) {
+  MK_DATE.mode = mode;
+  MK_DATE.from = from;
+  MK_DATE.to   = to;
+
+  // Подсветка активной кнопки
+  document.querySelectorAll('#mkDatebar [data-mk-date]').forEach(b=>{
+    b.classList.toggle('is-active', b.dataset.mkDate === mode);
+  });
+
+  // Если диапазон — убираем active с быстрых кнопок
+  if (mode === 'range') {
+    document.querySelectorAll('#mkDatebar [data-mk-date]').forEach(b=> b.classList.remove('is-active'));
+  }
+
+  mkRerenderStatsAll(); // ← полный пересчёт страницы статистики
+}
+
+// Инициализация панели дат (вешаем обработчики)
+function mkInitDatebar(){
+  const root = document.getElementById('mkDatebar');
+  if (!root || root.dataset.bound) return;
+  root.dataset.bound = '1';
+
+  const btnWeek  = root.querySelector('[data-mk-date="week"]');
+  const btnMonth = root.querySelector('[data-mk-date="month"]');
+  const btnAll   = root.querySelector('[data-mk-date="all"]');
+  const inFrom   = root.querySelector('#mkFrom');
+  const inTo     = root.querySelector('#mkTo');
+  const btnApply = root.querySelector('#mkApplyRange');
+
+  // Быстрые пресеты
+  if (btnWeek)  btnWeek.addEventListener('click', ()=>{
+    const today = mkTodayYmd();
+    const from  = mkShiftDays(today, -6); // последние 7 дней включительно
+    inFrom.value = from; inTo.value = today;
+    mkApplyDateMode('week', from, today);
+  });
+
+  if (btnMonth) btnMonth.addEventListener('click', ()=>{
+    const d = new Date();
+    const from = `${d.getFullYear()}-${mkPad2(d.getMonth()+1)}-01`;
+    const to   = mkTodayYmd();
+    inFrom.value = from; inTo.value = to;
+    mkApplyDateMode('month', from, to);
+  });
+
+  if (btnAll)   btnAll.addEventListener('click', ()=>{
+    inFrom.value = ''; inTo.value = '';
+    mkApplyDateMode('all', null, null);
+  });
+
+  if (btnApply) btnApply.addEventListener('click', ()=>{
+    const f = inFrom.value || null;
+    const t = inTo.value   || null;
+    mkApplyDateMode('range', f, t);
+  });
+}
+
+// Вернуть источники данных, уже отфильтрованные по MK_DATE
+function mkGetPeriodData() {
+  return {
+    clients:   mkFilterByDate(AppState.clients || [],   /* поле в clients: */ 'createdDate' /* если иное — поменяй тут */),
+    marketing: mkFilterByDate(AppState.marketing || [], /* поле в marketing: */ 'date')
+  };
+}
+
+// Главный пересчёт всей страницы «Статистика»
+function mkRerenderStatsAll(){
+  // Инициализатор (на случай, если вызвали напрямую)
+  mkInitDatebar();
+
+  const { clients, marketing } = mkGetPeriodData();
+
+  // === Карточка №1: статусы
+  const { counts } = mkBuildOverviewFromClients(clients);
+  mkRenderCardStatuses(counts);
+
+  // === Карточка №2: демография
+  const demo = mkBuildDemographicsFromClients(clients);
+  mkRenderCardDemographics(demo);
+
+  // === «Суперфильтр» и итоговый список клиентов (если зависит от периода)
+  mkResetFilters();
+  mkRenderResults(clients);
+
+  // === Карточка №4: «как в Excel»
+  (async ()=>{
+    const logsMap = await mkFetchStatusLogsForClients(clients);
+    const conv = mkBuildReachedConversion(clients, logsMap);
+    mkRenderCardConversion(conv);
+    AppState.convReached  = conv;
+    AppState.statusLogsMap = logsMap;
+  })();
+
+  // === Карточка №5: итоги и потенциал (используем input с датой как раньше)
+  const untilInput = document.getElementById('mkPotentialUntil');
+  if (untilInput) {
+    const totals = mkCalcTotalsAndPotential(clients, marketing, untilInput.value);
+    mkRenderCardTotals(totals);
+  }
+
+  // === Карточка №6: финансы (считаем напрямую, обходя mkUpdateFinanceCard, чтобы не тянуть «всё время»)
+  if (typeof mkCalcFinanceMetrics === 'function' && typeof mkRenderCardFinance === 'function') {
+    const cutoff = document.getElementById('mkPotentialUntil')?.value || '';
+    const useSup = !!document.getElementById('mkIncludeSupplies')?.checked;
+    const finance = mkCalcFinanceMetrics(clients, marketing, AppState.supplies, cutoff, useSup);
+    mkRenderCardFinance(finance);
+    if (typeof mkRenderChecksInTotals === 'function') mkRenderChecksInTotals(finance);
+  }
+
+  // === Карточка №7: журнал клиентов
+  if (typeof mkBuildClientLog === 'function' && typeof mkRenderClientLog === 'function') {
+    const logRows = mkBuildClientLog(clients);
+    mkRenderClientLog(logRows);
+  }
+
+  // === Карточка №8: студийная аналитика
+  if (typeof mkCalcStudioSplit === 'function' && typeof mkRenderCardStudioSplit === 'function') {
+    const split = mkCalcStudioSplit(clients);
+    mkRenderCardStudioSplit(split);
+  }
+
+  // === KPI / общий отчёт и графики внизу (пончик, расходы вручную, страны)
+  if (typeof mkCalcKPI === 'function' && typeof mkRenderKPI === 'function') {
+    const cutoff = document.getElementById('mkPotentialUntil')?.value || '';
+    const totals = mkCalcTotalsAndPotential(clients, marketing, cutoff);
+    const kpi = mkCalcKPI(clients, marketing, totals);
+    mkRenderKPI(kpi);
+  }
+  if (typeof mkRenderSummary === 'function')         mkRenderSummary(clients, marketing);
+  if (typeof mkRenderLeadsDonut === 'function')      mkRenderLeadsDonut(clients);
+  if (typeof mkRenderCostsChartManual === 'function') mkRenderCostsChartManual();
+  if (typeof mkRenderCountriesChart === 'function')  mkRenderCountriesChart(clients);
+
+  // === История маркетинга (таблица «Дата/IG/€/RU/SK/…») и график лидов
+  if (typeof renderMarketing === 'function') renderMarketing();  // см. патч в 3.2 (он сам внутри фильтрует по MK_DATE)
+  if (typeof mkBindLeadsChartControls === 'function') mkBindLeadsChartControls();
+  if (typeof mkRenderLeadsChart === 'function')       mkRenderLeadsChart();
 }
 
 // ---------- Marketing ----------
@@ -2669,10 +2852,10 @@ function renderMarketing() {
   const body = document.getElementById('mkHistoryBody');
   if (!body) return;
 
-  // 1) Источник данных
-  const items = Array.isArray(AppState.marketing) ? [...AppState.marketing] : [];
-  items.sort((a,b) => (String(a.date||'')+String(a.time||''))
-    .localeCompare(String(b.date||'')+String(b.time||'')));
+   // 1) Источник данных (с учётом глобального периода MK_DATE)
+const src = Array.isArray(AppState.marketing) ? [...AppState.marketing] : [];
+const items = mkFilterByDate(src, 'date');   // ← фильтруем по 'date'
+items.sort((a,b) => (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
 
   const firstByDay = mkBuildDailyFirstContactsStats(AppState.clients || []);
 
