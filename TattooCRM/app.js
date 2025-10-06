@@ -2871,11 +2871,13 @@ function mkRerenderStatsAll(){
     if (typeof mkRenderChecksInTotals === 'function') mkRenderChecksInTotals(finance);
   }
 
-  // === Карточка №7: журнал клиентов
-  if (typeof mkBuildClientLog === 'function' && typeof mkRenderClientLog === 'function') {
-    const logRows = mkBuildClientLog(clients);
-    mkRenderClientLog(logRows);
-  }
+ // === Карточка №7: журнал клиентов
+if (typeof mkBuildClientLog === 'function' && typeof mkRenderClientLog === 'function') {
+  const range = (MK_DATE.mode === 'all') ? null : { from: MK_DATE.from, to: MK_DATE.to };
+  // Берём ВСЕХ клиентов, а фильтруем — по дате СЕАНСА
+  const logRows = mkBuildClientLog(AppState.clients || [], range);
+  mkRenderClientLog(logRows);
+}
 
   // === Карточка №8: студийная аналитика
   if (typeof mkCalcStudioSplit === 'function' && typeof mkRenderCardStudioSplit === 'function') {
@@ -4574,32 +4576,35 @@ function mkBuildReachedConversion(clients, logsMap, range = null) {
   let droppedAll = 0;  // "слился" по дате его лога
 
   for (const c of (clients || [])) {
-    const logs = logsMap.get(c.id) || [];
+  const logs = logsMap.get(c.id) || [];
 
-    // участвует только тот, кто когда-либо был лидом
-    const wasLead = logs.some(r => norm(r?.to) === 'lead' || norm(r?.from) === 'lead')
-                 || norm(c?.status) === 'lead';
-    if (!wasLead) continue;
+  // клиент считается "обратившимся", если он когда-то был в статусе lead
+  const wasLead = logs.some(r => norm(r?.to) === 'lead' || norm(r?.from) === 'lead')
+               || norm(c?.status) === 'lead';
+  if (!wasLead) continue;
 
-    // 1) Считаем события, привязанные к дате СТАТУСА — для всех "когда-либо лидов"
-    if (logs.some(r => norm(r?.to) === 'consultation' && inRange(r))) consultAll += 1;
-    if (logs.some(r => norm(r?.to) === 'dropped'      && inRange(r))) droppedAll += 1;
+  // дата первого обращения — для знаменателя
+  const firstYmd = mkClientFirstContactYMD(c);
+  const firstInRange =
+    !range || (!range.from && !range.to)
+      ? true
+      : (firstYmd && firstYmd >= (range.from || '0000-01-01') && firstYmd <= (range.to || '9999-12-31'));
 
-    // 2) ЗНАМЕНАТЕЛЬ: «всего обратившихся» — по дате ПЕРВОГО обращения в пределах периода
-    if (range && (range.from || range.to)) {
-      const firstYmd = mkClientFirstContactYMD(c); // есть в твоём коде
-      if (!inRangeYmd(firstYmd)) continue;
-    }
+  // помощник: был ли переход в статус t ВНУТРИ выбранного периода
+  const hit = (t) => logs.some(r => norm(r?.to) === t && inRange(r));
+
+  if (firstInRange) {
+    // этот клиент попал в знаменатель — считаем все цели
     denom++;
-
-    // 3) Остальные статусы считаем как раньше, но консультацию и "слился" пропускаем,
-    //    чтобы не было двойного учёта (их мы посчитали выше по дате события)
-    for (const t of TARGETS) {
-      if (t === 'consultation' || t === 'dropped') continue;
-      const hit = logs.some(r => norm(r?.to) === t && inRange(r));
-      if (hit) counts[t] += 1;
-    }
+    for (const t of TARGETS) if (hit(t)) counts[t] += 1;
+  } else {
+    // первый контакт вне периода — всё равно учитываем статусы,
+    // которые должны зависеть ТОЛЬКО от даты статуса:
+    if (hit('session'))      counts.session += 1;       // ← сеансы по дате статуса
+    if (hit('consultation')) counts.consultation += 1;  // ← (как ты просил ранее)
+    if (hit('dropped'))      counts.dropped += 1;       // ← опционально, если нужно
   }
+}
 
   const pct = (n) => denom > 0 ? Math.round((n / denom) * 100) : 0;
 
@@ -5273,29 +5278,35 @@ async function migrateAllToGoogleCalendar() {
 // вынесем в глобал, чтобы вызывать из консоли
 window.tcrmMigrateToGoogleCalendar = migrateAllToGoogleCalendar;
 
-function mkBuildClientLog(clientsArr) {
-  const rows = [];
+function mkBuildClientLog(clientsArr, range = null) {
+  const inRangeYmd = (ymd) => {
+    if (!range || (!range.from && !range.to)) return true;
+    if (!ymd) return false;
+    const from = range.from || '0000-01-01';
+    const to   = range.to   || '9999-12-31';
+    return ymd >= from && ymd <= to;
+  };
 
+  const rows = [];
   (Array.isArray(clientsArr) ? clientsArr : []).forEach(c => {
     if (Array.isArray(c.sessions)) {
       c.sessions.forEach(s => {
-        if (s.done) { // только проведённые
-        rows.push({
-  ymd: ymdOf(typeof s === 'object' ? s.dt : s), // ← подтверждённый сеанс: берём s.dt
-  name: c.displayName || '(без имени)',
-  me: Number(c.amountMe || 0),
-  studio: Number(c.amountStudio || 0)
+        const ymd = ymdOf(typeof s === 'object' ? s.dt : s); // подтверждённый сеанс
+        if (s.done && inRangeYmd(ymd)) {
+          rows.push({
+            ymd,
+            name: c.displayName || '(без имени)',
+            me: Number(c.amountMe || 0),
+            studio: Number(c.amountStudio || 0)
           });
         }
       });
     }
   });
 
-  // сортируем по дате (новые сверху)
-  rows.sort((a, b) => String(b.ymd || '').localeCompare(String(a.ymd || '')));
+  rows.sort((a,b)=> String(b.ymd||'').localeCompare(String(a.ymd||'')));
   return rows;
 }
-
 function mkRenderClientLog(rows) {
   const ul = $('#mk-client-log');
   if (!ul) return;
