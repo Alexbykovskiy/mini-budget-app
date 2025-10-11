@@ -3462,20 +3462,18 @@ function mkMonthHuman(ym){
 // --- [MK#7] Данные для графика по дням и языкам
 // mode: 'all' | 'cold' | 'warm'
 function mkPrepareLeadsSeriesByMonth(clients, ym='YYYY-MM', mode='all'){
-  // строим карту по дням с разрезом по языкам: { ru:{c,o}, sk:{c,o}, ... }
-  const daily = mkBuildDailyFirstContactsStats(clients); // Map<YYYY-MM-DD, { langs: {ru:{c,o} ...} }>
+  const safeYm = mkSafeYm(ym);              // ← добавили
+  const daily  = mkBuildDailyFirstContactsStats(clients);
 
-  // количество дней в месяце
-  const [y, m] = ym.split('-').map(Number);
-  const daysInMonth = new Date(y, m, 0).getDate();
+  const [y, m] = safeYm.split('-').map(Number);
+  const daysInMonth = new Date(y, m, 0).getDate() || 31;
 
-  // инициализация: по каждому языку массив из daysInMonth нулей
   const langs = ['ru','sk','en','at','de'];
   const byLang = {};
-  langs.forEach(k => byLang[k] = Array.from({length: daysInMonth}, ()=>0));
+  langs.forEach(k => byLang[k] = Array.from({ length: daysInMonth }, () => 0));
 
   for (let d=1; d<=daysInMonth; d++){
-    const ymd = `${ym}-${String(d).padStart(2,'0')}`;
+    const ymd = `${safeYm}-${String(d).padStart(2,'0')}`;
     const rec = daily.get(ymd);
     if (!rec) continue;
     for (const k of langs){
@@ -3486,11 +3484,10 @@ function mkPrepareLeadsSeriesByMonth(clients, ym='YYYY-MM', mode='all'){
   }
 
   return {
-    labels: Array.from({length: daysInMonth}, (_,i)=> String(i+1)), // "1".."30"
+    labels: Array.from({ length: daysInMonth }, (_,i)=> String(i+1)),
     series: byLang
   };
 }
-
 // --- [MK#7] Данные IG (+подписчики за день) по месяцу YYYY-MM
 function mkPrepareIgSeriesByMonth(marketing = [], ym = 'YYYY-MM') {
   const [y, m] = ym.split('-').map(Number);
@@ -3535,11 +3532,17 @@ function mkRenderLeadsChart(){
   const canvas = document.getElementById('mkLeadsChart');
   if (!canvas) return;
 
- const mode = (document.querySelector('input[name="mkChartMode"]:checked')?.value) || 'all';
-const ym = mkListMonthsFromClients(AppState.clients).slice(-1)[0] || '';
+  // если контейнер ещё не в layout — подождём кадр
+  if (canvas.offsetWidth === 0 || canvas.offsetHeight === 0) {
+    return requestAnimationFrame(mkRenderLeadsChart);
+  }
 
- const { labels, series } = mkPrepareLeadsSeriesByMonth(AppState.clients || [], ym, mode);
+  const mode = (document.querySelector('input[name="mkChartMode"]:checked')?.value) || 'all';
+  let ym = mkListMonthsFromClients(AppState.clients || []).slice(-1)[0] || '';
+  ym = mkSafeYm(ym); // ← важная строчка
 
+  const { labels, series } =
+    mkPrepareLeadsSeriesByMonth(AppState.clients || [], ym, mode);
 const datasets = [
   { key:'ru', label:'Русский',  data: series.ru, borderColor:'#186663', backgroundColor:'#186663' },
   { key:'sk', label:'Словацкий', data: series.sk, borderColor:'#A6B5B4', backgroundColor:'#A6B5B4' },
@@ -3616,7 +3619,11 @@ function mkBindLeadsChartControls(){
     ig.addEventListener('change', mkRenderLeadsChart);
   }
 }
-
+function mkSafeYm(ym) {
+  if (/^\d{4}-\d{2}$/.test(ym)) return ym;
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2, '0')}`;
+}
 
 // === [NEW] Totals & Potential (карточка №5) ===============================
 
