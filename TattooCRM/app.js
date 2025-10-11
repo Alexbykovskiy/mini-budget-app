@@ -4128,6 +4128,25 @@ function listenMarketingRealtime(){
     .onSnapshot(qs => {
       const arr = [];
       qs.forEach(d => arr.push(d.data()));
+
+// 🔹 Мгновенно обновляем таблицу и график, если открыта вкладка «Статистика»
+      const statsActive = document.querySelector('[data-tab="marketingPage"]')
+        ?.classList.contains('is-active');
+
+      if (statsActive) {
+        // таблица по дням (с учётом текущего MK_DATE)
+        if (typeof renderMarketing === 'function') renderMarketing();
+
+        // контролы графика (зум/фильтры)
+        if (typeof mkBindLeadsChartControls === 'function') mkBindLeadsChartControls();
+
+        // сам график — рендерим всегда, даже если данных 0, чтобы он был виден сразу
+        if (typeof mkRenderLeadsChart === 'function') mkRenderLeadsChart();
+
+        // перерисовка остальных карточек, если надо тянуть KPI от маркетинга
+        if (typeof mkRerenderStatsAll === 'function') mkRerenderStatsAll();
+      }
+
       // локально сортируем по дате+времени, чтобы не требовать составного индекса
       arr.sort((a,b) => (String(a.date||'')+String(a.time||'')).localeCompare(String(b.date||'')+String(b.time||'')));
       AppState.marketing = arr;
