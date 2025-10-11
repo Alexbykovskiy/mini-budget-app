@@ -372,6 +372,12 @@ mkRerenderStatsAll(); // (3.3) полный пересчёт всей стати
   mkBindLeadsChartControls();
   mkRenderLeadsChart();
 
+ // 🔹 Форсируем рендер при пустых данных, чтобы график не был пустым при открытии
+  if ((!AppState.marketing || !AppState.marketing.length) && typeof mkRenderLeadsChart === 'function') {
+    console.log('[MK] Empty marketing data — rendering empty chart');
+    mkRenderLeadsChart();
+  }
+
   // --- [NEW] Форс-рендер диаграмм «Общий отчёт»
   mkBindCostsForm();
   mkRenderLeadsDonut(AppState.clients || MK_CLIENTS_CACHE);
