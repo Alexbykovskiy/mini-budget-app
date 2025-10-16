@@ -5169,10 +5169,11 @@ MK_FILTERS.fromba.size;                 // [NEW]
     if (!MK_FILTERS.qual.has(q)) return false;
   }
  // Группа: FROMBA
-  if (MK_FILTERS.fromba.size) {
-    const fb = normalizeFromBA(c);        // 'yes' | 'no' | 'unknown'
-    if (!MK_FILTERS.fromba.has(fb)) return false;
-  }
+ // Группа: FROMBA
+if (MK_FILTERS.fromba.size) {
+  const fb = normalizeFromBA(c?.fromBA);   // 'yes' | 'no' | 'unknown'
+  if (!MK_FILTERS.fromba.has(fb)) return false;
+}
   return true;
 }
 
