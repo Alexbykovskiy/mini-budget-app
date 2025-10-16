@@ -972,13 +972,14 @@ dialog[open] .modal-body{
   appearance: none;
   width: 16px; height: 16px;
   border-radius: 50%;
-  border: 2px solid rgba(255,255,255,.6);
+  border: 2px solid rgba(255,255,255,0.6); /*⬅️ 0.6 вместо 6 */
   display: inline-block;
   position: relative;
   margin: 0 6px 0 0;
+  background: transparent;
 }
 .mk-check input[type="checkbox"]:checked {
-  background: rgba(255,255,255,.9);
+  background: rgba(255,255,255,0.9);      /* ⬅️ 0.9 вместо 9 */
   border-color: rgba(255,255,255,1);
 }
 .mk-check input[type="checkbox"]:focus { outline: none; }
