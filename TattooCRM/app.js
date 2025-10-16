@@ -2853,6 +2853,7 @@ function mkRerenderStatsAll(){
   // === Карточка №1: статусы
   const { counts } = mkBuildOverviewFromClients(clients);
   mkRenderCardStatuses(counts);
+mkRenderCardFromBA(mkBuildFromBACounts(MK_CLIENTS_CACHE));
 
   // === Карточка №2: демография
   const demo = mkBuildDemographicsFromClients(clients);
@@ -5137,6 +5138,7 @@ function mkClientMatchesFilters(c) {
   const hasAny =
     MK_FILTERS.status.size || MK_FILTERS.lang.size ||
     MK_FILTERS.gender.size || MK_FILTERS.qual.size;
+
 MK_FILTERS.fromba.size;                 // [NEW]
 
 
@@ -5257,6 +5259,46 @@ document.addEventListener('click', (e) => {
   });
 })();
 
+function normalizeFromBA(raw) {
+  const v = String(raw ?? ' ').trim().toLowerCase();
+  if (v === 'да' || v === 'yes' || v === 'y' || v === 'true' || v === '1') return 'yes';
+  if (v === 'нет' || v === 'no' || v === 'n' || v === 'false' || v === '0') return 'no';
+  return 'unknown';
+}
+
+function mkBuildFromBACounts(clients) {
+  const r = { yes: 0, no: 0, unknown: 0 };
+  for (const c of clients) {
+    const st = normalizeStatus(c?.status || c?.stage || c?.type);
+    const key = (st === 'cold') ? 'unknown' : normalizeFromBA(c?.fromBA);
+    r[key] = (r[key] || 0) + 1;
+  }
+  return r;
+}
+
+function mkRenderCardFromBA(counts) {
+  const el = document.getElementById('mk-demo-fromba');
+  if (!el) return;
+  const rows = [
+    ['yes', 'Да'],
+    ['no', 'Нет'],
+    ['unknown', 'Неизвестно']
+  ].map(([key, label]) => {
+    const checked = MK_FILTERS.fromba?.has(key) ? 'checked' : '';
+    const val = counts[key] || 0;
+    return `
+      <li class="mk-row">
+        <label class="mk-check">
+          <span class="label">
+            <input type="checkbox" class="mk-filter" data-mk-group="fromba" data-mk-value="${key}" ${checked}/>
+            ${label}
+          </span>
+          <span class="value">${val}</span>
+        </label>
+      </li>`;
+  }).join('');
+  el.innerHTML = rows;
+}
 
 function mkResetFilters() {
   // очистить выбранные значения
@@ -5718,6 +5760,7 @@ mkRenderCountriesChart(AppState.clients || MK_CLIENTS_CACHE);
     // Карточка №1
     const { counts } = mkBuildOverviewFromClients(MK_CLIENTS_CACHE);
     mkRenderCardStatuses(counts);
+mkRenderCardFromBA(mkBuildFromBACounts(MK_CLIENTS_CACHE));
 
     // Карточка №2
     const demo = mkBuildDemographicsFromClients(MK_CLIENTS_CACHE);
