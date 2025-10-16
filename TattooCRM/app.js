@@ -2048,6 +2048,14 @@ $('#fLink').value   = c?.link || '';
 const fLang = $('#fLang'); if (fLang) fLang.value = c?.lang || '';
 const fGender = $('#fGender'); if (fGender) fGender.value = c?.gender || '';
 
+// [NEW] Из Братиславы?
+const fFromBA = document.getElementById('fFromBA');
+if (fFromBA) {
+  // по умолчанию — пробел ' ' как просили
+  fFromBA.value = (c?.fromBA !== undefined ? c.fromBA : ' ');
+}
+
+
 const fSourceSel = $('#fSource'); if (fSourceSel) fSourceSel.value = c?.source || (AppState.settings?.sources?.[0] || '');
 
     // Первое обращение (опциональные поля)
@@ -2355,6 +2363,8 @@ function toggleColdLeadMode(isCold) {
     'sessionsList',
     // напоминания
     'fReminderTpl', 'fReminderAfter', 'fReminderTitle', 'clientReminders',
+// первая тату, тип, теги, зоны, [NEW] из Братиславы
+'fFirst', 'fType', 'fStyles', 'fZones', 'fFromBA',
     // заметка
     'fNotes'
   ].forEach(hideWrap);
@@ -2499,6 +2509,7 @@ if (amountMin != null && amountMax != null && amountMin > amountMax) {
 source: $('#fSource').value.trim(),
 lang: $('#fLang').value || '',
 gender: $('#fGender').value || '',
+fromBA: (document.getElementById('fFromBA')?.value ?? ' '),  // ' ' по умолчанию
 
 // canonical: firstcontactdate + дубликаты для обратной совместимости
 firstcontactdate: fcd,
