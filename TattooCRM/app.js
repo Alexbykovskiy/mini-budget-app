@@ -4536,6 +4536,7 @@ const MK_FILTERS = {
   lang:   new Set(),   // ru/en/sk/de/at/...
   gender: new Set(),   // male/female/''
   qual:   new Set(),   // target/semi/nontarget (нормализуем внутри)
+fromba: new Set(),   // yes | no | unknown
 };
 let MK_CLIENTS_CACHE = [];
 
@@ -4731,6 +4732,19 @@ function normalizeQual(qRaw='') {
   if (q.includes('условно')) return 'semi';
   if (q.includes('не цел') || q.includes('нецел')) return 'nontarget';
   return ''; // неизвестно
+}
+
+// [NEW] Нормализация "из Братиславы"
+function normalizeFromBA(client){
+  // у холодного лида поле отсутствует → считаем "unknown"
+  const isCold = normalizeStatus(client?.status || client?.stage || client?.type) === 'cold';
+  if (isCold) return 'unknown';
+
+  const raw = client?.fromBA;
+  if (raw === 'yes' || raw === 'no') return raw;
+
+  // по умолчанию у нас мог быть пробел ' ' или пусто → "unknown"
+  return 'unknown';
 }
 
 
@@ -5123,6 +5137,8 @@ function mkClientMatchesFilters(c) {
   const hasAny =
     MK_FILTERS.status.size || MK_FILTERS.lang.size ||
     MK_FILTERS.gender.size || MK_FILTERS.qual.size;
+MK_FILTERS.fromba.size;                 // [NEW]
+
 
   if (!hasAny) return false;
 
@@ -5150,7 +5166,11 @@ function mkClientMatchesFilters(c) {
     const q = normalizeQual(c?.qual || '');
     if (!MK_FILTERS.qual.has(q)) return false;
   }
-
+ // Группа: FROMBA
+  if (MK_FILTERS.fromba.size) {
+    const fb = normalizeFromBA(c);        // 'yes' | 'no' | 'unknown'
+    if (!MK_FILTERS.fromba.has(fb)) return false;
+  }
   return true;
 }
 
@@ -5210,22 +5230,54 @@ document.addEventListener('click', (e) => {
   mkResetFilters();
 });
 
+// [NEW] Биндим три чип-кнопки "Из Братиславы" (Да/Нет/Неизвестно)
+(function bindFromBAChips(){
+  const root = document.getElementById('fltFromBA');
+  if (!root || root.dataset.bound === '1') return;
+  root.dataset.bound = '1';
+
+  root.addEventListener('click', (e) => {
+    const btn = e.target.closest('.chip');
+    if (!btn) return;
+
+    // если нажали на уже активную — снимем выбор (сброс)
+    const alreadyOn = btn.classList.contains('chip--on');
+
+    // визуально: снять всё
+    root.querySelectorAll('.chip').forEach(ch => ch.classList.remove('chip--on'));
+
+    // логика фильтра
+    MK_FILTERS.fromba.clear();
+    if (!alreadyOn) {
+      btn.classList.add('chip--on');
+      MK_FILTERS.fromba.add(btn.dataset.value); // yes | no | unknown
+    }
+
+    mkRenderResults(MK_CLIENTS_CACHE); // обновить список результатов
+  });
+})();
+
+
 function mkResetFilters() {
   // очистить выбранные значения
   MK_FILTERS.status.clear();
   MK_FILTERS.lang.clear();
   MK_FILTERS.gender.clear();
   MK_FILTERS.qual.clear();
+  MK_FILTERS.fromba.clear();   // [NEW]
 
   // снять галочки в UI
   document.querySelectorAll('input.mk-filter[type="checkbox"]').forEach(cb => {
     cb.checked = false;
   });
 
+  // снять подсветку чипов "Из Братиславы"
+  const ba = document.getElementById('fltFromBA');
+  if (ba) ba.querySelectorAll('.chip').forEach(ch => ch.classList.remove('chip--on'));
+
   // перерисовать результаты
   mkRenderResults(MK_CLIENTS_CACHE);
 }
-
 
 // Одноразовая миграция всех существующих консультаций/сеансов/напоминаний в Google Calendar
 async function migrateAllToGoogleCalendar() {
