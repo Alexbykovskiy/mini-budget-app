@@ -5136,10 +5136,9 @@ function mkRenderCardConversion(conv) {
 function mkClientMatchesFilters(c) {
   // Если ни один фильтр не выбран — считаем, что совпадает любой
   const hasAny =
-    MK_FILTERS.status.size || MK_FILTERS.lang.size ||
-    MK_FILTERS.gender.size || MK_FILTERS.qual.size;
-
-MK_FILTERS.fromba.size;                 // [NEW]
+  MK_FILTERS.status.size || MK_FILTERS.lang.size ||
+  MK_FILTERS.gender.size || MK_FILTERS.qual.size ||
+  MK_FILTERS.fromba.size; // ← теперь «из Братиславы» считается самостоятельным фильтром
 
 
   if (!hasAny) return false;
