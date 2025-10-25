@@ -5847,20 +5847,21 @@ if (btnMig) btnMig.addEventListener('click', () => {
 const fbBtn = document.getElementById('btnFacebookAds');
 const gsBtn = document.getElementById('btnGoogleSheets');
 
-// Укажи свои постоянные ссылки (можно заменить позже)
-const FACEBOOK_ADS_URL = 'https://www.facebook.com/adsmanager';
-const GOOGLE_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/your-sheet-id-here';
+// Постоянные ссылки от Алексея
+const FACEBOOK_ADS_URL = 'https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=2269837093469823&nav_entry_point=ads_ecosystem_navigation_menu&date=2025-09-10_2025-10-23%2Cmaximum&insights_date=2025-09-10_2025-10-23%2Cmaximum&selected_campaign_ids=120236163861220164%2C120234365608160164%2C120233696588700164%2C120235490307530164%2C120235489851580164%2C120234728737020164%2C120234727599080164%2C120234295243530164%2C120234041230180164&selected_adset_ids=120236163861240164&selected_ad_ids=120236163861230164&nav_source=ads_manager';
+const GOOGLE_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/18EaraAJ_zmqajJ6B722xDhK9oe9JLWnEW1SxfFDGAN4/edit?gid=0#gid=0';
 
-if (fbBtn) {
+if (fbBtn && !fbBtn.dataset.bound) {
+  fbBtn.dataset.bound = '1';
   fbBtn.addEventListener('click', () => {
-    window.open(FACEBOOK_ADS_URL, '_blank');
+    window.open(FACEBOOK_ADS_URL, '_blank', 'noopener');
   });
 }
 
-if (gsBtn) {
+if (gsBtn && !gsBtn.dataset.bound) {
+  gsBtn.dataset.bound = '1';
   gsBtn.addEventListener('click', () => {
-    window.open(GOOGLE_SHEETS_URL, '_blank');
+    window.open(GOOGLE_SHEETS_URL, '_blank', 'noopener');
   });
 }
-
 });
