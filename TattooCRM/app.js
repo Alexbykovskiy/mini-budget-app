@@ -5842,4 +5842,25 @@ if (btnMig) btnMig.addEventListener('click', () => {
   } catch (e) {
     console.warn('[marketing overview] render failed:', e);
   }
+
+// === [NEW] Кнопки перехода на Ads Manager и Google Sheets ===
+const fbBtn = document.getElementById('btnFacebookAds');
+const gsBtn = document.getElementById('btnGoogleSheets');
+
+// Укажи свои постоянные ссылки (можно заменить позже)
+const FACEBOOK_ADS_URL = 'https://www.facebook.com/adsmanager';
+const GOOGLE_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/your-sheet-id-here';
+
+if (fbBtn) {
+  fbBtn.addEventListener('click', () => {
+    window.open(FACEBOOK_ADS_URL, '_blank');
+  });
+}
+
+if (gsBtn) {
+  gsBtn.addEventListener('click', () => {
+    window.open(GOOGLE_SHEETS_URL, '_blank');
+  });
+}
+
 });

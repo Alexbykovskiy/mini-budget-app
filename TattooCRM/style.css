@@ -2085,3 +2085,34 @@ dialog[open] .modal-body{
   .modal .modal-body{ width: 92vw; max-height: 88vh; }
   .modal .modal-body .grid.two{ grid-template-columns: 1fr; }
 }
+
+/* === [NEW] Ссылки на внешние ресурсы (Facebook Ads + Google Sheets) === */
+.external-links {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.big-link-btn {
+  flex: 1;
+  background: linear-gradient(135deg, #186663, #8C7361);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 16px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.big-link-btn:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+.big-link-btn:active {
+  transform: translateY(0);
+  opacity: 0.8;
+}
