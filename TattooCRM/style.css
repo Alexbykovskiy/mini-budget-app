@@ -2086,33 +2086,47 @@ dialog[open] .modal-body{
   .modal .modal-body .grid.two{ grid-template-columns: 1fr; }
 }
 
-/* === [NEW] Ссылки на внешние ресурсы (Facebook Ads + Google Sheets) === */
+/* === [NEW] Стеклянные кнопки-ссылки под Общим отчётом === */
 .external-links {
   display: flex;
+  gap: 14px;
+  margin: 20px 0 8px;
   justify-content: space-between;
-  gap: 12px;
-  margin: 20px 0;
+  width: 100%;
 }
 
 .big-link-btn {
   flex: 1;
-  background: linear-gradient(135deg, #186663, #8C7361);
-  color: white;
-  font-size: 1rem;
+  padding: 16px 22px;
+  font-size: 1.05rem;
   font-weight: 600;
-  padding: 16px;
+  color: #fff;
   border: none;
-  border-radius: 12px;
+  border-radius: 999px; /* форма пилюли */
   cursor: pointer;
-  transition: transform 0.15s ease, opacity 0.15s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(24, 102, 99, 0.25);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25),
+              0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 .big-link-btn:hover {
+  background: rgba(24, 102, 99, 0.35);
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.35),
+              0 4px 12px rgba(0,0,0,0.3);
   transform: translateY(-2px);
-  opacity: 0.9;
 }
 
 .big-link-btn:active {
+  background: rgba(24, 102, 99, 0.45);
   transform: translateY(0);
-  opacity: 0.8;
+}
+
+@media (max-width: 460px) {
+  .external-links {
+    flex-direction: column;
+  }
 }
