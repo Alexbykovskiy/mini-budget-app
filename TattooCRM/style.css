@@ -2255,10 +2255,9 @@ dialog[open] .modal-body{
 
 .sessionDate {
     flex: 0 !important;
-    width: 140px !important;
-    min-width: 130px !important;
+    width: 120px !important;
+    min-width: 110px !important;
 }
-
 .sessionPrice {
     flex: 0 !important;
     width: 70px !important;
