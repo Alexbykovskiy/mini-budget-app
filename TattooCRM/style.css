@@ -388,6 +388,9 @@ body {
   background: rgba(255,255,255,0.08) !important;
   backdrop-filter: blur(14px) !important;
   color: #fff !important;
+ position: relative;
+  overflow: visible; /* чтобы свечение не обрезалось */
+
 }
 
 
@@ -2131,54 +2134,106 @@ dialog[open] .modal-body{
   }
 }
 
-/* ==== Цветные рамки клиентов по источнику ==== */
+/* ==== НЕОНОВЫЕ СВЕТЯЩИЕСЯ РАМКИ ДЛЯ ИСТОЧНИКОВ ==== */
 
-.card-client[src] { position: relative; }
 
-/* Общая рамка */
+/* Общая яркая рамка */
 .card-client::after {
   content: '';
   position: absolute;
-  inset: 0;
-  border-radius: 22px;
+  inset: -4px; /* рамка чуть выходит за пределы карточки */
+  border-radius: 28px; /* больше, чем у карточки */
   pointer-events: none;
   z-index: 5;
-  border: 2px solid transparent;
-  filter: blur(6px);
+  border: 5px solid transparent;
+  filter: blur(12px); /* мощный блюр */
+  opacity: 0.9;
+  transition: 0.2s ease;
 }
 
-/* Facebook — синяя */
+/* === Facebook — ярко-синее свечение === */
 .src-facebook::after {
-  border-color: rgba(0, 140, 255, 0.9);
-  box-shadow: 0 0 12px rgba(0, 140, 255, 0.7);
+  border-color: rgba(0,140,255,1);
+  box-shadow:
+    0 0 18px rgba(0,140,255,0.9),
+    0 0 36px rgba(0,140,255,0.7),
+    inset 0 0 14px rgba(0,140,255,0.6);
 }
 
-/* Instagram — розовая */
+/* === Instagram — ярко-розовое свечение === */
 .src-instagram::after {
-  border-color: rgba(255, 60, 180, 0.9);
-  box-shadow: 0 0 12px rgba(255, 60, 180, 0.7);
+  border-color: rgba(255,60,180,1);
+  box-shadow:
+    0 0 18px rgba(255,60,180,0.9),
+    0 0 36px rgba(255,60,180,0.7),
+    inset 0 0 14px rgba(255,60,180,0.6);
 }
 
-/* WhatsApp — зелёная */
+/* === WhatsApp — неоново-зелёное === */
 .src-whatsapp::after {
-  border-color: rgba(70, 220, 140, 0.9);
-  box-shadow: 0 0 12px rgba(70, 220, 140, 0.7);
+  border-color: rgba(70,220,140,1);
+  box-shadow:
+    0 0 18px rgba(70,220,140,0.9),
+    0 0 36px rgba(70,220,140,0.7),
+    inset 0 0 14px rgba(70,220,140,0.6);
 }
 
-/* Студия — красная */
+/* === Студия — красное свечение === */
 .src-studio::after {
-  border-color: rgba(255, 70, 70, 0.9);
-  box-shadow: 0 0 12px rgba(255, 70, 70, 0.7);
+  border-color: rgba(255,70,70,1);
+  box-shadow:
+    0 0 18px rgba(255,70,70,0.9),
+    0 0 36px rgba(255,70,70,0.7),
+    inset 0 0 14px rgba(255,70,70,0.6);
 }
 
-/* Уже был — жёлтая */
+/* === Уже был — жёлтый === */
 .src-return::after {
-  border-color: rgba(255, 220, 0, 0.9);
-  box-shadow: 0 0 12px rgba(255, 220, 0, 0.7);
+  border-color: rgba(255,220,0,1);
+  box-shadow:
+    0 0 18px rgba(255,220,0,0.9),
+    0 0 36px rgba(255,220,0,0.7),
+    inset 0 0 14px rgba(255,220,0,0.6);
 }
 
-/* Сарафан — оранжевая */
+/* === Сарафан — оранжевый === */
 .src-word::after {
-  border-color: rgba(255, 150, 40, 0.9);
-  box-shadow: 0 0 12px rgba(255, 150, 40, 0.7);
+  border-color: rgba(255,150,40,1);
+  box-shadow:
+    0 0 18px rgba(255,150,40,0.9),
+    0 0 36px rgba(255,150,40,0.7),
+    inset 0 0 14px rgba(255,150,40,0.6);
+}
+/* Узкое поле стоимости сеанса */
+#sessionsList .session-price {
+  width: 80px !important;
+  min-width: 80px !important;
+  text-align: center;
+}
+#sessionsList .row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#sessionsList .session-del {
+  white-space: nowrap;
+}
+
+/* Компактный футер модалки */
+.modal-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Кнопки в футере — компактнее */
+.modal-foot .btn {
+  padding: 8px 14px !important;
+  font-size: 14px !important;
+  white-space: nowrap;
+}
+
+/* Убираем слишком жирный spacer */
+.modal-foot .spacer {
+  flex: 0 0 auto;
 }
