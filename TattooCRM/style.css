@@ -2253,20 +2253,22 @@ dialog[open] .modal-body{
 }
 
 
-/* === ФИКС: отключаем автонарезание для полей сеанса === */
-.row .sessionDate,
-.row .sessionPrice {
+/* Уменьшаем поля даты и стоимости — финальный фикс */
+#sessionsList .sessionDate,
+#sessionsList .sessionPrice {
     flex: 0 0 auto !important;
+    padding: 6px 6px !important;     /* ← уменьшаем padding */
     width: auto !important;
 }
 
-/* устанавливаем конкретные размеры */
-.sessionPrice {
-    width: 60px !important;
-    min-width: 60px !important;
+/* фиксированная ширина цены */
+#sessionsList .sessionPrice {
+    width: 55px !important;
+    min-width: 55px !important;
 }
 
-.sessionDate {
-    width: 120px !important;
-    min-width: 120px !important;
+/* фиксированная ширина даты */
+#sessionsList .sessionDate {
+    width: 110px !important;
+    min-width: 110px !important;
 }
