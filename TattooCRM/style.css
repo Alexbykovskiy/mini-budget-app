@@ -2256,14 +2256,14 @@ dialog[open] .modal-body{
 /* === ФИНАЛЬНЫЙ ФИКС: перебиваем .row > * === */
 .row > .sessionPrice {
     flex: 0 0 auto !important;
-    width: 55px !important;
-    min-width: 55px !important;
+    width: 70px !important;
+    min-width: 70px !important;
     padding: 6px 6px !important;
 }
 
 .row > .sessionDate {
     flex: 0 0 auto !important;
-    width: 110px !important;
-    min-width: 110px !important;
+    width: 130px !important;
+    min-width: 130px !important;
     padding: 6px 6px !important;
 }
