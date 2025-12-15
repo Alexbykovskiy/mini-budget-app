@@ -1868,75 +1868,72 @@ async function setSessionDone(clientId, dtIso, done = true) {
 
 function addSessionField(s = { dt: '', price: '', done: false, amountMe: '', amountStudio: '' }) {
   const wrap = document.createElement('div');
-  wrap.className = 'row';
-  wrap.style.margin = '6px 0';
-  wrap.style.alignItems = 'center';
-  wrap.style.gap = '8px';
+  wrap.className = 'session-block';
+  wrap.style.margin = '10px 0';
+  wrap.style.display = 'flex';
+  wrap.style.flexDirection = 'column';
+  wrap.style.gap = '6px';
 
   wrap.innerHTML = `
-    <input type="checkbox"
-           class="sessionDone"
-           ${s.done ? 'checked' : ''}
-           title="Сеанс состоялся"
-           aria-label="Сеанс состоялся"
-           style="width:20px; height:20px; accent-color:#ff9d3a;">
+    <div class="row top-row" style="align-items:center; gap:8px;">
+      <input type="checkbox"
+             class="sessionDone"
+             ${s.done ? 'checked' : ''}
+             title="Сеанс состоялся"
+             style="width:20px; height:20px; accent-color:#ff9d3a;">
+      
+      <input type="datetime-local"
+             class="sessionDate"
+             value="${s.dt || ''}"
+             style="flex:1; min-width:180px">
 
-    <input type="datetime-local"
-           class="sessionDate"
-           value="${s.dt || ''}"
-           style="flex:1; min-width:180px">
+      <input type="number"
+             step="0.01" min="0"
+             class="sessionPrice"
+             placeholder="€"
+             value="${(s.price ?? '')}"
+             title="Стоимость сеанса, €"
+             style="width:80px">
 
-    <input type="number"
-           step="0.01" min="0"
-           class="sessionPrice"
-           placeholder="€"
-           value="${(s.price ?? '')}"
-           title="Общая сумма сеанса, €"
-           style="width:70px">
+      <button type="button" class="btn danger delBtn" title="Удалить">✕</button>
+    </div>
 
-    <input type="number"
-           step="0.01" min="0"
-           class="sessionMe"
-           placeholder="мне"
-           value="${(s.amountMe ?? '')}"
-           title="Сумма мне, €">
+    <div class="row bottom-row" style="gap:8px; padding-left:40px;">
+      <input type="number"
+             step="0.01" min="0"
+             class="sessionMe"
+             placeholder="мне (€)"
+             value="${(s.amountMe ?? '')}"
+             style="width:100px">
 
-    <input type="number"
-           step="0.01" min="0"
-           class="sessionStudio"
-           placeholder="студия"
-           value="${(s.amountStudio ?? '')}"
-           title="Сумма в студию, €">
-
-    <button type="button" class="btn danger" title="Удалить дату">✕</button>
+      <input type="number"
+             step="0.01" min="0"
+             class="sessionStudio"
+             placeholder="студии (€)"
+             value="${(s.amountStudio ?? '')}"
+             style="width:100px">
+    </div>
   `;
 
-  const delBtn = wrap.querySelector('button');
-  const cb = wrap.querySelector('.sessionDone');
-  const dtInput = wrap.querySelector('.sessionDate');
-
+  const delBtn = wrap.querySelector('.delBtn');
   delBtn.onclick = () => wrap.remove();
 
-  cb.addEventListener('change', async () => {
-    const dlg = document.getElementById('clientDialog');
-    const clientId = dlg?.dataset?.id;
-    const dt = dtInput?.value?.trim();
-
-    if (!clientId) { toast('Сначала сохраните клиента'); cb.checked = !cb.checked; return; }
-    if (!dt) { toast('Укажите дату сеанса'); cb.checked = !cb.checked; return; }
-
-    try {
-      await setSessionDone(clientId, dt, cb.checked);
-      toast(cb.checked ? 'Сеанс отмечен как проведён' : 'Отметка снята');
-    } catch (e) {
-      console.warn(e);
-      toast('Не удалось обновить сеанс');
-      cb.checked = !cb.checked;
-    }
+  // Все input'ы обновляют данные + пересчёт итогов
+  wrap.querySelectorAll("input").forEach(inp => {
+    inp.onchange = () => {
+      s.dt = wrap.querySelector(".sessionDate").value;
+      s.price = Number(wrap.querySelector(".sessionPrice").value) || 0;
+      s.done = wrap.querySelector(".sessionDone").checked;
+      s.amountMe = Number(wrap.querySelector(".sessionMe").value) || 0;
+      s.amountStudio = Number(wrap.querySelector(".sessionStudio").value) || 0;
+      updateTotals();
+    };
   });
 
-  $('#sessionsList').appendChild(wrap);
-}// --- История смен статусов клиента ---
+  document.getElementById('sessionsList').appendChild(wrap);
+}}
+
+// --- История смен статусов клиента ---
 
 function formatDateTimeHuman(iso){
   try {
