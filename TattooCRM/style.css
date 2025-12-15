@@ -2253,22 +2253,29 @@ dialog[open] .modal-body{
 }
 
 
-/* === FIX WIDTHS FOR SESSION DATE & PRICE — FINAL OVERRIDE === */
+/* === FINAL TUNING OF SESSION FIELDS === */
+
 #sessionsList .row .sessionDate {
-    width: 130px !important;
-    max-width: 130px !important;
-    flex: 0 0 130px !important;
+    flex: 0 0 120px !important;
+    width: 120px !important;
+    max-width: 120px !important;
+    min-width: 120px !important;
+    padding: 6px 6px !important;
 }
 
+/* поле стоимости */
 #sessionsList .row .sessionPrice {
-    width: 70px !important;
-    max-width: 70px !important;
-    flex: 0 0 70px !important;
+    flex: 0 0 75px !important;
+    width: 75px !important;
+    max-width: 75px !important;
+    min-width: 75px !important;
+    padding: 6px 6px !important;
 }
 
-/* Чтобы кнопка “Удалить” влезала — не даём полям распираться */
+/* выравнивание строки */
 #sessionsList .row {
     display: flex !important;
+    align-items: center !important;
     gap: 8px !important;
-    justify-content: space-between !important;
+    justify-content: flex-start !important;
 }
