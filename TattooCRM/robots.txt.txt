@@ -1,0 +1,11 @@
+User-agent: *
+# Разрешить индексацию основного сайта
+Allow: /
+
+# Запретить индексацию CRM
+Disallow: /mini-budget-app/TattooCRM/
+Disallow: /mini-budget-app/TattooCRM/*
+
+# Можно дополнительно закрыть другие внутренние приложения
+Disallow: /app/
+Disallow: /admin/
