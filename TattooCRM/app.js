@@ -2587,7 +2587,7 @@ if (amountMin != null && amountMax != null && amountMin > amountMax) {
    || prev.first_contact
    || (isNew ? ymdLocal(new Date()) : '');
 }
-const sessionRows = Array.from(document.querySelectorAll('#sessionsList .row')) || [];
+const sessionRows = Array.from(document.querySelectorAll('#sessionsList .top-row')) || [];
   const sessions = [];
   let totalMe = 0;
   let totalStudio = 0;
