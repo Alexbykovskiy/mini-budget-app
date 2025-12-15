@@ -2251,3 +2251,10 @@ dialog[open] .modal-body{
 .modal-foot .spacer {
   flex: 0 0 auto;
 }
+
+#clientDialog .sessionPrice {
+    width: 65px !important;
+    min-width: 55px !important;
+    border-radius: 12px;
+    text-align: center;
+}
