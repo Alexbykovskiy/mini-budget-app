@@ -1895,7 +1895,7 @@ function addSessionField(s = { dt: '', price: '', done: false }) {
            placeholder="€"
            value="${(s.price ?? '')}"
            title="Стоимость сеанса, €"
-           style="width:70px">
+           style="width:75px">
 
     <!-- 4) Удалить -->
     <button type="button" class="btn danger" title="Удалить дату">✕</button>
