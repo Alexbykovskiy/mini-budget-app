@@ -2146,10 +2146,6 @@ $('#fStatus').onchange = (e) => {
     minEl.value = (aMin ?? '');
     maxEl.value = (aMax ?? '');
 
-// --- [NEW] суммы распределения оплаты ---
-$('#fAmountMe').value = (c?.amountMe ?? '');
-$('#fAmountStudio').value = (c?.amountStudio ?? '');
-
     // Сеансы — рендерим список полей
     const list = $('#sessionsList');
     let rawSessions = c?.sessions || (c?.nextDate ? [c.nextDate] : []);
