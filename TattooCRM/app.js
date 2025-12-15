@@ -1874,64 +1874,77 @@ function addSessionField(s = { dt: '', price: '', done: false, amountMe: '', amo
   wrap.style.flexDirection = 'column';
   wrap.style.gap = '6px';
 
-  wrap.innerHTML = `
-    <div class="row top-row" style="align-items:center; gap:8px;">
-      <input type="checkbox"
-             class="sessionDone"
-             ${s.done ? 'checked' : ''}
-             title="Сеанс состоялся"
-             style="width:20px; height:20px; accent-color:#ff9d3a;">
-      
-      <input type="datetime-local"
-             class="sessionDate"
-             value="${s.dt || ''}"
-             style="flex:1; min-width:180px">
+  // ВЕРХНЯЯ СТРОКА — дата + цена + чекбокс + удалить
+  const top = document.createElement('div');
+  top.className = 'row';
+  top.style.display = 'flex';
+  top.style.alignItems = 'center';
+  top.style.gap = '8px';
 
-      <input type="number"
-             step="0.01" min="0"
-             class="sessionPrice"
-             placeholder="€"
-             value="${(s.price ?? '')}"
-             title="Стоимость сеанса, €"
-             style="width:80px">
+  top.innerHTML = `
+    <input type="checkbox"
+           class="sessionDone"
+           ${s.done ? 'checked' : ''}
+           style="width:20px;height:20px;accent-color:#ff9d3a;">
 
-      <button type="button" class="btn danger delBtn" title="Удалить">✕</button>
-    </div>
+    <input type="datetime-local"
+           class="sessionDate"
+           value="${s.dt || ''}"
+           style="flex:1;min-width:180px">
 
-    <div class="row bottom-row" style="gap:8px; padding-left:40px;">
-      <input type="number"
-             step="0.01" min="0"
-             class="sessionMe"
-             placeholder="мне (€)"
-             value="${(s.amountMe ?? '')}"
-             style="width:100px">
+    <input type="number"
+           class="sessionPrice"
+           step="0.01"
+           placeholder="€"
+           value="${s.price ?? ''}"
+           style="width:80px">
 
-      <input type="number"
-             step="0.01" min="0"
-             class="sessionStudio"
-             placeholder="студии (€)"
-             value="${(s.amountStudio ?? '')}"
-             style="width:100px">
-    </div>
+    <button type="button" class="btn danger">✕</button>
   `;
 
-  const delBtn = wrap.querySelector('.delBtn');
-  delBtn.onclick = () => wrap.remove();
+  // НИЖНЯЯ СТРОКА — мне / студии
+  const bottom = document.createElement('div');
+  bottom.className = 'row';
+  bottom.style.display = 'flex';
+  bottom.style.gap = '8px';
+  bottom.style.paddingLeft = '32px';
 
-  // Все input'ы обновляют данные + пересчёт итогов
-  wrap.querySelectorAll("input").forEach(inp => {
-    inp.onchange = () => {
-      s.dt = wrap.querySelector(".sessionDate").value;
-      s.price = Number(wrap.querySelector(".sessionPrice").value) || 0;
-      s.done = wrap.querySelector(".sessionDone").checked;
-      s.amountMe = Number(wrap.querySelector(".sessionMe").value) || 0;
-      s.amountStudio = Number(wrap.querySelector(".sessionStudio").value) || 0;
-      updateTotals();
-    };
-  });
+  bottom.innerHTML = `
+    <input type="number"
+           class="sessionMe"
+           step="0.01"
+           placeholder="мне (€)"
+           value="${s.amountMe ?? ''}"
+           style="width:100px">
+
+    <input type="number"
+           class="sessionStudio"
+           step="0.01"
+           placeholder="студии (€)"
+           value="${s.amountStudio ?? ''}"
+           style="width:100px">
+  `;
+
+  // Удаление строки
+  top.querySelector('button').onclick = () => wrap.remove();
+
+  // Sync данных при изменениях
+  const sync = () => {
+    s.dt = top.querySelector('.sessionDate').value;
+    s.price = Number(top.querySelector('.sessionPrice').value) || 0;
+    s.done = top.querySelector('.sessionDone').checked;
+    s.amountMe = Number(bottom.querySelector('.sessionMe').value) || 0;
+    s.amountStudio = Number(bottom.querySelector('.sessionStudio').value) || 0;
+  };
+
+  wrap.querySelectorAll('input').forEach(inp => inp.onchange = sync);
+
+  wrap.appendChild(top);
+  wrap.appendChild(bottom);
 
   document.getElementById('sessionsList').appendChild(wrap);
-}}
+}
+
 
 // --- История смен статусов клиента ---
 
