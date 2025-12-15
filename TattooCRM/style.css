@@ -2253,9 +2253,14 @@ dialog[open] .modal-body{
 }
 
 
-/* === FIX: нормальная ширина для поля цены сеанса === */
+.sessionDate {
+    flex: 0 !important;
+    width: 140px !important;
+    min-width: 130px !important;
+}
+
 .sessionPrice {
     flex: 0 !important;
-    width: 55px !important;
-    min-width: 55px !important;
+    width: 70px !important;
+    min-width: 70px !important;
 }
