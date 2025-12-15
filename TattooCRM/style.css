@@ -2262,11 +2262,11 @@ dialog[open] .modal-body{
 
 /* устанавливаем конкретные размеры */
 .sessionPrice {
-    width: 70px !important;
-    min-width: 70px !important;
+    width: 60px !important;
+    min-width: 60px !important;
 }
 
 .sessionDate {
-    width: 150px !important;
-    min-width: 150px !important;
+    width: 120px !important;
+    min-width: 120px !important;
 }
