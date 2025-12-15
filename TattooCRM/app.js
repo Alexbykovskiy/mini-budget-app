@@ -2583,34 +2583,41 @@ if (amountMin != null && amountMax != null && amountMin > amountMax) {
    || prev.first_contact
    || (isNew ? ymdLocal(new Date()) : '');
 }
-const sessionRows = Array.from(document.querySelectorAll('#sessionsList .top-row')) || [];
-  const sessions = [];
-  let totalMe = 0;
-  let totalStudio = 0;
+// === СЕАНСЫ: правильный сбор из session-block ===
+const blocks = Array.from(document.querySelectorAll('#sessionsList .session-block'));
+let totalMeLegacy = 0, totalStudioLegacy = 0;
+const sessions = [];
 
-  sessionRows.forEach(row => {
-    const dt = row.querySelector('.sessionDate')?.value;
-    if (!dt) return;
+blocks.forEach(block => {
+  const top = block.querySelector('.top-row');
+  const bottom = block.querySelector('.bottom-row');
 
-    const priceRaw = Number(row.querySelector('.sessionPrice')?.value || 0);
-    const meRaw = Number(row.querySelector('.sessionMe')?.value || 0);
-    const studioRaw = Number(row.querySelector('.sessionStudio')?.value || 0);
-    const done = !!row.querySelector('.sessionDone')?.checked;
+  if (!top) return;
 
-    const priceNum = isNaN(priceRaw) ? 0 : priceRaw;
-    const meNum = isNaN(meRaw) ? 0 : meRaw;
-    const studioNum = isNaN(studioRaw) ? 0 : studioRaw;
+  const dt = top.querySelector('.sessionDate')?.value;
+  if (!dt) return;
 
-    let finalPrice = priceNum;
-    if (finalPrice <= 0 && (meNum + studioNum) > 0) {
-      finalPrice = meNum + studioNum;
-    }
+  const priceRaw = Number(top.querySelector('.sessionPrice')?.value || 0);
+  const meRaw = Number(bottom?.querySelector('.sessionMe')?.value || 0);
+  const studioRaw = Number(bottom?.querySelector('.sessionStudio')?.value || 0);
+  const done = !!top.querySelector('.sessionDone')?.checked;
 
-    if (done) {
-      totalMe += meNum;
-      totalStudio += studioNum;
-    }
+  // цена = либо вручную введённая, либо сумма распределений
+  const price = priceRaw > 0 ? priceRaw : meRaw + studioRaw;
 
+  if (done) {
+    totalMeLegacy += meRaw;
+    totalStudioLegacy += studioRaw;
+  }
+
+  sessions.push({
+    dt,
+    price,
+    done,
+    amountMe: meRaw,
+    amountStudio: studioRaw
+  });
+});
     sessions.push({
       dt,
       price: finalPrice,
