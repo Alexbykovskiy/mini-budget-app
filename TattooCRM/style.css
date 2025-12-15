@@ -2253,13 +2253,20 @@ dialog[open] .modal-body{
 }
 
 
-.sessionDate {
-    flex: 0 !important;
-    width: 120px !important;
-    min-width: 110px !important;
+/* === ФИКС: отключаем автонарезание для полей сеанса === */
+.row .sessionDate,
+.row .sessionPrice {
+    flex: 0 0 auto !important;
+    width: auto !important;
 }
+
+/* устанавливаем конкретные размеры */
 .sessionPrice {
-    flex: 0 !important;
     width: 70px !important;
     min-width: 70px !important;
+}
+
+.sessionDate {
+    width: 150px !important;
+    min-width: 150px !important;
 }
