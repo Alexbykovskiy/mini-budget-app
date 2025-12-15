@@ -1553,6 +1553,7 @@ if (src.includes('студия')) card.classList.add('src-studio');
 if (src.includes('уже был')) card.classList.add('src-return');
 if (src.includes('сарафан')) card.classList.add('src-word');
 
+
    const tags = (c.styles||[]).slice(0,3).join(', ') || '—';
 const depositVal = Number(c.deposit || 0);
 const sessionsSum = (Array.isArray(c.sessions) ? c.sessions : [])
@@ -1894,7 +1895,7 @@ function addSessionField(s = { dt: '', price: '', done: false }) {
            placeholder="€"
            value="${(s.price ?? '')}"
            title="Стоимость сеанса, €"
-           style="width:120px">
+           style="width:55px">
 
     <!-- 4) Удалить -->
     <button type="button" class="btn danger" title="Удалить дату">✕</button>
