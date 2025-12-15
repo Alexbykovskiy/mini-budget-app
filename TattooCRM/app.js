@@ -1866,7 +1866,7 @@ async function setSessionDone(clientId, dtIso, done = true) {
   await ref.set({ sessions, updatedAt: c.updatedAt }, { merge: true });
 }
 
-function addSessionField(s = { dt: '', price: '', done: false }) {
+function addSessionField(s = { dt: '', price: '', done: false, amountMe: '', amountStudio: '' }) {
   const wrap = document.createElement('div');
   wrap.className = 'row';
   wrap.style.margin = '6px 0';
@@ -1874,7 +1874,6 @@ function addSessionField(s = { dt: '', price: '', done: false }) {
   wrap.style.gap = '8px';
 
   wrap.innerHTML = `
-    <!-- 1) Галочка (без текста) -->
     <input type="checkbox"
            class="sessionDone"
            ${s.done ? 'checked' : ''}
@@ -1882,30 +1881,41 @@ function addSessionField(s = { dt: '', price: '', done: false }) {
            aria-label="Сеанс состоялся"
            style="width:20px; height:20px; accent-color:#ff9d3a;">
 
-    <!-- 2) Дата и время -->
     <input type="datetime-local"
            class="sessionDate"
            value="${s.dt || ''}"
            style="flex:1; min-width:180px">
 
-    <!-- 3) Сумма -->
     <input type="number"
            step="0.01" min="0"
            class="sessionPrice"
            placeholder="€"
            value="${(s.price ?? '')}"
-           title="Стоимость сеанса, €"
+           title="Общая сумма сеанса, €"
            style="width:70px">
 
-    <!-- 4) Удалить -->
+    <input type="number"
+           step="0.01" min="0"
+           class="sessionMe"
+           placeholder="мне"
+           value="${(s.amountMe ?? '')}"
+           title="Сумма мне, €">
+
+    <input type="number"
+           step="0.01" min="0"
+           class="sessionStudio"
+           placeholder="студия"
+           value="${(s.amountStudio ?? '')}"
+           title="Сумма в студию, €">
+
     <button type="button" class="btn danger" title="Удалить дату">✕</button>
   `;
 
-  // обработчик удаления
-  wrap.querySelector('button').onclick = () => wrap.remove();
-// галочка «сеанс состоялся» — создаёт/снимает done и (при включении) делает follow-ups
+  const delBtn = wrap.querySelector('button');
   const cb = wrap.querySelector('.sessionDone');
   const dtInput = wrap.querySelector('.sessionDate');
+
+  delBtn.onclick = () => wrap.remove();
 
   cb.addEventListener('change', async () => {
     const dlg = document.getElementById('clientDialog');
@@ -1924,10 +1934,9 @@ function addSessionField(s = { dt: '', price: '', done: false }) {
       cb.checked = !cb.checked;
     }
   });
-  $('#sessionsList').appendChild(wrap);
-}
 
-// --- История смен статусов клиента ---
+  $('#sessionsList').appendChild(wrap);
+}// --- История смен статусов клиента ---
 
 function formatDateTimeHuman(iso){
   try {
@@ -2133,24 +2142,81 @@ $('#fAmountStudio').value = (c?.amountStudio ?? '');
 
     // Сеансы — рендерим список полей
     const list = $('#sessionsList');
-const rawSessions = c?.sessions || (c?.nextDate ? [c.nextDate] : []);
+    let rawSessions = c?.sessions || (c?.nextDate ? [c.nextDate] : []);
 
-if (list) {
-  list.innerHTML = '';
-  rawSessions.forEach(s => {
-    if (typeof s === 'string') {
-      addSessionField({ dt: s, price: '', done: false });
-    } else {
-      addSessionField({ dt: s?.dt || '', price: (s?.price ?? ''), done: !!s?.done });
+    const totalMeLegacy = Number(c?.amountMe || 0);
+    const totalStudioLegacy = Number(c?.amountStudio || 0);
+
+    if ((totalMeLegacy > 0 || totalStudioLegacy > 0)) {
+      const hasSessionAmounts =
+        Array.isArray(rawSessions) &&
+        rawSessions.some(s =>
+          typeof s === 'object' &&
+          (Number(s.amountMe || s.me || 0) > 0 || Number(s.amountStudio || s.studio || 0) > 0)
+        );
+
+      if (!hasSessionAmounts) {
+        if (Array.isArray(rawSessions) && rawSessions.length) {
+          let idxLastDone = -1;
+          rawSessions.forEach((s, idx) => {
+            if (typeof s === 'object' && s.done) idxLastDone = idx;
+          });
+          const idxTarget = idxLastDone >= 0 ? idxLastDone : rawSessions.length - 1;
+          const target = rawSessions[idxTarget];
+          const sumTotal = totalMeLegacy + totalStudioLegacy;
+
+          if (typeof target === 'object') {
+            target.amountMe = totalMeLegacy;
+            target.amountStudio = totalStudioLegacy;
+            if (!target.price && sumTotal > 0) target.price = sumTotal;
+            if (idxLastDone < 0) target.done = true;
+          } else {
+            rawSessions[idxTarget] = {
+              dt: target,
+              done: true,
+              amountMe: totalMeLegacy,
+              amountStudio: totalStudioLegacy,
+              price: sumTotal
+            };
+          }
+        } else {
+          const dtBase = (c?.firstcontactdate ||
+                         c?.firstContactDate ||
+                         new Date().toISOString()).slice(0, 16);
+          const sumTotal = totalMeLegacy + totalStudioLegacy;
+          rawSessions = [{
+            dt: dtBase,
+            done: true,
+            amountMe: totalMeLegacy,
+            amountStudio: totalStudioLegacy,
+            price: sumTotal
+          }];
+        }
+      }
     }
-  });
-  if (!list.children.length) addSessionField({ dt:'', price:'' });
 
-  const addBtn = $('#btnAddSession');
-  if (addBtn) addBtn.onclick = () => addSessionField({ dt:'', price:'' });
-} else {
-  console.warn('[clientDialog] #sessionsList not found — добавь блок в index.html');
-}
+    if (list) {
+      list.innerHTML = '';
+      (rawSessions || []).forEach(s => {
+        if (typeof s === 'string') {
+          addSessionField({ dt: s, price: '', done: false, amountMe: '', amountStudio: '' });
+        } else {
+          addSessionField({
+            dt: s?.dt || '',
+            price: (s?.price ?? ''),
+            done: !!s?.done,
+            amountMe: (s?.amountMe ?? s?.me ?? ''),
+            amountStudio: (s?.amountStudio ?? s?.studio ?? '')
+          });
+        }
+      });
+      if (!list.children.length) addSessionField({ dt: '', price: '' });
+
+      const addBtn = $('#btnAddSession');
+      if (addBtn) addBtn.onclick = () => addSessionField({ dt: '', price: '' });
+    } else {
+      console.warn('[clientDialog] #sessionsList not found — добавь блок в index.html');
+    }
 
     // Консультация (свитч + дата)
     $('#fConsultOn').checked = !!(c?.consult);
@@ -2511,6 +2577,42 @@ if (amountMin != null && amountMax != null && amountMin > amountMax) {
    || prev.first_contact
    || (isNew ? ymdLocal(new Date()) : '');
 }
+const sessionRows = Array.from(document.querySelectorAll('#sessionsList .row')) || [];
+  const sessions = [];
+  let totalMe = 0;
+  let totalStudio = 0;
+
+  sessionRows.forEach(row => {
+    const dt = row.querySelector('.sessionDate')?.value;
+    if (!dt) return;
+
+    const priceRaw = Number(row.querySelector('.sessionPrice')?.value || 0);
+    const meRaw = Number(row.querySelector('.sessionMe')?.value || 0);
+    const studioRaw = Number(row.querySelector('.sessionStudio')?.value || 0);
+    const done = !!row.querySelector('.sessionDone')?.checked;
+
+    const priceNum = isNaN(priceRaw) ? 0 : priceRaw;
+    const meNum = isNaN(meRaw) ? 0 : meRaw;
+    const studioNum = isNaN(studioRaw) ? 0 : studioRaw;
+
+    let finalPrice = priceNum;
+    if (finalPrice <= 0 && (meNum + studioNum) > 0) {
+      finalPrice = meNum + studioNum;
+    }
+
+    if (done) {
+      totalMe += meNum;
+      totalStudio += studioNum;
+    }
+
+    sessions.push({
+      dt,
+      price: finalPrice,
+      done,
+      amountMe: meNum,
+      amountStudio: studioNum
+    });
+  });
  const client = {
   id,
   displayName,
@@ -2534,23 +2636,15 @@ qual: $('#fQual').value,
 qualNote: $('#fQualNote').value.trim(),            // ← добавили
 deposit: Number($('#fDeposit').value || 0),
 
-// --- [NEW] суммы распределения оплаты ---
-amountMe: Number(($('#fAmountMe')?.value || '').trim() || 0),
-amountStudio: Number(($('#fAmountStudio')?.value || '').trim() || 0),
+// --- суммы распределения оплаты: теперь считаем из сеансов ---
+amountMe: totalMe,
+amountStudio: totalStudio,
 
-amountMin,                 // новая модель
-amountMax,                 // новая модель
-amount: (amountMax ?? amountMin ?? 0),  // легаси: пишем число для старого поляnotes: $('#fNotes').value.trim(),
-  sessions: Array.from(document.querySelectorAll('#sessionsList .row'))
-  .map(row => {
-    const dt = row.querySelector('.sessionDate')?.value;
-    if (!dt) return null;
-    const priceNum = Number(row.querySelector('.sessionPrice')?.value || 0);
-    const done = !!row.querySelector('.sessionDone')?.checked;
-    return { dt, price: isNaN(priceNum) ? 0 : priceNum, done };
-  })
-  .filter(Boolean),
-
+amountMin,
+amountMax,
+amount: (amountMax ?? amountMin ?? 0),
+notes: $('#fNotes').value.trim(),
+  sessions,
   // NEW
   // --- Консультация: если свитч включён и указана дата — сохраняем; иначе сбрасываем
   ...( (() => {
@@ -5423,17 +5517,24 @@ function mkBuildClientLog(clientsArr, range = null) {
     return ymd >= from && ymd <= to;
   };
 
-  const rows = [];
+ const rows = [];
   (Array.isArray(clientsArr) ? clientsArr : []).forEach(c => {
     if (Array.isArray(c.sessions)) {
       c.sessions.forEach(s => {
-        const ymd = ymdOf(typeof s === 'object' ? s.dt : s); // подтверждённый сеанс
+        const ymd = ymdOf(typeof s === 'object' ? s.dt : s);
         if (s.done && inRangeYmd(ymd)) {
+          const sessMe = Number(
+            (typeof s === 'object' ? (s.amountMe ?? s.me) : 0) || 0
+          );
+          const sessStudio = Number(
+            (typeof s === 'object' ? (s.amountStudio ?? s.studio) : 0) || 0
+          );
+
           rows.push({
             ymd,
             name: c.displayName || '(без имени)',
-            me: Number(c.amountMe || 0),
-            studio: Number(c.amountStudio || 0)
+            me: sessMe || Number(c.amountMe || 0),
+            studio: sessStudio || Number(c.amountStudio || 0)
           });
         }
       });

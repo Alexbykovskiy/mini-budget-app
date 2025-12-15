@@ -2272,3 +2272,10 @@ dialog[open] .modal-body{
     gap: 8px !important;
     justify-content: space-between !important;
 }
+
+#sessionsList .row .sessionMe,
+#sessionsList .row .sessionStudio {
+    width: 70px !important;
+    max-width: 70px !important;
+    flex: 0 0 70px !important;
+}
