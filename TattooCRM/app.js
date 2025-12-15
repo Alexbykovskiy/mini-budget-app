@@ -1876,7 +1876,7 @@ function addSessionField(s = { dt: '', price: '', done: false, amountMe: '', amo
 
   // ВЕРХНЯЯ СТРОКА — дата + цена + чекбокс + удалить
   const top = document.createElement('div');
-  top.className = 'row';
+  top.className = 'row top-row';
   top.style.display = 'flex';
   top.style.alignItems = 'center';
   top.style.gap = '8px';
@@ -1904,7 +1904,7 @@ function addSessionField(s = { dt: '', price: '', done: false, amountMe: '', amo
 
   // НИЖНЯЯ СТРОКА — мне / студии
   const bottom = document.createElement('div');
-  bottom.className = 'row';
+  bottom.className = 'row bottom-row';
   bottom.style.display = 'flex';
   bottom.style.gap = '8px';
   bottom.style.paddingLeft = '32px';
