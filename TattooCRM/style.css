@@ -2130,3 +2130,55 @@ dialog[open] .modal-body{
     flex-direction: column;
   }
 }
+
+/* ==== Цветные рамки клиентов по источнику ==== */
+
+.card-client[src] { position: relative; }
+
+/* Общая рамка */
+.card-client::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  pointer-events: none;
+  z-index: 5;
+  border: 2px solid transparent;
+  filter: blur(6px);
+}
+
+/* Facebook — синяя */
+.src-facebook::after {
+  border-color: rgba(0, 140, 255, 0.9);
+  box-shadow: 0 0 12px rgba(0, 140, 255, 0.7);
+}
+
+/* Instagram — розовая */
+.src-instagram::after {
+  border-color: rgba(255, 60, 180, 0.9);
+  box-shadow: 0 0 12px rgba(255, 60, 180, 0.7);
+}
+
+/* WhatsApp — зелёная */
+.src-whatsapp::after {
+  border-color: rgba(70, 220, 140, 0.9);
+  box-shadow: 0 0 12px rgba(70, 220, 140, 0.7);
+}
+
+/* Студия — красная */
+.src-studio::after {
+  border-color: rgba(255, 70, 70, 0.9);
+  box-shadow: 0 0 12px rgba(255, 70, 70, 0.7);
+}
+
+/* Уже был — жёлтая */
+.src-return::after {
+  border-color: rgba(255, 220, 0, 0.9);
+  box-shadow: 0 0 12px rgba(255, 220, 0, 0.7);
+}
+
+/* Сарафан — оранжевая */
+.src-word::after {
+  border-color: rgba(255, 150, 40, 0.9);
+  box-shadow: 0 0 12px rgba(255, 150, 40, 0.7);
+}

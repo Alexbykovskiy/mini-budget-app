@@ -1543,6 +1543,15 @@ switch (sortMode) {
   arr.forEach(c=>{
     const card = document.createElement('div');
     card.className = 'card-client glass';
+// Добавляем класс по источнику
+const src = (c.source || '').toLowerCase();
+
+if (src.includes('facebook')) card.classList.add('src-facebook');
+if (src.includes('instagram')) card.classList.add('src-instagram');
+if (src.includes('whatsapp')) card.classList.add('src-whatsapp');
+if (src.includes('студия')) card.classList.add('src-studio');
+if (src.includes('уже был')) card.classList.add('src-return');
+if (src.includes('сарафан')) card.classList.add('src-word');
 
    const tags = (c.styles||[]).slice(0,3).join(', ') || '—';
 const depositVal = Number(c.deposit || 0);
