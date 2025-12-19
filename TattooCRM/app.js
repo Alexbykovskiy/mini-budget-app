@@ -1377,28 +1377,6 @@ if (!gapi.client.calendar || !gapi.client.calendar.events) {
 window.tcrmCalTest = testCalendarOnce;
 
 
-async function syncReminderToCalendar(rem) {
-  if (!window.TCRM_Calendar) return;
-  try {
-    const token = await ensureDriveAccessToken({ forceConsent: false });
-    if (!token) return;
-    TCRM_Calendar.setAuthToken(token);
-    const calId = await TCRM_Calendar.ensureCalendarId('Tattoo CRM');
-
-    // найдём клиента, чтобы подставить имя в description
-    const client = (AppState.clients || []).find(c => c.id === rem.clientId) || null;
-
-    const eid = await TCRM_Calendar.upsertReminderEvent(calId, rem, client);
-    if (eid && rem.gcalEventId !== eid) {
-      rem.gcalEventId = eid;
-      await FB.db.collection('TattooCRM').doc('app')
-        .collection('reminders').doc(rem.id)
-        .set({ gcalEventId: eid }, { merge: true });
-    }
-  } catch (e) {
-    console.warn('syncReminderToCalendar', e);
-  }
-}
 
 // ---------- Clients ----------
 function bindClientsModal(){
