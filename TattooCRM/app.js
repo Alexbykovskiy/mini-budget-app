@@ -5681,4 +5681,3 @@ if (gsBtn && !gsBtn.dataset.bound) {
     window.open(GOOGLE_SHEETS_URL, '_blank', 'noopener');
   });
 }
-});
