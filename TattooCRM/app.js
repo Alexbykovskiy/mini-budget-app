@@ -5229,41 +5229,6 @@ function mkResetFilters() {
   mkRenderResults(MK_CLIENTS_CACHE);
 }
 
-// Одноразовая миграция всех существующих консультаций/сеансов/напоминаний в Google Calendar
-async function migrateAllToGoogleCalendar() {
-  try {
-    const token = await ensureDriveAccessToken({ forceConsent: true });
-    if (!token) { toast('Нет токена Google'); return; }
-    TCRM_Calendar.setAuthToken(token);
-    const calId = await TCRM_Calendar.ensureCalendarId('Tattoo CRM');
-
-    // 1) Клиенты — синк консультаций/сеансов
-    const cs = await FB.db.collection('TattooCRM').doc('app').collection('clients').get();
-    for (const doc of cs.docs) {
-      const client = doc.data();
-      await syncClientToCalendar(null, client);
-      const patch = {};
-      if (client.gcalConsultEventId) patch.gcalConsultEventId = client.gcalConsultEventId;
-      if (Array.isArray(client.sessions)) patch.sessions = client.sessions;
-      if (Object.keys(patch).length) await doc.ref.set(patch, { merge: true });
-      await new Promise(r => setTimeout(r, 200)); // лёгкий троттлинг
-    }
-
-    // 2) Напоминания
-    const rs = await FB.db.collection('TattooCRM').doc('app').collection('reminders').get();
-    for (const d of rs.docs) {
-      const rem = d.data();
-      await syncReminderToCalendar(rem);
-      await new Promise(r => setTimeout(r, 150));
-    }
-
-    toast('Миграция завершена');
-  } catch (e) {
-    console.error('migrateAllToGoogleCalendar', e);
-    toast('Ошибка миграции (консоль)');
-  }
-}
-window.tcrmMigrateToGoogleCalendar = migrateAllToGoogleCalendar;
 
 // --- Одноразовая миграция всех данных в Google Calendar ---
 async function migrateAllToGoogleCalendar() {
