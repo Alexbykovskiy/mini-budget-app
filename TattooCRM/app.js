@@ -5659,7 +5659,10 @@ if (btnMig) btnMig.addEventListener('click', () => {
     // чекбокс «учитывать расходники»
     document.getElementById('mkIncludeSupplies')?.addEventListener('change', mkUpdateFinanceCard);
 
-  }
+} catch (e) {
+  console.warn(e);
+}
+
 // === [NEW] Кнопки перехода на Ads Manager и Google Sheets ===
 const fbBtn = document.getElementById('btnFacebookAds');
 const gsBtn = document.getElementById('btnGoogleSheets');
