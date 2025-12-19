@@ -348,7 +348,7 @@ toast('Добро пожаловать обратно 👋');
     try { BOOT.hide(); } catch(_) {}
   }
 }); // ← закрыли onAuthStateChanged
-}); // ← закрыли DOMContentLoaded
+
 // ---------- Tabs ----------
 function bindTabbar(){
   $$('.tabbar .tab').forEach(btn => {
