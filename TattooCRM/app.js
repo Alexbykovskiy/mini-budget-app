@@ -2625,7 +2625,7 @@ blocks.forEach(block => {
       amountMe: meNum,
       amountStudio: studioNum
     });
-  });
+
  const client = {
   id,
   displayName,
