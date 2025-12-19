@@ -803,7 +803,6 @@ dialog[open] .modal-body{
   gap: 12px;
 }
 
-.chart-block { padding: 14px 14px 12px 14px; }
 .chart-title { font-size: 14px; font-weight: 600; opacity: .9; margin: 0 0 8px 0; }
 
 /* ---------- Marketing Summary (внутри .block) ---------- */
@@ -1610,137 +1609,8 @@ dialog[open] .modal-body{
 }
 
 
-.mk-summary-kpi .kpi {
-  text-align: center;
-}
-.kpi-label {
-  display: block;
-  font-size: 14px;
-  opacity: 0.8;
-}
-.kpi-value {
-  font-size: 22px;
-  font-weight: 600;
-}
-/* Карточка на всю ширину сетки */
-.stat-card--full {
-  grid-column: 1 / -1;
-}
-.mk-summary-charts {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-}
-.chart-block {
-  flex: 1;
-  text-align: center;
-}
-.chart-block canvas {
-  max-width: 100%;
-  height: 200px;
-}
 
-/* ===== SUMMARY (Общий отчёт) ===== */
-.stat-card--full{
-  grid-column: 1 / -1;
-  padding: 18px 18px 14px;
-  background: radial-gradient(120% 120% at 0% 0%, rgba(56,115,255,.12), rgba(0,0,0,.0)) , var(--glass-bg, rgba(255,255,255,.04));
-  border: 1px solid rgba(255,255,255,.08);
-}
-#mk-card-summary .mk-card-title{
-  font-weight: 700;
-  letter-spacing: .2px;
-}
-#mk-summary-date{
-  opacity:.8;
-  font-size: 12.5px;
-  margin-top: 2px;
-}
 
-/* KPI row */
-.mk-summary-kpi{
-  display: grid;
-  grid-template-columns: repeat(3,minmax(0,1fr));
-  gap: 12px;
-  margin: 12px 0 6px;
-}
-.kpi{
-  padding: 14px 16px;
-  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: 14px;
-}
-.kpi-label{
-  display:block;
-  font-size:12px;
-  text-transform:uppercase;
-  letter-spacing:.6px;
-  opacity:.75;
-  margin-bottom:6px;
-}
-.kpi-value{
-  display:block;
-  font-variant-numeric: tabular-nums;
-  font-size: 34px;
-  line-height: 1.05;
-  font-weight: 800;
-}
-
-/* charts */
-.mk-summary-charts{
-  display:grid;
-  grid-template-columns: repeat(2,minmax(0,1fr));
-  gap:12px;
-  margin-top: 8px;
-}
-.chart-block{
-  padding: 12px;
-  border: 1px dashed rgba(255,255,255,.14);
-  border-radius: 12px;
-  background: rgba(255,255,255,.03);
-  min-height: 220px;
-}
-.chart-block h4{
-  margin:0 0 8px;
-  font-size: 13px;
-  letter-spacing:.3px;
-  opacity:.85;
-}
-.chart-block canvas{
-  width:100% !important;
-  height:180px !important;  /* фиксированная высота, как в инфографике */
-}
-
-/* dark grid lines for charts (универсально) */
-:root{
-  --grid-color: rgba(255,255,255,.3);
-}
-
-/* Fix layout: summary card must be block, not flex */
-#mk-card-summary{
-  display:block;                /* переопределяем .stat-card {display:flex} */
-  align-items: initial !important;
-  justify-content: initial !important;
-}
-
-/* Сетка диаграмм: 3 → 2 → 1 колонки */
-#mk-card-summary .mk-summary-charts{
-  display:grid;
-  gap: 12px;
-  grid-template-columns: repeat(3, 1fr);
-}
-@media (max-width: 1200px){
-  #mk-card-summary .mk-summary-charts{ grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 680px){
-  #mk-card-summary .mk-summary-charts{ grid-template-columns: 1fr; }
-}
-
-/* Форма расходов */
-.mk-costs-form{
-  display:flex; flex-wrap:wrap; gap:8px; align-items:center;
-  margin: 0 0 8px 0;
-}
 .mk-costs-field{
   display:flex; align-items:center; gap:6px; font-size:12px; opacity:.9;
 }

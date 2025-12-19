@@ -378,12 +378,7 @@ mkRerenderStatsAll(); // (3.3) полный пересчёт всей стати
     mkRenderLeadsChart();
   }
 
-  // --- [NEW] Форс-рендер диаграмм «Общий отчёт»
-  mkBindCostsForm();
-  mkRenderLeadsDonut(AppState.clients || MK_CLIENTS_CACHE);
-  mkRenderCostsChartManual();
-  mkRenderCountriesChart(AppState.clients || MK_CLIENTS_CACHE);
-
+  
 // === [MK#9] Форс-рендер карточки «Заглушка 9» при открытии вкладки
 try {
   const m9 = mkCalcAcqFunnelMetrics(
@@ -3020,19 +3015,7 @@ if (typeof mkBuildClientLog === 'function' && typeof mkRenderClientLog === 'func
     mkRenderCardStudioSplit(split);
   }
 
-  // === KPI / общий отчёт и графики внизу (пончик, расходы вручную, страны)
-  if (typeof mkCalcKPI === 'function' && typeof mkRenderKPI === 'function') {
-    const cutoff = document.getElementById('mkPotentialUntil')?.value || '';
-    const totals = mkCalcTotalsAndPotential(clients, marketing, cutoff);
-    const kpi = mkCalcKPI(clients, marketing, totals);
-    mkRenderKPI(kpi);
-  }
-  if (typeof mkRenderSummary === 'function')         mkRenderSummary(clients, marketing);
-  if (typeof mkRenderLeadsDonut === 'function')      mkRenderLeadsDonut(clients);
-  if (typeof mkRenderCostsChartManual === 'function') mkRenderCostsChartManual();
-  if (typeof mkRenderCountriesChart === 'function')  mkRenderCountriesChart(clients);
-
-  // === История маркетинга (таблица «Дата/IG/€/RU/SK/…») и график лидов
+    // === История маркетинга (таблица «Дата/IG/€/RU/SK/…») и график лидов
   if (typeof renderMarketing === 'function') renderMarketing();  // см. патч в 3.2 (он сам внутри фильтрует по MK_DATE)
   if (typeof mkBindLeadsChartControls === 'function') mkBindLeadsChartControls();
   if (typeof mkRenderLeadsChart === 'function')       mkRenderLeadsChart();
@@ -3300,90 +3283,6 @@ function mkRenderKPI(kpi){
   }catch(_){}
 }
 
-/* ===== SUMMARY: charts (Chart.js) ===== */
-
-function mkRenderSummary(clients = [], marketing = []){
-  const elLeads = document.getElementById('mk-chart-leads');
-  const elCosts = document.getElementById('mk-chart-costs');
-  if (!elLeads || !elCosts || typeof Chart !== 'function') return;
-
-  // ---- 1) LEADS donut: распределение статусов
- const counts = { cold: 0, warm: 0, lead: 0, consult: 0, deposit: 0, session: 0, other: 0 };
-
-(clients||[]).forEach(c=>{
-  const raw = String(c?.status || c?.stage || c?.type || '').toLowerCase();
-  const s = (typeof normalizeStatus === 'function') ? normalizeStatus(raw) : raw;
-
-  if (s === 'cold'   || s.includes('холод'))       counts.cold++;
-  else if (s === 'warm')                            counts.warm++;
-  else if (s === 'lead' || s === 'лид')             counts.lead++;
-  else if (s === 'consult' || s.includes('конс'))   counts.consult++;
-  else if (s === 'deposit')                         counts.deposit++;
-  else if (s === 'session' || s.includes('сеанс'))  counts.session++;
-  else                                              counts.other++;
-});
-
-  const donutCfg = {
-    type: 'doughnut',
-    data: {
-      labels: ['Холодные','Тёплые','Лиды','Консультации','Предоплата/эскиз','Сеансы','Прочие'],
-datasets: [{
-  data: [counts.cold,counts.warm,counts.lead,counts.consult,counts.deposit,counts.session,counts.other],
-  borderWidth: 0,
-  hoverOffset: 4
-}]
-    },
-    options: {
-      plugins: {
-        legend: { position: 'bottom' }
-      },
-      cutout: '65%'
-    }
-  };
-
-  if (MK_SUMMARY_LEADS) MK_SUMMARY_LEADS.destroy();
-  MK_SUMMARY_LEADS = new Chart(elLeads.getContext('2d'), donutCfg);
-
-  
-}
-
-/* ====== Ручные расходы (SK/AT) + диаграммы Summary ====== */
-let MK_SUMMARY_LEADS = null;
-let MK_SUMMARY_COSTS = null;
-let MK_SUMMARY_COUNTRIES = null;
-
-function summaryDocRef(){
-  return FB.db.collection('TattooCRM').doc('app').collection('summary').doc('costsManual');
-}
-
-function mkBindCostsForm(){
-  const sk = document.getElementById('mkCostSk');
-  const at = document.getElementById('mkCostAt');
-  const save = document.getElementById('mkCostSave');
-  const total = document.getElementById('mkCostTotal');
-  if (!sk || !at || !save || !total) return;
-
-  const updTotal = () => {
-    const vsk = Number(sk.value || 0);
-    const vat = Number(at.value || 0);
-    total.textContent = `Всего: €${(vsk + vat).toFixed(0)}`;
-  };
-  if (!sk.dataset.bound){ sk.dataset.bound = '1'; sk.addEventListener('input', updTotal); }
-  if (!at.dataset.bound){ at.dataset.bound = '1'; at.addEventListener('input', updTotal); }
-  if (!save.dataset.bound){
-    save.dataset.bound = '1';
-    save.addEventListener('click', async ()=>{
-      const vsk = Number(sk.value || 0);
-      const vat = Number(at.value || 0);
-      AppState.manualCosts = { sk: vsk, at: vat };
-      try{
-        await summaryDocRef().set({ sk: vsk, at: vat, updatedAt: new Date().toISOString() }, { merge: true });
-        toast('Расходы сохранены');
-      }catch(e){ console.warn(e); toast('Не удалось сохранить расходы'); }
-      mkRenderCostsChartManual(); // перерисуем диаграмму
-    });
-  }
-}
 
 function listenManualCostsRealtime(){
   try{
@@ -3402,90 +3301,6 @@ function listenManualCostsRealtime(){
     });
   }catch(e){ console.warn('listenManualCostsRealtime', e); }
 }
-
-// 1) Обращения (без изменений, но уничтожаем старый инстанс)
-function mkRenderLeadsDonut(clients){
-  const el = document.getElementById('mk-chart-leads');
-  if (!el || typeof Chart!=='function') return;
-
-  const arr = Array.isArray(clients) ? clients : [];
-  const norm = (c) => normalizeStatus(c?.status || c?.stage || c?.type || '');
-
-  const leads = {
-    cold:   arr.filter(c => norm(c).includes('cold')).length,
-    warm:   arr.filter(c => norm(c) === 'warm').length,
-    lead:   arr.filter(c => norm(c) === 'lead').length,
-    consult:arr.filter(c => norm(c) === 'consult').length,
-    session:arr.filter(c => norm(c) === 'session').length
-  };
-
-  if (MK_SUMMARY_LEADS) MK_SUMMARY_LEADS.destroy();
-  MK_SUMMARY_LEADS = new Chart(el.getContext('2d'), {
-    type: 'doughnut',
-    data: {
-      labels: ['Холодные','Тёплые','Лиды','Консультации','Сеансы'],
-      datasets: [{
-        data: [leads.cold, leads.warm, leads.lead, leads.consult, leads.session],
-        backgroundColor: ['#186663','#A6B5B4','#8C7361','#D2AF94','#002D37'],
-        borderWidth: 0,
-        hoverOffset: 4
-      }]
-    },
-    options:{ plugins:{ legend:{ position:'bottom' } }, cutout:'65%' }
-  });
-}
-// 2) Расходы (ручные SK/AT → Всего = сумма)
-function mkRenderCostsChartManual(){
-  const el = document.getElementById('mk-chart-costs');
-  if (!el || typeof Chart!=='function') return;
-  const sk = Number(AppState.manualCosts?.sk || 0);
-  const at = Number(AppState.manualCosts?.at || 0);
-  const total = sk + at;
-
-  if (MK_SUMMARY_COSTS) MK_SUMMARY_COSTS.destroy();
-  MK_SUMMARY_COSTS = new Chart(el.getContext('2d'), {
-    type: 'doughnut',
-    data: {
-      labels: ['Всего','Словакия','Австрия'],
-      datasets: [{ data:[total, sk, at], backgroundColor:['#002D37','#186663','#D2AF94'] }]
-    },
-    options:{ plugins:{ legend:{ position:'bottom' } }, cutout:'65%' }
-  });
-}
-
-// 3) По странам (суммарно из «детальной статистики по дням»)
-function mkRenderCountriesChart(clients){
-  const el = document.getElementById('mk-chart-countries');
-  if (!el || typeof Chart!=='function') return;
-
-  // строим карту по дням/языкам и суммируем
-  const map = (typeof mkBuildDailyFirstContactsStats === 'function')
-    ? mkBuildDailyFirstContactsStats(clients || [])
-    : new Map();
-
-  const totals = { ru:0, sk:0, en:0, at:0, de:0 };
-  map.forEach(rec=>{
-    for (const k in totals){
-      const o = rec?.langs?.[k] || { c:0, o:0 };
-      totals[k] += (o.c + o.o);
-    }
-  });
-
-  const labels = ['Русский','Словакия','Английский','Австрия','Немецкий'];
-  const data   = [totals.ru, totals.sk, totals.en, totals.at, totals.de];
-
-  if (MK_SUMMARY_COUNTRIES) MK_SUMMARY_COUNTRIES.destroy();
-  MK_SUMMARY_COUNTRIES = new Chart(el.getContext('2d'), {
-    type: 'bar',
-    data: { labels, datasets:[{ label:'Обращения', data }] },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{ display:false } },
-      scales:{ y:{ beginAtZero:true, ticks:{ precision:0 } } }
-    }
-  });
-}
-
 
 
 // Determine if a status is "cold"
@@ -5583,11 +5398,6 @@ function mkRenderClientLog(rows) {
 }
 const COSTS_LS_KEY = 'mkCostsManual_v1';
 
-function summaryDocRef() {
-  return FB?.db
-    ?.collection('TattooCRM').doc('app')
-    .collection('summary').doc('costsManual');
-}
 
 function applyManualCostsToUI() {
   const sk = document.getElementById('mkCostSk');
@@ -5637,50 +5447,7 @@ async function mkSaveManualCosts(vsk, vat) {
   }
 }
 
-function mkBindCostsForm() {
-  const sk = document.getElementById('mkCostSk');
-  const at = document.getElementById('mkCostAt');
-  const save = document.getElementById('mkCostSave');
-  if (!sk || !at || !save) return;
 
-  const upd = () => applyManualCostsToUI();
-  if (!sk.dataset.bound) { sk.dataset.bound = '1'; sk.addEventListener('input', upd); }
-  if (!at.dataset.bound) { at.dataset.bound = '1'; at.addEventListener('input', upd); }
-  if (!save.dataset.bound) {
-    save.dataset.bound = '1';
-    save.addEventListener('click', async () => {
-      const vsk = Number(sk.value || 0);
-      const vat = Number(at.value || 0);
-      await mkSaveManualCosts(vsk, vat);
-      mkRenderCostsChartManual();
-    });
-  }
-}
-
-function listenManualCostsRealtime() {
-  // 1) сначала подхватываем локальные значения
-  try {
-    const raw = localStorage.getItem(COSTS_LS_KEY);
-    if (raw) AppState.manualCosts = JSON.parse(raw);
-  } catch (_){}
-  applyManualCostsToUI();
-  mkRenderCostsChartManual();
-
-  // 2) затем подписываемся на Firestore (если доступен)
-  try {
-    const ref = summaryDocRef();
-    if (!ref) return;
-    ref.onSnapshot(snap => {
-      const d = snap.exists ? snap.data() : { sk:0, at:0 };
-      AppState.manualCosts = { sk: Number(d.sk||0), at: Number(d.at||0) };
-      try { localStorage.setItem(COSTS_LS_KEY, JSON.stringify(AppState.manualCosts)); } catch (_){}
-      applyManualCostsToUI();
-      mkRenderCostsChartManual();
-    });
-  } catch (e) {
-    console.warn('listenManualCostsRealtime', e);
-  }
-}
 
 // === [MK#9] Acquisition Funnel metrics ===
 function mkCalcAcqFunnelMetrics(clients = [], marketing = []) {
@@ -5875,10 +5642,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 mkBindCostsForm();
 listenManualCostsRealtime();
 
-// первый рендер карточки «Общий отчёт»
-mkRenderLeadsDonut(AppState.clients || MK_CLIENTS_CACHE);
-mkRenderCostsChartManual();
-mkRenderCountriesChart(AppState.clients || MK_CLIENTS_CACHE);
 
 
     // Карточка №1
@@ -5926,15 +5689,7 @@ mkRenderClientLog(logRows1);
 {
   const split1 = mkCalcStudioSplit(MK_CLIENTS_CACHE);
   mkRenderCardStudioSplit(split1);
- // --- KPI / Общий отчёт (карточка №10 под Заглушкой 9)
-  const kpi1 = mkCalcKPI(MK_CLIENTS_CACHE, AppState.marketing, totals1);
-  mkRenderKPI(kpi1);
-  mkRenderSummary(AppState.clients || MK_CLIENTS_CACHE, AppState.marketing);
-mkRenderLeadsDonut(AppState.clients || MK_CLIENTS_CACHE);
-mkRenderCostsChartManual();
-mkRenderCountriesChart(AppState.clients || MK_CLIENTS_CACHE);
-}
-
+ 
 
       // Пересчёт при смене даты
       untilInput.addEventListener('change', () => {
