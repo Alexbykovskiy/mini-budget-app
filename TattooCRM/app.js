@@ -5652,16 +5652,13 @@ const btnMig = document.getElementById('btnMigrateAll');
 if (btnMig) btnMig.addEventListener('click', () => {
   if (window.tcrmMigrateToGoogleCalendar) window.tcrmMigrateToGoogleCalendar();
 });
-   // --- Карточка №6: Финансы ---
-    // единый апдейтер (функция будет ниже в файле)
-    mkUpdateFinanceCard();
+  // --- Карточка №6: Финансы ---
+mkUpdateFinanceCard();
 
-    // чекбокс «учитывать расходники»
-    document.getElementById('mkIncludeSupplies')?.addEventListener('change', mkUpdateFinanceCard);
-
-} catch (e) {
-  console.warn(e);
-}
+// чекбокс «учитывать расходники»
+document
+  .getElementById('mkIncludeSupplies')
+  ?.addEventListener('change', mkUpdateFinanceCard);
 
 // === [NEW] Кнопки перехода на Ads Manager и Google Sheets ===
 const fbBtn = document.getElementById('btnFacebookAds');
