@@ -275,8 +275,9 @@ try {
     if (__ds) __ds.textContent = 'Drive: оффлайн';
   }
 })();
-  }
-} catch(e){ console.warn('quickStart', e); }
+  
+} 
+catch(e){ console.warn('quickStart', e); }
 
 
 
