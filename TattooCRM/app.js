@@ -2618,14 +2618,7 @@ blocks.forEach(block => {
     amountStudio: studioRaw
   });
 });
-    sessions.push({
-      dt,
-      price: finalPrice,
-      done,
-      amountMe: meNum,
-      amountStudio: studioNum
-    });
-
+    
  const client = {
   id,
   displayName,
@@ -2650,9 +2643,8 @@ qualNote: $('#fQualNote').value.trim(),            // ← добавили
 deposit: Number($('#fDeposit').value || 0),
 
 // --- суммы распределения оплаты: теперь считаем из сеансов ---
-amountMe: totalMe,
-amountStudio: totalStudio,
-
+amountMe: totalMeLegacy,
+amountStudio: totalStudioLegacy,
 amountMin,
 amountMax,
 amount: (amountMax ?? amountMin ?? 0),
