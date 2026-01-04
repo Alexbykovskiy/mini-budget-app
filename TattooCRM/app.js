@@ -2074,7 +2074,12 @@ async function openClientDialog(c = null){
 $('#fName').value   = c?.displayName || '';
 $('#fPhone').value  = c?.phone || '';
 $('#fLink').value   = c?.link || '';
-const fLang = $('#fLang'); if (fLang) fLang.value = c?.lang || '';
+const fLang = $('#fLang');
+if (fLang) {
+  // Новый клиент → русский по умолчанию
+  // Существующий → как сохранено
+  fLang.value = c?.lang ?? 'ru';
+}
 const fGender = $('#fGender'); if (fGender) fGender.value = c?.gender || '';
 
 // [NEW] Из Братиславы?
