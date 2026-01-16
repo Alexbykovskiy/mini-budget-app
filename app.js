@@ -62,6 +62,32 @@ let expenseChart;
 let expenses = [];
 let fuelChart; // график расхода по заправкам
 let fuelRange = (typeof localStorage !== "undefined" && localStorage.getItem("fuelRange")) || "last5";
+
+// ==============================
+// ⛽ Fuel: anomaly + labels config
+// ==============================
+const FUEL_RULES = {
+  // Минимальная дистанция между полными заправками, иначе это шум (прогревы/город/перенос топлива)
+  MIN_DIST_KM: 180,            // можешь поставить 150..220 по ощущениям
+
+  // Жёсткие физические границы (для дизеля твоего класса)
+  HARD_MIN_L100: 2.0,
+  HARD_MAX_L100: 15.0,
+
+  // Относительные пороги от среднего (по валидным точкам)
+  GOOD_BELOW_PCT: 0.05,        // ниже среднего на 5% = "молодец"
+  NORMAL_ABOVE_PCT: 0.10,      // до +10% = "норма"
+  ANOMALY_ABOVE_PCT: 0.40      // выше среднего на 40% = аномалия
+};
+
+// Тексты меток (пойдут в tooltip и при желании в UI)
+const FUEL_LABELS = {
+  good:    "ниже среднего (молодец)",
+  normal:  "средний",
+  high:    "выше среднего",
+  anomaly: "аномалия"
+};
+
 let fullTotal = 0;
 let editingReminderId = null;
 let globalDistance = 0; // Пробег для расчёта среднего расхода
@@ -258,13 +284,23 @@ function computeFuelTankPoints(fullData) {
     if (!dist || dist <= 0) continue;
     const l100 = (cur.liters / dist) * 100;
 
-    points.push({
-      date: cur.date,
-      mileage: cur.mileage,
-      distance: dist,
-      liters: cur.liters,
-      l100
-    });
+   // первичные причины аномалии (до сравнения со средним)
+let anomalyReason = "";
+
+if (dist < FUEL_RULES.MIN_DIST_KM) anomalyReason = `дистанция < ${FUEL_RULES.MIN_DIST_KM} км`;
+if (l100 < FUEL_RULES.HARD_MIN_L100) anomalyReason = `расход < ${FUEL_RULES.HARD_MIN_L100}`;
+if (l100 > FUEL_RULES.HARD_MAX_L100) anomalyReason = `расход > ${FUEL_RULES.HARD_MAX_L100}`;
+
+points.push({
+  date: cur.date,
+  mileage: cur.mileage,
+  distance: dist,
+  liters: cur.liters,
+  l100,
+  // заполним статус позже, когда узнаем среднее
+  status: anomalyReason ? "anomaly" : "normal",
+  reason: anomalyReason
+});
   }
   return points;
 }
@@ -286,7 +322,52 @@ function filterFuelPointsByRange(points, rangeKey) {
   return points.filter(p => p.date >= fromIso);
 }
 
-function renderFuelLineChart(points) {
+function computeAvgFromValidPoints(points) {
+  const valid = (points || []).filter(p => p.status !== "anomaly" && isFinite(p.l100));
+  if (valid.length === 0) return null;
+  return valid.reduce((s, p) => s + p.l100, 0) / valid.length;
+}
+
+function classifyFuelPoint(p, avg) {
+  // если уже жёстко аномалия — оставляем
+  if (p.status === "anomaly") return p;
+
+  if (!avg || !isFinite(avg)) {
+    // если среднего ещё нет (например всего 1 валидная точка)
+    p.status = "normal";
+    p.reason = "";
+    return p;
+  }
+
+  const goodEdge   = avg * (1 - FUEL_RULES.GOOD_BELOW_PCT);
+  const normalEdge = avg * (1 + FUEL_RULES.NORMAL_ABOVE_PCT);
+  const anomEdge   = avg * (1 + FUEL_RULES.ANOMALY_ABOVE_PCT);
+
+  if (p.l100 > anomEdge) {
+    p.status = "anomaly";
+    p.reason = `>${Math.round(FUEL_RULES.ANOMALY_ABOVE_PCT * 100)}% от среднего`;
+    return p;
+  }
+
+  if (p.l100 <= goodEdge) {
+    p.status = "good";
+    p.reason = "";
+    return p;
+  }
+
+  if (p.l100 <= normalEdge) {
+    p.status = "normal";
+    p.reason = "";
+    return p;
+  }
+
+  p.status = "high";
+  p.reason = "";
+  return p;
+}
+
+
+function renderFuelLineChart(points, avgLine) {
   const el = document.querySelector('#fuel-line-chart');
   if (!el) return;
 
@@ -301,6 +382,21 @@ function renderFuelLineChart(points) {
     data: points.map(p => Number(p.l100.toFixed(2)))
   }];
 
+const statusColor = (status) => {
+  if (status === "good") return "#4CAF50";     // зелёный
+  if (status === "normal") return "#186663";   // твой фирменный
+  if (status === "high") return "#FFA35C";     // оранжевый
+  return "#888888";                            // anomaly = серый
+};
+
+const discreteMarkers = points.map((p, i) => ({
+  seriesIndex: 0,
+  dataPointIndex: i,
+  fillColor: statusColor(p.status),
+  strokeColor: statusColor(p.status),
+  size: p.status === "anomaly" ? 6 : 4
+}));
+
   const options = {
     chart: {
       type: 'line',
@@ -310,7 +406,10 @@ function renderFuelLineChart(points) {
     },
     series,
     stroke: { width: 3, curve: 'smooth' },
-    markers: { size: 4 },
+    markers: {
+  size: 4,
+  discrete: discreteMarkers
+},
     xaxis: {
       categories,
       labels: { style: { fontSize: '10px' }, rotate: 0, trim: true }
@@ -319,6 +418,19 @@ function renderFuelLineChart(points) {
       labels: { style: { fontSize: '10px' } },
       decimalsInFloat: 2
     },
+annotations: avgLine ? {
+  yaxis: [{
+    y: Number(avgLine.toFixed(2)),
+    borderColor: "#999",
+    strokeDashArray: 4,
+    label: {
+      text: `AVG ${avgLine.toFixed(2)}`,
+      style: {
+        fontSize: "10px"
+      }
+    }
+  }]
+} : undefined,
     grid: { padding: { left: 8, right: 8, top: 8, bottom: 0 } },
     tooltip: {
       y: {
@@ -328,7 +440,9 @@ function renderFuelLineChart(points) {
           if (!p) return `${v} л/100`;
           const dist = Math.round(p.distance);
           const lit = Number(p.liters).toFixed(1);
-          return `${v.toFixed(2)} л/100 ( ${dist} км / ${lit} л )`;
+          const label = FUEL_LABELS[p.status] || "";
+const reason = p.reason ? ` · ${p.reason}` : "";
+return `${v.toFixed(2)} л/100 ( ${dist} км / ${lit} л ) · ${label}${reason}`;
         }
       }
     }
@@ -354,31 +468,45 @@ function updateFuelConsumptionUI(fullData) {
   }
 
   const allPoints = computeFuelTankPoints(fullData);
-  const points = filterFuelPointsByRange(allPoints, fuelRange);
+const pointsRaw = filterFuelPointsByRange(allPoints, fuelRange);
 
-  if (!points || points.length === 0) {
-    avgEl.textContent = '—';
-    subEl.textContent = 'Нет данных (нужно минимум 2 полные заправки с пробегом)';
-    renderFuelLineChart([]);
-    return;
-  }
-
-  const avg = points.reduce((s, p) => s + p.l100, 0) / points.length;
-  avgEl.textContent = avg.toFixed(2);
-
-  const labelMap = {
-    last5: 'средний за последние 5 заправок',
-    '1m': 'средний за последний месяц',
-    '3m': 'средний за 3 месяца',
-    '6m': 'средний за 6 месяцев',
-    '1y': 'средний за год',
-    all: 'средний за всё время'
-  };
-
-  subEl.textContent = `${labelMap[fuelRange] || ''} · точек: ${points.length}`;
-  renderFuelLineChart(points);
+if (!pointsRaw || pointsRaw.length === 0) {
+  avgEl.textContent = '—';
+  subEl.textContent = `${labelMap[fuelRange] || ''} · точек: ${points.length} · валидных: ${validCount} · аномалий: ${anomalyCount} · 🟢 молодец · 🟦 средний · 🟠 выше · ⚪ аномалия`;
+  renderFuelLineChart([]);
+  return;
 }
 
+// 1) считаем среднее только по валидным (без аномалий)
+const avgValid = computeAvgFromValidPoints(pointsRaw);
+
+// 2) размечаем ВСЕ точки (включая аномалии) относительно avgValid
+const points = pointsRaw.map(p => classifyFuelPoint({ ...p }, avgValid));
+
+// 3) среднее для UI показываем только по валидным
+if (!avgValid) {
+  avgEl.textContent = '—';
+} else {
+  avgEl.textContent = avgValid.toFixed(2);
+}
+
+// 4) доп. инфа: сколько валидных и сколько аномалий
+const validCount = points.filter(p => p.status !== "anomaly").length;
+const anomalyCount = points.length - validCount;
+
+const labelMap = {
+  last5: 'средний за последние 5 заправок',
+  '1m': 'средний за последний месяц',
+  '3m': 'средний за 3 месяца',
+  '6m': 'средний за 6 месяцев',
+  '1y': 'средний за год',
+  all: 'средний за всё время'
+};
+
+subEl.textContent = `${labelMap[fuelRange] || ''} · точек: ${points.length} · валидных: ${validCount} · аномалий: ${anomalyCount}`;
+
+// 5) рендерим график уже с метками + линией среднего
+renderFuelLineChart(points, avgValid);
 
 function calculateCostPerKm(data) {
   const mileageEntries = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));

@@ -2401,3 +2401,8 @@ pill-center:hover .pill-icon svg,
 #fuel-line-chart {
   width: 100%;
 }
+
+/* subtle: make fuel avg look more "gauge-like" */
+#fuel-consumption-avg {
+  letter-spacing: -0.03em;
+}
