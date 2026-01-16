@@ -448,14 +448,22 @@ const discreteMarkers = points.map((p, i) => ({
   size: 4,
   discrete: discreteMarkers
 },
-    xaxis: {
-      categories,
-      labels: { style: { fontSize: '10px' }, rotate: 0, trim: true }
-    },
-    yaxis: {
-      labels: { style: { fontSize: '10px' } },
-      decimalsInFloat: 2
-    },
+   xaxis: {
+  categories,
+  labels: {
+    show: true,
+    style: { fontSize: "10px" },
+    rotate: 0,
+    trim: true
+  }
+},
+yaxis: {
+  labels: {
+    show: true,
+    style: { fontSize: "10px" }
+  },
+  decimalsInFloat: 2
+},
 annotations: avgLine ? {
   yaxis: [{
     y: Number(avgLine.toFixed(2)),
@@ -487,12 +495,16 @@ return `${v.toFixed(2)} л/100 ( ${dist} км / ${lit} л ) · ${label}${reason}
   };
 
   if (fuelChart) {
-    fuelChart.updateOptions(options, true, true);
-    fuelChart.updateSeries(series, true);
-  } else {
-    fuelChart = new ApexCharts(el, options);
-    fuelChart.render();
-  }
+  // ВАЖНО: series обновляем только через updateSeries,
+  // а в updateOptions НЕ передаем series (иначе иногда слетают оси/лейблы)
+  const { series: _ignoreSeries, ...optionsNoSeries } = options;
+
+  fuelChart.updateOptions(optionsNoSeries, false, true);
+  fuelChart.updateSeries(series, true);
+} else {
+  fuelChart = new ApexCharts(el, options);
+  fuelChart.render();
+}
 }
 
 function updateFuelConsumptionUI(fullData) {
