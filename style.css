@@ -165,8 +165,9 @@ input[type="date"] {
    ===================== */
 
 .fuel-consumption-section {
-  width: 360px;
+  width: 380px;
   margin: 0 auto 14px auto;
+  box-sizing: border-box;
 }
 
 .fuel-consumption-bar {
@@ -174,17 +175,18 @@ input[type="date"] {
   align-items: flex-start;
   justify-content: space-between;
   gap: 10px;
-  width: 360px;
-flex-wrap: nowrap;
+
+  width: 380px;
+  flex-wrap: nowrap;
   overflow: visible;
   border-radius: 18px;
   padding: 10px 12px;
-box-sizing: border-box;
+
   box-sizing: border-box;
+
   background: #e0e0e0;
   box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
 }
-
 .fuel-consumption-bar__title {
   font-size: 12px;
   font-weight: 600;
@@ -224,7 +226,7 @@ box-sizing: border-box;
 }
 
 .fuel-chart-wrap {
-  width: 360px;
+  width: 380px;
   margin: 10px auto 0 auto;
   border-radius: 20px;
   padding: 10px 10px 6px 10px;
@@ -232,7 +234,6 @@ box-sizing: border-box;
   background: #e0e0e0;
   box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
 }
-
 #fuel-line-chart {
   width: 100%;
 }
@@ -348,17 +349,16 @@ box-sizing: border-box;
 }
 
 .fuel-chart-card{
-  width: 360px;              /* ровно как stats-cards */
+  width: 380px;
   margin: 10px auto 0;
-  padding: 10px;             /* одинаковые отступы */
+  padding: 10px;
   border-radius: 18px;
+  box-sizing: border-box;
 
   background: rgba(255, 255, 255, 0.30);
   box-shadow:
     inset 4px 4px 8px #bebebe,
     inset -4px -4px 8px #ffffff;
-
-  box-sizing: border-box;
 }
 
 #fuel-line-chart{
