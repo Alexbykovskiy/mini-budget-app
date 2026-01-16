@@ -1,4 +1,5 @@
 let db; // <--- вот это вставь первой строкой
+const profileCode = "mini";
 
 window.addEventListener("load", () => {
   db = firebase.firestore();
@@ -8,7 +9,6 @@ window.addEventListener("load", () => {
 initFuelControls();
   // 📸 Выбор способа загрузки изображения — камера или галерея
   // 📸 Упрощённая загрузка фото: системное меню (камера, галерея, файлы)
-const profileCode = "mini";
 
 
 
@@ -867,10 +867,7 @@ function formatDate(isoString) {
 
 
  
-  // ✅ Добавь сюда вызов
-  populateTagList();
-
-  // Автоустановка сегодняшней даты
+   // Автоустановка сегодняшней даты
   const dateInput = document.getElementById('date');
 const editIdInput = document.getElementById('edit-id');
 if (dateInput && editIdInput && !editIdInput.value.trim()) {

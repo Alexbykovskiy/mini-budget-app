@@ -2418,3 +2418,19 @@ pill-center:hover .pill-icon svg,
   font-size: 11px;
   border-radius: 12px;
 }
+
+/* Fix: global input styles break radio buttons */
+.fuel-mode-switch input[type="radio"]{
+  width: auto;
+  padding: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.fuel-mode-switch label{
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.35);
+  box-shadow: inset 2px 2px 5px rgba(190,190,190,0.6),
+              inset -2px -2px 5px rgba(255,255,255,0.7);
+}
