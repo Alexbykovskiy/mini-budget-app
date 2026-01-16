@@ -60,6 +60,8 @@ const list = document.getElementById('expense-list');
 const summary = document.getElementById('summary');
 let expenseChart;
 let expenses = [];
+let fuelChart; // график расхода по заправкам
+let fuelRange = (typeof localStorage !== "undefined" && localStorage.getItem("fuelRange")) || "last5";
 let fullTotal = 0;
 let editingReminderId = null;
 let globalDistance = 0; // Пробег для расчёта среднего расхода
@@ -207,7 +209,176 @@ globalDistance = distance; // Всегда держим актуальный п�
   calculateCostPerKm(fullData);
   calculatePureRunningCost(fullData);
   calculateFuelStats(fullData);
+ updateFuelConsumptionUI(fullData);
 }
+
+// ==============================
+// ⛽ Расход по каждому "баку" (между полными заправками)
+// ==============================
+
+function initFuelRangeChips() {
+  const chips = document.querySelectorAll('[data-fuel-range]');
+  if (!chips || chips.length === 0) return;
+
+  chips.forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-fuel-range') === fuelRange);
+  });
+
+  chips.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const next = btn.getAttribute('data-fuel-range') || 'last5';
+      fuelRange = next;
+      try { localStorage.setItem('fuelRange', fuelRange); } catch (e) {}
+      chips.forEach(b => b.classList.toggle('active', b.getAttribute('data-fuel-range') === fuelRange));
+      updateFuelConsumptionUI(expenses);
+    });
+  });
+}
+
+function computeFuelTankPoints(fullData) {
+  const fuel = fullData
+    .filter(e =>
+      e.category === 'Топливо' &&
+      e.liters && !isNaN(Number(e.liters)) &&
+      e.mileage && !isNaN(Number(e.mileage)) &&
+      e.date
+    )
+    .map(e => ({
+      date: e.date,
+      mileage: Number(e.mileage),
+      liters: Number(e.liters)
+    }))
+    .sort((a, b) => a.mileage - b.mileage);
+
+  const points = [];
+  for (let i = 1; i < fuel.length; i++) {
+    const prev = fuel[i - 1];
+    const cur = fuel[i];
+    const dist = cur.mileage - prev.mileage;
+    if (!dist || dist <= 0) continue;
+    const l100 = (cur.liters / dist) * 100;
+
+    points.push({
+      date: cur.date,
+      mileage: cur.mileage,
+      distance: dist,
+      liters: cur.liters,
+      l100
+    });
+  }
+  return points;
+}
+
+function filterFuelPointsByRange(points, rangeKey) {
+  if (!points || points.length === 0) return [];
+  const now = new Date();
+
+  if (rangeKey === 'last5') return points.slice(-5);
+  if (rangeKey === 'all') return points;
+
+  const monthsMap = { '1m': 1, '3m': 3, '6m': 6, '1y': 12 };
+  const m = monthsMap[rangeKey];
+  if (!m) return points.slice(-5);
+
+  const from = new Date(now);
+  from.setMonth(from.getMonth() - m);
+  const fromIso = from.toISOString().split('T')[0];
+  return points.filter(p => p.date >= fromIso);
+}
+
+function renderFuelLineChart(points) {
+  const el = document.querySelector('#fuel-line-chart');
+  if (!el) return;
+
+  const categories = points.map(p => {
+    const d = formatDate(p.date);
+    const km = Math.round(p.mileage).toLocaleString('ru-RU');
+    return `${d}\n${km}км`;
+  });
+
+  const series = [{
+    name: 'л/100',
+    data: points.map(p => Number(p.l100.toFixed(2)))
+  }];
+
+  const options = {
+    chart: {
+      type: 'line',
+      height: 190,
+      toolbar: { show: false },
+      zoom: { enabled: false }
+    },
+    series,
+    stroke: { width: 3, curve: 'smooth' },
+    markers: { size: 4 },
+    xaxis: {
+      categories,
+      labels: { style: { fontSize: '10px' }, rotate: 0, trim: true }
+    },
+    yaxis: {
+      labels: { style: { fontSize: '10px' } },
+      decimalsInFloat: 2
+    },
+    grid: { padding: { left: 8, right: 8, top: 8, bottom: 0 } },
+    tooltip: {
+      y: {
+        formatter: (v, opts) => {
+          const idx = opts.dataPointIndex;
+          const p = points[idx];
+          if (!p) return `${v} л/100`;
+          const dist = Math.round(p.distance);
+          const lit = Number(p.liters).toFixed(1);
+          return `${v.toFixed(2)} л/100 ( ${dist} км / ${lit} л )`;
+        }
+      }
+    }
+  };
+
+  if (fuelChart) {
+    fuelChart.updateOptions(options, true, true);
+    fuelChart.updateSeries(series, true);
+  } else {
+    fuelChart = new ApexCharts(el, options);
+    fuelChart.render();
+  }
+}
+
+function updateFuelConsumptionUI(fullData) {
+  const avgEl = document.getElementById('fuel-consumption-avg');
+  const subEl = document.getElementById('fuel-consumption-sub');
+  if (!avgEl || !subEl) return;
+
+  if (!updateFuelConsumptionUI._chipsInit) {
+    initFuelRangeChips();
+    updateFuelConsumptionUI._chipsInit = true;
+  }
+
+  const allPoints = computeFuelTankPoints(fullData);
+  const points = filterFuelPointsByRange(allPoints, fuelRange);
+
+  if (!points || points.length === 0) {
+    avgEl.textContent = '—';
+    subEl.textContent = 'Нет данных (нужно минимум 2 полные заправки с пробегом)';
+    renderFuelLineChart([]);
+    return;
+  }
+
+  const avg = points.reduce((s, p) => s + p.l100, 0) / points.length;
+  avgEl.textContent = avg.toFixed(2);
+
+  const labelMap = {
+    last5: 'средний за последние 5 заправок',
+    '1m': 'средний за последний месяц',
+    '3m': 'средний за 3 месяца',
+    '6m': 'средний за 6 месяцев',
+    '1y': 'средний за год',
+    all: 'средний за всё время'
+  };
+
+  subEl.textContent = `${labelMap[fuelRange] || ''} · точек: ${points.length}`;
+  renderFuelLineChart(points);
+}
+
 
 function calculateCostPerKm(data) {
   const mileageEntries = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));

@@ -80,6 +80,35 @@
   <div class="stats-card"><h4>Средний расход</h4><p id="stat-consumption">—</p><span>л/100</span></div>
   <div class="stats-card"><h4>Цена топлива</h4><p id="stat-price-fuel">—</p><span>€/л</span></div>
 </div>
+
+<!-- ⛽ Топливо: быстрый индикатор + график по заправкам -->
+<div class="fuel-consumption-section animated-section delay-2">
+  <div class="fuel-consumption-bar" id="fuel-consumption-bar">
+    <div class="fuel-consumption-bar__left">
+      <div class="fuel-consumption-bar__title">Расход топлива</div>
+      <div class="fuel-consumption-bar__value">
+        <span id="fuel-consumption-avg">—</span>
+        <span class="fuel-consumption-bar__unit">л/100</span>
+      </div>
+      <div class="fuel-consumption-bar__sub" id="fuel-consumption-sub">—</div>
+    </div>
+
+    <div class="fuel-consumption-bar__right" aria-label="Период расхода">
+      <button type="button" class="range-chip" data-fuel-range="last5">5</button>
+      <button type="button" class="range-chip" data-fuel-range="1m">1м</button>
+      <button type="button" class="range-chip" data-fuel-range="3m">3м</button>
+      <button type="button" class="range-chip" data-fuel-range="6m">6м</button>
+      <button type="button" class="range-chip" data-fuel-range="1y">1г</button>
+      <button type="button" class="range-chip" data-fuel-range="all">Все</button>
+    </div>
+  </div>
+
+  <div class="fuel-chart-wrap">
+    <div id="fuel-line-chart"></div>
+  </div>
+</div>
+
+
 <fieldset class="block no-shadow chart-fix animated-section delay-1">
   <div class="chart-with-info">
     <div id="mini-donut-chart" class="google-chart"></div>
@@ -88,6 +117,8 @@
 </fieldset>
 
 </div>
+
+
 
   <!-- Фильтры -->
 <fieldset class="block collapsed animated-section delay-2" id="filters-wrapper">
