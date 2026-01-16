@@ -348,7 +348,7 @@ box-sizing: border-box;
 }
 
 .fuel-chart-card{
-  width: 360px;              /* ровно как stats-cards */
+  width: 380px;              /* ровно как stats-cards */
   margin: 10px auto 0;
   padding: 10px;             /* одинаковые отступы */
   border-radius: 18px;
