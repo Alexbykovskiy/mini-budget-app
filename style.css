@@ -160,6 +160,178 @@ input[type="date"] {
   display: none;
 }
 
+/* =====================
+   ⛽ Fuel consumption UI
+   ===================== */
+
+.fuel-consumption-section {
+  width: 360px;
+  margin: 0 auto 14px auto;
+}
+
+.fuel-consumption-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  width: 360px;
+  border-radius: 18px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  background: #e0e0e0;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
+}
+
+.fuel-consumption-bar__title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #444;
+  line-height: 1.1;
+}
+
+.fuel-consumption-bar__value {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+#fuel-consumption-avg {
+  font-size: 20px;
+  font-weight: 800;
+  color: #23292D;
+  letter-spacing: -0.02em;
+}
+
+.fuel-consumption-bar__unit {
+  font-size: 11px;
+  color: #777;
+  font-weight: 600;
+}
+
+.fuel-consumption-bar__sub {
+  font-size: 10px;
+  color: #777;
+  margin-top: 2px;
+}
+
+
+.fuel-chart-wrap {
+  width: 360px;
+  margin: 10px auto 0 auto;
+  border-radius: 20px;
+  padding: 10px 10px 6px 10px;
+  box-sizing: border-box;
+  background: #e0e0e0;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
+}
+
+#fuel-line-chart {
+  width: 100%;
+}
+
+/* subtle: make fuel avg look more "gauge-like" */
+#fuel-consumption-avg {
+  letter-spacing: -0.03em;
+}
+
+/* ⛽ Fuel mode UI: 2-column toggle + dynamic controls */
+
+.fuel-consumption-bar__right {
+  display: flex;
+  flex-direction: column;   /* режимы + поля идут столбцом */
+  gap: 10px;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;             /* важно: иначе ломает в узком контейнере */
+}
+
+/* две “кнопки” в одну строку */
+.fuel-mode-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* кнопка-опция */
+.fuel-mode-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 8px 10px;
+  border-radius: 14px;
+
+  background: rgba(255,255,255,0.35);
+  box-shadow:
+    inset 2px 2px 5px rgba(190,190,190,0.55),
+    inset -2px -2px 5px rgba(255,255,255,0.75);
+
+  font-size: 11px;
+  font-weight: 700;
+  color: #444;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* прячем радио полностью, иначе глобальные input стили его ломают */
+.fuel-mode-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+
+  /* критично: перебить глобальные input-стили */
+  width: 0 !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* активная кнопка */
+.fuel-mode-option input[type="radio"]:checked + span {
+  color: #0f3f3d;
+}
+
+/* подсветка активной кнопки через псевдо-слой */
+.fuel-mode-option:has(input[type="radio"]:checked) {
+  background: rgba(24, 102, 99, 0.18);
+  box-shadow:
+    inset 2px 2px 6px rgba(190,190,190,0.5),
+    inset -2px -2px 6px rgba(255,255,255,0.8);
+}
+
+/* контейнер для полей снизу */
+.fuel-mode-controls {
+  display: block;
+}
+
+/* блоки полей */
+.fuel-control-block {
+  display: block;
+}
+
+/* инпуты внутри топлива: компактные и одинаковые */
+.fuel-control-block input[type="number"],
+.fuel-control-block input[type="date"] {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 12px;
+  border-radius: 14px;
+}
+
+/* период: два поля в ряд */
+#fuel-period-control {
+  display: flex;
+  gap: 8px;
+}
+
+#fuel-period-control input[type="date"] {
+  flex: 1 1 0;
+}
+
+
 /* Список расходов */
 #expense-list {
   list-style: none;
@@ -2302,173 +2474,3 @@ pill-center:hover .pill-icon svg,
   box-shadow: 0 8px 36px 0 rgba(0,0,0,0.21);
 }
 
-/* =====================
-   ⛽ Fuel consumption UI
-   ===================== */
-
-.fuel-consumption-section {
-  width: 360px;
-  margin: 0 auto 14px auto;
-}
-
-.fuel-consumption-bar {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-  width: 360px;
-  border-radius: 18px;
-  padding: 10px 12px;
-  box-sizing: border-box;
-  background: #e0e0e0;
-  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
-}
-
-.fuel-consumption-bar__title {
-  font-size: 12px;
-  font-weight: 600;
-  color: #444;
-  line-height: 1.1;
-}
-
-.fuel-consumption-bar__value {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-}
-
-#fuel-consumption-avg {
-  font-size: 20px;
-  font-weight: 800;
-  color: #23292D;
-  letter-spacing: -0.02em;
-}
-
-.fuel-consumption-bar__unit {
-  font-size: 11px;
-  color: #777;
-  font-weight: 600;
-}
-
-.fuel-consumption-bar__sub {
-  font-size: 10px;
-  color: #777;
-  margin-top: 2px;
-}
-
-
-.fuel-chart-wrap {
-  width: 360px;
-  margin: 10px auto 0 auto;
-  border-radius: 20px;
-  padding: 10px 10px 6px 10px;
-  box-sizing: border-box;
-  background: #e0e0e0;
-  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
-}
-
-#fuel-line-chart {
-  width: 100%;
-}
-
-/* subtle: make fuel avg look more "gauge-like" */
-#fuel-consumption-avg {
-  letter-spacing: -0.03em;
-}
-
-/* ⛽ Fuel mode UI: 2-column toggle + dynamic controls */
-
-.fuel-consumption-bar__right {
-  display: flex;
-  flex-direction: column;   /* режимы + поля идут столбцом */
-  gap: 10px;
-  align-items: stretch;
-  width: 100%;
-  min-width: 0;             /* важно: иначе ломает в узком контейнере */
-}
-
-/* две “кнопки” в одну строку */
-.fuel-mode-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-/* кнопка-опция */
-.fuel-mode-option {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 8px 10px;
-  border-radius: 14px;
-
-  background: rgba(255,255,255,0.35);
-  box-shadow:
-    inset 2px 2px 5px rgba(190,190,190,0.55),
-    inset -2px -2px 5px rgba(255,255,255,0.75);
-
-  font-size: 11px;
-  font-weight: 700;
-  color: #444;
-  cursor: pointer;
-  user-select: none;
-}
-
-/* прячем радио полностью, иначе глобальные input стили его ломают */
-.fuel-mode-option input[type="radio"] {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-
-  /* критично: перебить глобальные input-стили */
-  width: 0 !important;
-  height: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  box-shadow: none !important;
-  background: transparent !important;
-}
-
-/* активная кнопка */
-.fuel-mode-option input[type="radio"]:checked + span {
-  color: #0f3f3d;
-}
-
-/* подсветка активной кнопки через псевдо-слой */
-.fuel-mode-option:has(input[type="radio"]:checked) {
-  background: rgba(24, 102, 99, 0.18);
-  box-shadow:
-    inset 2px 2px 6px rgba(190,190,190,0.5),
-    inset -2px -2px 6px rgba(255,255,255,0.8);
-}
-
-/* контейнер для полей снизу */
-.fuel-mode-controls {
-  display: block;
-}
-
-/* блоки полей */
-.fuel-control-block {
-  display: block;
-}
-
-/* инпуты внутри топлива: компактные и одинаковые */
-.fuel-control-block input[type="number"],
-.fuel-control-block input[type="date"] {
-  width: 100%;
-  padding: 8px 12px;
-  font-size: 12px;
-  border-radius: 14px;
-}
-
-/* период: два поля в ряд */
-#fuel-period-control {
-  display: flex;
-  gap: 8px;
-}
-
-#fuel-period-control input[type="date"] {
-  flex: 1 1 0;
-}
