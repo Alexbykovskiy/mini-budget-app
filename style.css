@@ -2313,7 +2313,7 @@ pill-center:hover .pill-icon svg,
 
 .fuel-consumption-bar {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 10px;
   width: 360px;
@@ -2356,13 +2356,6 @@ pill-center:hover .pill-icon svg,
   margin-top: 2px;
 }
 
-.fuel-consumption-bar__right {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
 
 .fuel-chart-wrap {
   width: 360px;
@@ -2387,10 +2380,11 @@ pill-center:hover .pill-icon svg,
 
 .fuel-consumption-bar__right {
   display: flex;
-  flex-direction: column;
+  flex-direction: column;   /* режимы + поля идут столбцом */
   gap: 10px;
   align-items: stretch;
-  min-width: 260px;
+  width: 100%;
+  min-width: 0;             /* важно: иначе ломает в узком контейнере */
 }
 
 /* две “кнопки” в одну строку */
