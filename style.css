@@ -175,8 +175,11 @@ input[type="date"] {
   justify-content: space-between;
   gap: 10px;
   width: 360px;
+flex-wrap: nowrap;
+  overflow: hidden;
   border-radius: 18px;
   padding: 10px 12px;
+box-sizing: border-box;
   box-sizing: border-box;
   background: #e0e0e0;
   box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
@@ -214,6 +217,11 @@ input[type="date"] {
   margin-top: 2px;
 }
 
+.fuel-consumption-bar__left {
+  flex: 0 0 140px;      /* фикс ширина слева */
+  max-width: 140px;
+  overflow: hidden;
+}
 
 .fuel-chart-wrap {
   width: 360px;
@@ -237,12 +245,12 @@ input[type="date"] {
 /* ⛽ Fuel mode UI: 2-column toggle + dynamic controls */
 
 .fuel-consumption-bar__right {
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
-  flex-direction: column;   /* режимы + поля идут столбцом */
+  flex-direction: column;
   gap: 10px;
   align-items: stretch;
-  width: 100%;
-  min-width: 0;             /* важно: иначе ломает в узком контейнере */
 }
 
 /* две “кнопки” в одну строку */
@@ -250,6 +258,14 @@ input[type="date"] {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
+  width: 100%;
+  max-width: 190px;
+  margin-left: auto;
+}
+.fuel-mode-controls {
+  width: 100%;
+  max-width: 190px;
+  margin-left: auto;
 }
 
 /* кнопка-опция */
