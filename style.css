@@ -165,7 +165,7 @@ input[type="date"] {
    ===================== */
 
 .fuel-consumption-section {
-  width: 380px;
+  width: 360px;
   margin: 0 auto 14px auto;
 }
 
@@ -348,7 +348,7 @@ box-sizing: border-box;
 }
 
 .fuel-chart-card{
-  width: 380px;              /* ровно как stats-cards */
+  width: 360px;              /* ровно как stats-cards */
   margin: 10px auto 0;
   padding: 10px;             /* одинаковые отступы */
   border-radius: 18px;
@@ -1762,7 +1762,6 @@ select {
   padding: 0 20px;
   gap: 20px;
   box-sizing: border-box;
-background: #e9fbe9;
 }
 
 #mini-donut-chart {
@@ -1780,7 +1779,7 @@ background: #e9fbe9;
   padding: 0;
   margin: 0 auto;
   width: 360px;
-  background: #e9fbe9;
+ 
   box-shadow: none;
 }
 
