@@ -2364,30 +2364,6 @@ pill-center:hover .pill-icon svg,
   justify-content: flex-end;
 }
 
-.range-chip {
-  all: unset;
-  cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #444;
-  background: rgba(255,255,255,0.35);
-  box-shadow: 2px 2px 5px #bebebe, -2px -2px 5px #ffffff;
-  transition: transform 0.15s, filter 0.15s;
-  user-select: none;
-}
-
-.range-chip:active {
-  transform: scale(0.98);
-}
-
-.range-chip.active {
-  background: #186663;
-  color: #fff;
-  box-shadow: inset 2px 2px 6px rgba(0,0,0,0.18), inset -2px -2px 6px rgba(255,255,255,0.10);
-}
-
 .fuel-chart-wrap {
   width: 360px;
   margin: 10px auto 0 auto;
@@ -2405,4 +2381,40 @@ pill-center:hover .pill-icon svg,
 /* subtle: make fuel avg look more "gauge-like" */
 #fuel-consumption-avg {
   letter-spacing: -0.03em;
+}
+
+/* ⛽ Fuel mode switch */
+
+.fuel-mode-switch {
+  display: flex;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #444;
+}
+
+.fuel-mode-switch label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.fuel-mode-switch input {
+  accent-color: #186663;
+  cursor: pointer;
+}
+
+#fuel-fills-control input {
+  width: 120px;
+  padding: 6px 10px;
+  font-size: 11px;
+  border-radius: 12px;
+}
+
+#fuel-period-control input {
+  width: 140px;
+  padding: 6px 10px;
+  font-size: 11px;
+  border-radius: 12px;
 }

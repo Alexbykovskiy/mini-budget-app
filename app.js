@@ -5,9 +5,10 @@ window.addEventListener("load", () => {
   loadExpenses();
   populateTagList();
   resetForm();
+initFuelControls();
   // 📸 Выбор способа загрузки изображения — камера или галерея
   // 📸 Упрощённая загрузка фото: системное меню (камера, галерея, файлы)
-
+const profileCode = "mini";
 
 
 
@@ -53,7 +54,7 @@ loadReminders();
     });
   }
 });
-const profileCode = "mini";
+
 
 const form = document.getElementById('expense-form');
 const list = document.getElementById('expense-list');
@@ -61,8 +62,18 @@ const summary = document.getElementById('summary');
 let expenseChart;
 let expenses = [];
 let fuelChart; // график расхода по заправкам
-let fuelRange = (typeof localStorage !== "undefined" && localStorage.getItem("fuelRange")) || "last5";
+let fuelMode =
+  (typeof localStorage !== "undefined" && localStorage.getItem("fuelMode")) || "fills"; // fills | period
 
+let fuelFillsCount = Number(
+  (typeof localStorage !== "undefined" && localStorage.getItem("fuelFillsCount")) || 10
+);
+
+let fuelDateFrom =
+  (typeof localStorage !== "undefined" && localStorage.getItem("fuelDateFrom")) || "";
+
+let fuelDateTo =
+  (typeof localStorage !== "undefined" && localStorage.getItem("fuelDateTo")) || "";
 // ==============================
 // ⛽ Fuel: anomaly + labels config
 // ==============================
@@ -238,28 +249,72 @@ globalDistance = distance; // Всегда держим актуальный п�
  updateFuelConsumptionUI(fullData);
 }
 
+function initFuelControls() {
+  const fillsControl = document.getElementById("fuel-fills-control");
+  const periodControl = document.getElementById("fuel-period-control");
+
+  const fillsCountInput = document.getElementById("fuel-fills-count");
+  const dateFromInput = document.getElementById("fuel-date-from");
+  const dateToInput = document.getElementById("fuel-date-to");
+
+  const modeRadios = document.querySelectorAll('input[name="fuelMode"]');
+
+  // Если HTML ещё не обновлён или элементы не найдены — просто выходим
+  if (!fillsControl || !periodControl || !fillsCountInput || !dateFromInput || !dateToInput || !modeRadios.length) {
+    return;
+  }
+
+  // 1) Проставляем сохранённые значения в инпуты
+  fillsCountInput.value = String(isFinite(fuelFillsCount) && fuelFillsCount > 0 ? fuelFillsCount : 10);
+  dateFromInput.value = fuelDateFrom || "";
+  dateToInput.value = fuelDateTo || "";
+
+  // 2) Проставляем выбранный режим
+  modeRadios.forEach(r => {
+    r.checked = r.value === fuelMode;
+  });
+
+  // 3) Показать/скрыть нужный блок
+  const applyVisibility = () => {
+    fillsControl.style.display = fuelMode === "fills" ? "block" : "none";
+    periodControl.style.display = fuelMode === "period" ? "flex" : "none";
+  };
+  applyVisibility();
+
+  // 4) Лисенеры
+  modeRadios.forEach(radio => {
+    radio.addEventListener("change", (e) => {
+      fuelMode = e.target.value || "fills";
+      try { localStorage.setItem("fuelMode", fuelMode); } catch (e) {}
+      applyVisibility();
+      updateFuelConsumptionUI(expenses);
+    });
+  });
+
+  fillsCountInput.addEventListener("input", () => {
+    const v = Number(fillsCountInput.value);
+    fuelFillsCount = isFinite(v) ? Math.max(3, Math.floor(v)) : 10;
+    try { localStorage.setItem("fuelFillsCount", String(fuelFillsCount)); } catch (e) {}
+    updateFuelConsumptionUI(expenses);
+  });
+
+  dateFromInput.addEventListener("change", () => {
+    fuelDateFrom = dateFromInput.value || "";
+    try { localStorage.setItem("fuelDateFrom", fuelDateFrom); } catch (e) {}
+    updateFuelConsumptionUI(expenses);
+  });
+
+  dateToInput.addEventListener("change", () => {
+    fuelDateTo = dateToInput.value || "";
+    try { localStorage.setItem("fuelDateTo", fuelDateTo); } catch (e) {}
+    updateFuelConsumptionUI(expenses);
+  });
+}
+
 // ==============================
 // ⛽ Расход по каждому "баку" (между полными заправками)
 // ==============================
 
-function initFuelRangeChips() {
-  const chips = document.querySelectorAll('[data-fuel-range]');
-  if (!chips || chips.length === 0) return;
-
-  chips.forEach(btn => {
-    btn.classList.toggle('active', btn.getAttribute('data-fuel-range') === fuelRange);
-  });
-
-  chips.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const next = btn.getAttribute('data-fuel-range') || 'last5';
-      fuelRange = next;
-      try { localStorage.setItem('fuelRange', fuelRange); } catch (e) {}
-      chips.forEach(b => b.classList.toggle('active', b.getAttribute('data-fuel-range') === fuelRange));
-      updateFuelConsumptionUI(expenses);
-    });
-  });
-}
 
 function computeFuelTankPoints(fullData) {
   const fuel = fullData
@@ -303,23 +358,6 @@ points.push({
 });
   }
   return points;
-}
-
-function filterFuelPointsByRange(points, rangeKey) {
-  if (!points || points.length === 0) return [];
-  const now = new Date();
-
-  if (rangeKey === 'last5') return points.slice(-5);
-  if (rangeKey === 'all') return points;
-
-  const monthsMap = { '1m': 1, '3m': 3, '6m': 6, '1y': 12 };
-  const m = monthsMap[rangeKey];
-  if (!m) return points.slice(-5);
-
-  const from = new Date(now);
-  from.setMonth(from.getMonth() - m);
-  const fromIso = from.toISOString().split('T')[0];
-  return points.filter(p => p.date >= fromIso);
 }
 
 function computeAvgFromValidPoints(points) {
@@ -462,21 +500,36 @@ function updateFuelConsumptionUI(fullData) {
   const subEl = document.getElementById('fuel-consumption-sub');
   if (!avgEl || !subEl) return;
 
-  if (!updateFuelConsumptionUI._chipsInit) {
-    initFuelRangeChips();
-    updateFuelConsumptionUI._chipsInit = true;
+ 
+  const allPoints = computeFuelTankPoints(fullData);
+
+let pointsRaw = [];
+if (fuelMode === "fills") {
+  const n = isFinite(fuelFillsCount) ? Math.max(3, Math.floor(fuelFillsCount)) : 10;
+  pointsRaw = allPoints.slice(-n);
+} else {
+  const from = fuelDateFrom || "";
+  const to = fuelDateTo || "";
+  pointsRaw = allPoints.filter(p => {
+    if (from && p.date < from) return false;
+    if (to && p.date > to) return false;
+    return true;
+  });
+}
+if (!pointsRaw || pointsRaw.length === 0) {
+  avgEl.textContent = "—";
+
+  if (fuelMode === "fills") {
+    subEl.textContent = `последние ${Math.max(3, Math.floor(fuelFillsCount || 10))} заправок · точек: 0`;
+  } else {
+    const fromTxt = fuelDateFrom ? formatDate(fuelDateFrom) : "…";
+    const toTxt = fuelDateTo ? formatDate(fuelDateTo) : "…";
+    subEl.textContent = `период: ${fromTxt}–${toTxt} · точек: 0`;
   }
 
-  const allPoints = computeFuelTankPoints(fullData);
-const pointsRaw = filterFuelPointsByRange(allPoints, fuelRange);
-
-if (!pointsRaw || pointsRaw.length === 0) {
-  avgEl.textContent = '—';
-  subEl.textContent = `${labelMap[fuelRange] || ''} · точек: ${points.length} · валидных: ${validCount} · аномалий: ${anomalyCount} · 🟢 молодец · 🟦 средний · 🟠 выше · ⚪ аномалия`;
-  renderFuelLineChart([]);
+  renderFuelLineChart([], null);
   return;
 }
-
 // 1) считаем среднее только по валидным (без аномалий)
 const avgValid = computeAvgFromValidPoints(pointsRaw);
 
@@ -494,17 +547,14 @@ if (!avgValid) {
 const validCount = points.filter(p => p.status !== "anomaly").length;
 const anomalyCount = points.length - validCount;
 
-const labelMap = {
-  last5: 'средний за последние 5 заправок',
-  '1m': 'средний за последний месяц',
-  '3m': 'средний за 3 месяца',
-  '6m': 'средний за 6 месяцев',
-  '1y': 'средний за год',
-  all: 'средний за всё время'
-};
-
-subEl.textContent = `${labelMap[fuelRange] || ''} · точек: ${points.length} · валидных: ${validCount} · аномалий: ${anomalyCount}`;
-
+if (fuelMode === "fills") {
+  const n = Math.max(3, Math.floor(fuelFillsCount || 10));
+  subEl.textContent = `последние ${n} заправок · точек: ${points.length} · валидных: ${validCount} · аномалий: ${anomalyCount}`;
+} else {
+  const fromTxt = fuelDateFrom ? formatDate(fuelDateFrom) : "…";
+  const toTxt = fuelDateTo ? formatDate(fuelDateTo) : "…";
+  subEl.textContent = `период: ${fromTxt}–${toTxt} · точек: ${points.length} · валидных: ${validCount} · аномалий: ${anomalyCount}`;
+}
 // 5) рендерим график уже с метками + линией среднего
 renderFuelLineChart(points, avgValid);
 }
@@ -656,7 +706,8 @@ if (id) {
   showToast("Расход добавлен!");
   form.reset();
   document.getElementById('edit-id').value = '';
-};function fetchTags() {
+};
+function fetchTags() {
   return db.collection("users").doc(profileCode).collection("tags").get()
     .then(snapshot => snapshot.docs.map(doc => doc.id));
 }

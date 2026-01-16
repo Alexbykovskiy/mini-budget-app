@@ -84,24 +84,51 @@
 <!-- ⛽ Топливо: быстрый индикатор + график по заправкам -->
 <div class="fuel-consumption-section animated-section delay-2">
   <div class="fuel-consumption-bar" id="fuel-consumption-bar">
-    <div class="fuel-consumption-bar__left">
-      <div class="fuel-consumption-bar__title">Расход топлива</div>
-      <div class="fuel-consumption-bar__value">
-        <span id="fuel-consumption-avg">—</span>
-        <span class="fuel-consumption-bar__unit">л/100</span>
-      </div>
-      <div class="fuel-consumption-bar__sub" id="fuel-consumption-sub">—</div>
+
+  <!-- LEFT: заголовок + число среднего + подпись -->
+  <div class="fuel-consumption-bar__left">
+    <div class="fuel-consumption-bar__title">Расход топлива</div>
+
+    <div class="fuel-consumption-bar__value">
+      <span id="fuel-consumption-avg">—</span>
+      <span class="fuel-consumption-bar__unit">л/100</span>
     </div>
 
-    <div class="fuel-consumption-bar__right" aria-label="Период расхода">
-      <button type="button" class="range-chip" data-fuel-range="last5">5</button>
-      <button type="button" class="range-chip" data-fuel-range="1m">1м</button>
-      <button type="button" class="range-chip" data-fuel-range="3m">3м</button>
-      <button type="button" class="range-chip" data-fuel-range="6m">6м</button>
-      <button type="button" class="range-chip" data-fuel-range="1y">1г</button>
-      <button type="button" class="range-chip" data-fuel-range="all">Все</button>
-    </div>
+    <div class="fuel-consumption-bar__sub" id="fuel-consumption-sub">—</div>
   </div>
+
+  <!-- RIGHT: режим + ввод -->
+  <div class="fuel-consumption-bar__right" aria-label="Настройки расхода">
+
+    <div class="fuel-mode-switch">
+      <label>
+        <input type="radio" name="fuelMode" value="fills" checked>
+        по заправкам
+      </label>
+      <label>
+        <input type="radio" name="fuelMode" value="period">
+        по периоду
+      </label>
+    </div>
+
+    <div id="fuel-fills-control">
+      <input
+        type="number"
+        id="fuel-fills-count"
+        min="3"
+        step="1"
+        value="10"
+        placeholder="Кол-во заправок"
+      />
+    </div>
+
+    <div id="fuel-period-control" style="display:none;">
+      <input type="date" id="fuel-date-from">
+      <input type="date" id="fuel-date-to">
+    </div>
+
+  </div>
+</div>
 
   <div class="fuel-chart-wrap">
     <div id="fuel-line-chart"></div>
