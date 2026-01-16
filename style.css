@@ -176,7 +176,7 @@ input[type="date"] {
   gap: 10px;
   width: 360px;
 flex-wrap: nowrap;
-  overflow: hidden;
+  overflow: visible;
   border-radius: 18px;
   padding: 10px 12px;
 box-sizing: border-box;
@@ -335,8 +335,8 @@ box-sizing: border-box;
   padding: 8px 12px;
   font-size: 12px;
   border-radius: 14px;
+  box-sizing: border-box;
 }
-
 /* период: два поля в ряд */
 #fuel-period-control {
   display: flex;
