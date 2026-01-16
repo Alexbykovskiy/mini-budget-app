@@ -98,20 +98,25 @@
   </div>
 
   <!-- RIGHT: режим + ввод -->
-  <div class="fuel-consumption-bar__right" aria-label="Настройки расхода">
+ <div class="fuel-consumption-bar__right" aria-label="Настройки расхода">
 
-    <div class="fuel-mode-switch">
-      <label>
-        <input type="radio" name="fuelMode" value="fills" checked>
-        по заправкам
-      </label>
-      <label>
-        <input type="radio" name="fuelMode" value="period">
-        по периоду
-      </label>
-    </div>
+  <!-- 2 режима в одну строку (2 колонки) -->
+  <div class="fuel-mode-grid" role="radiogroup" aria-label="Режим расчёта расхода">
+    <label class="fuel-mode-option">
+      <input type="radio" name="fuelMode" value="fills" checked>
+      <span>по заправкам</span>
+    </label>
 
-    <div id="fuel-fills-control">
+    <label class="fuel-mode-option">
+      <input type="radio" name="fuelMode" value="period">
+      <span>по периоду</span>
+    </label>
+  </div>
+
+  <!-- Ниже появляются нужные поля -->
+  <div class="fuel-mode-controls">
+
+    <div id="fuel-fills-control" class="fuel-control-block">
       <input
         type="number"
         id="fuel-fills-count"
@@ -122,7 +127,7 @@
       />
     </div>
 
-    <div id="fuel-period-control" style="display:none;">
+    <div id="fuel-period-control" class="fuel-control-block" style="display:none;">
       <input type="date" id="fuel-date-from">
       <input type="date" id="fuel-date-to">
     </div>

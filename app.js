@@ -276,9 +276,10 @@ function initFuelControls() {
 
   // 3) Показать/скрыть нужный блок
   const applyVisibility = () => {
-    fillsControl.style.display = fuelMode === "fills" ? "block" : "none";
-    periodControl.style.display = fuelMode === "period" ? "flex" : "none";
-  };
+  fillsControl.style.display = fuelMode === "fills" ? "block" : "none";
+  periodControl.style.display = fuelMode === "period" ? "flex" : "none";
+};
+ 
   applyVisibility();
 
   // 4) Лисенеры

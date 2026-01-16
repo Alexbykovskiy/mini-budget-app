@@ -2383,54 +2383,98 @@ pill-center:hover .pill-icon svg,
   letter-spacing: -0.03em;
 }
 
-/* ⛽ Fuel mode switch */
+/* ⛽ Fuel mode UI: 2-column toggle + dynamic controls */
 
-.fuel-mode-switch {
+.fuel-consumption-bar__right {
   display: flex;
-  gap: 6px;
-  font-size: 10px;
-  font-weight: 600;
-  color: #444;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+  min-width: 260px;
 }
 
-.fuel-mode-switch label {
+/* две “кнопки” в одну строку */
+.fuel-mode-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* кнопка-опция */
+.fuel-mode-option {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 4px;
-  cursor: pointer;
-}
+  justify-content: center;
 
-.fuel-mode-switch input {
-  accent-color: #186663;
-  cursor: pointer;
-}
+  padding: 8px 10px;
+  border-radius: 14px;
 
-#fuel-fills-control input {
-  width: 120px;
-  padding: 6px 10px;
-  font-size: 11px;
-  border-radius: 12px;
-}
-
-#fuel-period-control input {
-  width: 140px;
-  padding: 6px 10px;
-  font-size: 11px;
-  border-radius: 12px;
-}
-
-/* Fix: global input styles break radio buttons */
-.fuel-mode-switch input[type="radio"]{
-  width: auto;
-  padding: 0;
-  box-shadow: none;
-  background: transparent;
-}
-
-.fuel-mode-switch label{
-  padding: 6px 10px;
-  border-radius: 999px;
   background: rgba(255,255,255,0.35);
-  box-shadow: inset 2px 2px 5px rgba(190,190,190,0.6),
-              inset -2px -2px 5px rgba(255,255,255,0.7);
+  box-shadow:
+    inset 2px 2px 5px rgba(190,190,190,0.55),
+    inset -2px -2px 5px rgba(255,255,255,0.75);
+
+  font-size: 11px;
+  font-weight: 700;
+  color: #444;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* прячем радио полностью, иначе глобальные input стили его ломают */
+.fuel-mode-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+
+  /* критично: перебить глобальные input-стили */
+  width: 0 !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* активная кнопка */
+.fuel-mode-option input[type="radio"]:checked + span {
+  color: #0f3f3d;
+}
+
+/* подсветка активной кнопки через псевдо-слой */
+.fuel-mode-option:has(input[type="radio"]:checked) {
+  background: rgba(24, 102, 99, 0.18);
+  box-shadow:
+    inset 2px 2px 6px rgba(190,190,190,0.5),
+    inset -2px -2px 6px rgba(255,255,255,0.8);
+}
+
+/* контейнер для полей снизу */
+.fuel-mode-controls {
+  display: block;
+}
+
+/* блоки полей */
+.fuel-control-block {
+  display: block;
+}
+
+/* инпуты внутри топлива: компактные и одинаковые */
+.fuel-control-block input[type="number"],
+.fuel-control-block input[type="date"] {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 12px;
+  border-radius: 14px;
+}
+
+/* период: два поля в ряд */
+#fuel-period-control {
+  display: flex;
+  gap: 8px;
+}
+
+#fuel-period-control input[type="date"] {
+  flex: 1 1 0;
 }
