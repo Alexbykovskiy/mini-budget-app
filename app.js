@@ -507,6 +507,7 @@ subEl.textContent = `${labelMap[fuelRange] || ''} · точек: ${points.length
 
 // 5) рендерим график уже с метками + линией среднего
 renderFuelLineChart(points, avgValid);
+}
 
 function calculateCostPerKm(data) {
   const mileageEntries = data.filter(e => e.mileage && !isNaN(Number(e.mileage)));
