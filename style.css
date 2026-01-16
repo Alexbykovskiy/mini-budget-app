@@ -348,18 +348,23 @@ box-sizing: border-box;
 }
 
 .fuel-chart-card{
-  width: 360px;
+  width: 360px;              /* ровно как stats-cards */
   margin: 10px auto 0;
-  padding: 10px 12px;
+  padding: 10px;             /* одинаковые отступы */
   border-radius: 18px;
+
   background: rgba(255, 255, 255, 0.30);
   box-shadow:
-    8px 8px 16px rgba(180, 180, 180, 0.55),
-    -8px -8px 16px rgba(255, 255, 255, 0.70);
+    inset 4px 4px 8px #bebebe,
+    inset -4px -4px 8px #ffffff;
+
   box-sizing: border-box;
 }
 
-
+#fuel-line-chart{
+  width: 100%;
+  max-width: 100%;
+}
 
 
 /* Список расходов */
