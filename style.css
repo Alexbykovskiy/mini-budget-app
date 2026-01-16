@@ -347,6 +347,20 @@ box-sizing: border-box;
   flex: 1 1 0;
 }
 
+.fuel-chart-card{
+  width: 360px;
+  margin: 10px auto 0;
+  padding: 10px 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.30);
+  box-shadow:
+    8px 8px 16px rgba(180, 180, 180, 0.55),
+    -8px -8px 16px rgba(255, 255, 255, 0.70);
+  box-sizing: border-box;
+}
+
+
+
 
 /* Список расходов */
 #expense-list {
@@ -1701,7 +1715,8 @@ select {
   font-size: 9px;
   color: #999;
   margin: 0;
-  line-height
+  line-height: 1;
+}
 
 .chart-with-info {
   display: flex;
