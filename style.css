@@ -1,0 +1,279 @@
+/* =========================
+   iOS-ish Glass Dashboard
+   ========================= */
+
+:root{
+  --bg-0:#002D37;       /* Dark Ocean base */
+  --bg-1:#186663;       /* teal */
+  --bg-2:#A6B5B4;       /* mist */
+  --bg-3:#8C7361;       /* clay */
+  --bg-4:#D2AF94;       /* sand */
+
+  --text:#EAF4F4;
+  --muted: rgba(234,244,244,.72);
+
+  --glass: rgba(255,255,255,.08);
+  --glass-2: rgba(255,255,255,.12);
+  --stroke: rgba(255,255,255,.16);
+
+  --shadow: 0 16px 40px rgba(0,0,0,.35);
+  --shadow-soft: 0 10px 24px rgba(0,0,0,.22);
+
+  --radius: 22px;
+  --radius-lg: 26px;
+
+  --blur: 16px;
+  --gap: 14px;
+
+  --maxw: 980px;
+}
+
+/* Base */
+*{ box-sizing: border-box; }
+html, body{ height: 100%; }
+body{
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--text);
+  background: #000;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* smooth-ish */
+  scroll-behavior: smooth;
+}
+
+/* Background */
+.bg{
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(1200px 600px at 20% 10%, rgba(24,102,99,.55), transparent 60%),
+    radial-gradient(900px 500px at 85% 15%, rgba(210,175,148,.35), transparent 55%),
+    radial-gradient(900px 700px at 70% 85%, rgba(140,115,97,.35), transparent 60%),
+    radial-gradient(800px 600px at 15% 85%, rgba(166,181,180,.22), transparent 60%),
+    linear-gradient(180deg, rgba(0,45,55,1), rgba(0,21,28,1));
+}
+
+.noise{
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .14;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+/* Topbar */
+.topbar{
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  background: linear-gradient(180deg, rgba(0,0,0,.38), rgba(0,0,0,.10));
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.topbar__content{
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 18px 16px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.brand__title{
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+.brand__subtitle{
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* pill */
+.pill{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: var(--shadow-soft);
+  white-space: nowrap;
+}
+
+.pill__dot{
+  width: 10px;
+  height: 10px;
+  border-radius: 99px;
+  background: rgba(210,175,148,.9);
+  box-shadow: 0 0 0 4px rgba(210,175,148,.18);
+}
+
+.pill__text{
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.pill__date{
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Container */
+.container{
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 18px 16px 28px;
+}
+
+/* Tiles grid */
+.tiles{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gap);
+  margin-top: 10px;
+}
+
+/* Tile card */
+.tile{
+  min-height: 168px; /* large tap target */
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  color: var(--text);
+
+  background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+  border: 1px solid rgba(255,255,255,.14);
+
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+
+
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  transform: translateZ(0);
+   transition: transform .14s cubic-bezier(.2,.8,.2,1),
+              border-color .12s ease,
+              background .12s ease,
+              box-shadow .12s ease;
+}
+
+ cursor: pointer;
+} 
+
+.tile:active{
+  transform: scale(.985);
+}
+
+.tile:hover{
+  border-color: rgba(255,255,255,.22);
+  background: linear-gradient(180deg, rgba(255,255,255,.15), rgba(255,255,255,.07));
+}
+
+/* Special accents */
+.tile--primary{
+  background:
+    radial-gradient(260px 180px at 30% 20%, rgba(24,102,99,.35), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+}
+
+.tile--ghost{
+  opacity: .82;
+}
+
+/* Inner layout */
+.tile__header{
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.tile__icon{
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+
+  background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 10px 22px rgba(0,0,0,.22);
+}
+
+.tile__title{
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: .15px;
+}
+
+.tile__subtitle{
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.tile__footer{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,.10);
+}
+
+.tile__hint{
+  font-size: 13px;
+  color: rgba(234,244,244,.78);
+}
+
+.tile__arrow{
+  font-size: 22px;
+  line-height: 1;
+  opacity: .85;
+}
+
+/* Footer */
+.footer{
+  margin-top: 18px;
+  padding: 14px 14px;
+  border-radius: var(--radius);
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+}
+
+.footer__text{
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+/* Responsive tweaks */
+@media (min-width: 520px){
+  .tile{ min-height: 178px; }
+  .brand__title{ font-size: 22px; }
+}
+
+@media (min-width: 900px){
+  /* On desktop you can keep 2 cols for "phone feel" or switch to 3.
+     For now we keep 2 to match your iPhone-first requirement. */
+}
+
+a{
+  -webkit-tap-highlight-color: transparent;
+}

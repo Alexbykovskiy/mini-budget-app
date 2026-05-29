@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Apps</title>
+
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+
+<link rel="apple-touch-icon" href="apple-touch-icon.PNG">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="My Apps">
+
+  <!-- Optional: iOS-like font fallback -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg">
+    <div class="noise"></div>
+  </div>
+
+  <header class="topbar">
+    <div class="topbar__content">
+      <div class="brand">
+        <div class="brand__title">My Apps</div>
+        <div class="brand__subtitle">Единый вход в мои инструменты</div>
+      </div>
+
+      <div class="pill">
+        <span class="pill__dot"></span>
+        <span class="pill__text">Сегодня</span>
+        <span class="pill__date">19 янв</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="tiles" aria-label="Список приложений">
+      <!-- 1 -->
+    <!-- Mini Budget -->
+<a class="tile tile--primary"
+   href="https://alexbykovskiy.com/mini-budget-app/minibudget/index.html"
+   aria-label="Открыть Mini Budget">
+        <div class="tile__header">
+          <div class="tile__icon" aria-hidden="true">🚗</div>
+          <div class="tile__titles">
+            <div class="tile__title">Mini Budget</div>
+            <div class="tile__subtitle">Расходы авто</div>
+          </div>
+        </div>
+        <div class="tile__footer">
+          <span class="tile__hint">Открыть</span>
+          <span class="tile__arrow" aria-hidden="true">›</span>
+        </div>
+      </a>
+
+      <!-- 2 -->
+     <!-- Конверты -->
+<a class="tile"
+   href="https://alexbykovskiy.com/mini-budget-app/envelopes/envelopes.html"
+   aria-label="Открыть Конверты">
+        <div class="tile__header">
+          <div class="tile__icon" aria-hidden="true">💰</div>
+          <div class="tile__titles">
+            <div class="tile__title">Конверты</div>
+            <div class="tile__subtitle">Накопления</div>
+          </div>
+        </div>
+        <div class="tile__footer">
+          <span class="tile__hint">Открыть</span>
+          <span class="tile__arrow" aria-hidden="true">›</span>
+        </div>
+      </a>
+
+      <!-- 3 -->
+      <!-- Поездки -->
+<a class="tile"
+   href="https://alexbykovskiy.com/mini-budget-app/tattoo/tattoo-index.html"
+   aria-label="Открыть Поездки">
+        <div class="tile__header">
+          <div class="tile__icon" aria-hidden="true">🧳</div>
+          <div class="tile__titles">
+            <div class="tile__title">Поездки</div>
+            <div class="tile__subtitle">Расходы на гостях</div>
+          </div>
+        </div>
+        <div class="tile__footer">
+          <span class="tile__hint">Открыть</span>
+          <span class="tile__arrow" aria-hidden="true">›</span>
+        </div>
+      </a>
+
+      <!-- 4 -->
+      <!-- Tattoo CRM -->
+<a class="tile"
+   href="https://alexbykovskiy.com/mini-budget-app/TattooCRM/"
+   aria-label="Открыть Tattoo CRM">
+        <div class="tile__header">
+          <div class="tile__icon" aria-hidden="true">🖋️</div>
+          <div class="tile__titles">
+            <div class="tile__title">Tattoo CRM</div>
+            <div class="tile__subtitle">Клиенты и сессии</div>
+          </div>
+        </div>
+        <div class="tile__footer">
+          <span class="tile__hint">Открыть</span>
+          <span class="tile__arrow" aria-hidden="true">›</span>
+        </div>
+      </a>
+
+     <!-- Free Day Editor -->
+<a class="tile"
+   href="https://alexbykovskiy.com/free-day-editor/"
+   aria-label="Открыть Free Day Editor">
+  <div class="tile__header">
+    <div class="tile__icon" aria-hidden="true">🗓️</div>
+    <div class="tile__titles">
+      <div class="tile__title">Free Day Editor</div>
+      <div class="tile__subtitle">Планирование дней</div>
+    </div>
+  </div>
+  <div class="tile__footer">
+    <span class="tile__hint">Открыть</span>
+    <span class="tile__arrow" aria-hidden="true">›</span>
+  </div>
+</a>
+
+      <!-- 6 -->
+      <a class="tile tile--ghost" href="#" aria-label="Скоро">
+        <div class="tile__header">
+          <div class="tile__icon" aria-hidden="true">➕</div>
+          <div class="tile__titles">
+            <div class="tile__title">Скоро</div>
+            <div class="tile__subtitle">Новая идея</div>
+          </div>
+        </div>
+        <div class="tile__footer">
+          <span class="tile__hint">Зарезервировано</span>
+          <span class="tile__arrow" aria-hidden="true">·</span>
+        </div>
+      </a>
+    </section>
+
+    <footer class="footer">
+      <div class="footer__text">Все приложения открываются в новом стиле iOS. Без лишних кликов.</div>
+    </footer>
+  </main>
+</body>
+</html>
