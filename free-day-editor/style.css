@@ -1,0 +1,1166 @@
+/* ====== БАЗА ====== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+:root {
+--artboard-w: 360px;
+  --artboard-h: 640px;
+  --preview-scale: 1;
+  --zoom-len: 320px;
+--calendar-cell-size: 34px; /* базовое значение */
+  --calendar-card-bg-color: #ffffff;
+  --calendar-text-color: #111827;
+--calendar-font-size: 18px;
+  --title-month-font-size: 20px;
+  --title-month-font-weight: 400;
+  --title-month-font-style: normal;
+
+  --footer-font-size: 16px;
+  --footer-font-weight: 400;
+  --footer-font-style: normal;
+  --title-month-font: Inter;
+  --title-month-color: #1f2937;
+
+  --footer-font: Inter;
+  --footer-color: #374151;
+ --title-main-font: Inter;
+  --title-main-color: #111827;
+  --title-main-font-size: 18px;
+  --title-main-font-weight: 600;
+  --title-main-font-style: normal;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top, #f5f5f7 0, #dde1e7 50%, #c7d0dd 100%);
+  color: #111827;
+}
+
+html,
+body {
+  touch-action: manipulation; /* убирает double-tap zoom, оставляет скролл */
+  -ms-touch-action: manipulation;
+}
+
+body {
+  min-height: 100vh;
+}
+
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4px;
+
+  /* страница = ровно экран */
+  height: 100vh;   /* fallback для старых браузеров */
+height: 100dvh;  /* ✅ мобильные: реальная видимая высота */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* важно: общий скролл отключаем */
+}
+
+
+/* ====== WORKSPACE: превью сверху, настройки снизу ====== */
+
+html, body {
+  height: 100%;
+}
+
+body {
+  overflow: hidden; /* скролл будет только в настройках */
+}
+
+/* ВАЖНО: workspace должен иметь ограниченную высоту */
+.workspace {
+  flex: 1;
+  min-height: 0;                 /* критично для внутреннего скролла */
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* верх = 50% экрана внутри workspace */
+.panel-preview {
+  flex: 0 0 50%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* низ = 60% экрана внутри workspace + скролл */
+.panel-editor {
+  flex: 0 0 50%;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 40px;
+}
+/* ====== ШАПКА/ФУТЕР ====== */
+
+.page-header {
+  text-align: left;
+  margin: 0;            /* убрали margin */
+  padding-bottom: 16px; /* вместо него даём аккуратный отступ */
+  flex: 0 0 auto;
+}
+
+.page-header h1 {
+  margin: 0 0 4px;
+  font-size: 1.5rem;
+}
+
+.page-header p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 0.95rem;
+}
+
+.page-footer {
+  margin: 0;            /* убрали margin */
+  padding-top: 16px;    /* вместо него */
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  font-size: 0.8rem;
+  color: #6b7280;
+  flex: 0 0 auto;
+}
+
+/* ====== ЛЕЙАУТ ====== */
+
+.layout {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+}
+
+.panel {
+  backdrop-filter: blur(18px);
+  background: rgba(248, 250, 252, 0.8);
+  border-radius: 18px;
+  padding: 4px 4px 4px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.20);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.panel-title {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* ====== ФОРМА ====== */
+
+.form-group {
+  margin-bottom: 10px;
+}
+.settings-separator {
+  width: 100%;
+  height: 1px;
+  background: rgba(0,0,0,0.12);
+  margin: 12px 0;
+}
+.form-row {
+  display: flex;
+  gap: 10px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+label {
+  display: block;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+  color: #4b5563;
+}
+
+/* Категория настроек ("Календарь" + iOS-switch) */
+.settings-cat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 14px 0 6px;
+}
+
+.settings-cat-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* iOS-переключатель */
+.switch-ios {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+}
+
+.switch-ios input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-ios .slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: rgba(148, 163, 184, 0.8);
+  border-radius: 999px;
+  transition: background-color 0.2s ease;
+}
+
+.switch-ios .slider::before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  top: 2px;
+  background-color: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.switch-ios input:checked + .slider {
+  background-color: #22c55e;
+}
+
+.switch-ios input:checked + .slider::before {
+  transform: translateX(18px);
+}
+
+
+input[type="text"],
+input[type="number"],
+select {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.8);
+  font-size: 0.9rem;
+  outline: none;
+  background: rgba(255, 255, 255, 0.9);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 1px rgba(14, 165, 233, 0.3);
+  background: #fff;
+}
+
+input[type="color"] {
+  width: 36px;              /* круг */
+  height: 36px;             /* круг */
+  padding: 0;
+  border-radius: 50%;       /* ← ДЕЛАЕТ КРУГЛЫМ */
+  border: none;
+  background: transparent;
+  cursor: pointer;
+
+  -webkit-appearance: none; /* убираем стандартный стиль */
+  appearance: none;
+  overflow: hidden;
+}
+
+/* Для Chrome — делаем реальный круг */
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border-radius: 50%;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+.hint {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 6px 0 10px;
+}
+
+.divider {
+  border: none;
+  border-top: 1px dashed rgba(148, 163, 184, 0.7);
+  margin: 14px 0;
+}
+
+/* ====== КНОПКИ ====== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s,
+    border-color 0.15s;
+}
+
+.btn-primary {
+  background: linear-gradient(120deg, #f97316, #ec4899);
+  color: #f9fafb;
+  box-shadow: 0 12px 30px rgba(236, 72, 153, 0.35);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 32px rgba(236, 72, 153, 0.4);
+}
+
+.btn-secondary {
+  background: rgba(15, 23, 42, 0.04);
+  color: #111827;
+  border: 1px solid rgba(148, 163, 184, 0.8);
+}
+
+.btn-secondary:hover {
+  background: rgba(15, 23, 42, 0.06);
+}
+
+/* ====== ПРЕВЬЮ ====== */
+
+.panel-preview {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.preview-wrapper {
+  flex: 1;                /* занимает всю доступную высоту панели */
+  min-height: 0;
+  width: 100%;
+
+  /* центрируем артборд внутри */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0 auto;
+  max-width: none;        /* убираем ограничение по ширине */
+}
+
+.preview-artboard {
+  width: var(--artboard-w);
+  height: var(--artboard-h);
+
+  transform: scale(var(--preview-scale, 1));
+  transform-origin: center;
+
+  will-change: transform;
+
+  border-radius: 32px;
+  overflow: hidden;
+  position: relative;
+
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+
+  box-shadow: 0 30px 60px rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(15, 23, 42, 0.4);
+}
+
+/* ====== EXPORT MODE (PNG) ====== */
+/* Во время экспорта убираем тень/бордер/скругления, чтобы не было полос/артефактов */
+.preview-artboard.is-exporting {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Фоновые варианты */
+
+.preview-artboard.bg-beige {
+  background-image: linear-gradient(135deg, #cbb69b 0, #e7d4bc 45%, #f5ede1 100%);
+}
+
+.preview-artboard.bg-red {
+  background-image: linear-gradient(135deg, #7f1023 0, #b7182f 30%, #e63946 100%);
+}
+
+.preview-artboard.bg-green {
+  background-image: linear-gradient(135deg, #0b3b2d 0, #145c38 40%, #9fd5b6 100%);
+}
+
+.preview-artboard.bg-solid {
+  background-image: linear-gradient(145deg, #f9fafb 0, #e5e7eb 50%, #f9fafb 100%);
+}
+
+/* Пользовательский фон (картинка) */
+.preview-artboard.bg-custom {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* ===== Custom background image layer (movable/rotatable) ===== */
+
+.preview-bg-image{
+ transition: transform 0.06s linear;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  /* по умолчанию скрыт */
+  opacity: 0;
+  pointer-events: none;
+
+  /* трансформации управляются из JS */
+  transform: translate(0px, 0px) scale(1) rotate(0deg);
+  transform-origin: center;
+
+  z-index: -1;
+}
+
+.tint-row{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tint-slider{
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.tint-slider input[type="range"]{
+  flex: 1;
+  min-width: 0;
+}
+
+.tint-value{
+  width: 46px;
+  text-align: right;
+  font-size: 0.85rem;
+  color: #374151;
+  white-space: nowrap;
+}
+
+
+/* ===== Tint overlay layer (color + opacity) ===== */
+.preview-tint-layer{
+  position: absolute;
+  inset: 0;
+  z-index: 0;           /* поверх картинки, но под overlay */
+  pointer-events: none;
+  background: rgba(0,0,0,0);
+}
+
+/* когда пользовательский фон активен */
+.preview-artboard.has-custom-image .preview-bg-image{
+  opacity: 1;
+}
+
+/* overlay должен быть над картинкой */
+.preview-overlay{
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== Controls UI ===== */
+
+.bg-controls{
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(10px);
+}
+
+.bg-controls__row{
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+
+
+.bg-scale-row{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bg-scale-row input[type="range"]{
+  flex: 1;
+  min-width: 0;
+}
+
+.bg-scale-value{
+  width: 52px;          /* чтобы не прыгало при 100/300 */
+  text-align: right;
+  font-size: 0.85rem;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.bg-joystick{
+  width: 120px;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  justify-items: center;
+  gap: 8px;
+}
+
+.bg-joystick__mid{
+  display: grid;
+  grid-template-columns: auto auto auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.bg-joystick__btn{
+  touch-action: none;     /* чтобы палец не скроллил страницу при удержании */
+  -webkit-user-select: none;
+  user-select: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.65);
+  background: rgba(255,255,255,0.75);
+  cursor: pointer;
+  user-select: none;
+}
+
+.bg-joystick__btn:active{
+  transform: translateY(1px);
+}
+
+.bg-joystick__btn.is-holding{
+  transform: translateY(1px);
+  filter: brightness(0.98);
+}
+
+.bg-joystick__center{
+  border-radius: 999px;
+  font-size: 14px;
+}
+
+
+.bg-rotate__btn{
+  padding: 8px 10px;
+  border-radius: 12px;
+}
+
+/* ===== Rotary knob (background rotation) ===== */
+
+.bg-rotate{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+
+.bg-knob{
+  width: 120px;
+  height: 120px;
+  position: relative;
+  border-radius: 999px;
+
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(148, 163, 184, 0.55);
+  backdrop-filter: blur(10px);
+
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+ -webkit-touch-callout: none;
+}
+
+.bg-knob__ring{
+  position: absolute;
+  inset: 10px;
+  border-radius: 999px;
+  border: 2px solid rgba(148, 163, 184, 0.55);
+}
+
+.bg-knob__pointer{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 44px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, 0.8);
+  transform-origin: left center;
+  transform: translateY(-50%) rotate(0deg);
+}
+
+.bg-knob__dot{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(249, 115, 22, 0.95);
+  box-shadow: 0 8px 18px rgba(249,115,22,0.25);
+  transform: translate(-50%, -50%) rotate(0deg) translateX(44px);
+  cursor: grab;
+touch-action: none;
+}
+
+.bg-knob__dot:active{
+  cursor: grabbing;
+}
+
+.bg-knob__value{
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  font-size: 0.85rem;
+  color: #111827;
+  opacity: 0.85;
+}
+
+
+/* Полупрозрачная белая карточка с календарём */
+
+.preview-overlay {
+  position: absolute;
+  inset: 0;
+
+  padding: 24px 20px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  /* ВАЖНО: для сторис */
+  justify-content: space-between;
+  align-items: stretch;
+}
+.preview-header {
+  width: 100%;
+  max-width: 520px;
+  text-align: center;
+
+  padding: 6px 10px;
+  font-size: 0.95rem;
+}
+
+.preview-title-main {
+  font-family: var(--title-main-font);
+  color: var(--title-main-color);
+  font-size: var(--title-main-font-size);
+  font-weight: var(--title-main-font-weight);
+  font-style: var(--title-main-font-style);
+
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  line-height: 1.25;
+}
+
+.calendar-day,
+.calendar-number {
+  color: var(--calendar-text-color);
+}
+.preview-calendar-container {
+  background: var(--calendar-card-bg-color);        /* ← ФОН КАРТОЧКИ */
+  color: var(--calendar-text-color);                /* ← ЦВЕТ ТЕКСТА */
+
+  border-radius: 26px;
+  padding: 16px 14px 18px;
+max-width: 92%;
+
+width: 100%;
+margin: 0 auto;
+max-height: 70%;
+overflow: visible;
+  box-shadow: var(
+    --calendar-shadow,
+    0 18px 35px rgba(15, 23, 42, 0.45)
+  );
+
+  opacity: var(--calendar-opacity, 0.96);
+
+  /* размер и положение календаря */
+  transform: translate(
+      var(--calendar-offset-x, 0px),
+      var(--calendar-offset-y, 0px)
+    )
+    scale(var(--calendar-scale, 1));
+  transform-origin: center center;
+
+  transition: transform 0.15s ease,
+              box-shadow 0.15s ease,
+              background 0.15s ease,
+              backdrop-filter 0.15s ease;
+}
+
+.preview-title-month {
+  text-align: center;
+  font-family: var(--title-month-font);
+  color: var(--title-month-color);
+  font-size: var(--title-month-font-size);
+  font-weight: var(--title-month-font-weight);
+  font-style: var(--title-month-font-style);
+  margin-bottom: 10px;
+
+ white-space: pre-wrap;
+  word-wrap: break-word;      /* ← переносить длинные слова */
+  overflow-wrap: anywhere;    /* ← жесткий перенос */
+  line-height: 1.25;          /* ← чтобы красиво выглядело */
+  text-wrap: wrap;            /* ← современный wrap */
+}/* Календарь */
+
+.calendar {
+  background: var(--calendar-card-bg-color, rgba(255, 255, 255, 0.95));
+  border-radius: 18px;
+  padding: 10px 10px 10px;
+  border: none; /* рамки больше нет */
+}
+/* === ДНИ НЕДЕЛИ (ПН–ВС) — ТОЧНОЕ ВЫРАВНИВАНИЕ === */
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, var(--calendar-cell-size));
+  justify-content: center;
+  gap: 3px;
+  margin-bottom: 6px;
+}
+
+/* Ячейка для дня недели — тот же размер, что цифры */
+.calendar-weekdays span {
+  width: var(--calendar-cell-size);
+  height: var(--calendar-cell-size);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* На 20% меньше, чем цифры */
+  font-size: calc(var(--calendar-font-size) * 0.8);
+
+  font-weight: 600;
+  color: var(--calendar-text-color);
+}.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, var(--calendar-cell-size));
+  gap: 3px;
+  justify-content: center;
+}
+.calendar-day {
+  position: relative;
+  width: var(--calendar-cell-size);
+  height: var(--calendar-cell-size);
+  font-size: 0.7rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #111827;
+  transition: background 0.12s ease, box-shadow 0.12s ease, transform 0.08s;
+}
+.calendar-day-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: var(--calendar-font-size);
+  font-weight: 600;
+  line-height: calc(var(--calendar-font-size) + 2px);
+  color: var(--calendar-text-color);
+
+  border-radius: 50%;
+}
+
+
+
+.calendar-day.empty {
+  cursor: default;
+}
+
+
+
+
+.preview-footer-text {
+  margin-top: 10px;
+  font-family: var(--footer-font);
+  color: var(--footer-color);
+  font-size: var(--footer-font-size);
+  font-weight: var(--footer-font-weight);
+  font-style: var(--footer-font-style);
+
+  white-space: pre-wrap;   /* ← главное для переноса с Enter */
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  line-height: 1.25;
+  text-wrap: wrap;
+}
+.preview-note {
+  display: none; /* в режиме фикс-превью убираем, чтобы всё влезало */
+}
+
+/* ====== АДАПТИВ ====== */
+
+
+.calendar-day.unavailable .calendar-day-inner::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--calendar-cell-size) * 0.9);
+  height: 4px; /* толщина линии */
+  background: #e53935; /* красная */
+  border-radius: 999px; /* пилюля */
+  transform: translate(-50%, -50%);
+  z-index: 3; /* над цифрой */
+  opacity: 0.9;
+}
+.calendar-day.available .calendar-day-inner::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 6px; /* расстояние под цифрой */
+  width: calc(var(--calendar-cell-size) * 0.7);
+  height: 4px;
+  background: var(--accent-color); /* зелёная */
+  border-radius: 999px; /* пилюля */
+  transform: translateX(-50%);
+  z-index: 1; /* под цифрой */
+  opacity: 0.9;
+}
+@media (max-width: 480px) {
+  .page {
+    padding: 10px 8px 16px;
+  }
+
+  .preview-overlay {
+    padding: 18px 14px;
+  }
+
+  .preview-calendar-container {
+    padding: 12px 10px 14px;
+  }
+}
+
+#titleMonthFontSelect option,
+#footerFontSelect option {
+  font-family: inherit; /* браузер может игнорировать: исправим ниже */
+}
+
+textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #1f2937;
+  resize: vertical;
+  font-size: 0.9rem;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+/* ====== PREVIEW CONTROLS (base) ====== */
+
+.preview-shell{
+  height: 100%;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) 96px; /* slider | preview | button */
+  align-items: center;
+  justify-items: center;
+  gap: 12px;
+
+  position: relative;
+  isolation: isolate;
+}
+
+.preview-zoom{
+  height: 100%;
+  width: 100%;
+  max-width: 64px;
+  padding: 12px 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  position: relative;
+  z-index: 10;
+}
+/* vertical range (rotated) */
+.preview-zoom-slider{
+  /* длина слайдера = высота панели превью минус отступы */
+  width: calc(100% - 24px);
+  min-width: 140px;
+  max-width: none;
+
+  transform: rotate(-90deg);
+  transform-origin: center;
+  touch-action: none;
+}
+
+.preview-actions{
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  position: relative;
+  z-index: 10;
+}
+
+.preview-download{
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+
+  padding: 0 !important;
+  min-width: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-download .icon{
+  width: 30px;
+  height: 30px;
+  fill: currentColor;
+}
+
+/* preview is under controls */
+#previewWrapper{
+  position: relative;
+  z-index: 1;
+  overflow: visible;
+}
+#previewArtboard{
+  position: relative;
+  z-index: 1;
+}
+
+
+/* ====== MOBILE (portrait/phones) ====== */
+@media (max-width: 520px){
+  /* Даем больше места превью под 9:16 */
+  .panel-preview{
+    flex: 0 0 60% !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+  }
+  .panel-editor{
+    flex: 0 0 40% !important;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .page{
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* На мобилке убираем сетку с 3 колонками.
+     Превью на всю ширину, controls абсолютом поверх */
+  .preview-shell{
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    isolation: isolate;
+
+    padding-left: max(10px, env(safe-area-inset-left));
+    padding-right: max(10px, env(safe-area-inset-right));
+  }
+
+  #previewWrapper{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    overflow: visible;
+  }
+
+  /* Левый слайдер поверх */
+  .preview-zoom{
+    position: absolute;
+    left: max(10px, env(safe-area-inset-left));
+    top: 50%;
+    transform: translateY(-50%);
+    height: calc(100% - 24px);
+
+    z-index: 20;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Правая кнопка поверх */
+  .preview-actions{
+    position: absolute;
+    right: max(10px, env(safe-area-inset-right));
+    top: 50%;
+    transform: translateY(-50%);
+
+    z-index: 20;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Кнопка побольше */
+  .preview-download{
+    width: 72px;
+    height: 72px;
+    border-radius: 999px;
+    padding: 0 !important;
+  }
+  .preview-download .icon{
+    width: 30px;
+    height: 30px;
+  }
+
+  /* Длина слайдера будет приходить из JS как --zoom-len */
+  .preview-zoom-slider{
+    width: var(--zoom-len, 280px);
+  }
+}
+
+
+/* ===== Custom Font Picker (replaces native <select> preview) ===== */
+
+.font-picker {
+  position: relative;
+  width: 100%;
+  z-index: 10000;
+}
+
+.font-picker select {
+  /* прячем нативный select, но оставляем в DOM для логики */
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.font-picker__button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 10px 12px;
+  border-radius: 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+
+  cursor: pointer;
+}
+
+.font-picker__button:active {
+  transform: translateY(1px);
+}
+
+.font-picker__label {
+  display: block;
+  line-height: 1.2;
+  font-size: 14px;
+}
+
+.font-picker__chev {
+  opacity: 0.8;
+  font-size: 14px;
+}
+
+.font-picker__list {
+  position: fixed; /* 👈 ключевое: теперь над всем */
+  left: 0;
+  top: 0;
+
+height: auto;
+ max-height: none;
+overflow: visible;
+
+  padding: 8px;
+  border-radius: 16px;
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(10, 14, 18, 0.88);
+  backdrop-filter: blur(14px);
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+
+  display: none;
+  z-index: 99999; /* 👈 выше превью */
+-webkit-overflow-scrolling: touch; /* iOS: инерционный скролл */
+  overscroll-behavior: contain;      /* чтобы не тянуло страницу */
+  touch-action: pan-y;               /* главное: жест = вертикальный скролл */
+}
+.font-picker__list.is-open {
+  display: block;
+}
+
+.font-picker__item {
+  width: 100%;
+  text-align: left;
+
+  padding: 10px 10px;
+  border-radius: 12px;
+
+  background: transparent;
+  border: none;
+  color: #fff;
+
+  cursor: pointer;
+
+  touch-action: manipulation;
+}
+
+.font-picker__item:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.font-picker__item.is-active {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.font-picker__hint {
+  display: block;
+  opacity: 0.75;
+  font-size: 12px;
+  margin-top: 2px;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+/* чуть аккуратнее текст внутри пункта */
+.font-picker__item span {
+  display: block;
+}

@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Roboto:wght@300;400;700&family=Montserrat:wght@300;400;600&family=Nunito:wght@300;400;700&family=Playfair+Display:wght@400;600&family=Merriweather:wght@300;400;700&family=Oswald:wght@300;400;600&family=Raleway:wght@300;400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <title>Календарь свободных окон</title>
+  <meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+/>
+  <link rel="stylesheet" href="style.css" />
+  <!-- html2canvas для выгрузки превью в PNG -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+  <div class="page">
+    
+ <!-- Превью календаря -->
+      
+    
+ <main class="workspace">
+
+  <section class="panel panel-preview">
+    <div class="preview-shell">
+  <!-- ЛЕВЫЙ вертикальный ползунок масштаба -->
+  <div class="preview-zoom">
+    <input
+      id="previewScaleInput"
+      class="preview-zoom-slider"
+      type="range"
+      min="0.6"
+      max="1.4"
+      step="0.01"
+      value="1"
+      aria-label="Масштаб превью"
+    />
+  </div>
+
+  <!-- ЦЕНТР: превью -->
+  <div id="previewWrapper" class="preview-wrapper">
+<div id="previewArtboard" class="preview-artboard bg-solid">
+
+  <img id="bgImageLayer" class="preview-bg-image" alt="" />
+  <div id="tintLayer" class="preview-tint-layer"></div>
+  <div class="preview-overlay">
+        <div class="preview-header">
+          <div id="previewTitleMain" class="preview-title-main">
+            Запись на декабрь открыта
+          </div>
+        </div>
+
+        <div class="preview-calendar-container">
+          <div id="previewTitleMonth" class="preview-title-month">
+            Декабрь 2025
+          </div>
+
+          <div class="calendar">
+            <div class="calendar-weekdays">
+              <span>ПН</span><span>ВТ</span><span>СР</span><span>ЧТ</span><span>ПТ</span><span>СБ</span><span>ВС</span>
+            </div>
+            <div id="calendarDays" class="calendar-days"></div>
+          </div>
+
+          <div id="previewFooterText" class="preview-footer-text">
+            Ближайшие свободные окна:
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ПРАВАЯ кнопка скачивания -->
+  <div class="preview-actions">
+   <button id="downloadBtn" class="btn btn-primary preview-download" type="button" aria-label="Скачать PNG">
+  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M5 3h11l3 3v15a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm2 2v6h10V6.8L15.2 5H7zm0 10v5h10v-5H7zm2-9h6v3H9V6z"></path>
+  </svg>
+</button>
+
+  </div>
+ </div>
+  </section>
+
+  <!-- Панель редактора -->
+  <section class="panel panel-editor">
+        <h2 class="panel-title">Настройки</h2>
+
+        
+
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="monthSelect">Месяц</label>
+            <select id="monthSelect">
+              <option value="0">Январь</option>
+              <option value="1">Февраль</option>
+              <option value="2">Март</option>
+              <option value="3">Апрель</option>
+              <option value="4">Май</option>
+              <option value="5">Июнь</option>
+              <option value="6">Июль</option>
+              <option value="7">Август</option>
+              <option value="8">Сентябрь</option>
+              <option value="9">Октябрь</option>
+              <option value="10">Ноябрь</option>
+              <option value="11">Декабрь</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="yearInput">Год</label>
+            <input id="yearInput" type="number" min="2020" max="2100" />
+          </div>
+        </div>
+<div class="form-group">
+  <label for="titleMainInput">Заголовок (верх)</label>
+  <textarea id="titleMainInput" rows="2" placeholder="Запись на декабрь открыта"></textarea>
+</div>
+      <div class="form-row">
+  <div class="form-group">
+    <small>Шрифт заголовка</small>
+<select id="titleMainFontSelect" class="js-font-picker"> 
+     <option value="Inter">Inter</option>
+      <option value="Roboto">Roboto</option>
+      <option value="Montserrat">Montserrat</option>
+      <option value="Nunito">Nunito</option>
+      <option value="Playfair Display">Playfair Display</option>
+      <option value="Merriweather">Merriweather</option>
+      <option value="Oswald">Oswald</option>
+      <option value="Raleway">Raleway</option>
+    </select>
+  </div>
+ 
+  <div class="form-group">
+    <small>Цвет заголовка</small>
+    <input id="titleMainColorInput" type="color" value="#111827" />
+  </div>
+</div>
+
+<div class="form-row">
+  <div class="form-group">
+    <small>Размер шрифта</small>
+    <input id="titleMainFontSizeInput" type="range" min="10" max="60" step="1" value="18">
+  </div>
+
+  <div class="form-group">
+    <small>Толщина</small>
+    <select id="titleMainFontWeightSelect" class="js-weight-picker">
+      <option value="300">Light</option>
+      <option value="400">Regular</option>
+      <option value="600" selected>Semi-Bold</option>
+      <option value="700">Bold</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <small>Наклон</small>
+    <select id="titleMainFontStyleSelect" class="js-style-picker">
+
+      <option value="normal" selected>Обычный</option>
+      <option value="italic">Italic</option>
+    </select>
+  </div>
+</div>
+
+<div class="settings-separator"></div>
+
+<div class="form-group">
+  <label>Однородный цвет</label>
+
+  <div class="tint-row">
+    <input id="tintColorInput" type="color" value="#000000" />
+
+    <div class="tint-slider">
+      <input id="tintOpacityInput" type="range" min="0" max="100" step="1" value="0" />
+      <span id="tintOpacityValue" class="tint-value">0%</span>
+    </div>
+  </div>
+
+  <div class="hint">Цвет кладётся поверх фото/градиента как фильтр (полезно для затемнения/подтона).</div>
+</div>
+
+<div class="form-group">
+  <button id="uploadBgBtn" type="button" class="btn btn-secondary">
+    Добавить свой фон
+  </button>
+  <!-- скрытый input для выбора файла -->
+  <input
+    id="bgUploadInput"
+    type="file"
+    accept="image/*"
+    style="display: none;"
+  />
+</div>
+
+<!-- Настройки пользовательского фона (картинки) -->
+<div id="bgCustomControls" class="bg-controls" style="display:none;">
+  <div class="form-group">
+    <label for="bgScaleInput">Масштаб фона</label>
+    <div class="bg-scale-row">
+  <input id="bgScaleInput" type="range" min="100" max="300" step="1" value="100" />
+  <span id="bgScaleValue" class="bg-scale-value">100%</span>
+</div>
+  </div>
+
+  <div class="bg-controls__row">
+    <div class="bg-joystick" aria-label="Сдвиг фона">
+      <button type="button" class="bg-joystick__btn" data-move="up">▲</button>
+      <div class="bg-joystick__mid">
+        <button type="button" class="bg-joystick__btn" data-move="left">◀</button>
+        <button type="button" class="bg-joystick__btn bg-joystick__center" data-move="center">●</button>
+        <button type="button" class="bg-joystick__btn" data-move="right">▶</button>
+      </div>
+      <button type="button" class="bg-joystick__btn" data-move="down">▼</button>
+    </div>
+
+   <div class="bg-rotate">
+  <button type="button" class="btn btn-secondary bg-rotate__btn" id="bgResetBtn">Сброс</button>
+
+  <div class="bg-knob" id="bgRotateKnob" aria-label="Поворот фона">
+    <div class="bg-knob__ring"></div>
+    <div class="bg-knob__pointer" id="bgKnobPointer"></div>
+    <div class="bg-knob__dot" id="bgKnobDot" role="slider" aria-valuemin="-180" aria-valuemax="180"></div>
+    <div class="bg-knob__value" id="bgRotateValue">0°</div>
+  </div>
+</div>
+  </div>
+</div>
+
+<!-- Категория "Календарь" с iOS-переключателем -->
+<div class="settings-cat">
+  <div class="settings-cat-title">Календарь</div>
+  <label class="switch-ios">
+    <input id="calendarSettingsToggle" type="checkbox" checked />
+    <span class="slider"></span>
+  </label>
+</div>
+
+<!-- Группа настроек календаря -->
+<div id="calendarSettingsGroup">
+
+<div class="form-group">
+  <label for="titleMonthInput">Подзаголовок (месяц)</label>
+  <textarea id="titleMonthInput" rows="2" placeholder="Декабрь 2025"></textarea>
+</div>
+<div class="form-row">
+  <div class="form-group">
+    <small>Шрифт подзаголовка</small>
+    <select id="titleMonthFontSelect" class="js-font-picker">
+      <option value="Inter">Inter</option>
+      <option value="Roboto">Roboto</option>
+      <option value="Montserrat">Montserrat</option>
+      <option value="Nunito">Nunito</option>
+      <option value="Playfair Display">Playfair Display</option>
+      <option value="Merriweather">Merriweather</option>
+      <option value="Oswald">Oswald</option>
+      <option value="Raleway">Raleway</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <small>Цвет подзаголовка</small>
+    <input id="titleMonthColorInput" type="color" value="#1f2937" />
+  </div>
+</div>
+<!-- Размер, толщина и наклон подзаголовка -->
+<div class="form-row">
+  <div class="form-group">
+    <small>Размер шрифта</small>
+    <input id="titleMonthFontSizeInput" type="range" min="10" max="48" step="1" value="20">
+  </div>
+
+  <div class="form-group">
+    <small>Толщина</small>
+    <select id="titleMonthFontWeightSelect" class="js-weight-picker">
+      <option value="300">Light</option>
+      <option value="400" selected>Regular</option>
+      <option value="600">Semi-Bold</option>
+      <option value="700">Bold</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <small>Наклон</small>
+    <select id="titleMonthFontStyleSelect" class="js-style-picker">
+      <option value="normal">Обычный</option>
+      <option value="italic">Italic</option>
+    </select>
+  </div>
+</div>
+<div class="settings-separator"></div>
+
+  <div class="form-group">
+  <label for="footerTextInput">Текст под календарём</label>
+  <textarea id="footerTextInput" rows="2" placeholder="место для комментария"></textarea>
+</div>
+
+<div class="form-row">
+  <div class="form-group">
+    <small>Шрифт текста под календарём</small>
+    <select id="footerFontSelect" class="js-font-picker">
+      <option value="Inter">Inter</option>
+      <option value="Roboto">Roboto</option>
+      <option value="Montserrat">Montserrat</option>
+      <option value="Nunito">Nunito</option>
+      <option value="Playfair Display">Playfair Display</option>
+      <option value="Merriweather">Merriweather</option>
+      <option value="Oswald">Oswald</option>
+      <option value="Raleway">Raleway</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <small>Цвет текста под календарём</small>
+    <input id="footerColorInput" type="color" value="#374151" />
+  </div>
+</div>
+
+<!-- Размер, толщина и наклон текста под календарём -->
+<div class="form-row">
+  <div class="form-group">
+    <small>Размер шрифта</small>
+    <input id="footerFontSizeInput" type="range" min="10" max="48" step="1" value="16">
+  </div>
+
+  <div class="form-group">
+    <small>Толщина</small>
+    <select id="footerFontWeightSelect" class="js-weight-picker">
+      <option value="300">Light</option>
+      <option value="400" selected>Regular</option>
+      <option value="600">Semi-Bold</option>
+      <option value="700">Bold</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <small>Наклон</small>
+    <select id="footerFontStyleSelect" class="js-style-picker">
+      <option value="normal">Обычный</option>
+      <option value="italic">Italic</option>
+    </select>
+  </div>
+</div>
+ <small>Размер шрифта</small>
+  <div class="form-group">
+    <label for="calendarOpacityInput">Прозрачность календаря</label>
+    <input
+      id="calendarOpacityInput"
+      type="range"
+      min="0.3"
+      max="1"
+      step="0.05"
+      value="0.96"
+    />
+  </div>
+<div class="settings-separator"></div>
+  <!-- Календарь: размер, положение, цвет -->
+  <div class="form-group">
+    <label>Календарь — размер и положение</label>
+
+    <div class="form-row">
+      <div class="form-group">
+        <small>Размер</small>
+        <input
+          id="calendarScaleInput"
+          type="range"
+          min="0.8"
+          max="1.3"
+          step="0.01"
+          value="1"
+        />
+      </div>
+
+      <div class="form-group">
+        <small>Смещение по X</small>
+        <input
+          id="calendarOffsetXInput"
+          type="range"
+          min="-80"
+          max="80"
+          step="1"
+          value="0"
+        />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <small>Смещение по Y</small>
+        <input
+          id="calendarOffsetYInput"
+          type="range"
+          min="-120"
+          max="120"
+          step="1"
+          value="0"
+        />
+      </div>
+
+          </div>
+  </div>
+<div class="form-group">
+  <small>Цвет фона карточки</small>
+  <input id="calendarCardBgColorInput" type="color" value="#ffffff" />
+</div>
+<div class="form-group">
+  <small>Цвет текста календаря</small>
+
+  <input id="calendarTextColorInput" type="color" value="#111827" />
+</div>
+<div class="form-group">
+  <small>Размер чисел календаря</small>
+  <input id="calendarFontSizeInput" type="range" min="10" max="40" step="1" value="18" />
+</div>
+  <!-- Эффекты календаря -->
+  <div class="form-group">
+    <label>
+      <input
+        id="calendarEffectsEnableInput"
+        type="checkbox"
+        checked
+        style="margin-right: 6px;"
+      />
+      Эффекты календаря (тень и свечение)
+    </label>
+  </div>
+
+  <div class="form-group">
+    <label for="calendarShadowSizeInput">Размер тени</label>
+    <input
+      id="calendarShadowSizeInput"
+      type="range"
+      min="0"
+      max="60"
+      step="1"
+      value="35"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="calendarShadowOpacityInput">Прозрачность тени</label>
+    <input
+      id="calendarShadowOpacityInput"
+      type="range"
+      min="0"
+      max="0.7"
+      step="0.05"
+      value="0.45"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="calendarGlowSizeInput">Свечение календаря</label>
+    <input
+      id="calendarGlowSizeInput"
+      type="range"
+      min="0"
+      max="40"
+      step="1"
+      value="0"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="accentColorInput">Цвет акцента (свободные дни)</label>
+    <input id="accentColorInput" type="color" value="#e53935" />
+  </div>
+</div>     
+
+   <div class="hint">
+          Дни в календаре отмечаются кликом по ячейке. Повторный клик снимает выделение.
+        </div>
+
+        <button id="clearDaysBtn" class="btn btn-secondary">Сбросить выделенные дни</button>
+
+        <hr class="divider" />
+
+      </section>
+
+</main>
+
+     
+
+      </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
