@@ -43,22 +43,31 @@
     <section class="tiles" aria-label="Список приложений">
       <!-- 1 -->
     <!-- Mini Budget -->
-<a class="tile tile--primary"
-   href="https://alexbykovskiy.com/mini-budget-app/minibudget/index.html"
-   aria-label="Открыть Mini Budget">
-        <div class="tile__header">
-          <div class="tile__icon" aria-hidden="true">🚗</div>
-          <div class="tile__titles">
-            <div class="tile__title">Mini Budget</div>
-            <div class="tile__subtitle">Расходы авто</div>
-          </div>
-        </div>
-        <div class="tile__footer">
-          <span class="tile__hint">Открыть</span>
-          <span class="tile__arrow" aria-hidden="true">›</span>
-        </div>
-      </a>
+<div class="tile tile--primary tile--wide">
 
+  <a class="tile-main"
+     href="./minibudget/index.html">
+
+    <div class="tile__header">
+      <div class="tile__icon" aria-hidden="true">🚗</div>
+
+      <div class="tile__titles">
+        <div class="tile__title">Mini Budget</div>
+        <div class="tile__subtitle">Расходы авто</div>
+      </div>
+    </div>
+
+  </a>
+
+  <a class="tile-action"
+     href="./minibudget/index.html?action=add-expense">
+
+      <span>＋</span>
+      <span>Добавить расход</span>
+
+  </a>
+
+</div>
       <!-- 2 -->
      <!-- Конверты -->
 <a class="tile"
