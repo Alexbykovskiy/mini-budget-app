@@ -467,13 +467,6 @@ function initWheelPickerUI() {
   });
 }
 
-function getLatestMileage() {
-  const mileages = expenses
-    .map(e => Number(e.mileage))
-    .filter(m => Number.isFinite(m) && m > 0);
-
-  return mileages.length ? Math.max(...mileages) : "";
-}
 
 // ========== ДОБАВИТЬ НАПОМИНАНИЕ ==========
 const infoAddForm = document.getElementById('info-add-form');
@@ -1243,21 +1236,20 @@ function resetForm() {
   if (!form) return;
 
   form.reset();
+  function resetForm() {
+  if (!form) return;
+
+  form.reset();
   document.getElementById("edit-id").value = "";
 
   const today = new Date().toISOString().split("T")[0];
   const dateInput = document.getElementById("date");
+
   if (dateInput) {
     dateInput.value = today;
   }
 
   const mileageInput = document.getElementById("mileage");
-  if (mileageInput) {
-    mileageInput.value = getLatestMileage();
-  }
-}
-  // Последний известный пробег
-  const mileageInput = document.getElementById('mileage');
 
   if (mileageInput) {
     mileageInput.value = getLatestMileage();
