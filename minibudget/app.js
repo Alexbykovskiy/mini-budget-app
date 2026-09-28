@@ -7,6 +7,7 @@ window.addEventListener("load", () => {
   populateTagList();
   resetForm();
 initFuelControls();
+  initWheelPickerUI();
   // 📸 Выбор способа загрузки изображения — камера или галерея
   // 📸 Упрощённая загрузка фото: системное меню (камера, галерея, файлы)
 
@@ -102,6 +103,370 @@ const FUEL_LABELS = {
 let fullTotal = 0;
 let editingReminderId = null;
 let globalDistance = 0; // Пробег для расчёта среднего расхода
+
+const WHEEL_ROW_HEIGHT = 44;
+const WHEEL_VISIBLE_RADIUS = 2; // всего будет видно 5 строк
+let wheelPickerState = null;
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function padNumber(value, size = 0) {
+  return String(value).padStart(size, "0");
+}
+
+function getLatestMileage() {
+  const mileages = expenses
+    .map(e => Number(e.mileage))
+    .filter(m => Number.isFinite(m) && m >= 0);
+
+  return mileages.length ? Math.max(...mileages) : "";
+}
+
+function getWheelConfigs() {
+  return {
+    amount: {
+      title: "Сумма",
+      leftLabel: "€",
+      rightLabel: "центы",
+      left: { min: 0, max: 9999, pad: 1 },
+      right: { min: 0, max: 99, pad: 2 },
+
+      parse(raw) {
+        let num = Number(String(raw || "0").replace(",", "."));
+        if (!Number.isFinite(num)) num = 0;
+        num = clamp(num, 0, 9999.99);
+
+        const totalCents = Math.round(num * 100);
+        return {
+          left: Math.floor(totalCents / 100),
+          right: totalCents % 100
+        };
+      },
+
+      compose(left, right) {
+        return `${left}.${padNumber(right, 2)}`;
+      },
+
+      preview(left, right) {
+        return `€${left},${padNumber(right, 2)}`;
+      }
+    },
+
+    liters: {
+      title: "Литры",
+      leftLabel: "л",
+      rightLabel: "сотые",
+      left: { min: 0, max: 99, pad: 1 },
+      right: { min: 0, max: 99, pad: 2 },
+
+      parse(raw) {
+        let num = Number(String(raw || "0").replace(",", "."));
+        if (!Number.isFinite(num)) num = 0;
+        num = clamp(num, 0, 99.99);
+
+        const total = Math.round(num * 100);
+        return {
+          left: Math.floor(total / 100),
+          right: total % 100
+        };
+      },
+
+      compose(left, right) {
+        return `${left}.${padNumber(right, 2)}`;
+      },
+
+      preview(left, right) {
+        return `${left},${padNumber(right, 2)} л`;
+      }
+    },
+
+    mileage: {
+      title: "Пробег",
+      leftLabel: "×10 000",
+      rightLabel: "остаток",
+      left: { min: 0, max: 9999, pad: 1 },
+      right: { min: 0, max: 9999, pad: 4 },
+
+      parse(raw) {
+        let value = parseInt(String(raw || getLatestMileage() || "0"), 10);
+        if (!Number.isFinite(value)) value = 0;
+        value = clamp(value, 0, 99999999);
+
+        return {
+          left: Math.floor(value / 10000),
+          right: value % 10000
+        };
+      },
+
+      compose(left, right) {
+        return String(left * 10000 + right);
+      },
+
+      preview(left, right) {
+        const total = left * 10000 + right;
+        return `${total.toLocaleString("ru-RU")} км`;
+      }
+    }
+  };
+}
+
+function createWheelPickerModal() {
+  if (document.getElementById("wheel-picker-modal")) return;
+
+  const modal = document.createElement("div");
+  modal.id = "wheel-picker-modal";
+  modal.className = "wheel-picker-modal hidden";
+  modal.innerHTML = `
+    <div class="wheel-picker-sheet">
+      <div class="wheel-picker-header">
+        <button type="button" id="wheel-picker-cancel" class="wheel-picker-head-btn">
+          Отмена
+        </button>
+
+        <div id="wheel-picker-title" class="wheel-picker-title">Выбор</div>
+
+        <button type="button" id="wheel-picker-ok" class="wheel-picker-head-btn primary">
+          Готово
+        </button>
+      </div>
+
+      <div id="wheel-picker-display" class="wheel-picker-display"></div>
+
+      <div class="wheel-picker-wheels">
+        <div class="wheel-picker-unit">
+          <div class="wheel-picker-wheel" id="wheel-left-wheel">
+            <div class="wheel-picker-selection"></div>
+            <div class="wheel-picker-track" id="wheel-left-track"></div>
+          </div>
+          <div class="wheel-picker-label" id="wheel-left-label"></div>
+        </div>
+
+        <div class="wheel-picker-unit">
+          <div class="wheel-picker-wheel" id="wheel-right-wheel">
+            <div class="wheel-picker-selection"></div>
+            <div class="wheel-picker-track" id="wheel-right-track"></div>
+          </div>
+          <div class="wheel-picker-label" id="wheel-right-label"></div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  wheelPickerState = {
+    modal,
+    input: null,
+    type: null,
+    config: null,
+    configs: getWheelConfigs(),
+    leftValue: 0,
+    rightValue: 0,
+    wheels: {
+      left: {
+        root: document.getElementById("wheel-left-wheel"),
+        track: document.getElementById("wheel-left-track"),
+        label: document.getElementById("wheel-left-label")
+      },
+      right: {
+        root: document.getElementById("wheel-right-wheel"),
+        track: document.getElementById("wheel-right-track"),
+        label: document.getElementById("wheel-right-label")
+      }
+    }
+  };
+
+  document
+    .getElementById("wheel-picker-cancel")
+    .addEventListener("click", closeWheelPicker);
+
+  document
+    .getElementById("wheel-picker-ok")
+    .addEventListener("click", applyWheelPickerValue);
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeWheelPicker();
+  });
+
+  attachWheelDrag("left");
+  attachWheelDrag("right");
+}
+
+function renderWheel(side, centerValue, translateY = 0) {
+  if (!wheelPickerState || !wheelPickerState.config) return;
+
+  const wheel = wheelPickerState.wheels[side];
+  const cfg = wheelPickerState.config[side];
+  if (!wheel || !cfg) return;
+
+  wheel.track.innerHTML = "";
+
+  for (let offset = -WHEEL_VISIBLE_RADIUS; offset <= WHEEL_VISIBLE_RADIUS; offset++) {
+    const value = clamp(centerValue + offset, cfg.min, cfg.max);
+
+    const item = document.createElement("div");
+    item.className = "wheel-picker-item" + (offset === 0 ? " active" : "");
+    item.textContent = padNumber(value, cfg.pad);
+    wheel.track.appendChild(item);
+  }
+
+  wheel.track.style.transform = `translateY(${translateY}px)`;
+}
+
+function updateWheelPickerPreview() {
+  if (!wheelPickerState || !wheelPickerState.config) return;
+
+  const display = document.getElementById("wheel-picker-display");
+  if (!display) return;
+
+  display.textContent = wheelPickerState.config.preview(
+    wheelPickerState.leftValue,
+    wheelPickerState.rightValue
+  );
+}
+
+function openWheelPicker(type, input) {
+  if (!wheelPickerState) return;
+
+  const config = wheelPickerState.configs[type];
+  if (!config) return;
+
+  const initial = config.parse(input.value);
+
+  wheelPickerState.type = type;
+  wheelPickerState.input = input;
+  wheelPickerState.config = config;
+  wheelPickerState.leftValue = initial.left;
+  wheelPickerState.rightValue = initial.right;
+
+  document.getElementById("wheel-picker-title").textContent = config.title;
+  wheelPickerState.wheels.left.label.textContent = config.leftLabel;
+  wheelPickerState.wheels.right.label.textContent = config.rightLabel;
+
+  renderWheel("left", wheelPickerState.leftValue, 0);
+  renderWheel("right", wheelPickerState.rightValue, 0);
+  updateWheelPickerPreview();
+
+  wheelPickerState.modal.classList.remove("hidden");
+  requestAnimationFrame(() => {
+    wheelPickerState.modal.classList.add("show");
+  });
+}
+
+function closeWheelPicker() {
+  if (!wheelPickerState?.modal) return;
+
+  wheelPickerState.modal.classList.remove("show");
+  setTimeout(() => {
+    wheelPickerState.modal.classList.add("hidden");
+  }, 180);
+}
+
+function applyWheelPickerValue() {
+  if (!wheelPickerState?.input || !wheelPickerState?.config) return;
+
+  const { input, config, leftValue, rightValue } = wheelPickerState;
+  input.value = config.compose(leftValue, rightValue);
+
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  input.dispatchEvent(new Event("change", { bubbles: true }));
+
+  closeWheelPicker();
+}
+
+function attachWheelDrag(side) {
+  const wheel = wheelPickerState?.wheels?.[side];
+  if (!wheel) return;
+
+  let dragging = false;
+  let startY = 0;
+  let startValue = 0;
+  let lastTickValue = null;
+
+  const onPointerMove = (e) => {
+    if (!dragging || !wheelPickerState?.config) return;
+
+    e.preventDefault();
+
+    const cfg = wheelPickerState.config[side];
+    const deltaY = e.clientY - startY;
+
+    const floatValue = clamp(
+      startValue - deltaY / WHEEL_ROW_HEIGHT,
+      cfg.min,
+      cfg.max
+    );
+
+    const roundedValue = clamp(Math.round(floatValue), cfg.min, cfg.max);
+    const translateY = (roundedValue - floatValue) * WHEEL_ROW_HEIGHT;
+
+    if (wheelPickerState[`${side}Value`] !== roundedValue) {
+      wheelPickerState[`${side}Value`] = roundedValue;
+      updateWheelPickerPreview();
+
+      if (lastTickValue !== roundedValue && navigator.vibrate) {
+        navigator.vibrate(10);
+      }
+
+      lastTickValue = roundedValue;
+    }
+
+    renderWheel(side, roundedValue, translateY);
+  };
+
+  const onPointerUp = () => {
+    if (!dragging) return;
+
+    dragging = false;
+    wheel.root.classList.remove("dragging");
+    renderWheel(side, wheelPickerState[`${side}Value`], 0);
+  };
+
+  wheel.root.addEventListener("pointerdown", (e) => {
+    if (!wheelPickerState?.config) return;
+
+    dragging = true;
+    startY = e.clientY;
+    startValue = wheelPickerState[`${side}Value`];
+    lastTickValue = startValue;
+
+    wheel.root.classList.add("dragging");
+    if (wheel.root.setPointerCapture) {
+      wheel.root.setPointerCapture(e.pointerId);
+    }
+  });
+
+  wheel.root.addEventListener("pointermove", onPointerMove);
+  wheel.root.addEventListener("pointerup", onPointerUp);
+  wheel.root.addEventListener("pointercancel", onPointerUp);
+  wheel.root.addEventListener("lostpointercapture", onPointerUp);
+}
+
+function initWheelPickerUI() {
+  createWheelPickerModal();
+
+  const bindings = [
+    { id: "amount", type: "amount" },
+    { id: "liters", type: "liters" },
+    { id: "mileage", type: "mileage" }
+  ];
+
+  bindings.forEach(({ id, type }) => {
+    const input = document.getElementById(id);
+    if (!input) return;
+
+    input.readOnly = true;
+    input.setAttribute("inputmode", "none");
+    input.classList.add("wheel-input");
+
+    input.addEventListener("click", () => {
+      openWheelPicker(type, input);
+    });
+  });
+}
+
 function getLatestMileage() {
   const mileages = expenses
     .map(e => Number(e.mileage))
@@ -168,7 +533,7 @@ function loadExpenses() {
 
   db.collection("users").doc(profileCode).collection("expenses")
     .orderBy("date", "desc")
-    .onSnapshot(snapshot => {
+.onSnapshot(snapshot => {
   expenses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   fullTotal = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
 
@@ -176,10 +541,10 @@ function loadExpenses() {
   updateStats(expenses);
   loadReminders();
 
-  // Автоматически подставляем последний известный пробег
-  // только если сейчас не редактируем старую запись
-  const editId = document.getElementById('edit-id')?.value;
-  const mileageInput = document.getElementById('mileage');
+  // Автоподстановка последнего известного пробега,
+  // если сейчас не редактируем существующую запись
+  const editId = document.getElementById("edit-id")?.value;
+  const mileageInput = document.getElementById("mileage");
 
   if (!editId && mileageInput) {
     mileageInput.value = getLatestMileage();
@@ -878,17 +1243,19 @@ function resetForm() {
   if (!form) return;
 
   form.reset();
+  document.getElementById("edit-id").value = "";
 
-  document.getElementById('edit-id').value = '';
-
-  // Сегодняшняя дата
-  const today = new Date().toISOString().split('T')[0];
-  const dateInput = document.getElementById('date');
-
+  const today = new Date().toISOString().split("T")[0];
+  const dateInput = document.getElementById("date");
   if (dateInput) {
     dateInput.value = today;
   }
 
+  const mileageInput = document.getElementById("mileage");
+  if (mileageInput) {
+    mileageInput.value = getLatestMileage();
+  }
+}
   // Последний известный пробег
   const mileageInput = document.getElementById('mileage');
 
