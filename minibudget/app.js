@@ -102,6 +102,13 @@ const FUEL_LABELS = {
 let fullTotal = 0;
 let editingReminderId = null;
 let globalDistance = 0; // Пробег для расчёта среднего расхода
+function getLatestMileage() {
+  const mileages = expenses
+    .map(e => Number(e.mileage))
+    .filter(m => Number.isFinite(m) && m > 0);
+
+  return mileages.length ? Math.max(...mileages) : "";
+}
 
 // ========== ДОБАВИТЬ НАПОМИНАНИЕ ==========
 const infoAddForm = document.getElementById('info-add-form');
@@ -162,12 +169,22 @@ function loadExpenses() {
   db.collection("users").doc(profileCode).collection("expenses")
     .orderBy("date", "desc")
     .onSnapshot(snapshot => {
-      expenses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      fullTotal = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
-      renderExpenses(expenses);     // обновляет только список и диаграмму
-updateStats(expenses);        // обновляет карточки — ВСЕГДА по всем расходам
-loadReminders();
-    });
+  expenses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  fullTotal = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+
+  renderExpenses(expenses);
+  updateStats(expenses);
+  loadReminders();
+
+  // Автоматически подставляем последний известный пробег
+  // только если сейчас не редактируем старую запись
+  const editId = document.getElementById('edit-id')?.value;
+  const mileageInput = document.getElementById('mileage');
+
+  if (!editId && mileageInput) {
+    mileageInput.value = getLatestMileage();
+  }
+});
 }
 
 
@@ -717,8 +734,7 @@ if (id) {
     dateInput.value = new Date().toISOString().split('T')[0];
   }
   showToast("Расход добавлен!");
-  form.reset();
-  document.getElementById('edit-id').value = '';
+resetForm();
 };
 function fetchTags() {
   return db.collection("users").doc(profileCode).collection("tags").get()
@@ -860,15 +876,26 @@ expenseChart.render();
 
 function resetForm() {
   if (!form) return;
+
   form.reset();
+
   document.getElementById('edit-id').value = '';
+
+  // Сегодняшняя дата
   const today = new Date().toISOString().split('T')[0];
   const dateInput = document.getElementById('date');
-  if (dateInput && !dateInput.value) {
+
+  if (dateInput) {
     dateInput.value = today;
   }
-}
 
+  // Последний известный пробег
+  const mileageInput = document.getElementById('mileage');
+
+  if (mileageInput) {
+    mileageInput.value = getLatestMileage();
+  }
+}
 
 function formatDate(isoString) {
   const [year, month, day] = isoString.split("-");
