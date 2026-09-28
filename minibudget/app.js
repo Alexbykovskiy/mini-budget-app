@@ -1236,10 +1236,6 @@ function resetForm() {
   if (!form) return;
 
   form.reset();
-  function resetForm() {
-  if (!form) return;
-
-  form.reset();
   document.getElementById("edit-id").value = "";
 
   const today = new Date().toISOString().split("T")[0];
