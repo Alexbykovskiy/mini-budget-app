@@ -105,7 +105,8 @@ let editingReminderId = null;
 let globalDistance = 0; // Пробег для расчёта среднего расхода
 
 const WHEEL_ROW_HEIGHT = 44;
-const WHEEL_VISIBLE_RADIUS = 2; // всего будет видно 5 строк
+const WHEEL_VISIBLE_RADIUS = 2;
+const WHEEL_SWIPE_SENSITIVITY = 1.5;
 let wheelPickerState = null;
 
 function clamp(value, min, max) {
@@ -130,83 +131,174 @@ function getWheelConfigs() {
       title: "Сумма",
       leftLabel: "€",
       rightLabel: "центы",
-      left: { min: 0, max: 9999, pad: 1 },
-      right: { min: 0, max: 99, pad: 2 },
+
+      left: {
+        min: 0,
+        max: 9999,
+        pad: 1
+      },
+
+      // Внутренне 0..9,
+      // визуально 00, 10, 20 ... 90
+      right: {
+        min: 0,
+        max: 9,
+        pad: 2,
+        format: value => padNumber(value * 10, 2)
+      },
 
       parse(raw) {
         let num = Number(String(raw || "0").replace(",", "."));
-        if (!Number.isFinite(num)) num = 0;
-        num = clamp(num, 0, 9999.99);
 
-        const totalCents = Math.round(num * 100);
+        if (!Number.isFinite(num)) {
+          num = 0;
+        }
+
+        num = clamp(num, 0, 9999.9);
+
+        const euros = Math.floor(num);
+        const cents = Math.round((num - euros) * 100);
+
         return {
-          left: Math.floor(totalCents / 100),
-          right: totalCents % 100
+          left: euros,
+          right: clamp(Math.round(cents / 10), 0, 9)
         };
       },
 
       compose(left, right) {
-        return `${left}.${padNumber(right, 2)}`;
+        const cents = right * 10;
+        return `${left}.${padNumber(cents, 2)}`;
       },
 
       preview(left, right) {
-        return `€${left},${padNumber(right, 2)}`;
+        const cents = right * 10;
+        return `€${left},${padNumber(cents, 2)}`;
       }
     },
+
 
     liters: {
       title: "Литры",
-      leftLabel: "л",
-      rightLabel: "сотые",
-      left: { min: 0, max: 99, pad: 1 },
-      right: { min: 0, max: 99, pad: 2 },
+      leftLabel: "литры",
+      rightLabel: "десятые",
+
+      left: {
+        min: 0,
+        max: 99,
+        pad: 1
+      },
+
+      // 0..9 = 0..900 мл
+      right: {
+        min: 0,
+        max: 9,
+        pad: 1
+      },
 
       parse(raw) {
         let num = Number(String(raw || "0").replace(",", "."));
-        if (!Number.isFinite(num)) num = 0;
-        num = clamp(num, 0, 99.99);
 
-        const total = Math.round(num * 100);
+        if (!Number.isFinite(num)) {
+          num = 0;
+        }
+
+        num = clamp(num, 0, 99.9);
+
+        const whole = Math.floor(num);
+        const fraction = Math.round((num - whole) * 10);
+
         return {
-          left: Math.floor(total / 100),
-          right: total % 100
+          left: whole,
+          right: clamp(fraction, 0, 9)
         };
       },
 
       compose(left, right) {
-        return `${left}.${padNumber(right, 2)}`;
+        return `${left}.${right}`;
       },
 
       preview(left, right) {
-        return `${left},${padNumber(right, 2)} л`;
+        return `${left},${right} л`;
       }
     },
 
+
     mileage: {
       title: "Пробег",
-      leftLabel: "×10 000",
-      rightLabel: "остаток",
-      left: { min: 0, max: 9999, pad: 1 },
-      right: { min: 0, max: 9999, pad: 4 },
+      leftLabel: "тысячи",
+      rightLabel: "км",
+
+      left: {
+        min: 0,
+        max: 999,
+        pad: 3
+      },
+
+      right: {
+        min: 0,
+        max: 999,
+        pad: 3
+      },
 
       parse(raw) {
-        let value = parseInt(String(raw || getLatestMileage() || "0"), 10);
-        if (!Number.isFinite(value)) value = 0;
-        value = clamp(value, 0, 99999999);
+        let value = parseInt(
+          String(raw || getLatestMileage() || "0"),
+          10
+        );
+
+        if (!Number.isFinite(value)) {
+          value = 0;
+        }
+
+        value = clamp(value, 0, 999999);
 
         return {
-          left: Math.floor(value / 10000),
-          right: value % 10000
+          left: Math.floor(value / 1000),
+          right: value % 1000
         };
       },
 
       compose(left, right) {
-        return String(left * 10000 + right);
+        return String(left * 1000 + right);
       },
 
       preview(left, right) {
-        const total = left * 10000 + right;
+        const total = left * 1000 + right;
+
         return `${total.toLocaleString("ru-RU")} км`;
+      }
+    },
+
+
+    fuelFills: {
+      title: "Количество заправок",
+      leftLabel: "заправок",
+
+      left: {
+        min: 3,
+        max: 99,
+        pad: 1
+      },
+
+      parse(raw) {
+        let value = parseInt(String(raw || "10"), 10);
+
+        if (!Number.isFinite(value)) {
+          value = 10;
+        }
+
+        return {
+          left: clamp(value, 3, 99),
+          right: 0
+        };
+      },
+
+      compose(left) {
+        return String(left);
+      },
+
+      preview(left) {
+        return `${left} заправок`;
       }
     }
   };
@@ -308,7 +400,9 @@ function renderWheel(side, centerValue, translateY = 0) {
 
     const item = document.createElement("div");
     item.className = "wheel-picker-item" + (offset === 0 ? " active" : "");
-    item.textContent = padNumber(value, cfg.pad);
+    item.textContent = cfg.format
+  ? cfg.format(value)
+  : padNumber(value, cfg.pad);
     wheel.track.appendChild(item);
   }
 
@@ -339,17 +433,59 @@ function openWheelPicker(type, input) {
   wheelPickerState.input = input;
   wheelPickerState.config = config;
   wheelPickerState.leftValue = initial.left;
-  wheelPickerState.rightValue = initial.right;
+  wheelPickerState.rightValue = initial.right || 0;
 
-  document.getElementById("wheel-picker-title").textContent = config.title;
-  wheelPickerState.wheels.left.label.textContent = config.leftLabel;
-  wheelPickerState.wheels.right.label.textContent = config.rightLabel;
+  document.getElementById("wheel-picker-title").textContent =
+    config.title;
 
-  renderWheel("left", wheelPickerState.leftValue, 0);
-  renderWheel("right", wheelPickerState.rightValue, 0);
+  wheelPickerState.wheels.left.label.textContent =
+    config.leftLabel || "";
+
+  wheelPickerState.wheels.right.label.textContent =
+    config.rightLabel || "";
+
+  const rightUnit =
+    wheelPickerState.wheels.right.root.closest(".wheel-picker-unit");
+
+  const wheelsContainer =
+    document.querySelector(".wheel-picker-wheels");
+
+  if (config.right) {
+    if (rightUnit) {
+      rightUnit.style.display = "flex";
+    }
+
+    if (wheelsContainer) {
+      wheelsContainer.style.gridTemplateColumns = "1fr 1fr";
+    }
+  } else {
+    if (rightUnit) {
+      rightUnit.style.display = "none";
+    }
+
+    if (wheelsContainer) {
+      wheelsContainer.style.gridTemplateColumns = "1fr";
+    }
+  }
+
+  renderWheel(
+    "left",
+    wheelPickerState.leftValue,
+    0
+  );
+
+  if (config.right) {
+    renderWheel(
+      "right",
+      wheelPickerState.rightValue,
+      0
+    );
+  }
+
   updateWheelPickerPreview();
 
   wheelPickerState.modal.classList.remove("hidden");
+
   requestAnimationFrame(() => {
     wheelPickerState.modal.classList.add("show");
   });
@@ -394,10 +530,10 @@ function attachWheelDrag(side) {
     const deltaY = e.clientY - startY;
 
     const floatValue = clamp(
-      startValue - deltaY / WHEEL_ROW_HEIGHT,
-      cfg.min,
-      cfg.max
-    );
+  startValue - (deltaY / WHEEL_ROW_HEIGHT) * WHEEL_SWIPE_SENSITIVITY,
+  cfg.min,
+  cfg.max
+);
 
     const roundedValue = clamp(Math.round(floatValue), cfg.min, cfg.max);
     const translateY = (roundedValue - floatValue) * WHEEL_ROW_HEIGHT;
@@ -448,10 +584,11 @@ function initWheelPickerUI() {
   createWheelPickerModal();
 
   const bindings = [
-    { id: "amount", type: "amount" },
-    { id: "liters", type: "liters" },
-    { id: "mileage", type: "mileage" }
-  ];
+  { id: "amount", type: "amount" },
+  { id: "liters", type: "liters" },
+  { id: "mileage", type: "mileage" },
+  { id: "fuel-fills-count", type: "fuelFills" }
+];
 
   bindings.forEach(({ id, type }) => {
     const input = document.getElementById(id);
