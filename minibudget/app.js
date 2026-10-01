@@ -367,50 +367,95 @@ function createWheelPickerModal() {
     "wheel-picker-modal hidden";
 
   modal.innerHTML = `
-    <div class="wheel-picker-sheet">
+  <div class="wheel-picker-sheet">
 
-      <div class="wheel-picker-header">
+    <div class="wheel-picker-header">
+      <div
+        id="wheel-picker-title"
+        class="wheel-picker-title"
+      >
+        Выбор
+      </div>
+    </div>
 
-  <div
-    id="wheel-picker-title"
-    class="wheel-picker-title"
-  >
-    Выбор
-  </div>
+    <div
+      id="wheel-picker-display"
+      class="wheel-picker-display"
+    ></div>
 
-</div>
-
+    <div
+      id="wheel-picker-wheels"
+      class="wheel-picker-wheels"
+    >
 
       <div
-        id="wheel-picker-display"
-        class="wheel-picker-display"
+        class="wheel-picker-selection-combined"
       ></div>
 
+      <div class="wheel-picker-unit">
+
+        <div
+          class="wheel-picker-wheel"
+          id="wheel-left-wheel"
+        >
+
+          <div
+            class="wheel-picker-track"
+            id="wheel-left-track"
+          ></div>
+
+        </div>
+
+      </div>
 
       <div
-        id="wheel-picker-wheels"
-        class="wheel-picker-wheels"
+        id="wheel-picker-divider"
+        class="wheel-picker-divider"
+      ></div>
+
+      <div
+        id="wheel-right-unit"
+        class="wheel-picker-unit"
       >
-<div class="wheel-picker-footer">
 
-  <button
-    type="button"
-    id="wheel-picker-cancel"
-    class="wheel-picker-footer-btn cancel"
-  >
-    Отмена
-  </button>
+        <div
+          class="wheel-picker-wheel"
+          id="wheel-right-wheel"
+        >
 
-  <button
-    type="button"
-    id="wheel-picker-ok"
-    class="wheel-picker-footer-btn primary"
-  >
-    Готово
-  </button>
+          <div
+            class="wheel-picker-track"
+            id="wheel-right-track"
+          ></div>
 
-</div>
+        </div>
 
+      </div>
+
+    </div>
+
+    <div class="wheel-picker-footer">
+
+      <button
+        type="button"
+        id="wheel-picker-cancel"
+        class="wheel-picker-footer-btn cancel"
+      >
+        Отмена
+      </button>
+
+      <button
+        type="button"
+        id="wheel-picker-ok"
+        class="wheel-picker-footer-btn primary"
+      >
+        Готово
+      </button>
+
+    </div>
+
+  </div>
+`;
 
         <div
           class="wheel-picker-selection-combined"

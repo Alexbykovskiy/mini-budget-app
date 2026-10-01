@@ -2510,58 +2510,25 @@ box-sizing: border-box;
 /* ===== сама панель ===== */
 
 .wheel-picker-sheet {
-  width:
-    min(
-      420px,
-      100vw
-    );
+  width: min(420px, calc(100vw - 24px));
 
-transform: translateY(-5vh);
+  transform: translateY(-5vh);
 
-  background:
-    rgba(
-      28,
-      28,
-      30,
-      0.97
-    );
-
+  background: rgba(28, 28, 30, 0.97);
   color: white;
 
-  border-top-left-radius:
-    30px;
+  border-radius: 28px;
 
-  border-top-right-radius:
-    30px;
+  padding: 16px 18px 18px;
 
-  padding:
-    14px
-    18px
-    calc(
-      20px +
-      env(
-        safe-area-inset-bottom,
-        0px
-      )
-    );
-
-  box-sizing:
-    border-box;
+  box-sizing: border-box;
 
   box-shadow:
-    0
-    -15px
-    45px
-    rgba(
-      0,
-      0,
-      0,
-      0.32
-    );
-}
+    0 18px 55px rgba(0, 0, 0, 0.38),
+    0 1px 0 rgba(255, 255, 255, 0.05) inset;
 
-
-/* ===== header ===== */
+  overflow: hidden;
+}/* ===== header ===== */
 
 .wheel-picker-header {
   display: flex;
@@ -2632,28 +2599,18 @@ transform: translateY(-5vh);
 
 .wheel-picker-wheels {
   position: relative;
-
   width: 100%;
-
-  height: 230px;
+  height: 220px;
 
   display: grid;
-
-  grid-template-columns:
-    1fr
-    1px
-    1fr;
+  grid-template-columns: 1fr 1px 1fr;
 
   align-items: center;
-
   justify-content: center;
 
   gap: 8px;
-
   overflow: hidden;
 }
-
-
 /* ===== один wheel ===== */
 
 .wheel-picker-unit {
@@ -3027,32 +2984,36 @@ transform: translateY(-5vh);
 }
 
 .wheel-picker-footer-btn {
+  width: 100%;
   min-height: 48px;
 
-  border: none;
+  border: none !important;
   border-radius: 15px;
+
+  padding: 0 16px !important;
 
   font-size: 16px;
   font-weight: 650;
 
   cursor: pointer;
 
-  -webkit-tap-highlight-color: transparent;
-}
+  box-shadow: none !important;
 
+  -webkit-tap-highlight-color: transparent;
+
+  transition:
+    transform 0.12s ease,
+    opacity 0.12s ease;
+}
 .wheel-picker-footer-btn.cancel {
   color: rgba(255, 255, 255, 0.82);
-
-  background:
-    rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
 .wheel-picker-footer-btn.primary {
   color: #111;
-
-  background: #FFA35C;
+  background: #FFA35C !important;
 }
-
 .wheel-picker-footer-btn:active {
   transform: scale(0.98);
 }
