@@ -107,15 +107,19 @@ let globalDistance = 0; // Пробег для расчёта среднего �
 const WHEEL_ROW_HEIGHT = 44;
 const WHEEL_VISIBLE_RADIUS = 2;
 const WHEEL_SWIPE_SENSITIVITY = 1.5;
+
 let wheelPickerState = null;
+
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
+
 function padNumber(value, size = 0) {
   return String(value).padStart(size, "0");
 }
+
 
 function getLatestMileage() {
   const mileages = expenses
@@ -125,12 +129,19 @@ function getLatestMileage() {
   return mileages.length ? Math.max(...mileages) : "";
 }
 
+
+/* =========================
+   WHEEL CONFIG
+   ========================= */
+
 function getWheelConfigs() {
   return {
+
+    /* ===== СУММА ===== */
+
     amount: {
       title: "Сумма",
-      leftLabel: "€",
-      rightLabel: "центы",
+      unit: "€",
 
       left: {
         min: 0,
@@ -138,17 +149,20 @@ function getWheelConfigs() {
         pad: 1
       },
 
-      // Внутренне 0..9,
-      // визуально 00, 10, 20 ... 90
+      // 0..9 = 00..90 центов
       right: {
         min: 0,
         max: 9,
-        pad: 2,
-        format: value => padNumber(value * 10, 2)
+
+        format(value) {
+          return padNumber(value * 10, 2);
+        }
       },
 
       parse(raw) {
-        let num = Number(String(raw || "0").replace(",", "."));
+        let num = Number(
+          String(raw || "0").replace(",", ".")
+        );
 
         if (!Number.isFinite(num)) {
           num = 0;
@@ -161,26 +175,31 @@ function getWheelConfigs() {
 
         return {
           left: euros,
-          right: clamp(Math.round(cents / 10), 0, 9)
+          right: clamp(
+            Math.round(cents / 10),
+            0,
+            9
+          )
         };
       },
 
       compose(left, right) {
         const cents = right * 10;
+
         return `${left}.${padNumber(cents, 2)}`;
       },
 
       preview(left, right) {
-        const cents = right * 10;
-        return `€${left},${padNumber(cents, 2)}`;
+        return `${left} | ${padNumber(right * 10, 2)} €`;
       }
     },
 
 
+    /* ===== ЛИТРЫ ===== */
+
     liters: {
       title: "Литры",
-      leftLabel: "литры",
-      rightLabel: "десятые",
+      unit: "л",
 
       left: {
         min: 0,
@@ -188,7 +207,7 @@ function getWheelConfigs() {
         pad: 1
       },
 
-      // 0..9 = 0..900 мл
+      // 0..9 = десятые литра
       right: {
         min: 0,
         max: 9,
@@ -196,7 +215,9 @@ function getWheelConfigs() {
       },
 
       parse(raw) {
-        let num = Number(String(raw || "0").replace(",", "."));
+        let num = Number(
+          String(raw || "0").replace(",", ".")
+        );
 
         if (!Number.isFinite(num)) {
           num = 0;
@@ -204,12 +225,14 @@ function getWheelConfigs() {
 
         num = clamp(num, 0, 99.9);
 
-        const whole = Math.floor(num);
-        const fraction = Math.round((num - whole) * 10);
+        const liters = Math.floor(num);
+        const decimal = Math.round(
+          (num - liters) * 10
+        );
 
         return {
-          left: whole,
-          right: clamp(fraction, 0, 9)
+          left: liters,
+          right: clamp(decimal, 0, 9)
         };
       },
 
@@ -218,15 +241,16 @@ function getWheelConfigs() {
       },
 
       preview(left, right) {
-        return `${left},${right} л`;
+        return `${left} | ${right} л`;
       }
     },
 
 
+    /* ===== ПРОБЕГ ===== */
+
     mileage: {
       title: "Пробег",
-      leftLabel: "тысячи",
-      rightLabel: "км",
+      unit: "км",
 
       left: {
         min: 0,
@@ -242,7 +266,11 @@ function getWheelConfigs() {
 
       parse(raw) {
         let value = parseInt(
-          String(raw || getLatestMileage() || "0"),
+          String(
+            raw ||
+            getLatestMileage() ||
+            "0"
+          ),
           10
         );
 
@@ -250,7 +278,11 @@ function getWheelConfigs() {
           value = 0;
         }
 
-        value = clamp(value, 0, 999999);
+        value = clamp(
+          value,
+          0,
+          999999
+        );
 
         return {
           left: Math.floor(value / 1000),
@@ -259,20 +291,23 @@ function getWheelConfigs() {
       },
 
       compose(left, right) {
-        return String(left * 1000 + right);
+        return String(
+          left * 1000 + right
+        );
       },
 
       preview(left, right) {
-        const total = left * 1000 + right;
-
-        return `${total.toLocaleString("ru-RU")} км`;
+        return `${padNumber(left, 3)} | ${padNumber(right, 3)} км`;
       }
     },
 
 
+    /* ===== КОЛИЧЕСТВО ЗАПРАВОК ===== */
+
     fuelFills: {
       title: "Количество заправок",
-      leftLabel: "заправок",
+      unit: "заправок",
+      singleWheel: true,
 
       left: {
         min: 3,
@@ -281,7 +316,10 @@ function getWheelConfigs() {
       },
 
       parse(raw) {
-        let value = parseInt(String(raw || "10"), 10);
+        let value = parseInt(
+          String(raw || "10"),
+          10
+        );
 
         if (!Number.isFinite(value)) {
           value = 10;
@@ -304,169 +342,429 @@ function getWheelConfigs() {
   };
 }
 
-function createWheelPickerModal() {
-  if (document.getElementById("wheel-picker-modal")) return;
 
-  const modal = document.createElement("div");
-  modal.id = "wheel-picker-modal";
-  modal.className = "wheel-picker-modal hidden";
+/* =========================
+   CREATE MODAL
+   ========================= */
+
+function createWheelPickerModal() {
+
+  if (
+    document.getElementById(
+      "wheel-picker-modal"
+    )
+  ) {
+    return;
+  }
+
+  const modal =
+    document.createElement("div");
+
+  modal.id =
+    "wheel-picker-modal";
+
+  modal.className =
+    "wheel-picker-modal hidden";
+
   modal.innerHTML = `
     <div class="wheel-picker-sheet">
+
       <div class="wheel-picker-header">
-        <button type="button" id="wheel-picker-cancel" class="wheel-picker-head-btn">
+
+        <button
+          type="button"
+          id="wheel-picker-cancel"
+          class="wheel-picker-head-btn"
+        >
           Отмена
         </button>
 
-        <div id="wheel-picker-title" class="wheel-picker-title">Выбор</div>
+        <div
+          id="wheel-picker-title"
+          class="wheel-picker-title"
+        >
+          Выбор
+        </div>
 
-        <button type="button" id="wheel-picker-ok" class="wheel-picker-head-btn primary">
+        <button
+          type="button"
+          id="wheel-picker-ok"
+          class="wheel-picker-head-btn primary"
+        >
           Готово
         </button>
+
       </div>
 
-      <div id="wheel-picker-display" class="wheel-picker-display"></div>
 
-      <div class="wheel-picker-wheels">
+      <div
+        id="wheel-picker-display"
+        class="wheel-picker-display"
+      ></div>
+
+
+      <div
+        id="wheel-picker-wheels"
+        class="wheel-picker-wheels"
+      >
+
+        <div
+          class="wheel-picker-selection-combined"
+        ></div>
+
+
         <div class="wheel-picker-unit">
-          <div class="wheel-picker-wheel" id="wheel-left-wheel">
-            <div class="wheel-picker-selection"></div>
-            <div class="wheel-picker-track" id="wheel-left-track"></div>
+
+          <div
+            class="wheel-picker-wheel"
+            id="wheel-left-wheel"
+          >
+
+            <div
+              class="wheel-picker-track"
+              id="wheel-left-track"
+            ></div>
+
           </div>
-          <div class="wheel-picker-label" id="wheel-left-label"></div>
+
         </div>
 
-        <div class="wheel-picker-unit">
-          <div class="wheel-picker-wheel" id="wheel-right-wheel">
-            <div class="wheel-picker-selection"></div>
-            <div class="wheel-picker-track" id="wheel-right-track"></div>
+
+        <div
+          id="wheel-picker-divider"
+          class="wheel-picker-divider"
+        ></div>
+
+
+        <div
+          id="wheel-right-unit"
+          class="wheel-picker-unit"
+        >
+
+          <div
+            class="wheel-picker-wheel"
+            id="wheel-right-wheel"
+          >
+
+            <div
+              class="wheel-picker-track"
+              id="wheel-right-track"
+            ></div>
+
           </div>
-          <div class="wheel-picker-label" id="wheel-right-label"></div>
+
         </div>
+
+
+        <div
+          id="wheel-picker-inline-unit"
+          class="wheel-picker-inline-unit"
+        ></div>
+
       </div>
+
     </div>
   `;
 
   document.body.appendChild(modal);
 
+
   wheelPickerState = {
+
     modal,
+
     input: null,
+
     type: null,
+
     config: null,
+
     configs: getWheelConfigs(),
+
     leftValue: 0,
+
     rightValue: 0,
+
     wheels: {
+
       left: {
-        root: document.getElementById("wheel-left-wheel"),
-        track: document.getElementById("wheel-left-track"),
-        label: document.getElementById("wheel-left-label")
+        root:
+          document.getElementById(
+            "wheel-left-wheel"
+          ),
+
+        track:
+          document.getElementById(
+            "wheel-left-track"
+          )
       },
+
       right: {
-        root: document.getElementById("wheel-right-wheel"),
-        track: document.getElementById("wheel-right-track"),
-        label: document.getElementById("wheel-right-label")
+        root:
+          document.getElementById(
+            "wheel-right-wheel"
+          ),
+
+        track:
+          document.getElementById(
+            "wheel-right-track"
+          )
       }
     }
   };
 
-  document
-    .getElementById("wheel-picker-cancel")
-    .addEventListener("click", closeWheelPicker);
 
   document
-    .getElementById("wheel-picker-ok")
-    .addEventListener("click", applyWheelPickerValue);
+    .getElementById(
+      "wheel-picker-cancel"
+    )
+    .addEventListener(
+      "click",
+      closeWheelPicker
+    );
 
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) closeWheelPicker();
-  });
+
+  document
+    .getElementById(
+      "wheel-picker-ok"
+    )
+    .addEventListener(
+      "click",
+      applyWheelPickerValue
+    );
+
+
+  modal.addEventListener(
+    "click",
+    (e) => {
+
+      if (e.target === modal) {
+        closeWheelPicker();
+      }
+    }
+  );
+
 
   attachWheelDrag("left");
   attachWheelDrag("right");
 }
 
-function renderWheel(side, centerValue, translateY = 0) {
-  if (!wheelPickerState || !wheelPickerState.config) return;
 
-  const wheel = wheelPickerState.wheels[side];
-  const cfg = wheelPickerState.config[side];
-  if (!wheel || !cfg) return;
+/* =========================
+   RENDER WHEEL
+   ========================= */
+
+function renderWheel(
+  side,
+  centerValue,
+  translateY = 0
+) {
+
+  if (
+    !wheelPickerState ||
+    !wheelPickerState.config
+  ) {
+    return;
+  }
+
+
+  const wheel =
+    wheelPickerState.wheels[side];
+
+  const cfg =
+    wheelPickerState.config[side];
+
+
+  if (!wheel || !cfg) {
+    return;
+  }
+
 
   wheel.track.innerHTML = "";
 
-  for (let offset = -WHEEL_VISIBLE_RADIUS; offset <= WHEEL_VISIBLE_RADIUS; offset++) {
-    const value = clamp(centerValue + offset, cfg.min, cfg.max);
 
-    const item = document.createElement("div");
-    item.className = "wheel-picker-item" + (offset === 0 ? " active" : "");
-    item.textContent = cfg.format
-  ? cfg.format(value)
-  : padNumber(value, cfg.pad);
+  for (
+    let offset = -WHEEL_VISIBLE_RADIUS;
+    offset <= WHEEL_VISIBLE_RADIUS;
+    offset++
+  ) {
+
+    const value =
+      clamp(
+        centerValue + offset,
+        cfg.min,
+        cfg.max
+      );
+
+
+    const item =
+      document.createElement("div");
+
+
+    const distance =
+      Math.abs(offset);
+
+
+    item.className =
+      "wheel-picker-item " +
+      `wheel-distance-${distance}` +
+      (offset === 0
+        ? " active"
+        : "");
+
+
+    item.textContent =
+      cfg.format
+        ? cfg.format(value)
+        : padNumber(
+            value,
+            cfg.pad || 0
+          );
+
+
     wheel.track.appendChild(item);
   }
 
-  wheel.track.style.transform = `translateY(${translateY}px)`;
+
+  wheel.track.style.transform =
+    `translateY(${translateY}px)`;
 }
+
+
+/* =========================
+   PREVIEW
+   ========================= */
 
 function updateWheelPickerPreview() {
-  if (!wheelPickerState || !wheelPickerState.config) return;
 
-  const display = document.getElementById("wheel-picker-display");
-  if (!display) return;
+  if (
+    !wheelPickerState ||
+    !wheelPickerState.config
+  ) {
+    return;
+  }
 
-  display.textContent = wheelPickerState.config.preview(
-    wheelPickerState.leftValue,
-    wheelPickerState.rightValue
-  );
+
+  const display =
+    document.getElementById(
+      "wheel-picker-display"
+    );
+
+
+  if (!display) {
+    return;
+  }
+
+
+  display.textContent =
+    wheelPickerState.config.preview(
+      wheelPickerState.leftValue,
+      wheelPickerState.rightValue
+    );
 }
 
-function openWheelPicker(type, input) {
-  if (!wheelPickerState) return;
 
-  const config = wheelPickerState.configs[type];
-  if (!config) return;
+/* =========================
+   OPEN
+   ========================= */
 
-  const initial = config.parse(input.value);
+function openWheelPicker(
+  type,
+  input
+) {
 
-  wheelPickerState.type = type;
-  wheelPickerState.input = input;
-  wheelPickerState.config = config;
-  wheelPickerState.leftValue = initial.left;
-  wheelPickerState.rightValue = initial.right || 0;
+  if (!wheelPickerState) {
+    return;
+  }
 
-  document.getElementById("wheel-picker-title").textContent =
-    config.title;
 
-  wheelPickerState.wheels.left.label.textContent =
-    config.leftLabel || "";
+  const config =
+    wheelPickerState.configs[type];
 
-  wheelPickerState.wheels.right.label.textContent =
-    config.rightLabel || "";
+
+  if (!config) {
+    return;
+  }
+
+
+  const initial =
+    config.parse(input.value);
+
+
+  wheelPickerState.type =
+    type;
+
+  wheelPickerState.input =
+    input;
+
+  wheelPickerState.config =
+    config;
+
+  wheelPickerState.leftValue =
+    initial.left;
+
+  wheelPickerState.rightValue =
+    initial.right || 0;
+
+
+  document
+    .getElementById(
+      "wheel-picker-title"
+    )
+    .textContent =
+      config.title;
+
 
   const rightUnit =
-    wheelPickerState.wheels.right.root.closest(".wheel-picker-unit");
+    document.getElementById(
+      "wheel-right-unit"
+    );
+
+  const divider =
+    document.getElementById(
+      "wheel-picker-divider"
+    );
 
   const wheelsContainer =
-    document.querySelector(".wheel-picker-wheels");
+    document.getElementById(
+      "wheel-picker-wheels"
+    );
 
-  if (config.right) {
-    if (rightUnit) {
-      rightUnit.style.display = "flex";
-    }
+  const inlineUnit =
+    document.getElementById(
+      "wheel-picker-inline-unit"
+    );
 
-    if (wheelsContainer) {
-      wheelsContainer.style.gridTemplateColumns = "1fr 1fr";
-    }
+
+  if (config.singleWheel) {
+
+    rightUnit.style.display =
+      "none";
+
+    divider.style.display =
+      "none";
+
+    wheelsContainer.classList.add(
+      "single-wheel"
+    );
+
   } else {
-    if (rightUnit) {
-      rightUnit.style.display = "none";
-    }
 
-    if (wheelsContainer) {
-      wheelsContainer.style.gridTemplateColumns = "1fr";
-    }
+    rightUnit.style.display =
+      "flex";
+
+    divider.style.display =
+      "block";
+
+    wheelsContainer.classList.remove(
+      "single-wheel"
+    );
   }
+
+
+  inlineUnit.textContent =
+    config.unit || "";
+
 
   renderWheel(
     "left",
@@ -474,7 +772,9 @@ function openWheelPicker(type, input) {
     0
   );
 
-  if (config.right) {
+
+  if (!config.singleWheel) {
+
     renderWheel(
       "right",
       wheelPickerState.rightValue,
@@ -482,128 +782,697 @@ function openWheelPicker(type, input) {
     );
   }
 
+
   updateWheelPickerPreview();
 
-  wheelPickerState.modal.classList.remove("hidden");
+
+  wheelPickerState.modal
+    .classList.remove("hidden");
+
 
   requestAnimationFrame(() => {
-    wheelPickerState.modal.classList.add("show");
+
+    wheelPickerState.modal
+      .classList.add("show");
   });
 }
 
-function closeWheelPicker() {
-  if (!wheelPickerState?.modal) return;
 
-  wheelPickerState.modal.classList.remove("show");
+/* =========================
+   CLOSE
+   ========================= */
+
+function closeWheelPicker() {
+
+  if (!wheelPickerState?.modal) {
+    return;
+  }
+
+
+  wheelPickerState.modal
+    .classList.remove("show");
+
+
   setTimeout(() => {
-    wheelPickerState.modal.classList.add("hidden");
+
+    wheelPickerState.modal
+      .classList.add("hidden");
+
   }, 180);
 }
 
+
+/* =========================
+   APPLY
+   ========================= */
+
 function applyWheelPickerValue() {
-  if (!wheelPickerState?.input || !wheelPickerState?.config) return;
 
-  const { input, config, leftValue, rightValue } = wheelPickerState;
-  input.value = config.compose(leftValue, rightValue);
+  if (
+    !wheelPickerState?.input ||
+    !wheelPickerState?.config
+  ) {
+    return;
+  }
 
-  input.dispatchEvent(new Event("input", { bubbles: true }));
-  input.dispatchEvent(new Event("change", { bubbles: true }));
+
+  const {
+    input,
+    config,
+    leftValue,
+    rightValue
+  } = wheelPickerState;
+
+
+  input.value =
+    config.compose(
+      leftValue,
+      rightValue
+    );
+
+
+  input.dispatchEvent(
+    new Event(
+      "input",
+      {
+        bubbles: true
+      }
+    )
+  );
+
+
+  input.dispatchEvent(
+    new Event(
+      "change",
+      {
+        bubbles: true
+      }
+    )
+  );
+
 
   closeWheelPicker();
 }
 
+
+/* =========================
+   HAPTIC
+   ========================= */
+
+function wheelHaptic() {
+
+  if (
+    typeof navigator !== "undefined" &&
+    navigator.vibrate
+  ) {
+
+    navigator.vibrate(7);
+  }
+}
+
+
+/* =========================
+   INERTIA
+   ========================= */
+
+function runWheelInertia(
+  side,
+  velocity
+) {
+
+  const state =
+    wheelPickerState;
+
+
+  if (!state?.config) {
+    return;
+  }
+
+
+  const cfg =
+    state.config[side];
+
+
+  if (!cfg) {
+    return;
+  }
+
+
+  /*
+   * velocity = pixels / ms
+   *
+   * Чем быстрее свайп,
+   * тем больше дополнительный
+   * "выбег".
+   */
+
+  const speed =
+    Math.abs(velocity);
+
+
+  if (speed < 0.10) {
+
+    renderWheel(
+      side,
+      state[`${side}Value`],
+      0
+    );
+
+    return;
+  }
+
+
+  /*
+   * Ограничиваем, чтобы колесо
+   * не улетало на сотни значений.
+   */
+
+  const direction =
+    velocity < 0
+      ? 1
+      : -1;
+
+
+  let extraSteps =
+    Math.round(
+      speed *
+      7 *
+      WHEEL_SWIPE_SENSITIVITY
+    );
+
+
+  extraSteps =
+    clamp(
+      extraSteps,
+      1,
+      18
+    );
+
+
+  const current =
+    state[`${side}Value`];
+
+
+  const target =
+    clamp(
+      current +
+      direction * extraSteps,
+      cfg.min,
+      cfg.max
+    );
+
+
+  animateWheelTo(
+    side,
+    target
+  );
+}
+
+
+/* =========================
+   INERTIA ANIMATION
+   ========================= */
+
+function animateWheelTo(
+  side,
+  targetValue
+) {
+
+  if (
+    !wheelPickerState ||
+    !wheelPickerState.config
+  ) {
+    return;
+  }
+
+
+  const cfg =
+    wheelPickerState.config[side];
+
+
+  if (!cfg) {
+    return;
+  }
+
+
+  let current =
+    wheelPickerState[
+      `${side}Value`
+    ];
+
+
+  targetValue =
+    clamp(
+      targetValue,
+      cfg.min,
+      cfg.max
+    );
+
+
+  if (
+    current === targetValue
+  ) {
+
+    renderWheel(
+      side,
+      current,
+      0
+    );
+
+    return;
+  }
+
+
+  const direction =
+    targetValue > current
+      ? 1
+      : -1;
+
+
+  const totalSteps =
+    Math.abs(
+      targetValue - current
+    );
+
+
+  let completed = 0;
+
+
+  function nextStep() {
+
+    if (
+      completed >= totalSteps
+    ) {
+
+      renderWheel(
+        side,
+        wheelPickerState[
+          `${side}Value`
+        ],
+        0
+      );
+
+      return;
+    }
+
+
+    current += direction;
+
+    completed++;
+
+
+    wheelPickerState[
+      `${side}Value`
+    ] = current;
+
+
+    updateWheelPickerPreview();
+
+    renderWheel(
+      side,
+      current,
+      0
+    );
+
+    wheelHaptic();
+
+
+    /*
+     * Чем ближе к концу,
+     * тем медленнее.
+     */
+
+    const progress =
+      completed / totalSteps;
+
+
+    const delay =
+      18 +
+      progress * progress * 70;
+
+
+    setTimeout(
+      nextStep,
+      delay
+    );
+  }
+
+
+  nextStep();
+}
+
+
+/* =========================
+   DRAG
+   ========================= */
+
 function attachWheelDrag(side) {
-  const wheel = wheelPickerState?.wheels?.[side];
-  if (!wheel) return;
+
+  const wheel =
+    wheelPickerState?.wheels?.[side];
+
+
+  if (!wheel) {
+    return;
+  }
+
 
   let dragging = false;
+
   let startY = 0;
+
   let startValue = 0;
+
+  let lastY = 0;
+
+  let lastTime = 0;
+
+  let velocity = 0;
+
   let lastTickValue = null;
 
+
   const onPointerMove = (e) => {
-    if (!dragging || !wheelPickerState?.config) return;
+
+    if (
+      !dragging ||
+      !wheelPickerState?.config
+    ) {
+      return;
+    }
+
 
     e.preventDefault();
 
-    const cfg = wheelPickerState.config[side];
-    const deltaY = e.clientY - startY;
 
-    const floatValue = clamp(
-  startValue - (deltaY / WHEEL_ROW_HEIGHT) * WHEEL_SWIPE_SENSITIVITY,
-  cfg.min,
-  cfg.max
-);
+    const cfg =
+      wheelPickerState.config[side];
 
-    const roundedValue = clamp(Math.round(floatValue), cfg.min, cfg.max);
-    const translateY = (roundedValue - floatValue) * WHEEL_ROW_HEIGHT;
 
-    if (wheelPickerState[`${side}Value`] !== roundedValue) {
-      wheelPickerState[`${side}Value`] = roundedValue;
+    if (!cfg) {
+      return;
+    }
+
+
+    const now =
+      performance.now();
+
+
+    const dy =
+      e.clientY - lastY;
+
+
+    const dt =
+      Math.max(
+        now - lastTime,
+        1
+      );
+
+
+    /*
+     * Скорость текущего движения.
+     */
+
+    const instantVelocity =
+      dy / dt;
+
+
+    /*
+     * Сглаживаем скорость.
+     */
+
+    velocity =
+      velocity * 0.65 +
+      instantVelocity * 0.35;
+
+
+    lastY =
+      e.clientY;
+
+    lastTime =
+      now;
+
+
+    const deltaY =
+      e.clientY - startY;
+
+
+    const floatValue =
+      clamp(
+
+        startValue -
+
+        (
+          deltaY /
+          WHEEL_ROW_HEIGHT
+        ) *
+
+        WHEEL_SWIPE_SENSITIVITY,
+
+        cfg.min,
+        cfg.max
+      );
+
+
+    const roundedValue =
+      clamp(
+        Math.round(floatValue),
+        cfg.min,
+        cfg.max
+      );
+
+
+    const translateY =
+      (
+        roundedValue -
+        floatValue
+      ) *
+      WHEEL_ROW_HEIGHT;
+
+
+    if (
+      wheelPickerState[
+        `${side}Value`
+      ] !== roundedValue
+    ) {
+
+      wheelPickerState[
+        `${side}Value`
+      ] = roundedValue;
+
+
       updateWheelPickerPreview();
 
-      if (lastTickValue !== roundedValue && navigator.vibrate) {
-        navigator.vibrate(10);
+
+      if (
+        lastTickValue !==
+        roundedValue
+      ) {
+
+        wheelHaptic();
       }
 
-      lastTickValue = roundedValue;
+
+      lastTickValue =
+        roundedValue;
     }
 
-    renderWheel(side, roundedValue, translateY);
+
+    renderWheel(
+      side,
+      roundedValue,
+      translateY
+    );
   };
+
 
   const onPointerUp = () => {
-    if (!dragging) return;
+
+    if (!dragging) {
+      return;
+    }
+
 
     dragging = false;
-    wheel.root.classList.remove("dragging");
-    renderWheel(side, wheelPickerState[`${side}Value`], 0);
+
+
+    wheel.root
+      .classList.remove(
+        "dragging"
+      );
+
+
+    runWheelInertia(
+      side,
+      velocity
+    );
   };
 
-  wheel.root.addEventListener("pointerdown", (e) => {
-    if (!wheelPickerState?.config) return;
 
-    dragging = true;
-    startY = e.clientY;
-    startValue = wheelPickerState[`${side}Value`];
-    lastTickValue = startValue;
+  wheel.root.addEventListener(
+    "pointerdown",
+    (e) => {
 
-    wheel.root.classList.add("dragging");
-    if (wheel.root.setPointerCapture) {
-      wheel.root.setPointerCapture(e.pointerId);
+      if (
+        !wheelPickerState?.config
+      ) {
+        return;
+      }
+
+
+      const cfg =
+        wheelPickerState.config[side];
+
+
+      if (!cfg) {
+        return;
+      }
+
+
+      dragging = true;
+
+
+      startY =
+        e.clientY;
+
+
+      startValue =
+        wheelPickerState[
+          `${side}Value`
+        ];
+
+
+      lastTickValue =
+        startValue;
+
+
+      lastY =
+        e.clientY;
+
+
+      lastTime =
+        performance.now();
+
+
+      velocity = 0;
+
+
+      wheel.root
+        .classList.add(
+          "dragging"
+        );
+
+
+      if (
+        wheel.root.setPointerCapture
+      ) {
+
+        wheel.root.setPointerCapture(
+          e.pointerId
+        );
+      }
     }
-  });
+  );
 
-  wheel.root.addEventListener("pointermove", onPointerMove);
-  wheel.root.addEventListener("pointerup", onPointerUp);
-  wheel.root.addEventListener("pointercancel", onPointerUp);
-  wheel.root.addEventListener("lostpointercapture", onPointerUp);
+
+  wheel.root.addEventListener(
+    "pointermove",
+    onPointerMove
+  );
+
+
+  wheel.root.addEventListener(
+    "pointerup",
+    onPointerUp
+  );
+
+
+  wheel.root.addEventListener(
+    "pointercancel",
+    onPointerUp
+  );
+
+
+  wheel.root.addEventListener(
+    "lostpointercapture",
+    onPointerUp
+  );
 }
+
+
+/* =========================
+   INIT
+   ========================= */
 
 function initWheelPickerUI() {
+
   createWheelPickerModal();
 
+
   const bindings = [
-  { id: "amount", type: "amount" },
-  { id: "liters", type: "liters" },
-  { id: "mileage", type: "mileage" },
-  { id: "fuel-fills-count", type: "fuelFills" }
-];
 
-  bindings.forEach(({ id, type }) => {
-    const input = document.getElementById(id);
-    if (!input) return;
+    {
+      id: "amount",
+      type: "amount"
+    },
 
-    input.readOnly = true;
-    input.setAttribute("inputmode", "none");
-    input.classList.add("wheel-input");
+    {
+      id: "liters",
+      type: "liters"
+    },
 
-    input.addEventListener("click", () => {
-      openWheelPicker(type, input);
-    });
-  });
+    {
+      id: "mileage",
+      type: "mileage"
+    },
+
+    {
+      id: "fuel-fills-count",
+      type: "fuelFills"
+    }
+  ];
+
+
+  bindings.forEach(
+    ({
+      id,
+      type
+    }) => {
+
+      const input =
+        document.getElementById(id);
+
+
+      if (!input) {
+        return;
+      }
+
+
+      input.readOnly = true;
+
+      input.setAttribute(
+        "inputmode",
+        "none"
+      );
+
+      input.classList.add(
+        "wheel-input"
+      );
+
+
+      input.addEventListener(
+        "click",
+        () => {
+
+          openWheelPicker(
+            type,
+            input
+          );
+        }
+      );
+    }
+  );
 }
-
 
 // ========== ДОБАВИТЬ НАПОМИНАНИЕ ==========
 const infoAddForm = document.getElementById('info-add-form');
