@@ -4321,3 +4321,10 @@ box-sizing: border-box;
   }
 
 }
+
+
+/* Разрешаем перетаскивать карточки только в режиме редактирования */
+.car-reminder-map.editing
+.car-reminder-card {
+  pointer-events: auto;
+}
