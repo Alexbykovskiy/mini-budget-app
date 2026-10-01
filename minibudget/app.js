@@ -2341,23 +2341,43 @@ function toggleMenu(button) {
 
 
 function loadReminders() {
+
   if (!db) {
-    console.error("Firestore не инициализирован (loadReminders)");
+    console.error(
+      "Firestore не инициализирован (loadReminders)"
+    );
+
     return;
   }
 
-  db.collection("users").doc(profileCode).collection("reminders")
+
+  db
+    .collection("users")
+    .doc(profileCode)
+    .collection("reminders")
     .onSnapshot(snapshot => {
-      const reminders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      const processed = processReminders(reminders);
 
-/* Старый блок. Пока сохраняем полностью. */
-renderInlineInfoBoardHeader(processed);
+      const reminders =
+        snapshot.docs.map(
+          doc => ({
+            id: doc.id,
+            ...doc.data()
+          })
+        );
 
-/* Новая визуальная карта автомобиля. */
-renderCarReminderBoard(processed);
+
+      const processed =
+        processReminders(
+          reminders
+        );
+
+
+      renderCarReminderBoard(
+        processed
+      );
 
     });
+
 }
 
 function processReminders(reminders) {
@@ -3057,15 +3077,91 @@ function startCarMapAnchorDrag(
 }
 
 
+function setCarMapEditorButtonState(
+  editing
+) {
+
+  const button =
+    document.getElementById(
+      "car-map-edit"
+    );
+
+
+  if (!button) {
+    return;
+  }
+
+
+  button.innerHTML =
+    editing
+      ? '<span data-lucide="check"></span>'
+      : '<span data-lucide="move"></span>';
+
+
+  button.title =
+    editing
+      ? "Сохранить расположение"
+      : "Настроить расположение";
+
+
+  button.setAttribute(
+    "aria-label",
+    button.title
+  );
+
+
+  button.classList.toggle(
+    "save",
+    editing
+  );
+
+
+  if (
+    typeof lucide !==
+    "undefined"
+  ) {
+
+    lucide.createIcons();
+
+  }
+
+}
+
+
+function toggleCarMapEditor() {
+
+  if (
+    carMapEditorState.enabled
+  ) {
+
+    saveCarMapEditor();
+
+  } else {
+
+    enableCarMapEditor();
+
+  }
+
+}
+
+
 function enableCarMapEditor() {
 
   carMapEditorState.enabled =
     true;
-closeCarReminderActions();
 
-  carMapEditorState.draft.clear();
 
-  carMapEditorState.dirtyIds.clear();
+  closeCarReminderActions();
+
+
+  carMapEditorState
+    .draft
+    .clear();
+
+
+  carMapEditorState
+    .dirtyIds
+    .clear();
 
 
   const root =
@@ -3079,24 +3175,9 @@ closeCarReminderActions();
   );
 
 
-  document
-    .getElementById(
-      "car-map-edit"
-    )
-    ?.classList
-    .add(
-      "hidden"
-    );
-
-
-  document
-    .getElementById(
-      "car-map-edit-actions"
-    )
-    ?.classList
-    .remove(
-      "hidden"
-    );
+  setCarMapEditorButtonState(
+    true
+  );
 
 
   showToast(
@@ -3104,7 +3185,6 @@ closeCarReminderActions();
   );
 
 }
-
 
 function cancelCarMapEditor() {
 
@@ -3159,10 +3239,27 @@ async function saveCarMapEditor() {
 
   if (!ids.length) {
 
-    cancelCarMapEditor();
+  carMapEditorState.enabled =
+    false;
 
-    return;
-  }
+
+  document
+    .getElementById(
+      "car-reminder-map"
+    )
+    ?.classList
+    .remove(
+      "editing"
+    );
+
+
+  setCarMapEditorButtonState(
+    false
+  );
+
+
+  return;
+}
 
 
   try {
@@ -3253,31 +3350,26 @@ async function saveCarMapEditor() {
     carMapEditorState.enabled =
       false;
 
+document
+  .getElementById(
+    "car-reminder-map"
+  )
+  ?.classList
+  .remove(
+    "editing"
+  );
+
+
+setCarMapEditorButtonState(
+  false
+);
 
     carMapEditorState.draft.clear();
 
     carMapEditorState.dirtyIds.clear();
 
 
-    document
-      .getElementById(
-        "car-map-edit"
-      )
-      ?.classList
-      .remove(
-        "hidden"
-      );
-
-
-    document
-      .getElementById(
-        "car-map-edit-actions"
-      )
-      ?.classList
-      .add(
-        "hidden"
-      );
-
+   
 
     showToast(
       "Расположение сохранено"
@@ -3333,28 +3425,9 @@ function initCarMapEditor() {
     )
     ?.addEventListener(
       "click",
-      enableCarMapEditor
+toggleCarMapEditor
     );
 
-
-  document
-    .getElementById(
-      "car-map-edit-cancel"
-    )
-    ?.addEventListener(
-      "click",
-      cancelCarMapEditor
-    );
-
-
-  document
-    .getElementById(
-      "car-map-edit-save"
-    )
-    ?.addEventListener(
-      "click",
-      saveCarMapEditor
-    );
 
 
   /* =========================

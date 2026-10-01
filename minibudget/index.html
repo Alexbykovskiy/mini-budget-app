@@ -106,42 +106,23 @@
     id="car-map-edit"
     class="car-map-editor-btn"
     title="Настроить расположение"
+    aria-label="Настроить расположение"
   >
     <span data-lucide="move"></span>
   </button>
-<button
-  type="button"
-  id="car-map-add-reminder"
-  class="car-map-editor-btn"
-  title="Добавить напоминание"
->
-  <span data-lucide="plus"></span>
-</button>
-  <div
-    id="car-map-edit-actions"
-    class="car-map-edit-actions hidden"
+
+
+  <button
+    type="button"
+    id="car-map-add-reminder"
+    class="car-map-editor-btn"
+    title="Добавить напоминание"
+    aria-label="Добавить напоминание"
   >
+    <span data-lucide="plus"></span>
+  </button>
 
-    <button
-      type="button"
-      id="car-map-edit-cancel"
-      class="car-map-editor-btn"
-      title="Отмена"
-    >
-      <span data-lucide="x"></span>
-    </button>
-
-    <button
-      type="button"
-      id="car-map-edit-save"
-      class="car-map-editor-btn save"
-      title="Сохранить"
-    >
-      <span data-lucide="check"></span>
-    </button>
-
-  </div>
-
+</div>
 </div>
 
     <!-- Линии от карточек к машине -->
@@ -325,45 +306,6 @@
       <input type="hidden" id="edit-id" />
     </form>
   </fieldset>
-
-<fieldset class="block collapsed animated-section delay-3" id="info-add-wrapper">
- <div class="section-title-row">
-  <div id="inline-info-board" class="inline-info-board">
-    <!-- Напоминания появятся здесь -->
-  </div>
-</div>
-<label class="ios-switch toggle-info-fix">
-  <input type="checkbox" id="toggle-info-add">
-  <span class="slider"></span>
-</label>
-
-  </div>
-  <div class="info-add-toggle-container">
-    <form id="info-add-form" class="info-add-form">
-      <div class="row">
-     <button type="button" id="info-type" title="Добавить фото">
-  <span data-lucide="image-plus"></span>
-</button>
-
-        <input list="tag-list" id="info-tag" placeholder="Название / #тег" required>
-      </div>
-      <div class="row">
-        <input type="number" id="info-mileage" placeholder="Пробег (км)">
-        <input type="number" id="info-interval" placeholder="заменить через (км)">
-      </div>
-      <div class="row">
-        <input type="date" id="info-date-start" required>
-        <input type="date" id="info-date-end" placeholder="Дата окончания" required>
-      </div>
-      <div class="form-buttons">
-        <button type="button" class="round-btn orange" onclick="resetInfoAddForm()" title="Отмена">&#10006;</button>
-       
-        <button type="submit" class="round-btn green" title="Сохранить">&#10004;</button>
-      </div>
-      <input type="file" id="info-add-photo" accept="image/*" style="display:none">
-    </form>
-  </div>
-</fieldset>
 
 
 <fieldset class="block animated-section delay-4" id="journal-wrapper">

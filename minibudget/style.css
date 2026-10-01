@@ -5337,3 +5337,559 @@ input:checked +
   }
 
 }
+
+/* =========================================================
+   REMINDER MODAL
+   DARK LIQUID GLASS
+   ========================================================= */
+
+.reminder-modal__backdrop {
+  background:
+    rgba(4, 7, 11, 0.64);
+
+  backdrop-filter:
+    blur(14px)
+    saturate(120%);
+
+  -webkit-backdrop-filter:
+    blur(14px)
+    saturate(120%);
+}
+
+
+.reminder-modal__sheet {
+  position: relative;
+
+  color: rgba(255, 255, 255, 0.92);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(39, 47, 56, 0.80),
+      rgba(14, 19, 25, 0.72)
+    );
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.18);
+
+  box-shadow:
+    inset
+    0
+    1px
+    0
+    rgba(255, 255, 255, 0.18),
+
+    inset
+    0
+    -1px
+    0
+    rgba(255, 255, 255, 0.04),
+
+    0
+    30px
+    80px
+    rgba(0, 0, 0, 0.55);
+
+  backdrop-filter:
+    blur(34px)
+    saturate(155%);
+
+  -webkit-backdrop-filter:
+    blur(34px)
+    saturate(155%);
+}
+
+
+/* Световой стеклянный блик */
+
+.reminder-modal__sheet::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  border-radius: inherit;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,255,255,0.14),
+      rgba(255,255,255,0.025) 38%,
+      transparent 58%
+    );
+
+  mask-image:
+    linear-gradient(
+      to bottom,
+      black,
+      transparent 55%
+    );
+
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom,
+      black,
+      transparent 55%
+    );
+}
+
+
+.reminder-modal__header,
+#reminder-modal-form {
+  position: relative;
+
+  z-index: 1;
+}
+
+
+.reminder-modal__title {
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.96
+    );
+}
+
+
+.reminder-modal__subtitle {
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.48
+    );
+}
+
+
+.reminder-modal__label,
+.reminder-modal__section-title {
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.60
+    );
+}
+
+
+/* INPUTS */
+
+.reminder-modal__label input {
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.94
+    );
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.065
+    );
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.10
+    );
+
+  box-shadow:
+    inset
+    0
+    1px
+    0
+    rgba(
+      255,
+      255,
+      255,
+      0.10
+    ),
+
+    inset
+    0
+    -10px
+    30px
+    rgba(
+      0,
+      0,
+      0,
+      0.12
+    );
+
+  color-scheme:
+    dark;
+}
+
+
+.reminder-modal__label
+input::placeholder {
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.32
+    );
+}
+
+
+.reminder-modal__label
+input:focus {
+  border-color:
+    rgba(
+      103,
+      221,
+      255,
+      0.50
+    );
+
+  box-shadow:
+    0
+    0
+    0
+    3px
+    rgba(
+      103,
+      221,
+      255,
+      0.08
+    ),
+
+    inset
+    0
+    1px
+    0
+    rgba(
+      255,
+      255,
+      255,
+      0.12
+    );
+}
+
+
+/* CLOSE */
+
+.reminder-modal__close {
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.82
+    );
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.08
+    );
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.14
+    );
+
+  box-shadow:
+    inset
+    0
+    1px
+    0
+    rgba(
+      255,
+      255,
+      255,
+      0.12
+    ),
+
+    0
+    8px
+    20px
+    rgba(
+      0,
+      0,
+      0,
+      0.18
+    );
+}
+
+
+/* ICON GRID */
+
+.reminder-icon-btn {
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.65
+    );
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.07
+    );
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.10
+    );
+
+  box-shadow:
+    inset
+    0
+    1px
+    0
+    rgba(
+      255,
+      255,
+      255,
+      0.09
+    ),
+
+    0
+    6px
+    14px
+    rgba(
+      0,
+      0,
+      0,
+      0.14
+    );
+}
+
+
+.reminder-icon-btn:hover {
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.12
+    );
+}
+
+
+.reminder-icon-btn.active {
+  color:
+    white;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(57, 182, 193, 0.92),
+      rgba(20, 112, 120, 0.88)
+    );
+
+  border-color:
+    rgba(
+      151,
+      239,
+      246,
+      0.55
+    );
+
+  box-shadow:
+    inset
+    0
+    1px
+    0
+    rgba(
+      255,
+      255,
+      255,
+      0.28
+    ),
+
+    0
+    8px
+    24px
+    rgba(
+      32,
+      172,
+      184,
+      0.23
+    );
+}
+
+
+/* LINK TO CAR */
+
+.reminder-link-option {
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.06
+    );
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.10
+    );
+
+  box-shadow:
+    inset
+    0
+    1px
+    0
+    rgba(
+      255,
+      255,
+      255,
+      0.08
+    );
+}
+
+
+.reminder-link-option__title {
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.90
+    );
+}
+
+
+.reminder-link-option__description {
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.42
+    );
+}
+
+
+.reminder-modal-switch__track {
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.18
+    );
+}
+
+
+.reminder-modal-switch
+input:checked +
+.reminder-modal-switch__track {
+  background:
+    rgba(
+      41,
+      175,
+      181,
+      0.88
+    );
+}
+
+
+/* FOOTER */
+
+.reminder-modal-btn.secondary {
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.68
+    );
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.075
+    );
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.10
+    );
+}
+
+
+.reminder-modal-btn.primary {
+  color:
+    white;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(49, 176, 181, 0.96),
+      rgba(18, 105, 111, 0.96)
+    );
+
+  border:
+    1px solid
+    rgba(
+      142,
+      236,
+      241,
+      0.30
+    );
+
+  box-shadow:
+    inset
+    0
+    1px
+    0
+    rgba(
+      255,
+      255,
+      255,
+      0.22
+    ),
+
+    0
+    8px
+    22px
+    rgba(
+      0,
+      0,
+      0,
+      0.20
+    );
+}
