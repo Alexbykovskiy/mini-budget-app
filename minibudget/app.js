@@ -4218,6 +4218,8 @@ anchorHTML.push(`
 
 `);
 
+    }
+  );
 
  cards.innerHTML =
   cardHTML.join("") +
