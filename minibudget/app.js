@@ -9,6 +9,7 @@ window.addEventListener("load", () => {
 initFuelControls();
   initWheelPickerUI();
 initCarMapEditor();
+initReminderModal();
   // 📸 Выбор способа загрузки изображения — камера или галерея
   // 📸 Упрощённая загрузка фото: системное меню (камера, галерея, файлы)
 
@@ -103,6 +104,10 @@ const FUEL_LABELS = {
 
 let fullTotal = 0;
 let editingReminderId = null;
+let reminderModalEditingId = null;
+
+let reminderModalSelectedIcon =
+  "wrench";
 let globalDistance = 0; // Пробег для расчёта среднего расхода
 
 const WHEEL_ROW_HEIGHT = 44;
@@ -2462,9 +2467,17 @@ function processReminders(reminders) {
   dateStart: r.dateStart || "",
   dateEnd: r.dateEnd || "",
 
-  mapLayout: r.mapLayout || null,
+ mapLayout: r.mapLayout || null,
 
-  imageUrl: r.imageUrl || ""
+mapIcon:
+  r.mapIcon || "",
+
+mapLinked:
+  typeof r.mapLinked === "boolean"
+    ? r.mapLinked
+    : null,
+
+imageUrl: r.imageUrl || ""
 };
 
   }).sort((a, b) => {
@@ -3861,6 +3874,50 @@ function getCarReminderLayout(reminder, index) {
   }
 
 
+/* Ручная иконка имеет приоритет
+   над автоматической */
+if (reminder.mapIcon) {
+
+  result.icon =
+    reminder.mapIcon;
+
+}
+
+
+/*
+ * Явно отключена связь
+ * с автомобилем.
+ */
+if (
+  reminder.mapLinked === false
+) {
+
+  delete result.anchorX;
+
+  delete result.anchorY;
+
+}
+
+
+/*
+ * Пользователь явно включил связь,
+ * но у автоматического шаблона
+ * точки раньше не было.
+ */
+if (
+  reminder.mapLinked === true &&
+  (
+    result.anchorX === undefined ||
+    result.anchorY === undefined
+  )
+) {
+
+  result.anchorX = 50;
+
+  result.anchorY = 55;
+
+}
+
   return result;
 }
 
@@ -4431,57 +4488,562 @@ function closeCarReminderActions(
     });
 }
 
+/* =========================================================
+   REMINDER MODAL
+   ========================================================= */
 
-function openNewCarReminderForm() {
+function setReminderModalIcon(icon) {
 
-  editingReminderId = null;
+  reminderModalSelectedIcon =
+    icon || "wrench";
 
-  resetInfoAddForm();
+
+  document
+    .querySelectorAll(
+      ".reminder-icon-btn"
+    )
+    .forEach(button => {
+
+      button.classList.toggle(
+        "active",
+        button.dataset.reminderIcon ===
+          reminderModalSelectedIcon
+      );
+
+    });
+}
 
 
-  const toggle =
-    document.getElementById(
-      "toggle-info-add"
+function getAutomaticReminderIcon(tag) {
+
+  const layout =
+    resolveCarReminderLayout(
+      tag || "",
+      0
     );
 
 
-  const wrapper =
-    document.getElementById(
-      "info-add-wrapper"
+  return (
+    layout?.icon ||
+    "wrench"
+  );
+}
+
+
+function getAutomaticReminderLinked(tag) {
+
+  const layout =
+    resolveCarReminderLayout(
+      tag || "",
+      0
     );
 
 
-  if (toggle) {
+  return (
+    layout?.anchorX !== undefined &&
+    layout?.anchorY !== undefined
+  );
+}
 
-    toggle.checked = true;
 
-    toggle.dispatchEvent(
-      new Event(
-        "change"
+async function openReminderModal(
+  reminderId = null
+) {
+
+  const modal =
+    document.getElementById(
+      "reminder-modal"
+    );
+
+
+  const form =
+    document.getElementById(
+      "reminder-modal-form"
+    );
+
+
+  if (
+    !modal ||
+    !form
+  ) {
+    return;
+  }
+
+
+  closeCarReminderActions();
+
+
+  form.reset();
+
+
+  reminderModalEditingId =
+    reminderId || null;
+
+
+  let selectedIcon =
+    "wrench";
+
+
+  let linked =
+    true;
+
+
+  if (reminderId) {
+
+    const doc =
+      await db
+        .collection("users")
+        .doc(profileCode)
+        .collection("reminders")
+        .doc(reminderId)
+        .get();
+
+
+    if (!doc.exists) {
+      return;
+    }
+
+
+    const reminder =
+      doc.data();
+
+
+    document
+      .getElementById(
+        "reminder-modal-title"
       )
+      .textContent =
+        "Редактировать напоминание";
+
+
+    document
+      .getElementById(
+        "reminder-modal-tag"
+      )
+      .value =
+        reminder.tag || "";
+
+
+    document
+      .getElementById(
+        "reminder-modal-mileage"
+      )
+      .value =
+        reminder.mileage ?? "";
+
+
+    document
+      .getElementById(
+        "reminder-modal-interval"
+      )
+      .value =
+        reminder.interval ?? "";
+
+
+    document
+      .getElementById(
+        "reminder-modal-date-start"
+      )
+      .value =
+        reminder.dateStart || "";
+
+
+    document
+      .getElementById(
+        "reminder-modal-date-end"
+      )
+      .value =
+        reminder.dateEnd || "";
+
+
+    selectedIcon =
+      reminder.mapIcon ||
+      getAutomaticReminderIcon(
+        reminder.tag
+      );
+
+
+    if (
+      typeof reminder.mapLinked ===
+      "boolean"
+    ) {
+
+      linked =
+        reminder.mapLinked;
+
+    } else {
+
+      linked =
+        getAutomaticReminderLinked(
+          reminder.tag
+        );
+
+    }
+
+
+  } else {
+
+    document
+      .getElementById(
+        "reminder-modal-title"
+      )
+      .textContent =
+        "Новое напоминание";
+
+
+    const today =
+      new Date()
+        .toISOString()
+        .split("T")[0];
+
+
+    document
+      .getElementById(
+        "reminder-modal-date-start"
+      )
+      .value =
+        today;
+
+
+    selectedIcon =
+      "wrench";
+
+
+    linked =
+      true;
+
+  }
+
+
+  document
+    .getElementById(
+      "reminder-modal-linked"
+    )
+    .checked =
+      linked;
+
+
+  setReminderModalIcon(
+    selectedIcon
+  );
+
+
+  modal.classList.remove(
+    "hidden"
+  );
+
+
+  modal.setAttribute(
+    "aria-hidden",
+    "false"
+  );
+
+
+  requestAnimationFrame(() => {
+
+    modal.classList.add(
+      "show"
     );
+
+  });
+
+
+  if (
+    typeof lucide !==
+    "undefined"
+  ) {
+
+    lucide.createIcons();
 
   }
 
 
   setTimeout(() => {
 
-    wrapper?.scrollIntoView({
-      behavior: "smooth",
-      block: "center"
-    });
-
-
     document
       .getElementById(
-        "info-tag"
+        "reminder-modal-tag"
       )
       ?.focus();
 
-  }, 100);
+  }, 150);
+
 }
 
 
+function closeReminderModal() {
+
+  const modal =
+    document.getElementById(
+      "reminder-modal"
+    );
+
+
+  if (!modal) {
+    return;
+  }
+
+
+  modal.classList.remove(
+    "show"
+  );
+
+
+  modal.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+
+
+  setTimeout(() => {
+
+    modal.classList.add(
+      "hidden"
+    );
+
+  }, 180);
+
+}
+
+
+async function saveReminderModal(
+  event
+) {
+
+  event.preventDefault();
+
+
+  if (!db) {
+    return;
+  }
+
+
+  const tag =
+    document
+      .getElementById(
+        "reminder-modal-tag"
+      )
+      .value
+      .trim()
+      .toLowerCase();
+
+
+  if (!tag) {
+    return;
+  }
+
+
+  const mileageRaw =
+    document
+      .getElementById(
+        "reminder-modal-mileage"
+      )
+      .value;
+
+
+  const intervalRaw =
+    document
+      .getElementById(
+        "reminder-modal-interval"
+      )
+      .value;
+
+
+  const data = {
+
+    tag,
+
+    mileage:
+      mileageRaw !== ""
+        ? Number(mileageRaw)
+        : null,
+
+    interval:
+      intervalRaw !== ""
+        ? Number(intervalRaw)
+        : null,
+
+    dateStart:
+      document
+        .getElementById(
+          "reminder-modal-date-start"
+        )
+        .value || "",
+
+    dateEnd:
+      document
+        .getElementById(
+          "reminder-modal-date-end"
+        )
+        .value || "",
+
+    mapIcon:
+      reminderModalSelectedIcon ||
+      "wrench",
+
+    mapLinked:
+      document
+        .getElementById(
+          "reminder-modal-linked"
+        )
+        .checked
+
+  };
+
+
+  try {
+
+    const reminders =
+      db
+        .collection("users")
+        .doc(profileCode)
+        .collection("reminders");
+
+
+    if (
+      reminderModalEditingId
+    ) {
+
+      await reminders
+        .doc(
+          reminderModalEditingId
+        )
+        .update(
+          data
+        );
+
+
+      showToast(
+        "Напоминание обновлено"
+      );
+
+
+    } else {
+
+      await reminders.add({
+
+        ...data,
+
+        imageUrl: "",
+
+        created:
+          Date.now()
+
+      });
+
+
+      showToast(
+        "Напоминание добавлено"
+      );
+
+    }
+
+
+    closeReminderModal();
+
+
+  } catch (error) {
+
+    console.error(
+      "Ошибка сохранения напоминания:",
+      error
+    );
+
+
+    showToast(
+      "Не удалось сохранить"
+    );
+
+  }
+
+}
+
+
+function initReminderModal() {
+
+  const modal =
+    document.getElementById(
+      "reminder-modal"
+    );
+
+
+  if (!modal) {
+    return;
+  }
+
+
+  document
+    .getElementById(
+      "reminder-modal-form"
+    )
+    ?.addEventListener(
+      "submit",
+      saveReminderModal
+    );
+
+
+  modal.addEventListener(
+    "click",
+    event => {
+
+      const closeButton =
+        event.target.closest(
+          "[data-reminder-modal-close]"
+        );
+
+
+      if (closeButton) {
+
+        closeReminderModal();
+
+        return;
+      }
+
+
+      const iconButton =
+        event.target.closest(
+          "[data-reminder-icon]"
+        );
+
+
+      if (iconButton) {
+
+        setReminderModalIcon(
+          iconButton.dataset
+            .reminderIcon
+        );
+
+      }
+
+    }
+  );
+
+
+  document.addEventListener(
+    "keydown",
+    event => {
+
+      if (
+        event.key === "Escape" &&
+        !modal.classList.contains(
+          "hidden"
+        )
+      ) {
+
+        closeReminderModal();
+
+      }
+
+    }
+  );
+
+}
+
+function openNewCarReminderForm() {
+
+  openReminderModal();
+
+}
 
 function deleteInfoEntry(id) {
   if (confirm("Удалить напоминание?")) {
@@ -4491,18 +5053,10 @@ function deleteInfoEntry(id) {
 }
 
 function editInfoEntry(id) {
-  db.collection("users").doc(profileCode).collection("reminders").doc(id).get().then(doc => {
-    if (!doc.exists) return;
-    const r = doc.data();
-    editingReminderId = id;
 
-    // Разворачиваем блок "Добавить напоминание"
-    const toggle = document.getElementById("toggle-info-add");
-if (toggle) {
-  toggle.checked = true;
-  toggle.dispatchEvent(new Event('change'));
+  openReminderModal(id);
+
 }
-
 
     // Заполняем все поля формы напоминания
     setTimeout(() => { // задержка чтобы точно DOM был готов

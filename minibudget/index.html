@@ -380,6 +380,247 @@
   </div>
 </fieldset>
 
+<!-- =========================
+     REMINDER MODAL
+     ========================= -->
+
+<div
+  id="reminder-modal"
+  class="reminder-modal hidden"
+  aria-hidden="true"
+>
+  <div
+    class="reminder-modal__backdrop"
+    data-reminder-modal-close
+  ></div>
+
+  <div
+    class="reminder-modal__sheet"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="reminder-modal-title"
+  >
+
+    <div class="reminder-modal__header">
+
+      <div>
+        <div
+          id="reminder-modal-title"
+          class="reminder-modal__title"
+        >
+          Новое напоминание
+        </div>
+
+        <div class="reminder-modal__subtitle">
+          Сервис, документы и обслуживание
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="reminder-modal__close"
+        data-reminder-modal-close
+        aria-label="Закрыть"
+      >
+        <span data-lucide="x"></span>
+      </button>
+
+    </div>
+
+
+    <form id="reminder-modal-form">
+
+      <label class="reminder-modal__label">
+        Название
+
+        <input
+          id="reminder-modal-tag"
+          type="text"
+          placeholder="Например: масло двигателя"
+          autocomplete="off"
+          required
+        >
+      </label>
+
+
+      <div class="reminder-modal__row">
+
+        <label class="reminder-modal__label">
+          Пробег при замене
+
+          <input
+            id="reminder-modal-mileage"
+            type="number"
+            inputmode="numeric"
+            placeholder="275000"
+          >
+        </label>
+
+        <label class="reminder-modal__label">
+          Интервал
+
+          <input
+            id="reminder-modal-interval"
+            type="number"
+            inputmode="numeric"
+            placeholder="10000 км"
+          >
+        </label>
+
+      </div>
+
+
+      <div class="reminder-modal__row">
+
+        <label class="reminder-modal__label">
+          Начало
+
+          <input
+            id="reminder-modal-date-start"
+            type="date"
+          >
+        </label>
+
+        <label class="reminder-modal__label">
+          Окончание
+
+          <input
+            id="reminder-modal-date-end"
+            type="date"
+          >
+        </label>
+
+      </div>
+
+
+      <div class="reminder-modal__section-title">
+        Иконка
+      </div>
+
+      <div
+        id="reminder-icon-grid"
+        class="reminder-icon-grid"
+      >
+
+        <button type="button" class="reminder-icon-btn" data-reminder-icon="wrench" title="Сервис">
+          <span data-lucide="wrench"></span>
+        </button>
+
+        <button type="button" class="reminder-icon-btn" data-reminder-icon="droplet" title="Жидкость">
+          <span data-lucide="droplet"></span>
+        </button>
+
+        <button type="button" class="reminder-icon-btn" data-reminder-icon="battery" title="Аккумулятор">
+          <span data-lucide="battery"></span>
+        </button>
+
+        <button type="button" class="reminder-icon-btn" data-reminder-icon="fuel" title="Топливо">
+          <span data-lucide="fuel"></span>
+        </button>
+
+        <button type="button" class="reminder-icon-btn" data-reminder-icon="settings" title="Механизм">
+          <span data-lucide="settings"></span>
+        </button>
+
+        <button type="button" class="reminder-icon-btn" data-reminder-icon="gauge" title="Контроль">
+          <span data-lucide="gauge"></span>
+        </button>
+
+        <button type="button" class="reminder-icon-btn" data-reminder-icon="circle-dot" title="Колёса / тормоза">
+          <span data-lucide="circle-dot"></span>
+        </button>
+
+        <button type="button" class="reminder-icon-btn" data-reminder-icon="fan" title="Вентиляция">
+          <span data-lucide="fan"></span>
+        </button>
+
+        <button type="button" class="reminder-icon-btn" data-reminder-icon="snowflake" title="Кондиционер">
+          <span data-lucide="snowflake"></span>
+        </button>
+
+        <button type="button" class="reminder-icon-btn" data-reminder-icon="lightbulb" title="Освещение">
+          <span data-lucide="lightbulb"></span>
+        </button>
+
+        <button type="button" class="reminder-icon-btn" data-reminder-icon="sparkles" title="Уход">
+          <span data-lucide="sparkles"></span>
+        </button>
+
+        <button type="button" class="reminder-icon-btn" data-reminder-icon="shield-check" title="Страховка">
+          <span data-lucide="shield-check"></span>
+        </button>
+
+        <button type="button" class="reminder-icon-btn" data-reminder-icon="clipboard-check" title="Техосмотр">
+          <span data-lucide="clipboard-check"></span>
+        </button>
+
+        <button type="button" class="reminder-icon-btn" data-reminder-icon="route" title="Дороги">
+          <span data-lucide="route"></span>
+        </button>
+
+        <button type="button" class="reminder-icon-btn" data-reminder-icon="car" title="Автомобиль">
+          <span data-lucide="car"></span>
+        </button>
+
+        <button type="button" class="reminder-icon-btn" data-reminder-icon="key-round" title="Ключ">
+          <span data-lucide="key-round"></span>
+        </button>
+
+      </div>
+
+
+      <label class="reminder-link-option">
+
+        <div class="reminder-link-option__text">
+
+          <span class="reminder-link-option__title">
+            Связать с машиной
+          </span>
+
+          <span class="reminder-link-option__description">
+            Показывать линию и точку на автомобиле
+          </span>
+
+        </div>
+
+        <span class="reminder-modal-switch">
+
+          <input
+            id="reminder-modal-linked"
+            type="checkbox"
+          >
+
+          <span class="reminder-modal-switch__track"></span>
+
+        </span>
+
+      </label>
+
+
+      <div class="reminder-modal__footer">
+
+        <button
+          type="button"
+          class="reminder-modal-btn secondary"
+          data-reminder-modal-close
+        >
+          Отмена
+        </button>
+
+        <button
+          type="submit"
+          class="reminder-modal-btn primary"
+        >
+          Сохранить
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
 
   <script src="firebase-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
