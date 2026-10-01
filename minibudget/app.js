@@ -2355,64 +2355,152 @@ renderCarReminderBoard(processed);
 }
 
 function processReminders(reminders) {
-  const lastMileage = expenses.reduce((max, e) => e.mileage && Number(e.mileage) > max ? Number(e.mileage) : max, 0);
+  const lastMileage = expenses.reduce(
+    (max, e) =>
+      e.mileage && Number(e.mileage) > max
+        ? Number(e.mileage)
+        : max,
+    0
+  );
+
   const today = new Date();
+
   return reminders.map(r => {
-    let kmLeft = null, daysLeft = null, text = "", icon = "circle", status = "gray";
+    let kmLeft = null;
+    let daysLeft = null;
+    let text = "";
+    let icon = "circle";
+    let status = "gray";
+
     if (r.mileage && r.interval) {
-      kmLeft = (Number(r.mileage) + Number(r.interval)) - lastMileage;
+      kmLeft =
+        (Number(r.mileage) + Number(r.interval)) -
+        lastMileage;
     }
+
     if (r.dateEnd) {
       const d1 = new Date(r.dateEnd);
-      daysLeft = Math.ceil((d1 - today) / (1000*60*60*24));
+
+      daysLeft = Math.ceil(
+        (d1 - today) /
+        (1000 * 60 * 60 * 24)
+      );
     }
-    let details = [];
-    if (kmLeft !== null) details.push(`${kmLeft >= 0 ? "" : "-"}${kmLeft} км`);
-    if (daysLeft !== null) details.push(`${daysLeft >= 0 ? "" : "-"}${daysLeft} дней`);
+
+    const details = [];
+
+    if (kmLeft !== null) {
+      details.push(
+        `${kmLeft >= 0 ? "" : "-"}${kmLeft} км`
+      );
+    }
+
+    if (daysLeft !== null) {
+      details.push(
+        `${daysLeft >= 0 ? "" : "-"}${daysLeft} дней`
+      );
+    }
+
     text = `${r.tag} — ${details.join(" / ")}`;
 
-    if ((kmLeft !== null && kmLeft < 0) || (daysLeft !== null && daysLeft < 0)) {
+    if (
+      (kmLeft !== null && kmLeft < 0) ||
+      (daysLeft !== null && daysLeft < 0)
+    ) {
       status = "expired";
       icon = "alert-triangle";
-    } else if ((kmLeft !== null && kmLeft <= 500) || (daysLeft !== null && daysLeft <= 7)) {
+
+    } else if (
+      (kmLeft !== null && kmLeft <= 500) ||
+      (daysLeft !== null && daysLeft <= 7)
+    ) {
       status = "red";
       icon = "alert-triangle";
-    } else if ((kmLeft !== null && kmLeft <= 1000) || (daysLeft !== null && daysLeft <= 21)) {
+
+    } else if (
+      (kmLeft !== null && kmLeft <= 1000) ||
+      (daysLeft !== null && daysLeft <= 21)
+    ) {
       status = "orange";
       icon = "alert-triangle";
-    } else if ((kmLeft !== null && kmLeft <= 2000) || (daysLeft !== null && daysLeft <= 60)) {
+
+    } else if (
+      (kmLeft !== null && kmLeft <= 2000) ||
+      (daysLeft !== null && daysLeft <= 60)
+    ) {
       status = "yellow";
       icon = "alert-triangle";
     }
 
-    mileage:
-    r.mileage !== null &&
-    r.mileage !== undefined &&
-    r.mileage !== ""
-      ? Number(r.mileage)
-      : null,
+    return {
+      id: r.id,
+      tag: r.tag || "Напоминание",
 
-  interval:
-    r.interval !== null &&
-    r.interval !== undefined &&
-    r.interval !== ""
-      ? Number(r.interval)
-      : null,
+      status,
+      icon,
+      text,
 
-  dateStart: r.dateStart || "",
-  dateEnd: r.dateEnd || "",
+      kmLeft,
+      daysLeft,
 
-  imageUrl: r.imageUrl || ""
-};
+      mileage:
+        r.mileage !== null &&
+        r.mileage !== undefined &&
+        r.mileage !== ""
+          ? Number(r.mileage)
+          : null,
+
+      interval:
+        r.interval !== null &&
+        r.interval !== undefined &&
+        r.interval !== ""
+          ? Number(r.interval)
+          : null,
+
+      dateStart: r.dateStart || "",
+      dateEnd: r.dateEnd || "",
+
+      imageUrl: r.imageUrl || ""
+    };
+
   }).sort((a, b) => {
-    const statusOrder = { expired: 0, red: 1, orange: 2, yellow: 3, gray: 4 };
-    if (statusOrder[a.status] !== statusOrder[b.status]) return statusOrder[a.status] - statusOrder[b.status];
-    const aNum = a.text.match(/-?\\d+/) ? Math.abs(Number(a.text.match(/-?\\d+/)[0])) : 99999;
-    const bNum = b.text.match(/-?\\d+/) ? Math.abs(Number(b.text.match(/-?\\d+/)[0])) : 99999;
+    const statusOrder = {
+      expired: 0,
+      red: 1,
+      orange: 2,
+      yellow: 3,
+      gray: 4
+    };
+
+    if (
+      statusOrder[a.status] !==
+      statusOrder[b.status]
+    ) {
+      return (
+        statusOrder[a.status] -
+        statusOrder[b.status]
+      );
+    }
+
+    const aMatch =
+      a.text.match(/-?\d+/);
+
+    const bMatch =
+      b.text.match(/-?\d+/);
+
+    const aNum =
+      aMatch
+        ? Math.abs(Number(aMatch[0]))
+        : 99999;
+
+    const bNum =
+      bMatch
+        ? Math.abs(Number(bMatch[0]))
+        : 99999;
+
     return aNum - bNum;
   });
 }
-
 
 /* =========================================================
    🚗 VISUAL CAR REMINDER MAP
