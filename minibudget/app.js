@@ -3048,7 +3048,7 @@ function enableCarMapEditor() {
 
   carMapEditorState.enabled =
     true;
-
+closeCarReminderActions();
 
   carMapEditorState.draft.clear();
 
@@ -3301,6 +3301,16 @@ function initCarMapEditor() {
   }
 
 
+document
+  .getElementById(
+    "car-map-add-reminder"
+  )
+  ?.addEventListener(
+    "click",
+    openNewCarReminderForm
+  );
+
+
   document
     .getElementById(
       "car-map-edit"
@@ -3341,6 +3351,129 @@ function initCarMapEditor() {
         return;
       }
 
+root.addEventListener(
+  "click",
+  event => {
+
+    /*
+     * Во время перемещения карточек
+     * обычные клики отключены.
+     */
+    if (
+      carMapEditorState.enabled
+    ) {
+      return;
+    }
+
+
+    const actionButton =
+      event.target.closest(
+        "[data-car-reminder-action]"
+      );
+
+
+    if (actionButton) {
+
+      event.preventDefault();
+
+      event.stopPropagation();
+
+
+      const card =
+        actionButton.closest(
+          ".car-reminder-card"
+        );
+
+
+      if (!card) {
+        return;
+      }
+
+
+      const id =
+        card.dataset.reminderId;
+
+
+      const action =
+        actionButton.dataset
+          .carReminderAction;
+
+
+      const reminder =
+        findCarReminderById(id);
+
+
+      if (!reminder) {
+        return;
+      }
+
+
+      if (action === "edit") {
+
+        closeCarReminderActions();
+
+        editInfoEntry(id);
+
+        return;
+      }
+
+
+      if (action === "image") {
+
+        closeCarReminderActions();
+
+        showInfoImage(
+          reminder.imageUrl || ""
+        );
+
+        return;
+      }
+
+
+      if (action === "delete") {
+
+        closeCarReminderActions();
+
+        deleteInfoEntry(id);
+
+        return;
+      }
+
+    }
+
+
+    const card =
+      event.target.closest(
+        ".car-reminder-card"
+      );
+
+
+    if (!card) {
+
+      closeCarReminderActions();
+
+      return;
+    }
+
+
+    const wasOpen =
+      card.classList.contains(
+        "actions-open"
+      );
+
+
+    closeCarReminderActions(
+      card
+    );
+
+
+    card.classList.toggle(
+      "actions-open",
+      !wasOpen
+    );
+
+  }
+);
 
       const anchor =
         event.target.closest(
@@ -4035,9 +4168,9 @@ carMapEditorState.notifications =
 
 
   const visibleNotifications =
-    Array.isArray(notifications)
-      ? notifications.slice(0, 10)
-      : [];
+  Array.isArray(notifications)
+    ? notifications
+    : [];
 
 
   cards.innerHTML = "";
@@ -4116,7 +4249,19 @@ const anchorHTML = [];
                 <span data-lucide="triangle-alert"></span>
               </span>
             `;
-
+const imageAction =
+  reminder.imageUrl
+    ? `
+      <button
+        type="button"
+        class="car-reminder-action-btn"
+        data-car-reminder-action="image"
+        title="Фото"
+      >
+        <span data-lucide="image"></span>
+      </button>
+    `
+    : "";
 
       cardHTML.push(`
         <article
@@ -4160,6 +4305,30 @@ const anchorHTML = [];
             </div>
 
           </div>
+
+<div class="car-reminder-card__actions">
+
+  <button
+    type="button"
+    class="car-reminder-action-btn"
+    data-car-reminder-action="edit"
+    title="Редактировать"
+  >
+    <span data-lucide="pencil"></span>
+  </button>
+
+  ${imageAction}
+
+  <button
+    type="button"
+    class="car-reminder-action-btn danger"
+    data-car-reminder-action="delete"
+    title="Удалить"
+  >
+    <span data-lucide="trash-2"></span>
+  </button>
+
+</div>
 
         </article>
       `);
@@ -4252,6 +4421,76 @@ if (
     lucide.createIcons();
   }
 }
+
+function closeCarReminderActions(
+  exceptCard = null
+) {
+
+  document
+    .querySelectorAll(
+      ".car-reminder-card.actions-open"
+    )
+    .forEach(card => {
+
+      if (card !== exceptCard) {
+        card.classList.remove(
+          "actions-open"
+        );
+      }
+
+    });
+}
+
+
+function openNewCarReminderForm() {
+
+  editingReminderId = null;
+
+  resetInfoAddForm();
+
+
+  const toggle =
+    document.getElementById(
+      "toggle-info-add"
+    );
+
+
+  const wrapper =
+    document.getElementById(
+      "info-add-wrapper"
+    );
+
+
+  if (toggle) {
+
+    toggle.checked = true;
+
+    toggle.dispatchEvent(
+      new Event(
+        "change"
+      )
+    );
+
+  }
+
+
+  setTimeout(() => {
+
+    wrapper?.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+
+
+    document
+      .getElementById(
+        "info-tag"
+      )
+      ?.focus();
+
+  }, 100);
+}
+
 
 
 function deleteInfoEntry(id) {

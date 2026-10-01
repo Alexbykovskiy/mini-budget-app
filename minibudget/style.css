@@ -4328,3 +4328,203 @@ box-sizing: border-box;
 .car-reminder-card {
   pointer-events: auto;
 }
+
+/* =========================================================
+   CAR REMINDER ACTIONS
+   ========================================================= */
+
+/* Карточка кликабельна и вне режима перемещения */
+.car-reminder-card {
+  pointer-events: auto;
+}
+
+
+/* Обычный режим */
+.car-reminder-map:not(.editing)
+.car-reminder-card {
+  cursor: pointer;
+}
+
+
+/* Выбранная карточка поверх соседних */
+.car-reminder-card.actions-open {
+  z-index: 80;
+}
+
+
+/* Панель действий занимает карточку целиком */
+.car-reminder-card__actions {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 10;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  border-radius: inherit;
+
+  background:
+    rgba(
+      25,
+      31,
+      38,
+      0.58
+    );
+
+  backdrop-filter:
+    blur(13px)
+    saturate(145%);
+
+  -webkit-backdrop-filter:
+    blur(13px)
+    saturate(145%);
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  pointer-events: none;
+
+  transform: scale(0.96);
+
+  transition:
+    opacity 0.16s ease,
+    transform 0.16s ease,
+    visibility 0.16s;
+}
+
+
+/* Открыто */
+.car-reminder-card.actions-open
+.car-reminder-card__actions {
+  opacity: 1;
+
+  visibility: visible;
+
+  pointer-events: auto;
+
+  transform: scale(1);
+}
+
+
+/* Кнопки */
+.car-reminder-action-btn {
+  width: 34px;
+  height: 34px;
+
+  min-width: 34px;
+
+  padding: 0;
+
+  border-radius: 50%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  color: white;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.14
+    );
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.4
+    );
+
+  box-shadow:
+    inset
+    0
+    1px
+    0
+    rgba(
+      255,
+      255,
+      255,
+      0.25
+    ),
+    0
+    4px
+    12px
+    rgba(
+      0,
+      0,
+      0,
+      0.22
+    );
+}
+
+
+.car-reminder-action-btn svg {
+  width: 17px;
+
+  height: 17px;
+
+  stroke:
+    currentColor;
+
+  stroke-width: 2.2;
+}
+
+
+/* Удаление чуть краснее */
+.car-reminder-action-btn.danger {
+  background:
+    rgba(
+      220,
+      55,
+      65,
+      0.45
+    );
+}
+
+
+/* Пока двигаем карточки,
+   action layer вообще отключён */
+.car-reminder-map.editing
+.car-reminder-card__actions {
+  display: none;
+}
+
+
+@media (max-width: 520px) {
+
+  .car-reminder-card__actions {
+    gap: 5px;
+  }
+
+
+  .car-reminder-action-btn {
+    width: 26px;
+
+    height: 26px;
+
+    min-width: 26px;
+  }
+
+
+  .car-reminder-action-btn svg {
+    width: 14px;
+
+    height: 14px;
+  }
+
+}
