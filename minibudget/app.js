@@ -3295,20 +3295,23 @@ function initCarMapEditor() {
       "car-reminder-map"
     );
 
-
   if (!root) {
     return;
   }
 
 
-document
-  .getElementById(
-    "car-map-add-reminder"
-  )
-  ?.addEventListener(
-    "click",
-    openNewCarReminderForm
-  );
+  /* =========================
+     TOOLBAR
+     ========================= */
+
+  document
+    .getElementById(
+      "car-map-add-reminder"
+    )
+    ?.addEventListener(
+      "click",
+      openNewCarReminderForm
+    );
 
 
   document
@@ -3341,6 +3344,10 @@ document
     );
 
 
+  /* =========================
+     DRAG MODE
+     ========================= */
+
   root.addEventListener(
     "pointerdown",
     event => {
@@ -3351,129 +3358,6 @@ document
         return;
       }
 
-root.addEventListener(
-  "click",
-  event => {
-
-    /*
-     * Во время перемещения карточек
-     * обычные клики отключены.
-     */
-    if (
-      carMapEditorState.enabled
-    ) {
-      return;
-    }
-
-
-    const actionButton =
-      event.target.closest(
-        "[data-car-reminder-action]"
-      );
-
-
-    if (actionButton) {
-
-      event.preventDefault();
-
-      event.stopPropagation();
-
-
-      const card =
-        actionButton.closest(
-          ".car-reminder-card"
-        );
-
-
-      if (!card) {
-        return;
-      }
-
-
-      const id =
-        card.dataset.reminderId;
-
-
-      const action =
-        actionButton.dataset
-          .carReminderAction;
-
-
-      const reminder =
-        findCarReminderById(id);
-
-
-      if (!reminder) {
-        return;
-      }
-
-
-      if (action === "edit") {
-
-        closeCarReminderActions();
-
-        editInfoEntry(id);
-
-        return;
-      }
-
-
-      if (action === "image") {
-
-        closeCarReminderActions();
-
-        showInfoImage(
-          reminder.imageUrl || ""
-        );
-
-        return;
-      }
-
-
-      if (action === "delete") {
-
-        closeCarReminderActions();
-
-        deleteInfoEntry(id);
-
-        return;
-      }
-
-    }
-
-
-    const card =
-      event.target.closest(
-        ".car-reminder-card"
-      );
-
-
-    if (!card) {
-
-      closeCarReminderActions();
-
-      return;
-    }
-
-
-    const wasOpen =
-      card.classList.contains(
-        "actions-open"
-      );
-
-
-    closeCarReminderActions(
-      card
-    );
-
-
-    card.classList.toggle(
-      "actions-open",
-      !wasOpen
-    );
-
-  }
-);
 
       const anchor =
         event.target.closest(
@@ -3510,9 +3394,128 @@ root.addEventListener(
     }
   );
 
+
+  /* =========================
+     NORMAL CARD CLICK
+     ========================= */
+
+  root.addEventListener(
+    "click",
+    event => {
+
+      /*
+       * В режиме перемещения
+       * меню карточки не открываем.
+       */
+      if (
+        carMapEditorState.enabled
+      ) {
+        return;
+      }
+
+
+      /* Нажали кнопку внутри меню */
+      const actionButton =
+        event.target.closest(
+          "[data-car-reminder-action]"
+        );
+
+
+      if (actionButton) {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+
+        const card =
+          actionButton.closest(
+            ".car-reminder-card"
+          );
+
+
+        if (!card) {
+          return;
+        }
+
+
+        const id =
+          card.dataset.reminderId;
+
+
+        const action =
+          actionButton.dataset
+            .carReminderAction;
+
+
+        if (action === "edit") {
+
+          closeCarReminderActions();
+
+          editInfoEntry(id);
+
+          return;
+        }
+
+
+        if (action === "image") {
+
+          closeCarReminderActions();
+
+          changeReminderImage(id);
+
+          return;
+        }
+
+
+        if (action === "delete") {
+
+          closeCarReminderActions();
+
+          deleteInfoEntry(id);
+
+          return;
+        }
+
+
+        return;
+      }
+
+
+      /* Нажали саму карточку */
+      const card =
+        event.target.closest(
+          ".car-reminder-card"
+        );
+
+
+      if (!card) {
+
+        closeCarReminderActions();
+
+        return;
+      }
+
+
+      const wasOpen =
+        card.classList.contains(
+          "actions-open"
+        );
+
+
+      closeCarReminderActions(
+        card
+      );
+
+
+      card.classList.toggle(
+        "actions-open",
+        !wasOpen
+      );
+
+    }
+  );
+
 }
-
-
 /* =========================================================
    🚗 VISUAL CAR REMINDER MAP
    ========================================================= */
@@ -4249,20 +4252,7 @@ const anchorHTML = [];
                 <span data-lucide="triangle-alert"></span>
               </span>
             `;
-const imageAction =
-  reminder.imageUrl
-    ? `
-      <button
-        type="button"
-        class="car-reminder-action-btn"
-        data-car-reminder-action="image"
-        title="Фото"
-      >
-        <span data-lucide="image"></span>
-      </button>
-    `
-    : "";
-
+const imageAction = "";
       cardHTML.push(`
         <article
   data-reminder-id="${reminder.id}"
