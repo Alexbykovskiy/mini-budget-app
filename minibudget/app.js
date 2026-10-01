@@ -5058,33 +5058,26 @@ function editInfoEntry(id) {
 
 }
 
-    // Заполняем все поля формы напоминания
-    setTimeout(() => { // задержка чтобы точно DOM был готов
-      if (document.getElementById('info-type')) document.getElementById('info-type').value = r.type || "";
-      if (document.getElementById('info-tag')) document.getElementById('info-tag').value = r.tag || "";
-      if (document.getElementById('info-mileage')) document.getElementById('info-mileage').value = r.mileage || "";
-      if (document.getElementById('info-interval')) document.getElementById('info-interval').value = r.interval || "";
-      if (document.getElementById('info-date-start')) document.getElementById('info-date-start').value = r.dateStart || "";
-      if (document.getElementById('info-date-end')) document.getElementById('info-date-end').value = r.dateEnd || "";
-      if (document.getElementById("info-add-photo-btn")) document.getElementById("info-add-photo-btn").classList.remove("selected");
-      if (document.getElementById("info-add-photo")) document.getElementById("info-add-photo").value = "";
-    }, 100); // 100ms задержки хватит
-  });
-}
+
 function showToast(message = "Готово!") {
-  const toast = document.getElementById("toast");
+
+  const toast =
+    document.getElementById("toast");
+
   if (!toast) return;
 
   toast.textContent = message;
+
   toast.classList.remove("hidden");
   toast.classList.add("show");
 
   setTimeout(() => {
+
     toast.classList.remove("show");
     toast.classList.add("hidden");
+
   }, 2000);
 }
-
 function showInfoImage(url) { /* ...добавить позже... */ }
 // Сворачивание блока добавления напоминания
 
