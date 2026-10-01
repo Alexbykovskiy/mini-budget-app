@@ -2466,7 +2466,7 @@ pill-center:hover .pill-icon svg,
   inset: 0;
 
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
 
   background:
@@ -2481,6 +2481,13 @@ pill-center:hover .pill-icon svg,
   z-index: 200000;
 
   opacity: 0;
+
+padding:
+  max(16px, env(safe-area-inset-top))
+  12px
+  max(24px, env(safe-area-inset-bottom));
+
+box-sizing: border-box;
 
   pointer-events: none;
 
@@ -2508,6 +2515,8 @@ pill-center:hover .pill-icon svg,
       420px,
       100vw
     );
+
+transform: translateY(-5vh);
 
   background:
     rgba(
@@ -2586,41 +2595,6 @@ pill-center:hover .pill-icon svg,
     );
 }
 
-
-.wheel-picker-head-btn {
-  border: none;
-
-  background:
-    transparent;
-
-  box-shadow: none;
-
-  color:
-    rgba(
-      255,
-      255,
-      255,
-      0.62
-    );
-
-  font-size:
-    16px;
-
-  font-weight:
-    500;
-
-  padding:
-    10px 4px;
-}
-
-
-.wheel-picker-head-btn.primary {
-  color:
-    #FFA35C;
-
-  font-weight:
-    700;
-}
 
 
 /* ===== крупное итоговое значение ===== */
@@ -3037,4 +3011,48 @@ pill-center:hover .pill-icon svg,
         0
       )
     );
+}
+
+
+/* =========================
+   WHEEL FOOTER
+   ========================= */
+
+.wheel-picker-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  margin-top: 8px;
+}
+
+.wheel-picker-footer-btn {
+  min-height: 48px;
+
+  border: none;
+  border-radius: 15px;
+
+  font-size: 16px;
+  font-weight: 650;
+
+  cursor: pointer;
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wheel-picker-footer-btn.cancel {
+  color: rgba(255, 255, 255, 0.82);
+
+  background:
+    rgba(255, 255, 255, 0.08);
+}
+
+.wheel-picker-footer-btn.primary {
+  color: #111;
+
+  background: #FFA35C;
+}
+
+.wheel-picker-footer-btn:active {
+  transform: scale(0.98);
 }

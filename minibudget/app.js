@@ -371,30 +371,14 @@ function createWheelPickerModal() {
 
       <div class="wheel-picker-header">
 
-        <button
-          type="button"
-          id="wheel-picker-cancel"
-          class="wheel-picker-head-btn"
-        >
-          Отмена
-        </button>
+  <div
+    id="wheel-picker-title"
+    class="wheel-picker-title"
+  >
+    Выбор
+  </div>
 
-        <div
-          id="wheel-picker-title"
-          class="wheel-picker-title"
-        >
-          Выбор
-        </div>
-
-        <button
-          type="button"
-          id="wheel-picker-ok"
-          class="wheel-picker-head-btn primary"
-        >
-          Готово
-        </button>
-
-      </div>
+</div>
 
 
       <div
@@ -407,6 +391,26 @@ function createWheelPickerModal() {
         id="wheel-picker-wheels"
         class="wheel-picker-wheels"
       >
+<div class="wheel-picker-footer">
+
+  <button
+    type="button"
+    id="wheel-picker-cancel"
+    class="wheel-picker-footer-btn cancel"
+  >
+    Отмена
+  </button>
+
+  <button
+    type="button"
+    id="wheel-picker-ok"
+    class="wheel-picker-footer-btn primary"
+  >
+    Готово
+  </button>
+
+</div>
+
 
         <div
           class="wheel-picker-selection-combined"
