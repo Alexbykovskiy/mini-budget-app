@@ -98,6 +98,45 @@
 
     <div class="car-reminder-map__shade"></div>
 
+<!-- Режим ручной настройки схемы -->
+<div class="car-map-editor-toolbar">
+
+  <button
+    type="button"
+    id="car-map-edit"
+    class="car-map-editor-btn"
+    title="Настроить расположение"
+  >
+    <span data-lucide="move"></span>
+  </button>
+
+  <div
+    id="car-map-edit-actions"
+    class="car-map-edit-actions hidden"
+  >
+
+    <button
+      type="button"
+      id="car-map-edit-cancel"
+      class="car-map-editor-btn"
+      title="Отмена"
+    >
+      <span data-lucide="x"></span>
+    </button>
+
+    <button
+      type="button"
+      id="car-map-edit-save"
+      class="car-map-editor-btn save"
+      title="Сохранить"
+    >
+      <span data-lucide="check"></span>
+    </button>
+
+  </div>
+
+</div>
+
     <!-- Линии от карточек к машине -->
     <svg
       id="car-reminder-lines"

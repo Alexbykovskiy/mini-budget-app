@@ -8,6 +8,7 @@ window.addEventListener("load", () => {
   resetForm();
 initFuelControls();
   initWheelPickerUI();
+initCarMapEditor();
   // 📸 Выбор способа загрузки изображения — камера или галерея
   // 📸 Упрощённая загрузка фото: системное меню (камера, галерея, файлы)
 
@@ -2432,36 +2433,39 @@ function processReminders(reminders) {
       icon = "alert-triangle";
     }
 
-    return {
-      id: r.id,
-      tag: r.tag || "Напоминание",
+  return {
+  id: r.id,
 
-      status,
-      icon,
-      text,
+  tag: r.tag || "Напоминание",
 
-      kmLeft,
-      daysLeft,
+  status,
+  icon,
+  text,
 
-      mileage:
-        r.mileage !== null &&
-        r.mileage !== undefined &&
-        r.mileage !== ""
-          ? Number(r.mileage)
-          : null,
+  kmLeft,
+  daysLeft,
 
-      interval:
-        r.interval !== null &&
-        r.interval !== undefined &&
-        r.interval !== ""
-          ? Number(r.interval)
-          : null,
+  mileage:
+    r.mileage !== null &&
+    r.mileage !== undefined &&
+    r.mileage !== ""
+      ? Number(r.mileage)
+      : null,
 
-      dateStart: r.dateStart || "",
-      dateEnd: r.dateEnd || "",
+  interval:
+    r.interval !== null &&
+    r.interval !== undefined &&
+    r.interval !== ""
+      ? Number(r.interval)
+      : null,
 
-      imageUrl: r.imageUrl || ""
-    };
+  dateStart: r.dateStart || "",
+  dateEnd: r.dateEnd || "",
+
+  mapLayout: r.mapLayout || null,
+
+  imageUrl: r.imageUrl || ""
+};
 
   }).sort((a, b) => {
     const statusOrder = {
@@ -2503,8 +2507,892 @@ function processReminders(reminders) {
 }
 
 /* =========================================================
+   🛠 CAR MAP EDITOR
+   ========================================================= */
+
+function clampPercent(
+  value,
+  min = 0,
+  max = 100
+) {
+
+  return Math.max(
+    min,
+    Math.min(
+      max,
+      value
+    )
+  );
+}
+
+
+function findCarReminderById(id) {
+
+  return carMapEditorState
+    .notifications
+    .find(
+      item =>
+        item.id === id
+    );
+}
+
+
+function findCarReminderIndex(id) {
+
+  return carMapEditorState
+    .notifications
+    .findIndex(
+      item =>
+        item.id === id
+    );
+}
+
+
+function getCarEditorLayoutById(id) {
+
+  const reminder =
+    findCarReminderById(id);
+
+
+  const index =
+    findCarReminderIndex(id);
+
+
+  if (
+    !reminder ||
+    index < 0
+  ) {
+    return null;
+  }
+
+
+  return getCarReminderLayout(
+    reminder,
+    index
+  );
+}
+
+
+function updateCarReminderVisual(
+  id,
+  layout
+) {
+
+  const root =
+    document.getElementById(
+      "car-reminder-map"
+    );
+
+
+  if (!root) {
+    return;
+  }
+
+
+  const card =
+    root.querySelector(
+      `.car-reminder-card[data-reminder-id="${id}"]`
+    );
+
+
+  const anchor =
+    root.querySelector(
+      `.car-reminder-anchor-handle[data-reminder-id="${id}"]`
+    );
+
+
+  const line =
+    root.querySelector(
+      `.car-reminder-line[data-reminder-id="${id}"]`
+    );
+
+
+  if (card) {
+
+    card.style.setProperty(
+      "--card-x",
+      `${layout.x}%`
+    );
+
+
+    card.style.setProperty(
+      "--card-y",
+      `${layout.y}%`
+    );
+
+  }
+
+
+  if (
+    anchor &&
+    layout.anchorX !== undefined &&
+    layout.anchorY !== undefined
+  ) {
+
+    anchor.style.setProperty(
+      "--anchor-x",
+      `${layout.anchorX}%`
+    );
+
+
+    anchor.style.setProperty(
+      "--anchor-y",
+      `${layout.anchorY}%`
+    );
+
+  }
+
+
+  if (
+    line &&
+    layout.anchorX !== undefined &&
+    layout.anchorY !== undefined
+  ) {
+
+    const start =
+      getCarReminderLineStart(
+        layout
+      );
+
+
+    line.setAttribute(
+      "x1",
+      start.x
+    );
+
+
+    line.setAttribute(
+      "y1",
+      start.y
+    );
+
+
+    line.setAttribute(
+      "x2",
+      layout.anchorX
+    );
+
+
+    line.setAttribute(
+      "y2",
+      layout.anchorY
+    );
+
+  }
+
+}
+
+
+function updateCarMapDraft(
+  id,
+  values
+) {
+
+  const previous =
+    carMapEditorState
+      .draft
+      .get(id) || {};
+
+
+  carMapEditorState
+    .draft
+    .set(
+      id,
+      {
+        ...previous,
+        ...values
+      }
+    );
+
+
+  carMapEditorState
+    .dirtyIds
+    .add(id);
+
+}
+
+
+function startCarMapCardDrag(
+  event,
+  card
+) {
+
+  if (
+    !carMapEditorState.enabled
+  ) {
+    return;
+  }
+
+
+  event.preventDefault();
+
+
+  const id =
+    card.dataset.reminderId;
+
+
+  const layout =
+    getCarEditorLayoutById(id);
+
+
+  if (!layout) {
+    return;
+  }
+
+
+  const scene =
+    document.querySelector(
+      ".car-reminder-map__scene"
+    );
+
+
+  if (!scene) {
+    return;
+  }
+
+
+  const rect =
+    scene.getBoundingClientRect();
+
+
+  const startPointerX =
+    event.clientX;
+
+
+  const startPointerY =
+    event.clientY;
+
+
+  const startCardX =
+    layout.x;
+
+
+  const startCardY =
+    layout.y;
+
+
+  card.classList.add(
+    "is-dragging"
+  );
+
+
+  card.setPointerCapture?.(
+    event.pointerId
+  );
+
+
+  const move = e => {
+
+    const dx =
+      (
+        e.clientX -
+        startPointerX
+      ) /
+      rect.width *
+      100;
+
+
+    const dy =
+      (
+        e.clientY -
+        startPointerY
+      ) /
+      rect.height *
+      100;
+
+
+    const cardX =
+      clampPercent(
+        startCardX + dx,
+        0,
+        100 - layout.w
+      );
+
+
+    const cardY =
+      clampPercent(
+        startCardY + dy,
+        0,
+        100 - layout.h
+      );
+
+
+    const current =
+      {
+        ...layout,
+        x: cardX,
+        y: cardY
+      };
+
+
+    updateCarMapDraft(
+      id,
+      {
+        cardX,
+        cardY
+      }
+    );
+
+
+    updateCarReminderVisual(
+      id,
+      current
+    );
+
+  };
+
+
+  const stop = () => {
+
+    card.classList.remove(
+      "is-dragging"
+    );
+
+
+    card.removeEventListener(
+      "pointermove",
+      move
+    );
+
+
+    card.removeEventListener(
+      "pointerup",
+      stop
+    );
+
+
+    card.removeEventListener(
+      "pointercancel",
+      stop
+    );
+
+  };
+
+
+  card.addEventListener(
+    "pointermove",
+    move
+  );
+
+
+  card.addEventListener(
+    "pointerup",
+    stop
+  );
+
+
+  card.addEventListener(
+    "pointercancel",
+    stop
+  );
+
+}
+
+
+function startCarMapAnchorDrag(
+  event,
+  anchor
+) {
+
+  if (
+    !carMapEditorState.enabled
+  ) {
+    return;
+  }
+
+
+  event.preventDefault();
+
+  event.stopPropagation();
+
+
+  const id =
+    anchor.dataset.reminderId;
+
+
+  const layout =
+    getCarEditorLayoutById(id);
+
+
+  if (!layout) {
+    return;
+  }
+
+
+  const scene =
+    document.querySelector(
+      ".car-reminder-map__scene"
+    );
+
+
+  if (!scene) {
+    return;
+  }
+
+
+  const rect =
+    scene.getBoundingClientRect();
+
+
+  anchor.classList.add(
+    "is-dragging"
+  );
+
+
+  anchor.setPointerCapture?.(
+    event.pointerId
+  );
+
+
+  const move = e => {
+
+    const anchorX =
+      clampPercent(
+        (
+          (
+            e.clientX -
+            rect.left
+          ) /
+          rect.width
+        ) *
+        100
+      );
+
+
+    const anchorY =
+      clampPercent(
+        (
+          (
+            e.clientY -
+            rect.top
+          ) /
+          rect.height
+        ) *
+        100
+      );
+
+
+    const current =
+      {
+        ...layout,
+        anchorX,
+        anchorY
+      };
+
+
+    updateCarMapDraft(
+      id,
+      {
+        anchorX,
+        anchorY
+      }
+    );
+
+
+    updateCarReminderVisual(
+      id,
+      current
+    );
+
+  };
+
+
+  const stop = () => {
+
+    anchor.classList.remove(
+      "is-dragging"
+    );
+
+
+    anchor.removeEventListener(
+      "pointermove",
+      move
+    );
+
+
+    anchor.removeEventListener(
+      "pointerup",
+      stop
+    );
+
+
+    anchor.removeEventListener(
+      "pointercancel",
+      stop
+    );
+
+  };
+
+
+  anchor.addEventListener(
+    "pointermove",
+    move
+  );
+
+
+  anchor.addEventListener(
+    "pointerup",
+    stop
+  );
+
+
+  anchor.addEventListener(
+    "pointercancel",
+    stop
+  );
+
+}
+
+
+function enableCarMapEditor() {
+
+  carMapEditorState.enabled =
+    true;
+
+
+  carMapEditorState.draft.clear();
+
+  carMapEditorState.dirtyIds.clear();
+
+
+  const root =
+    document.getElementById(
+      "car-reminder-map"
+    );
+
+
+  root?.classList.add(
+    "editing"
+  );
+
+
+  document
+    .getElementById(
+      "car-map-edit"
+    )
+    ?.classList
+    .add(
+      "hidden"
+    );
+
+
+  document
+    .getElementById(
+      "car-map-edit-actions"
+    )
+    ?.classList
+    .remove(
+      "hidden"
+    );
+
+
+  showToast(
+    "Перетащи карточку или точку"
+  );
+
+}
+
+
+function cancelCarMapEditor() {
+
+  carMapEditorState.enabled =
+    false;
+
+
+  carMapEditorState.draft.clear();
+
+  carMapEditorState.dirtyIds.clear();
+
+
+  document
+    .getElementById(
+      "car-map-edit"
+    )
+    ?.classList
+    .remove(
+      "hidden"
+    );
+
+
+  document
+    .getElementById(
+      "car-map-edit-actions"
+    )
+    ?.classList
+    .add(
+      "hidden"
+    );
+
+
+  renderCarReminderBoard(
+    carMapEditorState.notifications
+  );
+
+}
+
+
+async function saveCarMapEditor() {
+
+  if (!db) {
+    return;
+  }
+
+
+  const ids =
+    Array.from(
+      carMapEditorState.dirtyIds
+    );
+
+
+  if (!ids.length) {
+
+    cancelCarMapEditor();
+
+    return;
+  }
+
+
+  try {
+
+    const batch =
+      db.batch();
+
+
+    ids.forEach(id => {
+
+      const reminder =
+        findCarReminderById(id);
+
+
+      const index =
+        findCarReminderIndex(id);
+
+
+      if (
+        !reminder ||
+        index < 0
+      ) {
+        return;
+      }
+
+
+      const layout =
+        getCarReminderLayout(
+          reminder,
+          index
+        );
+
+
+      const mapLayout = {
+
+        cardX:
+          Number(
+            layout.x.toFixed(2)
+          ),
+
+        cardY:
+          Number(
+            layout.y.toFixed(2)
+          )
+
+      };
+
+
+      if (
+        layout.anchorX !== undefined &&
+        layout.anchorY !== undefined
+      ) {
+
+        mapLayout.anchorX =
+          Number(
+            layout.anchorX.toFixed(2)
+          );
+
+
+        mapLayout.anchorY =
+          Number(
+            layout.anchorY.toFixed(2)
+          );
+
+      }
+
+
+      const ref =
+        db.collection("users")
+          .doc(profileCode)
+          .collection("reminders")
+          .doc(id);
+
+
+      batch.update(
+        ref,
+        {
+          mapLayout
+        }
+      );
+
+    });
+
+
+    await batch.commit();
+
+
+    carMapEditorState.enabled =
+      false;
+
+
+    carMapEditorState.draft.clear();
+
+    carMapEditorState.dirtyIds.clear();
+
+
+    document
+      .getElementById(
+        "car-map-edit"
+      )
+      ?.classList
+      .remove(
+        "hidden"
+      );
+
+
+    document
+      .getElementById(
+        "car-map-edit-actions"
+      )
+      ?.classList
+      .add(
+        "hidden"
+      );
+
+
+    showToast(
+      "Расположение сохранено"
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "Ошибка сохранения схемы:",
+      error
+    );
+
+
+    showToast(
+      "Не удалось сохранить"
+    );
+
+  }
+
+}
+
+
+function initCarMapEditor() {
+
+  const root =
+    document.getElementById(
+      "car-reminder-map"
+    );
+
+
+  if (!root) {
+    return;
+  }
+
+
+  document
+    .getElementById(
+      "car-map-edit"
+    )
+    ?.addEventListener(
+      "click",
+      enableCarMapEditor
+    );
+
+
+  document
+    .getElementById(
+      "car-map-edit-cancel"
+    )
+    ?.addEventListener(
+      "click",
+      cancelCarMapEditor
+    );
+
+
+  document
+    .getElementById(
+      "car-map-edit-save"
+    )
+    ?.addEventListener(
+      "click",
+      saveCarMapEditor
+    );
+
+
+  root.addEventListener(
+    "pointerdown",
+    event => {
+
+      if (
+        !carMapEditorState.enabled
+      ) {
+        return;
+      }
+
+
+      const anchor =
+        event.target.closest(
+          ".car-reminder-anchor-handle"
+        );
+
+
+      if (anchor) {
+
+        startCarMapAnchorDrag(
+          event,
+          anchor
+        );
+
+        return;
+      }
+
+
+      const card =
+        event.target.closest(
+          ".car-reminder-card"
+        );
+
+
+      if (card) {
+
+        startCarMapCardDrag(
+          event,
+          card
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =========================================================
    🚗 VISUAL CAR REMINDER MAP
    ========================================================= */
+
+const carMapEditorState = {
+  enabled: false,
+
+  notifications: [],
+
+  draft: new Map(),
+
+  dirtyIds: new Set()
+};
 
 const CAR_REMINDER_LAYOUTS = [
 
@@ -2733,6 +3621,112 @@ function resolveCarReminderLayout(tag, index) {
   };
 }
 
+function getCarReminderLayout(reminder, index) {
+
+  const base =
+    resolveCarReminderLayout(
+      reminder.tag,
+      index
+    );
+
+
+  const saved =
+    reminder.mapLayout || {};
+
+
+  const draft =
+    carMapEditorState.draft.get(
+      reminder.id
+    ) || {};
+
+
+  const result = {
+    ...base
+  };
+
+
+  if (
+    Number.isFinite(
+      Number(saved.cardX)
+    )
+  ) {
+    result.x =
+      Number(saved.cardX);
+  }
+
+
+  if (
+    Number.isFinite(
+      Number(saved.cardY)
+    )
+  ) {
+    result.y =
+      Number(saved.cardY);
+  }
+
+
+  if (
+    Number.isFinite(
+      Number(saved.anchorX)
+    )
+  ) {
+    result.anchorX =
+      Number(saved.anchorX);
+  }
+
+
+  if (
+    Number.isFinite(
+      Number(saved.anchorY)
+    )
+  ) {
+    result.anchorY =
+      Number(saved.anchorY);
+  }
+
+
+  if (
+    Number.isFinite(
+      Number(draft.cardX)
+    )
+  ) {
+    result.x =
+      Number(draft.cardX);
+  }
+
+
+  if (
+    Number.isFinite(
+      Number(draft.cardY)
+    )
+  ) {
+    result.y =
+      Number(draft.cardY);
+  }
+
+
+  if (
+    Number.isFinite(
+      Number(draft.anchorX)
+    )
+  ) {
+    result.anchorX =
+      Number(draft.anchorX);
+  }
+
+
+  if (
+    Number.isFinite(
+      Number(draft.anchorY)
+    )
+  ) {
+    result.anchorY =
+      Number(draft.anchorY);
+  }
+
+
+  return result;
+}
 
 function getCarReminderStatusColor(status) {
 
@@ -3034,6 +4028,11 @@ function renderCarReminderBoard(notifications) {
     return;
   }
 
+carMapEditorState.notifications =
+  Array.isArray(notifications)
+    ? notifications
+    : [];
+
 
   const visibleNotifications =
     Array.isArray(notifications)
@@ -3067,15 +4066,16 @@ function renderCarReminderBoard(notifications) {
 
   const lineHTML = [];
 
+const anchorHTML = [];
 
   visibleNotifications.forEach(
     (reminder, index) => {
 
-      const layout =
-        resolveCarReminderLayout(
-          reminder.tag,
-          index
-        );
+    const layout =
+  getCarReminderLayout(
+    reminder,
+    index
+  );
 
 
       const accentColor =
@@ -3120,11 +4120,12 @@ function renderCarReminderBoard(notifications) {
 
       cardHTML.push(`
         <article
-          class="
-            car-reminder-card
-            ${reminder.status}
-            ${layout.compact ? "compact" : ""}
-          "
+  data-reminder-id="${reminder.id}"
+  class="
+    car-reminder-card
+    ${reminder.status}
+    ${layout.compact ? "compact" : ""}
+  "
           style="
             --card-x: ${layout.x}%;
             --card-y: ${layout.y}%;
@@ -3175,6 +4176,24 @@ function renderCarReminderBoard(notifications) {
         return;
       }
 
+anchorHTML.push(`
+
+  <button
+    type="button"
+    class="car-reminder-anchor-handle"
+    data-reminder-id="${reminder.id}"
+
+    style="
+      --anchor-x: ${layout.anchorX}%;
+      --anchor-y: ${layout.anchorY}%;
+      --anchor-color: ${accentColor};
+    "
+
+    title="Точка привязки"
+  ></button>
+
+`);
+
 
       const start =
         getCarReminderLineStart(
@@ -3184,46 +4203,44 @@ function renderCarReminderBoard(notifications) {
 
       lineHTML.push(`
 
-        <line
-          class="car-reminder-line"
-          x1="${start.x}"
-          y1="${start.y}"
-          x2="${layout.anchorX}"
-          y2="${layout.anchorY}"
-          stroke="${accentColor}"
-        ></line>
+  <line
+    class="car-reminder-line"
+    data-reminder-id="${reminder.id}"
+
+    x1="${start.x}"
+    y1="${start.y}"
+
+    x2="${layout.anchorX}"
+    y2="${layout.anchorY}"
+
+    stroke="${accentColor}"
+  ></line>
+
+`);
 
 
-        <circle
-          class="car-reminder-anchor-ring"
-          cx="${layout.anchorX}"
-          cy="${layout.anchorY}"
-          r="1.15"
-          stroke="${accentColor}"
-        ></circle>
-
-
-        <circle
-          class="car-reminder-anchor-dot"
-          cx="${layout.anchorX}"
-          cy="${layout.anchorY}"
-          r="0.38"
-          fill="${accentColor}"
-        ></circle>
-
-      `);
-
-    }
-  );
-
-
-  cards.innerHTML =
-    cardHTML.join("");
-
+ cards.innerHTML =
+  cardHTML.join("") +
+  anchorHTML.join("");
 
   lines.innerHTML =
     lineHTML.join("");
 
+if (
+  carMapEditorState.enabled
+) {
+
+  root.classList.add(
+    "editing"
+  );
+
+} else {
+
+  root.classList.remove(
+    "editing"
+  );
+
+}
 
   if (
     typeof lucide !==
