@@ -2976,3 +2976,941 @@ box-sizing: border-box;
 .wheel-picker-footer-btn:active {
   transform: scale(0.98);
 }
+
+/* =========================================================
+   🚗 CAR REMINDER MAP
+   Liquid Glass visual layer
+   ========================================================= */
+
+.car-reminder-map {
+  width: min(
+    760px,
+    calc(100vw - 24px)
+  );
+
+  margin:
+    0
+    auto
+    18px;
+
+  box-sizing:
+    border-box;
+}
+
+
+.car-reminder-map__scene {
+  position: relative;
+
+  width: 100%;
+
+  aspect-ratio:
+    3 / 2;
+
+  overflow: hidden;
+
+  border-radius:
+    28px;
+
+  background:
+    #28313a;
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.34
+    );
+
+  box-shadow:
+    0
+    18px
+    45px
+    rgba(
+      22,
+      30,
+      38,
+      0.18
+    ),
+    inset
+    0
+    1px
+    0
+    rgba(
+      255,
+      255,
+      255,
+      0.45
+    );
+
+  isolation:
+    isolate;
+}
+
+
+/* Фото автомобиля */
+
+.car-reminder-map__image {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+
+  height: 100%;
+
+  object-fit: cover;
+
+  object-position:
+    center;
+
+  user-select:
+    none;
+
+  -webkit-user-drag:
+    none;
+
+  z-index: 0;
+}
+
+
+/*
+ * Очень лёгкая затемняющая плёнка.
+ * Нужна только для читаемости стекла.
+ */
+
+.car-reminder-map__shade {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 1;
+
+  pointer-events:
+    none;
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(13, 20, 28, 0.13),
+      rgba(13, 20, 28, 0.02) 45%,
+      rgba(13, 20, 28, 0.22)
+    );
+}
+
+
+/* SVG линии */
+
+.car-reminder-map__lines {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+
+  height: 100%;
+
+  z-index: 2;
+
+  pointer-events:
+    none;
+
+  overflow:
+    visible;
+}
+
+
+.car-reminder-line {
+  fill: none;
+
+  stroke-width:
+    0.32;
+
+  stroke-linecap:
+    round;
+
+  vector-effect:
+    non-scaling-stroke;
+
+  opacity:
+    0.98;
+
+  filter:
+    drop-shadow(
+      0
+      0
+      4px
+      currentColor
+    );
+}
+
+
+.car-reminder-anchor-ring {
+  fill:
+    rgba(
+      20,
+      27,
+      34,
+      0.34
+    );
+
+  stroke-width:
+    0.34;
+
+  vector-effect:
+    non-scaling-stroke;
+
+  filter:
+    drop-shadow(
+      0
+      0
+      4px
+      currentColor
+    );
+}
+
+
+.car-reminder-anchor-dot {
+  filter:
+    drop-shadow(
+      0
+      0
+      4px
+      currentColor
+    );
+}
+
+
+/* Layer карточек */
+
+.car-reminder-map__cards {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 3;
+
+  pointer-events:
+    none;
+}
+
+
+/* =========================
+   GLASS CARD
+   ========================= */
+
+.car-reminder-card {
+  --accent:
+    #80ddff;
+
+  --accent-rgb:
+    128, 221, 255;
+
+  position: absolute;
+
+  left:
+    var(--card-x);
+
+  top:
+    var(--card-y);
+
+  width:
+    var(--card-w);
+
+  box-sizing:
+    border-box;
+
+  display: grid;
+
+  grid-template-columns:
+    clamp(
+      26px,
+      4vw,
+      48px
+    )
+    minmax(
+      0,
+      1fr
+    );
+
+  gap:
+    clamp(
+      5px,
+      0.9vw,
+      10px
+    );
+
+  align-items:
+    center;
+
+  padding:
+    clamp(
+      5px,
+      0.8vw,
+      10px
+    );
+
+  border-radius:
+    clamp(
+      11px,
+      1.5vw,
+      18px
+    );
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.97
+    );
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(
+        45,
+        51,
+        59,
+        0.55
+      ),
+      rgba(
+        21,
+        27,
+        34,
+        0.34
+      )
+    );
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.48
+    );
+
+  backdrop-filter:
+    blur(18px)
+    saturate(135%);
+
+  -webkit-backdrop-filter:
+    blur(18px)
+    saturate(135%);
+
+  box-shadow:
+    inset
+    0
+    1px
+    0
+    rgba(
+      255,
+      255,
+      255,
+      0.34
+    ),
+    inset
+    0
+    -1px
+    0
+    rgba(
+      255,
+      255,
+      255,
+      0.06
+    ),
+    0
+    8px
+    20px
+    rgba(
+      0,
+      0,
+      0,
+      0.22
+    );
+
+  text-shadow:
+    0
+    1px
+    3px
+    rgba(
+      0,
+      0,
+      0,
+      0.32
+    );
+
+  overflow:
+    visible;
+}
+
+
+/* красивый световой верхний блик */
+
+.car-reminder-card::before {
+  content: "";
+
+  position: absolute;
+
+  inset:
+    0;
+
+  border-radius:
+    inherit;
+
+  pointer-events:
+    none;
+
+  background:
+    linear-gradient(
+      120deg,
+      rgba(
+        255,
+        255,
+        255,
+        0.18
+      ),
+      transparent 35%
+    );
+
+  opacity:
+    0.7;
+}
+
+
+/* =========================
+   STATUS COLORS
+   ========================= */
+
+.car-reminder-card.expired {
+  --accent:
+    #ff3b4f;
+
+  --accent-rgb:
+    255, 59, 79;
+}
+
+
+.car-reminder-card.red {
+  --accent:
+    #ff4b55;
+
+  --accent-rgb:
+    255, 75, 85;
+}
+
+
+.car-reminder-card.orange {
+  --accent:
+    #ff8a34;
+
+  --accent-rgb:
+    255, 138, 52;
+}
+
+
+.car-reminder-card.yellow {
+  --accent:
+    #ffc928;
+
+  --accent-rgb:
+    255, 201, 40;
+}
+
+
+.car-reminder-card.gray {
+  --accent:
+    #80ddff;
+
+  --accent-rgb:
+    128, 221, 255;
+}
+
+
+/* Лёгкое состояние urgency */
+
+.car-reminder-card.expired,
+.car-reminder-card.red {
+  box-shadow:
+    inset
+    0
+    1px
+    0
+    rgba(
+      255,
+      255,
+      255,
+      0.34
+    ),
+    0
+    0
+    18px
+    rgba(
+      var(--accent-rgb),
+      0.17
+    ),
+    0
+    8px
+    20px
+    rgba(
+      0,
+      0,
+      0,
+      0.22
+    );
+}
+
+
+/* =========================
+   ICON
+   ========================= */
+
+.car-reminder-card__icon {
+  position: relative;
+
+  width:
+    clamp(
+      26px,
+      4vw,
+      48px
+    );
+
+  height:
+    clamp(
+      26px,
+      4vw,
+      48px
+    );
+
+  border-radius:
+    clamp(
+      8px,
+      1.2vw,
+      14px
+    );
+
+  display: flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  color:
+    white;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(
+        var(--accent-rgb),
+        0.24
+      ),
+      rgba(
+        255,
+        255,
+        255,
+        0.06
+      )
+    );
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.24
+    );
+
+  box-shadow:
+    inset
+    0
+    1px
+    0
+    rgba(
+      255,
+      255,
+      255,
+      0.22
+    ),
+    0
+    0
+    12px
+    rgba(
+      var(--accent-rgb),
+      0.18
+    );
+}
+
+
+.car-reminder-card__icon svg {
+  width:
+    58%;
+
+  height:
+    58%;
+
+  stroke:
+    currentColor;
+
+  stroke-width:
+    1.8;
+}
+
+
+/* Треугольник состояния */
+
+.car-reminder-card__alert {
+  position: absolute;
+
+  top:
+    -16%;
+
+  right:
+    -16%;
+
+  width:
+    clamp(
+      12px,
+      1.6vw,
+      20px
+    );
+
+  height:
+    clamp(
+      12px,
+      1.6vw,
+      20px
+    );
+
+  border-radius:
+    50%;
+
+  display: flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  color:
+    white;
+
+  background:
+    var(--accent);
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.88
+    );
+
+  box-shadow:
+    0
+    0
+    10px
+    rgba(
+      var(--accent-rgb),
+      0.75
+    );
+}
+
+
+.car-reminder-card__alert svg {
+  width:
+    70%;
+
+  height:
+    70%;
+
+  stroke:
+    white;
+
+  stroke-width:
+    2.5;
+}
+
+
+/* =========================
+   TEXT
+   ========================= */
+
+.car-reminder-card__content {
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    clamp(
+      2px,
+      0.35vw,
+      5px
+    );
+}
+
+
+.car-reminder-card__title {
+  min-width: 0;
+
+  font-size:
+    clamp(
+      8px,
+      1.45vw,
+      14px
+    );
+
+  line-height:
+    1.08;
+
+  font-weight:
+    700;
+
+  letter-spacing:
+    -0.01em;
+
+  overflow:
+    hidden;
+
+  display:
+    -webkit-box;
+
+  -webkit-line-clamp:
+    2;
+
+  -webkit-box-orient:
+    vertical;
+}
+
+
+.car-reminder-card__meta {
+  min-width: 0;
+
+  font-size:
+    clamp(
+      7px,
+      1.2vw,
+      12px
+    );
+
+  line-height:
+    1.1;
+
+  font-weight:
+    500;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.76
+    );
+
+  white-space:
+    nowrap;
+
+  overflow:
+    hidden;
+
+  text-overflow:
+    ellipsis;
+}
+
+
+/* =========================
+   PROGRESS
+   ========================= */
+
+.car-reminder-card__progress {
+  position: relative;
+
+  width: 100%;
+
+  height:
+    clamp(
+      3px,
+      0.45vw,
+      5px
+    );
+
+  margin-top:
+    1px;
+
+  overflow:
+    hidden;
+
+  border-radius:
+    999px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.16
+    );
+
+  box-shadow:
+    inset
+    0
+    1px
+    2px
+    rgba(
+      0,
+      0,
+      0,
+      0.22
+    );
+}
+
+
+.car-reminder-card__progress span {
+  display: block;
+
+  width:
+    var(--reminder-progress);
+
+  height:
+    100%;
+
+  border-radius:
+    inherit;
+
+  background:
+    var(--accent);
+
+  box-shadow:
+    0
+    0
+    7px
+    rgba(
+      var(--accent-rgb),
+      0.95
+    );
+
+  transition:
+    width
+    0.45s
+    ease;
+}
+
+
+/* Компактные документы снизу */
+
+.car-reminder-card.compact {
+  grid-template-columns:
+    clamp(
+      22px,
+      3.5vw,
+      42px
+    )
+    minmax(
+      0,
+      1fr
+    );
+}
+
+
+.car-reminder-card.compact
+.car-reminder-card__icon {
+  width:
+    clamp(
+      22px,
+      3.5vw,
+      42px
+    );
+
+  height:
+    clamp(
+      22px,
+      3.5vw,
+      42px
+    );
+}
+
+
+/* Нет напоминаний */
+
+.car-reminder-map.is-empty {
+  display:
+    none;
+}
+
+
+/* =========================================================
+   PHONE
+   ========================================================= */
+
+@media (
+  max-width: 520px
+) {
+
+  .car-reminder-map {
+    width:
+      calc(
+        100vw - 16px
+      );
+
+    margin-bottom:
+      14px;
+  }
+
+
+  .car-reminder-map__scene {
+    border-radius:
+      20px;
+  }
+
+
+  .car-reminder-card {
+    padding:
+      5px;
+
+    gap:
+      4px;
+
+    border-radius:
+      10px;
+
+    border-width:
+      0.7px;
+
+    backdrop-filter:
+      blur(12px)
+      saturate(130%);
+
+    -webkit-backdrop-filter:
+      blur(12px)
+      saturate(130%);
+  }
+
+
+  .car-reminder-card__title {
+    font-size:
+      7.5px;
+  }
+
+
+  .car-reminder-card__meta {
+    font-size:
+      6.6px;
+  }
+
+
+  .car-reminder-card__progress {
+    height:
+      3px;
+  }
+
+}

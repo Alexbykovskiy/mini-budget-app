@@ -2344,8 +2344,12 @@ function loadReminders() {
     .onSnapshot(snapshot => {
       const reminders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       const processed = processReminders(reminders);
+
+/* Старый блок. Пока сохраняем полностью. */
 renderInlineInfoBoardHeader(processed);
 
+/* Новая визуальная карта автомобиля. */
+renderCarReminderBoard(processed);
 
     });
 }
@@ -2381,13 +2385,25 @@ function processReminders(reminders) {
       icon = "alert-triangle";
     }
 
-    return {
-      id: r.id,
-      status,
-      icon,
-      text,
-      imageUrl: r.imageUrl || ""
-    };
+    mileage:
+    r.mileage !== null &&
+    r.mileage !== undefined &&
+    r.mileage !== ""
+      ? Number(r.mileage)
+      : null,
+
+  interval:
+    r.interval !== null &&
+    r.interval !== undefined &&
+    r.interval !== ""
+      ? Number(r.interval)
+      : null,
+
+  dateStart: r.dateStart || "",
+  dateEnd: r.dateEnd || "",
+
+  imageUrl: r.imageUrl || ""
+};
   }).sort((a, b) => {
     const statusOrder = { expired: 0, red: 1, orange: 2, yellow: 3, gray: 4 };
     if (statusOrder[a.status] !== statusOrder[b.status]) return statusOrder[a.status] - statusOrder[b.status];
@@ -2395,6 +2411,739 @@ function processReminders(reminders) {
     const bNum = b.text.match(/-?\\d+/) ? Math.abs(Number(b.text.match(/-?\\d+/)[0])) : 99999;
     return aNum - bNum;
   });
+}
+
+
+/* =========================================================
+   🚗 VISUAL CAR REMINDER MAP
+   ========================================================= */
+
+const CAR_REMINDER_LAYOUTS = [
+
+  /* АКПП */
+  {
+    match: /акпп|коробк/i,
+    icon: "settings",
+
+    x: 33,
+    y: 5,
+    w: 28,
+    h: 12,
+
+    anchorX: 47,
+    anchorY: 43
+  },
+
+  /* Аккумулятор */
+  {
+    match: /аккумуля/i,
+    icon: "battery",
+
+    x: 62,
+    y: 5,
+    w: 25,
+    h: 12,
+
+    anchorX: 58,
+    anchorY: 46
+  },
+
+  /* Воск / сиденья */
+  {
+    match: /воск|сиден/i,
+    icon: "sparkles",
+
+    x: 3,
+    y: 14,
+    w: 27,
+    h: 12,
+
+    anchorX: 54,
+    anchorY: 49
+  },
+
+  /* Масло двигателя */
+  {
+    match: /масло.*двиг|двиг.*масло/i,
+    icon: "droplet",
+
+    x: 3,
+    y: 8,
+    w: 27,
+    h: 12,
+
+    anchorX: 32,
+    anchorY: 45
+  },
+
+  /* Топливный фильтр */
+  {
+    match: /топлив.*фильтр|фильтр.*топлив/i,
+    icon: "fuel",
+
+    x: 74,
+    y: 18,
+    w: 24,
+    h: 12,
+
+    anchorX: 78,
+    anchorY: 43
+  },
+
+  /* Дифференциал */
+  {
+    match: /дифф/i,
+    icon: "settings",
+
+    x: 72,
+    y: 59,
+    w: 26,
+    h: 12,
+
+    anchorX: 61,
+    anchorY: 69
+  },
+
+  /* Тормозная жидкость */
+  {
+    match: /тормоз.*жид/i,
+    icon: "circle",
+
+    x: 3,
+    y: 62,
+    w: 27,
+    h: 12,
+
+    anchorX: 34,
+    anchorY: 76
+  },
+
+  /* Страховка */
+  {
+    match: /страхов/i,
+    icon: "shield-check",
+
+    x: 4,
+    y: 84,
+    w: 21,
+    h: 11,
+
+    compact: true
+  },
+
+  /* STK */
+  {
+    match: /\bstk\b/i,
+    icon: "clipboard-check",
+
+    x: 27,
+    y: 84,
+    w: 20,
+    h: 11,
+
+    compact: true
+  },
+
+  /* Словацкая виньетка */
+  {
+    match: /словац.*винь|винь.*словац/i,
+    icon: "route",
+
+    x: 49,
+    y: 84,
+    w: 24,
+    h: 11,
+
+    compact: true
+  },
+
+  /* Австрийская виньетка */
+  {
+    match: /австр.*винь|винь.*австр/i,
+    icon: "route",
+
+    x: 75,
+    y: 84,
+    w: 22,
+    h: 11,
+
+    compact: true
+  }
+
+];
+
+
+/*
+ * Если название неизвестно,
+ * кладём карточку в одно из запасных мест.
+ */
+const CAR_REMINDER_FALLBACKS = [
+
+  {
+    x: 3,
+    y: 31,
+    w: 26,
+    h: 12,
+    anchorX: 35,
+    anchorY: 55
+  },
+
+  {
+    x: 72,
+    y: 32,
+    w: 26,
+    h: 12,
+    anchorX: 72,
+    anchorY: 50
+  },
+
+  {
+    x: 3,
+    y: 47,
+    w: 26,
+    h: 12,
+    anchorX: 34,
+    anchorY: 64
+  },
+
+  {
+    x: 72,
+    y: 46,
+    w: 26,
+    h: 12,
+    anchorX: 67,
+    anchorY: 61
+  }
+
+];
+
+
+function resolveCarReminderLayout(tag, index) {
+
+  const normalizedTag =
+    String(tag || "").trim();
+
+  const predefined =
+    CAR_REMINDER_LAYOUTS.find(
+      item =>
+        item.match.test(normalizedTag)
+    );
+
+  if (predefined) {
+    return predefined;
+  }
+
+  const fallback =
+    CAR_REMINDER_FALLBACKS[
+      index %
+      CAR_REMINDER_FALLBACKS.length
+    ];
+
+  return {
+    ...fallback,
+    icon: "wrench"
+  };
+}
+
+
+function getCarReminderStatusColor(status) {
+
+  const colors = {
+
+    expired: "#ff3b4f",
+
+    red: "#ff4b55",
+
+    orange: "#ff8a34",
+
+    yellow: "#ffc928",
+
+    /* Обычное напоминание */
+    gray: "#80ddff"
+  };
+
+  return (
+    colors[status] ||
+    colors.gray
+  );
+}
+
+
+function formatCarReminderNumber(value) {
+
+  if (
+    value === null ||
+    value === undefined ||
+    !Number.isFinite(Number(value))
+  ) {
+    return "";
+  }
+
+  return Math.abs(
+    Math.round(Number(value))
+  ).toLocaleString("ru-RU");
+}
+
+
+function formatCarReminderDetails(reminder) {
+
+  const details = [];
+
+  if (
+    reminder.kmLeft !== null &&
+    reminder.kmLeft !== undefined
+  ) {
+
+    const km =
+      Number(reminder.kmLeft);
+
+    const sign =
+      km < 0
+        ? "−"
+        : "";
+
+    details.push(
+      `${sign}${formatCarReminderNumber(km)} км`
+    );
+  }
+
+
+  if (
+    reminder.daysLeft !== null &&
+    reminder.daysLeft !== undefined
+  ) {
+
+    const days =
+      Number(reminder.daysLeft);
+
+    const sign =
+      days < 0
+        ? "−"
+        : "";
+
+    details.push(
+      `${sign}${formatCarReminderNumber(days)} дней`
+    );
+  }
+
+
+  return (
+    details.join(" / ") ||
+    "без срока"
+  );
+}
+
+
+function getCarReminderProgress(reminder) {
+
+  const percentages = [];
+
+
+  /* Остаток по километрам */
+  if (
+    reminder.kmLeft !== null &&
+    Number(reminder.interval) > 0
+  ) {
+
+    const percentage =
+      (
+        Number(reminder.kmLeft) /
+        Number(reminder.interval)
+      ) * 100;
+
+    percentages.push(
+      percentage
+    );
+  }
+
+
+  /* Остаток по времени */
+  if (
+    reminder.daysLeft !== null &&
+    reminder.dateStart &&
+    reminder.dateEnd
+  ) {
+
+    const start =
+      new Date(reminder.dateStart);
+
+    const end =
+      new Date(reminder.dateEnd);
+
+
+    const totalDays =
+      Math.ceil(
+        (
+          end - start
+        ) /
+        (
+          1000 *
+          60 *
+          60 *
+          24
+        )
+      );
+
+
+    if (
+      Number.isFinite(totalDays) &&
+      totalDays > 0
+    ) {
+
+      const percentage =
+        (
+          Number(reminder.daysLeft) /
+          totalDays
+        ) * 100;
+
+      percentages.push(
+        percentage
+      );
+    }
+  }
+
+
+  let result;
+
+
+  if (percentages.length) {
+
+    /*
+     * Берём тот параметр,
+     * который ближе к окончанию.
+     */
+    result =
+      Math.min(
+        ...percentages
+      );
+
+  } else {
+
+    /*
+     * Fallback,
+     * если старые данные без интервала.
+     */
+    const defaults = {
+
+      expired: 5,
+
+      red: 14,
+
+      orange: 30,
+
+      yellow: 48,
+
+      gray: 78
+    };
+
+
+    result =
+      defaults[
+        reminder.status
+      ] ?? 70;
+  }
+
+
+  return Math.max(
+    5,
+    Math.min(
+      100,
+      result
+    )
+  );
+}
+
+
+function getCarReminderLineStart(layout) {
+
+  const cardCenterX =
+    layout.x +
+    layout.w / 2;
+
+  const cardCenterY =
+    layout.y +
+    layout.h / 2;
+
+
+  const dx =
+    layout.anchorX -
+    cardCenterX;
+
+  const dy =
+    layout.anchorY -
+    cardCenterY;
+
+
+  /*
+   * Выбираем ближайшую сторону карточки,
+   * чтобы линия не шла через неё.
+   */
+  if (
+    Math.abs(dx) >
+    Math.abs(dy)
+  ) {
+
+    return {
+
+      x:
+        dx > 0
+          ? layout.x + layout.w
+          : layout.x,
+
+      y:
+        cardCenterY
+    };
+  }
+
+
+  return {
+
+    x:
+      cardCenterX,
+
+    y:
+      dy > 0
+        ? layout.y + layout.h
+        : layout.y
+  };
+}
+
+
+function escapeReminderHTML(value) {
+
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+
+function renderCarReminderBoard(notifications) {
+
+  const root =
+    document.getElementById(
+      "car-reminder-map"
+    );
+
+  const cards =
+    document.getElementById(
+      "car-reminder-cards"
+    );
+
+  const lines =
+    document.getElementById(
+      "car-reminder-lines"
+    );
+
+
+  if (
+    !root ||
+    !cards ||
+    !lines
+  ) {
+    return;
+  }
+
+
+  const visibleNotifications =
+    Array.isArray(notifications)
+      ? notifications.slice(0, 10)
+      : [];
+
+
+  cards.innerHTML = "";
+
+  lines.innerHTML = "";
+
+
+  if (
+    !visibleNotifications.length
+  ) {
+
+    root.classList.add(
+      "is-empty"
+    );
+
+    return;
+  }
+
+
+  root.classList.remove(
+    "is-empty"
+  );
+
+
+  const cardHTML = [];
+
+  const lineHTML = [];
+
+
+  visibleNotifications.forEach(
+    (reminder, index) => {
+
+      const layout =
+        resolveCarReminderLayout(
+          reminder.tag,
+          index
+        );
+
+
+      const accentColor =
+        getCarReminderStatusColor(
+          reminder.status
+        );
+
+
+      const progress =
+        getCarReminderProgress(
+          reminder
+        );
+
+
+      const title =
+        escapeReminderHTML(
+          reminder.tag ||
+          "Напоминание"
+        );
+
+
+      const details =
+        escapeReminderHTML(
+          formatCarReminderDetails(
+            reminder
+          )
+        );
+
+
+      const alertIcon =
+        reminder.status === "gray"
+          ? ""
+          : `
+              <span
+                class="car-reminder-card__alert"
+                aria-hidden="true"
+              >
+                <span data-lucide="triangle-alert"></span>
+              </span>
+            `;
+
+
+      cardHTML.push(`
+        <article
+          class="
+            car-reminder-card
+            ${reminder.status}
+            ${layout.compact ? "compact" : ""}
+          "
+          style="
+            --card-x: ${layout.x}%;
+            --card-y: ${layout.y}%;
+            --card-w: ${layout.w}%;
+            --reminder-progress: ${progress}%;
+          "
+        >
+
+          <div class="car-reminder-card__icon">
+
+            <span
+              data-lucide="${layout.icon || "wrench"}"
+            ></span>
+
+            ${alertIcon}
+
+          </div>
+
+
+          <div class="car-reminder-card__content">
+
+            <div class="car-reminder-card__title">
+              ${title}
+            </div>
+
+            <div class="car-reminder-card__meta">
+              ${details}
+            </div>
+
+            <div class="car-reminder-card__progress">
+              <span></span>
+            </div>
+
+          </div>
+
+        </article>
+      `);
+
+
+      /*
+       * Нижние документные карточки
+       * можно оставить без линий.
+       */
+      if (
+        layout.anchorX === undefined ||
+        layout.anchorY === undefined
+      ) {
+        return;
+      }
+
+
+      const start =
+        getCarReminderLineStart(
+          layout
+        );
+
+
+      lineHTML.push(`
+
+        <line
+          class="car-reminder-line"
+          x1="${start.x}"
+          y1="${start.y}"
+          x2="${layout.anchorX}"
+          y2="${layout.anchorY}"
+          stroke="${accentColor}"
+        ></line>
+
+
+        <circle
+          class="car-reminder-anchor-ring"
+          cx="${layout.anchorX}"
+          cy="${layout.anchorY}"
+          r="1.15"
+          stroke="${accentColor}"
+        ></circle>
+
+
+        <circle
+          class="car-reminder-anchor-dot"
+          cx="${layout.anchorX}"
+          cy="${layout.anchorY}"
+          r="0.38"
+          fill="${accentColor}"
+        ></circle>
+
+      `);
+
+    }
+  );
+
+
+  cards.innerHTML =
+    cardHTML.join("");
+
+
+  lines.innerHTML =
+    lineHTML.join("");
+
+
+  if (
+    typeof lucide !==
+    "undefined"
+  ) {
+
+    lucide.createIcons();
+  }
 }
 
 

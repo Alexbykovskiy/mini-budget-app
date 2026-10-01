@@ -81,6 +81,41 @@
   <div class="stats-card"><h4>Цена топлива</h4><p id="stat-price-fuel">—</p><span>€/л</span></div>
 </div>
 
+<!-- 🚗 Визуальная карта напоминаний -->
+<section
+  id="car-reminder-map"
+  class="car-reminder-map animated-section delay-2"
+  aria-label="Напоминания по автомобилю"
+>
+  <div class="car-reminder-map__scene">
+
+    <img
+      src="car-reminders-bg.jpg"
+      class="car-reminder-map__image"
+      alt="Автомобиль"
+      draggable="false"
+    >
+
+    <div class="car-reminder-map__shade"></div>
+
+    <!-- Линии от карточек к машине -->
+    <svg
+      id="car-reminder-lines"
+      class="car-reminder-map__lines"
+      viewBox="0 0 100 100"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    ></svg>
+
+    <!-- Карточки создаются через JS -->
+    <div
+      id="car-reminder-cards"
+      class="car-reminder-map__cards"
+    ></div>
+
+  </div>
+</section>
+
 <!-- ⛽ Топливо: быстрый индикатор + график по заправкам -->
 <div class="fuel-consumption-section animated-section delay-2">
  <div class="fuel-consumption-bar" id="fuel-consumption-bar">
