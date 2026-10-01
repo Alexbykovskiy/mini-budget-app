@@ -457,61 +457,7 @@ function createWheelPickerModal() {
   </div>
 `;
 
-        <div
-          class="wheel-picker-selection-combined"
-        ></div>
-
-
-        <div class="wheel-picker-unit">
-
-          <div
-            class="wheel-picker-wheel"
-            id="wheel-left-wheel"
-          >
-
-            <div
-              class="wheel-picker-track"
-              id="wheel-left-track"
-            ></div>
-
-          </div>
-
-        </div>
-
-
-        <div
-          id="wheel-picker-divider"
-          class="wheel-picker-divider"
-        ></div>
-
-
-        <div
-          id="wheel-right-unit"
-          class="wheel-picker-unit"
-        >
-
-          <div
-            class="wheel-picker-wheel"
-            id="wheel-right-wheel"
-          >
-
-            <div
-              class="wheel-picker-track"
-              id="wheel-right-track"
-            ></div>
-
-          </div>
-
-        </div>
-
-
-      
-
-      </div>
-
-    </div>
-  `;
-
+       
   document.body.appendChild(modal);
 
 
