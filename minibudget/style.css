@@ -2893,7 +2893,26 @@ box-sizing: border-box;
 /* =========================
    SINGLE WHEEL
    ========================= */
+.wheel-picker-wheels.single-wheel {
+  width: 190px;
+  margin-left: auto;
+  margin-right: auto;
 
+  display: grid;
+  grid-template-columns: 1fr;
+
+  justify-items: center;
+  align-items: center;
+}
+
+.wheel-picker-wheels.single-wheel .wheel-picker-unit {
+  width: 100%;
+  grid-column: 1;
+}
+
+.wheel-picker-wheels.single-wheel .wheel-picker-wheel {
+  width: 100%;
+}
 
 
 .wheel-picker-wheels.single-wheel
