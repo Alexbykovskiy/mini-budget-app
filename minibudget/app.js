@@ -1446,15 +1446,18 @@ function initWheelPickerUI() {
 
 
       input.addEventListener(
-        "click",
-        () => {
+  "click",
+  (e) => {
+    e.preventDefault();
 
-          openWheelPicker(
-            type,
-            input
-          );
-        }
-      );
+    input.blur();
+
+    openWheelPicker(
+      type,
+      input
+    );
+  }
+);
     }
   );
 }

@@ -2456,6 +2456,10 @@ pill-center:hover .pill-icon svg,
 
 .wheel-input {
   cursor: pointer;
+ font-size: 16px !important;
+  caret-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 
