@@ -190,8 +190,8 @@ function getWheelConfigs() {
       },
 
       preview(left, right) {
-        return `${left} | ${padNumber(right * 10, 2)} €`;
-      }
+  return `${left}.${padNumber(right * 10, 2)} €`;
+}
     },
 
 
@@ -241,8 +241,8 @@ function getWheelConfigs() {
       },
 
       preview(left, right) {
-        return `${left} | ${right} л`;
-      }
+  return `${left}.${right} л`;
+}
     },
 
 
@@ -297,7 +297,7 @@ function getWheelConfigs() {
       },
 
       preview(left, right) {
-        return `${padNumber(left, 3)} | ${padNumber(right, 3)} км`;
+        return `${padNumber(left, 3)}  ${padNumber(right, 3)} км`;
       }
     },
 
@@ -456,10 +456,7 @@ function createWheelPickerModal() {
         </div>
 
 
-        <div
-          id="wheel-picker-inline-unit"
-          class="wheel-picker-inline-unit"
-        ></div>
+      
 
       </div>
 
@@ -730,12 +727,7 @@ function openWheelPicker(
       "wheel-picker-wheels"
     );
 
-  const inlineUnit =
-    document.getElementById(
-      "wheel-picker-inline-unit"
-    );
-
-
+  
   if (config.singleWheel) {
 
     rightUnit.style.display =
@@ -762,9 +754,7 @@ function openWheelPicker(
   }
 
 
-  inlineUnit.textContent =
-    config.unit || "";
-
+  
 
   renderWheel(
     "left",
