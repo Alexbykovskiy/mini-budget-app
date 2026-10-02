@@ -291,9 +291,22 @@
 <datalist id="tag-list"></datalist>
 
       </div>
-      <div class="row">
-        <label class="small-label">Дата:</label>
-        <input type="date" id="date" required />
+      <div class="row expense-date-row">
+        <label class="small-label" for="expense-date-trigger">Дата:</label>
+
+        <button
+          type="button"
+          id="expense-date-trigger"
+          class="expense-date-trigger"
+          aria-haspopup="dialog"
+          aria-controls="expense-date-picker-modal"
+        >
+          <span class="expense-date-trigger__icon" data-lucide="calendar-days"></span>
+          <span id="expense-date-display" class="expense-date-trigger__value">—</span>
+          <span class="expense-date-trigger__chevron" data-lucide="chevron-down"></span>
+        </button>
+
+        <input type="hidden" id="date" />
       </div>
       <div class="form-buttons">
   <button type="button" class="round-btn orange" onclick="resetForm()" title="Отмена">

@@ -5844,3 +5844,511 @@ input:checked +
       0.20
     );
 }
+
+/* =========================================================
+   EXPENSE DATE PICKER
+   Liquid Glass / iOS-style date wheel
+   ========================================================= */
+
+.expense-date-row {
+  align-items: center;
+}
+
+.expense-date-row .small-label {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.expense-date-trigger {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 14px !important;
+  border: none !important;
+  border-radius: 14px !important;
+  background: #e0e0e0 !important;
+  color: #333 !important;
+  box-shadow:
+    inset 4px 4px 8px #bebebe,
+    inset -4px -4px 8px #ffffff !important;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.expense-date-trigger:hover {
+  opacity: 1;
+}
+
+.expense-date-trigger:active {
+  transform: scale(0.99);
+}
+
+.expense-date-trigger__icon,
+.expense-date-trigger__chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.expense-date-trigger__icon svg,
+.expense-date-trigger__icon.lucide {
+  width: 18px !important;
+  height: 18px !important;
+  stroke: #186663 !important;
+  stroke-width: 2.25;
+}
+
+.expense-date-trigger__chevron {
+  margin-left: auto;
+  opacity: 0.58;
+}
+
+.expense-date-trigger__chevron svg,
+.expense-date-trigger__chevron.lucide {
+  width: 17px !important;
+  height: 17px !important;
+  stroke: #444 !important;
+}
+
+.expense-date-trigger__value {
+  min-width: 0;
+  flex: 1 1 auto;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+body.expense-date-picker-lock {
+  overflow: hidden;
+}
+
+.expense-date-picker-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 260000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding:
+    max(14px, env(safe-area-inset-top))
+    8px
+    max(18px, env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  background:
+    radial-gradient(
+      circle at 50% 18%,
+      rgba(73, 103, 128, 0.15),
+      transparent 42%
+    ),
+    rgba(6, 10, 14, 0.56);
+  backdrop-filter: blur(15px) saturate(125%);
+  -webkit-backdrop-filter: blur(15px) saturate(125%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.expense-date-picker-modal.hidden {
+  display: none !important;
+}
+
+.expense-date-picker-modal.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.expense-date-picker-sheet {
+  width: min(390px, calc(100vw - 16px));
+  max-height: min(690px, calc(100dvh - 24px));
+  overflow: hidden;
+  padding: 10px 16px 16px;
+  box-sizing: border-box;
+  color: #fff;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background:
+    linear-gradient(
+      150deg,
+      rgba(44, 55, 67, 0.93) 0%,
+      rgba(24, 31, 39, 0.96) 48%,
+      rgba(18, 23, 30, 0.97) 100%
+    );
+  box-shadow:
+    0 30px 75px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(28px) saturate(145%);
+  -webkit-backdrop-filter: blur(28px) saturate(145%);
+  transform: translateY(18px) scale(0.985);
+  opacity: 0.92;
+  transition:
+    transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.2s ease;
+}
+
+.expense-date-picker-modal.show .expense-date-picker-sheet {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.expense-date-picker-handle {
+  width: 44px;
+  height: 5px;
+  margin: 0 auto 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.24);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.expense-date-picker-header {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.expense-date-picker-heading {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.expense-date-picker-heading__icon {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border-radius: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.expense-date-picker-heading__icon svg,
+.expense-date-picker-heading__icon.lucide {
+  width: 18px !important;
+  height: 18px !important;
+  stroke: rgba(255, 255, 255, 0.88) !important;
+}
+
+.expense-date-picker-title {
+  font-size: 18px;
+  line-height: 1.1;
+  font-weight: 730;
+  color: rgba(255, 255, 255, 0.96);
+  letter-spacing: -0.01em;
+}
+
+.expense-date-picker-preview {
+  margin-top: 4px;
+  min-height: 16px;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 560;
+  color: rgba(255, 255, 255, 0.52);
+  font-variant-numeric: tabular-nums;
+}
+
+.expense-date-picker-close {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.expense-date-picker-close svg,
+.expense-date-picker-close .lucide {
+  width: 18px !important;
+  height: 18px !important;
+  stroke: rgba(255, 255, 255, 0.78) !important;
+}
+
+.expense-date-picker-quick {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 9px;
+}
+
+.expense-date-picker-chip {
+  min-height: 32px;
+  padding: 0 14px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+  color: rgba(255, 255, 255, 0.82) !important;
+  box-shadow: none !important;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.expense-date-picker-chip:active {
+  transform: scale(0.97);
+  background: rgba(255, 255, 255, 0.11) !important;
+}
+
+.expense-date-picker-labels {
+  display: grid;
+  grid-template-columns: 0.78fr 1.44fr 1fr;
+  gap: 5px;
+  padding: 0 8px;
+  margin-bottom: 1px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.33);
+}
+
+.expense-date-picker-wheels {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  display: grid;
+  grid-template-columns: 0.78fr 1.44fr 1fr;
+  gap: 5px;
+  overflow: hidden;
+  border-radius: 22px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.018),
+      rgba(255, 255, 255, 0.045) 50%,
+      rgba(255, 255, 255, 0.018)
+    );
+  border: 1px solid rgba(255, 255, 255, 0.045);
+}
+
+.expense-date-picker-wheels::before,
+.expense-date-picker-wheels::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  height: 66px;
+  pointer-events: none;
+}
+
+.expense-date-picker-wheels::before {
+  top: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(22, 28, 35, 0.93),
+    rgba(22, 28, 35, 0)
+  );
+}
+
+.expense-date-picker-wheels::after {
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    rgba(22, 28, 35, 0.93),
+    rgba(22, 28, 35, 0)
+  );
+}
+
+.expense-date-picker-selection {
+  position: absolute;
+  left: 7px;
+  right: 7px;
+  top: 50%;
+  height: 50px;
+  transform: translateY(-50%);
+  z-index: 1;
+  pointer-events: none;
+  border-radius: 15px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(79, 150, 255, 0.18),
+      rgba(63, 129, 225, 0.12)
+    );
+  border: 1px solid rgba(102, 166, 255, 0.27);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    0 0 26px rgba(62, 126, 218, 0.08);
+  backdrop-filter: blur(12px) saturate(125%);
+  -webkit-backdrop-filter: blur(12px) saturate(125%);
+}
+
+.expense-date-picker-wheel {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+  z-index: 2;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: ns-resize;
+}
+
+.expense-date-picker-track {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition:
+    transform 0.14s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.expense-date-picker-wheel.dragging .expense-date-picker-track {
+  transition: none;
+}
+
+.expense-date-picker-item {
+  height: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transform-origin: center;
+  transition:
+    opacity 0.13s ease,
+    transform 0.13s ease,
+    filter 0.13s ease;
+}
+
+.expense-date-picker-item.active {
+  color: rgba(255, 255, 255, 1);
+  opacity: 1;
+  font-size: 25px;
+  font-weight: 610;
+  transform: scale(1.045);
+  filter: blur(0);
+}
+
+.expense-date-picker-wheel.month .expense-date-picker-item.active {
+  font-size: 22px;
+}
+
+.expense-date-picker-item.distance-1 {
+  color: rgba(255, 255, 255, 0.62);
+  opacity: 0.68;
+  font-size: 20px;
+  font-weight: 520;
+  transform: scale(0.94);
+  filter: blur(0.12px);
+}
+
+.expense-date-picker-wheel.month .expense-date-picker-item.distance-1 {
+  font-size: 18px;
+}
+
+.expense-date-picker-item.distance-2 {
+  color: rgba(255, 255, 255, 0.28);
+  opacity: 0.4;
+  font-size: 17px;
+  font-weight: 500;
+  transform: scale(0.86);
+  filter: blur(0.5px);
+}
+
+.expense-date-picker-wheel.month .expense-date-picker-item.distance-2 {
+  font-size: 16px;
+}
+
+.expense-date-picker-item.empty {
+  opacity: 0;
+}
+
+.expense-date-picker-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.expense-date-picker-btn {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 16px !important;
+  border: none !important;
+  border-radius: 15px !important;
+  box-shadow: none !important;
+  font-size: 16px;
+  font-weight: 700;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 0.12s ease,
+    opacity 0.12s ease;
+}
+
+.expense-date-picker-btn.secondary {
+  color: rgba(255, 255, 255, 0.82) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+.expense-date-picker-btn.primary {
+  color: #111 !important;
+  background:
+    linear-gradient(180deg, #ffad6d, #ffa35c) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 8px 24px rgba(255, 163, 92, 0.18) !important;
+}
+
+.expense-date-picker-btn:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 390px) {
+  .expense-date-picker-sheet {
+    width: calc(100vw - 12px);
+    padding-left: 12px;
+    padding-right: 12px;
+    border-radius: 26px;
+  }
+
+  .expense-date-picker-labels,
+  .expense-date-picker-wheels {
+    grid-template-columns: 0.74fr 1.46fr 0.98fr;
+  }
+
+  .expense-date-picker-item.active {
+    font-size: 23px;
+  }
+
+  .expense-date-picker-wheel.month .expense-date-picker-item.active {
+    font-size: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .expense-date-picker-modal,
+  .expense-date-picker-sheet,
+  .expense-date-picker-track,
+  .expense-date-picker-item,
+  .expense-date-picker-btn,
+  .expense-date-trigger {
+    transition: none !important;
+  }
+}

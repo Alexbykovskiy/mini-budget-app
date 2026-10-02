@@ -8,6 +8,7 @@ window.addEventListener("load", () => {
   resetForm();
 initFuelControls();
   initWheelPickerUI();
+  initExpenseDatePicker();
 initCarMapEditor();
 initReminderModal();
   // 📸 Выбор способа загрузки изображения — камера или галерея
@@ -1468,6 +1469,648 @@ function initWheelPickerUI() {
   );
 }
 
+
+/* =========================================================
+   EXPENSE DATE PICKER
+   Custom iOS-style day / month / year wheel
+   ========================================================= */
+
+const EXPENSE_DATE_MONTHS = [
+  "Январь",
+  "Февраль",
+  "Март",
+  "Апрель",
+  "Май",
+  "Июнь",
+  "Июль",
+  "Август",
+  "Сентябрь",
+  "Октябрь",
+  "Ноябрь",
+  "Декабрь"
+];
+
+const EXPENSE_DATE_MONTHS_GENITIVE = [
+  "января",
+  "февраля",
+  "марта",
+  "апреля",
+  "мая",
+  "июня",
+  "июля",
+  "августа",
+  "сентября",
+  "октября",
+  "ноября",
+  "декабря"
+];
+
+const EXPENSE_DATE_WHEEL_ROW_HEIGHT = 44;
+const EXPENSE_DATE_WHEEL_RADIUS = 2;
+const EXPENSE_DATE_WHEEL_SENSITIVITY = 1.45;
+const EXPENSE_DATE_MIN_YEAR = 2000;
+const EXPENSE_DATE_MAX_YEAR = 2100;
+
+let expenseDatePickerState = null;
+
+function getLocalISODate(date = new Date()) {
+  const year = date.getFullYear();
+  const month = padNumber(date.getMonth() + 1, 2);
+  const day = padNumber(date.getDate(), 2);
+  return `${year}-${month}-${day}`;
+}
+
+function getExpenseDaysInMonth(year, month) {
+  return new Date(year, month, 0).getDate();
+}
+
+function parseExpenseDateISO(value) {
+  const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+  if (!match) {
+    const today = new Date();
+    return {
+      year: today.getFullYear(),
+      month: today.getMonth() + 1,
+      day: today.getDate()
+    };
+  }
+
+  const year = clamp(Number(match[1]), EXPENSE_DATE_MIN_YEAR, EXPENSE_DATE_MAX_YEAR);
+  const month = clamp(Number(match[2]), 1, 12);
+  const maxDay = getExpenseDaysInMonth(year, month);
+  const day = clamp(Number(match[3]), 1, maxDay);
+
+  return { year, month, day };
+}
+
+function composeExpenseDateISO(day, month, year) {
+  return `${year}-${padNumber(month, 2)}-${padNumber(day, 2)}`;
+}
+
+function formatExpenseDateShort(value) {
+  const parsed = parseExpenseDateISO(value);
+  return `${padNumber(parsed.day, 2)}.${padNumber(parsed.month, 2)}.${parsed.year}`;
+}
+
+function formatExpenseDateLong(day, month, year) {
+  return `${day} ${EXPENSE_DATE_MONTHS_GENITIVE[month - 1]} ${year}`;
+}
+
+function syncExpenseDateTrigger() {
+  const input = document.getElementById("date");
+  const display = document.getElementById("expense-date-display");
+
+  if (!input || !display) return;
+
+  if (!input.value) {
+    input.value = getLocalISODate();
+  }
+
+  display.textContent = formatExpenseDateShort(input.value);
+}
+
+function createExpenseDatePickerModal() {
+  if (document.getElementById("expense-date-picker-modal")) return;
+
+  const modal = document.createElement("div");
+  modal.id = "expense-date-picker-modal";
+  modal.className = "expense-date-picker-modal hidden";
+  modal.setAttribute("aria-hidden", "true");
+
+  modal.innerHTML = `
+    <div
+      class="expense-date-picker-sheet"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="expense-date-picker-title"
+    >
+      <div class="expense-date-picker-handle" aria-hidden="true"></div>
+
+      <div class="expense-date-picker-header">
+        <div class="expense-date-picker-heading">
+          <span class="expense-date-picker-heading__icon" data-lucide="calendar-days"></span>
+
+          <div>
+            <div id="expense-date-picker-title" class="expense-date-picker-title">
+              Выберите дату
+            </div>
+
+            <div id="expense-date-picker-preview" class="expense-date-picker-preview"></div>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          id="expense-date-picker-close"
+          class="expense-date-picker-close"
+          aria-label="Закрыть"
+        >
+          <span data-lucide="x"></span>
+        </button>
+      </div>
+
+      <div class="expense-date-picker-quick">
+        <button
+          type="button"
+          id="expense-date-picker-today"
+          class="expense-date-picker-chip"
+        >
+          Сегодня
+        </button>
+      </div>
+
+      <div class="expense-date-picker-labels" aria-hidden="true">
+        <span>День</span>
+        <span>Месяц</span>
+        <span>Год</span>
+      </div>
+
+      <div class="expense-date-picker-wheels">
+        <div class="expense-date-picker-selection" aria-hidden="true"></div>
+
+        <div class="expense-date-picker-wheel" data-expense-date-wheel="day">
+          <div class="expense-date-picker-track" id="expense-date-day-track"></div>
+        </div>
+
+        <div class="expense-date-picker-wheel month" data-expense-date-wheel="month">
+          <div class="expense-date-picker-track" id="expense-date-month-track"></div>
+        </div>
+
+        <div class="expense-date-picker-wheel" data-expense-date-wheel="year">
+          <div class="expense-date-picker-track" id="expense-date-year-track"></div>
+        </div>
+      </div>
+
+      <div class="expense-date-picker-footer">
+        <button
+          type="button"
+          id="expense-date-picker-cancel"
+          class="expense-date-picker-btn secondary"
+        >
+          Отмена
+        </button>
+
+        <button
+          type="button"
+          id="expense-date-picker-apply"
+          class="expense-date-picker-btn primary"
+        >
+          Готово
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  expenseDatePickerState = {
+    modal,
+    day: 1,
+    month: 1,
+    year: new Date().getFullYear(),
+    wheels: {
+      day: {
+        root: modal.querySelector('[data-expense-date-wheel="day"]'),
+        track: document.getElementById("expense-date-day-track")
+      },
+      month: {
+        root: modal.querySelector('[data-expense-date-wheel="month"]'),
+        track: document.getElementById("expense-date-month-track")
+      },
+      year: {
+        root: modal.querySelector('[data-expense-date-wheel="year"]'),
+        track: document.getElementById("expense-date-year-track")
+      }
+    }
+  };
+
+  document
+    .getElementById("expense-date-picker-close")
+    ?.addEventListener("click", closeExpenseDatePicker);
+
+  document
+    .getElementById("expense-date-picker-cancel")
+    ?.addEventListener("click", closeExpenseDatePicker);
+
+  document
+    .getElementById("expense-date-picker-apply")
+    ?.addEventListener("click", applyExpenseDatePicker);
+
+  document
+    .getElementById("expense-date-picker-today")
+    ?.addEventListener("click", () => {
+      const today = new Date();
+      expenseDatePickerState.day = today.getDate();
+      expenseDatePickerState.month = today.getMonth() + 1;
+      expenseDatePickerState.year = today.getFullYear();
+      normalizeExpenseDatePickerDay();
+      renderAllExpenseDateWheels();
+      updateExpenseDatePickerPreview();
+      wheelHaptic();
+    });
+
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) {
+      closeExpenseDatePicker();
+    }
+  });
+
+  Object.keys(expenseDatePickerState.wheels).forEach((side) => {
+    attachExpenseDateWheelDrag(side);
+  });
+
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+}
+
+function getExpenseDateWheelBounds(side) {
+  const state = expenseDatePickerState;
+
+  if (side === "day") {
+    return {
+      min: 1,
+      max: getExpenseDaysInMonth(state.year, state.month)
+    };
+  }
+
+  if (side === "month") {
+    return { min: 1, max: 12 };
+  }
+
+  return {
+    min: EXPENSE_DATE_MIN_YEAR,
+    max: EXPENSE_DATE_MAX_YEAR
+  };
+}
+
+function formatExpenseDateWheelValue(side, value) {
+  if (side === "month") {
+    return EXPENSE_DATE_MONTHS[value - 1];
+  }
+
+  if (side === "day") {
+    return padNumber(value, 2);
+  }
+
+  return String(value);
+}
+
+function normalizeExpenseDatePickerDay() {
+  if (!expenseDatePickerState) return;
+
+  const maxDay = getExpenseDaysInMonth(
+    expenseDatePickerState.year,
+    expenseDatePickerState.month
+  );
+
+  expenseDatePickerState.day = clamp(
+    expenseDatePickerState.day,
+    1,
+    maxDay
+  );
+}
+
+function renderExpenseDateWheel(side, translateY = 0) {
+  const state = expenseDatePickerState;
+  const wheel = state?.wheels?.[side];
+
+  if (!state || !wheel) return;
+
+  const bounds = getExpenseDateWheelBounds(side);
+  const centerValue = state[side];
+
+  wheel.track.innerHTML = "";
+
+  for (
+    let offset = -EXPENSE_DATE_WHEEL_RADIUS;
+    offset <= EXPENSE_DATE_WHEEL_RADIUS;
+    offset++
+  ) {
+    const value = centerValue + offset;
+    const item = document.createElement("div");
+    const distance = Math.abs(offset);
+
+    item.className =
+      "expense-date-picker-item " +
+      `distance-${distance}` +
+      (offset === 0 ? " active" : "");
+
+    if (value < bounds.min || value > bounds.max) {
+      item.classList.add("empty");
+      item.textContent = "";
+    } else {
+      item.textContent = formatExpenseDateWheelValue(side, value);
+      item.dataset.value = String(value);
+    }
+
+    wheel.track.appendChild(item);
+  }
+
+  wheel.track.style.transform = `translateY(${translateY}px)`;
+}
+
+function renderAllExpenseDateWheels(activeSide = null, translateY = 0) {
+  ["day", "month", "year"].forEach((side) => {
+    renderExpenseDateWheel(
+      side,
+      side === activeSide ? translateY : 0
+    );
+  });
+}
+
+function updateExpenseDatePickerPreview() {
+  if (!expenseDatePickerState) return;
+
+  const preview = document.getElementById("expense-date-picker-preview");
+  if (!preview) return;
+
+  preview.textContent = formatExpenseDateLong(
+    expenseDatePickerState.day,
+    expenseDatePickerState.month,
+    expenseDatePickerState.year
+  );
+}
+
+function setExpenseDateWheelValue(side, value, translateY = 0) {
+  if (!expenseDatePickerState) return;
+
+  const bounds = getExpenseDateWheelBounds(side);
+  const nextValue = clamp(Math.round(value), bounds.min, bounds.max);
+  const changed = expenseDatePickerState[side] !== nextValue;
+
+  expenseDatePickerState[side] = nextValue;
+
+  if (side === "month" || side === "year") {
+    normalizeExpenseDatePickerDay();
+  }
+
+  renderAllExpenseDateWheels(side, translateY);
+  updateExpenseDatePickerPreview();
+
+  if (changed) {
+    wheelHaptic();
+  }
+}
+
+function openExpenseDatePicker() {
+  const input = document.getElementById("date");
+
+  if (!input || !expenseDatePickerState?.modal) return;
+
+  const initial = parseExpenseDateISO(
+    input.value || getLocalISODate()
+  );
+
+  expenseDatePickerState.day = initial.day;
+  expenseDatePickerState.month = initial.month;
+  expenseDatePickerState.year = initial.year;
+
+  normalizeExpenseDatePickerDay();
+  renderAllExpenseDateWheels();
+  updateExpenseDatePickerPreview();
+
+  expenseDatePickerState.modal.classList.remove("hidden");
+  expenseDatePickerState.modal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("expense-date-picker-lock");
+
+  requestAnimationFrame(() => {
+    expenseDatePickerState.modal.classList.add("show");
+  });
+}
+
+function closeExpenseDatePicker() {
+  const modal = expenseDatePickerState?.modal;
+  if (!modal) return;
+
+  modal.classList.remove("show");
+  modal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("expense-date-picker-lock");
+
+  setTimeout(() => {
+    modal.classList.add("hidden");
+  }, 200);
+}
+
+function applyExpenseDatePicker() {
+  const input = document.getElementById("date");
+  if (!input || !expenseDatePickerState) return;
+
+  normalizeExpenseDatePickerDay();
+
+  input.value = composeExpenseDateISO(
+    expenseDatePickerState.day,
+    expenseDatePickerState.month,
+    expenseDatePickerState.year
+  );
+
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  input.dispatchEvent(new Event("change", { bubbles: true }));
+
+  syncExpenseDateTrigger();
+  closeExpenseDatePicker();
+}
+
+function runExpenseDateWheelInertia(side, velocity) {
+  if (!expenseDatePickerState) return;
+
+  const speed = Math.abs(velocity);
+
+  if (speed < 0.10) {
+    renderExpenseDateWheel(side, 0);
+    return;
+  }
+
+  const direction = velocity < 0 ? 1 : -1;
+
+  let extraSteps = Math.round(
+    speed * 8 * EXPENSE_DATE_WHEEL_SENSITIVITY
+  );
+
+  extraSteps = clamp(extraSteps, 1, 28);
+
+  const bounds = getExpenseDateWheelBounds(side);
+  const target = clamp(
+    expenseDatePickerState[side] + direction * extraSteps,
+    bounds.min,
+    bounds.max
+  );
+
+  animateExpenseDateWheelTo(side, target);
+}
+
+function animateExpenseDateWheelTo(side, targetValue) {
+  if (!expenseDatePickerState) return;
+
+  const bounds = getExpenseDateWheelBounds(side);
+  targetValue = clamp(targetValue, bounds.min, bounds.max);
+
+  let current = expenseDatePickerState[side];
+
+  if (current === targetValue) {
+    renderExpenseDateWheel(side, 0);
+    return;
+  }
+
+  const direction = targetValue > current ? 1 : -1;
+  const totalSteps = Math.abs(targetValue - current);
+  let completed = 0;
+
+  const nextStep = () => {
+    if (!expenseDatePickerState || completed >= totalSteps) {
+      renderAllExpenseDateWheels();
+      return;
+    }
+
+    const dynamicBounds = getExpenseDateWheelBounds(side);
+    current = clamp(current + direction, dynamicBounds.min, dynamicBounds.max);
+    completed++;
+
+    expenseDatePickerState[side] = current;
+
+    if (side === "month" || side === "year") {
+      normalizeExpenseDatePickerDay();
+    }
+
+    renderAllExpenseDateWheels();
+    updateExpenseDatePickerPreview();
+    wheelHaptic();
+
+    const progress = completed / totalSteps;
+    const delay = 16 + progress * progress * 48;
+
+    setTimeout(nextStep, delay);
+  };
+
+  nextStep();
+}
+
+function attachExpenseDateWheelDrag(side) {
+  const wheel = expenseDatePickerState?.wheels?.[side];
+  if (!wheel) return;
+
+  let dragging = false;
+  let startY = 0;
+  let startValue = 0;
+  let lastY = 0;
+  let lastTime = 0;
+  let velocity = 0;
+  let moved = false;
+
+  const onPointerMove = (event) => {
+    if (!dragging || !expenseDatePickerState) return;
+
+    event.preventDefault();
+
+    const now = performance.now();
+    const dy = event.clientY - lastY;
+    const dt = Math.max(now - lastTime, 1);
+    const instantVelocity = dy / dt;
+
+    velocity = velocity * 0.65 + instantVelocity * 0.35;
+    lastY = event.clientY;
+    lastTime = now;
+
+    const deltaY = event.clientY - startY;
+    if (Math.abs(deltaY) > 4) moved = true;
+
+    const bounds = getExpenseDateWheelBounds(side);
+
+    const floatValue = clamp(
+      startValue -
+        (deltaY / EXPENSE_DATE_WHEEL_ROW_HEIGHT) *
+          EXPENSE_DATE_WHEEL_SENSITIVITY,
+      bounds.min,
+      bounds.max
+    );
+
+    const roundedValue = clamp(
+      Math.round(floatValue),
+      bounds.min,
+      bounds.max
+    );
+
+    const translateY =
+      (roundedValue - floatValue) *
+      EXPENSE_DATE_WHEEL_ROW_HEIGHT;
+
+    setExpenseDateWheelValue(
+      side,
+      roundedValue,
+      translateY
+    );
+  };
+
+  const onPointerUp = () => {
+    if (!dragging) return;
+
+    dragging = false;
+    wheel.root.classList.remove("dragging");
+
+    if (moved) {
+      runExpenseDateWheelInertia(side, velocity);
+    } else {
+      renderExpenseDateWheel(side, 0);
+    }
+  };
+
+  wheel.root.addEventListener("pointerdown", (event) => {
+    if (!expenseDatePickerState) return;
+
+    dragging = true;
+    moved = false;
+    startY = event.clientY;
+    startValue = expenseDatePickerState[side];
+    lastY = event.clientY;
+    lastTime = performance.now();
+    velocity = 0;
+
+    wheel.root.classList.add("dragging");
+
+    if (wheel.root.setPointerCapture) {
+      wheel.root.setPointerCapture(event.pointerId);
+    }
+  });
+
+  wheel.root.addEventListener("pointermove", onPointerMove);
+  wheel.root.addEventListener("pointerup", onPointerUp);
+  wheel.root.addEventListener("pointercancel", onPointerUp);
+  wheel.root.addEventListener("lostpointercapture", onPointerUp);
+}
+
+function initExpenseDatePicker() {
+  createExpenseDatePickerModal();
+
+  const trigger = document.getElementById("expense-date-trigger");
+  const input = document.getElementById("date");
+
+  if (!trigger || !input) return;
+
+  if (!input.value) {
+    input.value = getLocalISODate();
+  }
+
+  syncExpenseDateTrigger();
+
+  trigger.addEventListener("click", (event) => {
+    event.preventDefault();
+    trigger.blur();
+    openExpenseDatePicker();
+  });
+
+  input.addEventListener("change", syncExpenseDateTrigger);
+
+  document.addEventListener("keydown", (event) => {
+    if (
+      event.key === "Escape" &&
+      expenseDatePickerState?.modal?.classList.contains("show")
+    ) {
+      closeExpenseDatePicker();
+    }
+  });
+}
+
 // ========== ДОБАВИТЬ НАПОМИНАНИЕ ==========
 const infoAddForm = document.getElementById('info-add-form');
 if (infoAddForm) {
@@ -2029,7 +2672,8 @@ function fillFormForEdit(exp) {
   document.getElementById('amount').value = exp.amount;
   document.getElementById('liters').value = exp.liters || '';
   document.getElementById('mileage').value = exp.mileage || '';
-  document.getElementById('date').value = exp.date;
+  document.getElementById('date').value = exp.date || getLocalISODate();
+  syncExpenseDateTrigger();
   document.getElementById('note').value = exp.note || '';
   document.getElementById('tag').value = exp.tag || '';
 }
@@ -2061,7 +2705,7 @@ form.onsubmit = async (e) => {
   const amount = parseFloat(document.getElementById('amount').value.replace(',', '.'));
   const mileage = document.getElementById('mileage').value;
   const liters = document.getElementById('liters').value;
-  const date = document.getElementById('date').value;
+  const date = document.getElementById('date').value || getLocalISODate();
   const note = document.getElementById('note').value;
   const tag = document.getElementById('tag').value.trim();
   const data = { category, amount, mileage, liters, date, note, tag };
@@ -2238,11 +2882,12 @@ function resetForm() {
   form.reset();
   document.getElementById("edit-id").value = "";
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = getLocalISODate();
   const dateInput = document.getElementById("date");
 
   if (dateInput) {
     dateInput.value = today;
+    syncExpenseDateTrigger();
   }
 
   const mileageInput = document.getElementById("mileage");
@@ -2266,8 +2911,9 @@ function formatDate(isoString) {
   const dateInput = document.getElementById('date');
 const editIdInput = document.getElementById('edit-id');
 if (dateInput && editIdInput && !editIdInput.value.trim()) {
-  const today = new Date().toISOString().split('T')[0];
+  const today = getLocalISODate();
   dateInput.value = today;
+  syncExpenseDateTrigger();
 }
 
 // ========== Инфотабло (уведомления сервис/документы) ==========
