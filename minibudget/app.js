@@ -3622,7 +3622,7 @@ function renderFuelLineChart(points, avgLine) {
       }
     },
     series,
-    colors: ['#27e3dd'],
+    colors: ['#a8b9bd'],
     stroke: {
       width: 2.5,
       curve: 'smooth',
@@ -3634,7 +3634,7 @@ function renderFuelLineChart(points, avgLine) {
         shade: 'dark',
         type: 'vertical',
         shadeIntensity: 0.15,
-        gradientToColors: ['#0aa7a5'],
+        gradientToColors: ['#6f7f84'],
         inverseColors: false,
         opacityFrom: 0.30,
         opacityTo: 0.012,
@@ -3647,7 +3647,7 @@ function renderFuelLineChart(points, avgLine) {
     markers: {
       size: 3.5,
       strokeWidth: 2,
-      strokeColors: '#eaffff',
+      strokeColors: '#eef3f4',
       hover: { sizeOffset: 2 },
       discrete: discreteMarkers
     },

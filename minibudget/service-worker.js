@@ -1,5 +1,5 @@
-const STATIC_CACHE = "mini-budget-static-v4";
-const RUNTIME_CACHE = "mini-budget-runtime-v4";
+const STATIC_CACHE = "mini-budget-static-v5";
+const RUNTIME_CACHE = "mini-budget-runtime-v5";
 
 // All paths are relative to the service worker scope:
 // /mini-budget-app/minibudget/

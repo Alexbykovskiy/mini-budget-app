@@ -6,7 +6,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MINI Budget</title>
-  <link rel="stylesheet" href="style.css?v=29">
+  <link rel="stylesheet" href="style.css?v=30">
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
   <link rel="manifest" href="manifest.json">
@@ -186,9 +186,9 @@
       <svg class="fuel-gauge__svg" viewBox="0 0 240 130" aria-hidden="true">
         <defs>
           <linearGradient id="fuelGaugeGradient" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#1eeadf"/>
-            <stop offset="55%" stop-color="#31d8d0"/>
-            <stop offset="100%" stop-color="#ff8a45"/>
+            <stop offset="0%" stop-color="#9cabb0"/>
+            <stop offset="65%" stop-color="#b6c0c4"/>
+            <stop offset="100%" stop-color="#c79678"/>
           </linearGradient>
           <filter id="fuelGaugeGlow" x="-30%" y="-30%" width="160%" height="160%">
             <feGaussianBlur stdDeviation="3" result="blur"/>
@@ -290,7 +290,7 @@
       <div><strong id="fuel-anomaly-count">—</strong><small>аномалий</small></div>
     </div>
     <div class="fuel-digital-metric">
-      <span class="fuel-digital-metric__icon" data-lucide="chart-no-axes-column-increasing"></span>
+      <span class="fuel-digital-metric__icon" data-lucide="arrow-down"></span>
       <div><strong id="fuel-min-value">—</strong><small>мин. л/100</small></div>
     </div>
     <div class="fuel-digital-metric fuel-digital-metric--hot">
@@ -710,7 +710,7 @@
 
   <script src="firebase-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-  <script src="app.js"></script>
+  <script src="app.js?v=30"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' })
