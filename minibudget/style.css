@@ -7544,3 +7544,13 @@ body.expense-date-picker-lock {
     font-size: 9.5px;
   }
 }
+
+/* Fuel fills selector: the complete pill is the touch target. */
+#fuel-fills-control {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#fuel-fills-control:active {
+  transform: scale(.992);
+}

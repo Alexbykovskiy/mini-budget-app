@@ -14,8 +14,8 @@ window.addEventListener("load", () => {
   loadExpenses();
   populateTagList();
   resetForm();
-initFuelControls();
   initWheelPickerUI();
+  initFuelControls();
 initCarMapEditor();
 initReminderModal();
   // 📸 Выбор способа загрузки изображения — камера или галерея
@@ -3024,6 +3024,33 @@ function initFuelControls() {
 
   initFuelPeriodPickerTrigger();
 
+  // The whole control opens the wheel picker. On touch screens it is much
+  // easier and more reliable than having to hit the tiny number input itself.
+  if (fillsControl.dataset.wheelTriggerReady !== "1") {
+    fillsControl.dataset.wheelTriggerReady = "1";
+    fillsControl.setAttribute("role", "button");
+    fillsControl.setAttribute("tabindex", "0");
+
+    const openFillsWheel = (event) => {
+      if (event) event.preventDefault();
+      fillsCountInput.blur();
+      openWheelPicker("fuelFills", fillsCountInput);
+    };
+
+    fillsControl.addEventListener("click", (event) => {
+      // The input has its own wheel binding. Let that handler own direct input
+      // clicks so one tap can never open the modal twice.
+      if (event.target === fillsCountInput) return;
+      openFillsWheel(event);
+    });
+
+    fillsControl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        openFillsWheel(event);
+      }
+    });
+  }
+
   // 1) Проставляем сохранённые значения в инпуты
   fillsCountInput.value = String(isFinite(fuelFillsCount) && fuelFillsCount > 0 ? fuelFillsCount : 10);
   dateFromInput.value = fuelDateFrom || "";
@@ -3344,13 +3371,33 @@ function syncFuelScrubberGeometry() {
   wrap.dataset.plotRight = String(geometry.right);
 }
 
+let fuelScrubberGeometryFrame = 0;
+let fuelScrubberGeometryTimer = 0;
+
 function scheduleFuelScrubberGeometrySync() {
-  requestAnimationFrame(() => {
+  if (fuelScrubberGeometryFrame) cancelAnimationFrame(fuelScrubberGeometryFrame);
+  if (fuelScrubberGeometryTimer) clearTimeout(fuelScrubberGeometryTimer);
+
+  // First pass: update on the very next painted frame. This makes the slider
+  // jump to its new width immediately when the number of fills changes.
+  fuelScrubberGeometryFrame = requestAnimationFrame(() => {
+    fuelScrubberGeometryFrame = 0;
+    syncFuelScrubberGeometry();
+    updateFuelScrubberVisual(fuelScrubberIndex);
+
+    // Second pass: Apex can finish SVG layout one frame later on Safari.
     requestAnimationFrame(() => {
       syncFuelScrubberGeometry();
       updateFuelScrubberVisual(fuelScrubberIndex);
     });
   });
+
+  // Small safety pass for font/layout changes. No long retry loop.
+  fuelScrubberGeometryTimer = window.setTimeout(() => {
+    fuelScrubberGeometryTimer = 0;
+    syncFuelScrubberGeometry();
+    updateFuelScrubberVisual(fuelScrubberIndex);
+  }, 120);
 }
 
 function updateFuelScrubberVisual(index, { haptic = false } = {}) {
@@ -3472,14 +3519,52 @@ function renderFuelLineChart(points, avgLine) {
     size: point.status === 'anomaly' ? 5 : 4
   }));
 
+  const yValues = (points || [])
+    .map((point) => Number(point.l100))
+    .filter(Number.isFinite);
+
+  const avgGuideValues = Number.isFinite(avgLine)
+    ? [avgLine - 0.5, avgLine, avgLine + 0.5]
+    : [];
+
+  const scaleValues = [...yValues, ...avgGuideValues];
+  let yMin = scaleValues.length ? Math.min(...scaleValues) : undefined;
+  let yMax = scaleValues.length ? Math.max(...scaleValues) : undefined;
+
+  if (Number.isFinite(yMin) && Number.isFinite(yMax)) {
+    const span = Math.max(0.5, yMax - yMin);
+    const padding = Math.max(0.12, span * 0.08);
+    yMin = Math.floor((yMin - padding) * 10) / 10;
+    yMax = Math.ceil((yMax + padding) * 10) / 10;
+  }
+
+  const makeYLabel = (value, isAverage = false) => ({
+    y: Number(value.toFixed(3)),
+    borderColor: isAverage ? 'rgba(218, 241, 242, 0.52)' : 'rgba(218, 241, 242, 0)',
+    strokeDashArray: isAverage ? 5 : 0,
+    borderWidth: isAverage ? 1 : 0,
+    label: {
+      show: true,
+      position: 'left',
+      offsetX: 3,
+      borderColor: 'transparent',
+      text: value.toFixed(1),
+      style: {
+        background: 'transparent',
+        color: isAverage ? 'rgba(235,250,250,.82)' : 'rgba(190,211,214,.56)',
+        fontSize: isAverage ? '9px' : '8px',
+        fontWeight: isAverage ? 700 : 600,
+        padding: { left: 0, right: 0, top: 0, bottom: 0 }
+      }
+    }
+  });
+
   const avgAnnotation = Number.isFinite(avgLine)
-    ? [{
-        y: Number(avgLine.toFixed(3)),
-        borderColor: 'rgba(218, 241, 242, 0.50)',
-        strokeDashArray: 5,
-        borderWidth: 1,
-        label: { show: false }
-      }]
+    ? [
+        makeYLabel(avgLine - 0.5, false),
+        makeYLabel(avgLine, true),
+        makeYLabel(avgLine + 0.5, false)
+      ]
     : [];
 
   const options = {
@@ -3489,7 +3574,7 @@ function renderFuelLineChart(points, avgLine) {
       background: 'transparent',
       toolbar: { show: false },
       zoom: { enabled: false },
-      animations: { enabled: true, easing: 'easeinout', speed: 350 },
+      animations: { enabled: false },
       sparkline: { enabled: true },
       events: {
         dataPointSelection: (_event, _chartContext, config) => {
@@ -3538,11 +3623,11 @@ function renderFuelLineChart(points, avgLine) {
     dataLabels: { enabled: false },
     grid: {
       show: false,
-      padding: { left: 3, right: 3, top: 8, bottom: 2 }
+      padding: { left: 24, right: 3, top: 8, bottom: 2 }
     },
     yaxis: {
-      min: undefined,
-      max: undefined,
+      min: yMin,
+      max: yMax,
       labels: { show: false }
     },
     xaxis: {
@@ -3569,17 +3654,21 @@ function renderFuelLineChart(points, avgLine) {
     }
   };
 
+  const finishChartUpdate = () => {
+    resetFuelScrubber(points || []);
+    scheduleFuelScrubberGeometrySync();
+  };
+
   if (fuelChart) {
-    const { series: _series, ...optionsNoSeries } = options;
-    fuelChart.updateOptions(optionsNoSeries, false, true);
-    fuelChart.updateSeries(series, true);
+    // One redraw, no animation. Previously Apex was performing two animated
+    // redraws (options + series), so the scrubber could keep geometry from the
+    // previous dataset until the SVG finally settled.
+    const updateResult = fuelChart.updateOptions(options, true, false);
+    Promise.resolve(updateResult).then(finishChartUpdate).catch(finishChartUpdate);
   } else {
     fuelChart = new ApexCharts(el, options);
-    fuelChart.render();
+    Promise.resolve(fuelChart.render()).then(finishChartUpdate).catch(finishChartUpdate);
   }
-
-  resetFuelScrubber(points || []);
-  scheduleFuelScrubberGeometrySync();
 }
 
 function updateFuelConsumptionUI(fullData) {
