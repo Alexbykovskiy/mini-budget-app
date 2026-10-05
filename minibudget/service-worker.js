@@ -1,4 +1,4 @@
-const CACHE_NAME = "mini-budget-cache-v2";
+const CACHE_NAME = "mini-budget-cache-v3";
 const urlsToCache = [
   "/",
   "/index.html",

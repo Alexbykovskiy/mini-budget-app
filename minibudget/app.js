@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initExpenseDatePicker();
   initFuelPeriodPickerTrigger();
   initFilterControls();
+  initStatsDashboard();
 });
 
 window.addEventListener("load", () => {
@@ -2241,6 +2242,31 @@ function renderExpenses(data) {
   updateChart(data, total);
  }
 
+function initStatsDashboard() {
+  if (!document.querySelector('.stats-dashboard')) return;
+
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+}
+
+function setStatText(id, value) {
+  const element = document.getElementById(id);
+  if (element) element.textContent = value;
+}
+
+function formatStatInteger(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.round(number).toLocaleString('ru-RU') : '—';
+}
+
+function formatStatMoney(value) {
+  const number = Number(value);
+  return Number.isFinite(number)
+    ? number.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : '—';
+}
+
 // Обновляет карточки статистики по всему массиву расходов
 function updateStats(fullData) {
   // Берём только записи с пробегом
@@ -2255,19 +2281,21 @@ globalDistance = distance; // Всегда держим актуальный п�
   const daysDiff = sorted.length>1
     ? Math.ceil((new Date(sorted.at(-1).date) - new Date(sorted[0].date)) / (1000*60*60*24))
     : 0;
-  // 4) Записываем в карточки
-  document.getElementById('stat-distance').textContent  = distance;
-  document.getElementById('stat-total-km').textContent = ms.length ? Math.max(...ms) : 0;
-  document.getElementById('stat-days').textContent     = daysDiff + ' дней';
-  // 5) Пробег двигателя
+  // 4) Записываем данные в digital-панель статистики
+  const totalMileage = ms.length ? Math.max(...ms) : 0;
+  setStatText('stat-distance', formatStatInteger(distance));
+  setStatText('stat-total-km', formatStatInteger(totalMileage));
+  setStatText('stat-days', `${formatStatInteger(daysDiff)} дней`);
+
+  // 5) Пробег двигателя отображается второй строкой под общим пробегом
   const mileageBeforeSwap = 190000;
-  const engineOffsetKm    = 64374;
-  const engineKm = ms.length ? Math.max(...ms) - mileageBeforeSwap + engineOffsetKm : 0;
-  document.getElementById('stat-engine-km').textContent =
-    engineKm > 0 ? engineKm.toLocaleString("ru-RU") : "—";
+  const engineOffsetKm = 64374;
+  const engineKm = ms.length ? totalMileage - mileageBeforeSwap + engineOffsetKm : 0;
+  setStatText('stat-engine-km', engineKm > 0 ? formatStatInteger(engineKm) : '—');
 
   // Всё, что касается сумм
-  document.getElementById('stat-total-amount').textContent = fullData.reduce((sum, e) => sum + Number(e.amount), 0).toFixed(2);
+  const totalAmount = fullData.reduce((sum, e) => sum + Number(e.amount), 0);
+  setStatText('stat-total-amount', formatStatMoney(totalAmount));
 
   // Подсчёт стоимости на км, чистых затрат, расхода и средней цены литра
   calculateCostPerKm(fullData);

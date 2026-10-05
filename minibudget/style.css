@@ -7592,3 +7592,388 @@ body.expense-date-picker-lock {
     max-width: 30px !important;
   }
 }
+
+/* =========================================================
+   DIGITAL VEHICLE STATS DASHBOARD v1
+   Replaces the old seven light statistic capsules.
+   ========================================================= */
+
+.stats-cards {
+  display: none !important;
+}
+
+.stats-dashboard {
+  position: relative;
+  isolation: isolate;
+  width: 380px;
+  max-width: calc(100vw - 28px);
+  box-sizing: border-box;
+  margin: 0 auto 18px;
+  padding: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 24px;
+  color: #eef8fa;
+  background:
+    radial-gradient(circle at 12% -10%, rgba(50, 221, 234, 0.16), transparent 34%),
+    radial-gradient(circle at 92% 18%, rgba(255, 159, 94, 0.08), transparent 28%),
+    linear-gradient(145deg, rgba(27, 42, 52, 0.985), rgba(11, 20, 28, 0.99));
+  box-shadow:
+    0 15px 34px rgba(20, 31, 38, 0.20),
+    inset 0 1px 0 rgba(255, 255, 255, 0.13),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.42);
+}
+
+.stats-dashboard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    linear-gradient(112deg, transparent 0 17%, rgba(255,255,255,.035) 29%, transparent 43%),
+    linear-gradient(180deg, rgba(255,255,255,.035), transparent 32%);
+}
+
+.stats-dashboard::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 22px;
+  border: 1px solid rgba(97, 218, 240, 0.10);
+  box-shadow:
+    inset 0 0 22px rgba(75, 211, 235, 0.035),
+    0 0 20px rgba(42, 211, 235, 0.035);
+}
+
+.stats-dashboard__main {
+  display: grid;
+  grid-template-columns: 1fr 1.14fr 1fr;
+  min-height: 82px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.022);
+  border: 1px solid rgba(255,255,255,.055);
+  overflow: hidden;
+}
+
+.stats-primary {
+  --stats-accent: #56dff6;
+  position: relative;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 7px;
+  align-items: center;
+  padding: 10px 8px;
+}
+
+.stats-primary + .stats-primary::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 15px;
+  bottom: 15px;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(164,221,231,.28), transparent);
+}
+
+.stats-primary--amount { --stats-accent: #ff9f61; }
+.stats-primary--mileage { --stats-accent: #55dfff; }
+.stats-primary--consumption { --stats-accent: #39e0d5; }
+
+.stats-primary__icon,
+.stats-secondary__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--stats-accent, #5bddf4);
+  background: color-mix(in srgb, var(--stats-accent, #5bddf4) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--stats-accent, #5bddf4) 42%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.07),
+    0 0 14px color-mix(in srgb, var(--stats-accent, #5bddf4) 12%, transparent);
+}
+
+.stats-primary__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+}
+
+.stats-primary__icon svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 1.8;
+}
+
+.stats-primary__content,
+.stats-secondary__content {
+  min-width: 0;
+}
+
+.stats-primary__label,
+.stats-secondary__label {
+  display: block;
+  overflow: hidden;
+  color: rgba(217, 233, 238, .72);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.stats-primary__label {
+  margin-bottom: 5px;
+  font-size: 9px;
+  font-weight: 580;
+  line-height: 1;
+}
+
+.stats-primary__value,
+.stats-secondary__value {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.stats-primary__value {
+  gap: 4px;
+}
+
+.stats-primary__value strong {
+  min-width: 0;
+  overflow: hidden;
+  color: #f5fbfc;
+  font-size: 18px;
+  font-weight: 780;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.stats-primary__value > span {
+  flex: 0 0 auto;
+  color: rgba(183, 215, 222, .72);
+  font-size: 9px;
+  font-weight: 650;
+}
+
+.stats-primary__sub {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 5px;
+  color: rgba(151, 198, 210, .68);
+  font-size: 7.5px;
+  font-weight: 560;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.stats-primary__sub svg {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 auto;
+  stroke-width: 1.7;
+}
+
+.stats-primary__sub strong {
+  color: rgba(205, 232, 237, .84);
+  font: inherit;
+  font-weight: 700;
+}
+
+.stats-dashboard__divider {
+  position: relative;
+  height: 12px;
+}
+
+.stats-dashboard__divider::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(77, 219, 239, .18) 14%,
+    rgba(77, 219, 239, .60) 50%,
+    rgba(77, 219, 239, .18) 86%,
+    transparent
+  );
+  box-shadow: 0 0 8px rgba(67, 215, 237, .24);
+}
+
+.stats-dashboard__secondary {
+  display: grid;
+  grid-template-columns: 1.18fr 1fr 1fr 1fr;
+  min-height: 54px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.055);
+  border-radius: 17px;
+  background: rgba(255,255,255,.018);
+}
+
+.stats-secondary {
+  --stats-accent: #5bddf4;
+  position: relative;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 27px minmax(0,1fr);
+  gap: 6px;
+  align-items: center;
+  padding: 7px 6px;
+}
+
+.stats-secondary + .stats-secondary::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 1px;
+  background: rgba(149, 211, 222, .18);
+}
+
+.stats-secondary__icon {
+  width: 27px;
+  height: 27px;
+  border-radius: 9px;
+}
+
+.stats-secondary__icon svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 1.8;
+}
+
+.stats-secondary__label {
+  margin-bottom: 4px;
+  font-size: 7px;
+  font-weight: 550;
+  line-height: 1.05;
+}
+
+.stats-secondary__value {
+  gap: 3px;
+}
+
+.stats-secondary__value strong {
+  min-width: 0;
+  overflow: hidden;
+  color: rgba(245, 251, 252, .96);
+  font-size: 12px;
+  font-weight: 760;
+  line-height: 1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.stats-secondary__value span,
+.stats-secondary small {
+  color: rgba(170, 205, 213, .64);
+  font-size: 6.5px;
+  font-weight: 560;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.stats-secondary small {
+  display: block;
+  margin-top: 4px;
+}
+
+@media (max-width: 410px) {
+  .stats-dashboard {
+    padding: 10px;
+    border-radius: 22px;
+  }
+
+  .stats-dashboard__main {
+    min-height: 78px;
+  }
+
+  .stats-primary {
+    grid-template-columns: 31px minmax(0,1fr);
+    gap: 5px;
+    padding: 9px 6px;
+  }
+
+  .stats-primary__icon {
+    width: 31px;
+    height: 31px;
+    border-radius: 10px;
+  }
+
+  .stats-primary__icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .stats-primary__label {
+    font-size: 8px;
+  }
+
+  .stats-primary__value strong {
+    font-size: 16px;
+  }
+
+  .stats-primary__value > span {
+    font-size: 8px;
+  }
+
+  .stats-primary__sub {
+    font-size: 6.5px;
+  }
+
+  .stats-dashboard__secondary {
+    grid-template-columns: 1.2fr 1fr 1fr 1fr;
+    min-height: 50px;
+  }
+
+  .stats-secondary {
+    grid-template-columns: 23px minmax(0,1fr);
+    gap: 4px;
+    padding: 6px 4px;
+  }
+
+  .stats-secondary__icon {
+    width: 23px;
+    height: 23px;
+    border-radius: 8px;
+  }
+
+  .stats-secondary__icon svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .stats-secondary__label {
+    font-size: 6.4px;
+  }
+
+  .stats-secondary__value strong {
+    font-size: 10px;
+  }
+
+  .stats-secondary__value span,
+  .stats-secondary small {
+    font-size: 5.8px;
+  }
+}
+
+@media (max-width: 350px) {
+  .stats-primary__icon,
+  .stats-secondary__icon {
+    display: none;
+  }
+
+  .stats-primary,
+  .stats-secondary {
+    grid-template-columns: minmax(0,1fr);
+  }
+}
