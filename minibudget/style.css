@@ -1672,56 +1672,7 @@ select {
   left: 4px;
 }
 
-.stats-cards {
-  display: flex;
-  justify-content: center;        /* Центрируем по горизонтали */
-  gap: 4px;                        /* Расстояние между карточками */
-  width: auto;
-  max-width: 360px;                /* Общая ширина: 7 карточек * 48px + 6 * 4px = 360px */
-  margin: 0 auto 24px auto;        /* Центрируем сам блок */
-  flex-wrap: nowrap;
-}
 
-.stats-card {
-  width: 48px;
-  height: 78px;
-  background: #e0e0e0;
-  border-radius: 16px;
-  padding: 6px 4px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;  /* Равномерное вертикальное распределение */
-  box-shadow:
-    inset -1px -1px 2px rgba(255, 255, 255, 0.5),
-    inset 1px 1px 3px rgba(0, 0, 0, 0.1),
-    2px 2px 6px rgba(0, 0, 0, 0.08);
-  flex-shrink: 0;
-  flex-grow: 0;
-}
-
-.stats-card h4 {
-  font-size: 9px;
-  font-weight: 500;
-  color: #666;
-  margin: 0;
-  text-align: center;
-  line-height: 1.1;
-}
-
-.stats-card p {
-  font-size: 13px;
-  font-weight: 700;
-  margin: 0;
-  line-height: 1;
-}
-
-.stats-card span {
-  font-size: 9px;
-  color: #999;
-  margin: 0;
-  line-height: 1;
-}
 
 .chart-with-info {
   display: flex;
@@ -7594,117 +7545,84 @@ body.expense-date-picker-lock {
 }
 
 /* =========================================================
-   DIGITAL VEHICLE STATS DASHBOARD v1
-   Replaces the old seven light statistic capsules.
+   DIGITAL VEHICLE STATS DASHBOARD
+   Minimal, compact vehicle statistics panel.
    ========================================================= */
 
-.stats-cards {
-  display: none !important;
-}
-
 .stats-dashboard {
-  position: relative;
-  isolation: isolate;
   width: 380px;
   max-width: calc(100vw - 28px);
   box-sizing: border-box;
-  margin: 0 auto 18px;
-  padding: 12px;
+  margin: 0 auto 20px;
+  padding: 18px 16px 16px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 24px;
-  color: #eef8fa;
-  background:
-    radial-gradient(circle at 12% -10%, rgba(50, 221, 234, 0.16), transparent 34%),
-    radial-gradient(circle at 92% 18%, rgba(255, 159, 94, 0.08), transparent 28%),
-    linear-gradient(145deg, rgba(27, 42, 52, 0.985), rgba(11, 20, 28, 0.99));
-  box-shadow:
-    0 15px 34px rgba(20, 31, 38, 0.20),
-    inset 0 1px 0 rgba(255, 255, 255, 0.13),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.42);
-}
-
-.stats-dashboard::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  pointer-events: none;
-  background:
-    linear-gradient(112deg, transparent 0 17%, rgba(255,255,255,.035) 29%, transparent 43%),
-    linear-gradient(180deg, rgba(255,255,255,.035), transparent 32%);
-}
-
-.stats-dashboard::after {
-  content: "";
-  position: absolute;
-  inset: 1px;
-  z-index: -1;
-  pointer-events: none;
-  border-radius: 22px;
-  border: 1px solid rgba(97, 218, 240, 0.10);
-  box-shadow:
-    inset 0 0 22px rgba(75, 211, 235, 0.035),
-    0 0 20px rgba(42, 211, 235, 0.035);
+  border: 0;
+  border-radius: 25px;
+  color: #eef6f8;
+  background: linear-gradient(
+    145deg,
+    rgba(31, 46, 57, 0.99),
+    rgba(17, 29, 38, 0.99)
+  );
+  box-shadow: 0 12px 28px rgba(20, 31, 38, 0.18);
 }
 
 .stats-dashboard__main {
   display: grid;
-  grid-template-columns: 1fr 1.14fr 1fr;
-  min-height: 82px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.022);
-  border: 1px solid rgba(255,255,255,.055);
-  overflow: hidden;
+  grid-template-columns: 1.08fr 1.34fr 0.92fr;
+  align-items: stretch;
+  min-height: 78px;
 }
 
 .stats-primary {
-  --stats-accent: #56dff6;
+  --stats-accent: #57dff7;
   position: relative;
   min-width: 0;
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
+  grid-template-columns: 22px minmax(0, 1fr);
   gap: 7px;
   align-items: center;
-  padding: 10px 8px;
+  padding: 7px 10px;
 }
 
-.stats-primary + .stats-primary::before {
+.stats-primary + .stats-primary::before,
+.stats-secondary + .stats-secondary::before {
   content: "";
   position: absolute;
   left: 0;
-  top: 15px;
-  bottom: 15px;
   width: 1px;
-  background: linear-gradient(180deg, transparent, rgba(164,221,231,.28), transparent);
+  background: rgba(160, 194, 202, 0.16);
 }
 
-.stats-primary--amount { --stats-accent: #ff9f61; }
-.stats-primary--mileage { --stats-accent: #55dfff; }
-.stats-primary--consumption { --stats-accent: #39e0d5; }
+.stats-primary + .stats-primary::before {
+  top: 13px;
+  bottom: 13px;
+}
+
+.stats-primary--amount { --stats-accent: #ff9d61; }
+.stats-primary--mileage { --stats-accent: #5bdcff; }
+.stats-primary--consumption { --stats-accent: #50e0c8; }
 
 .stats-primary__icon,
 .stats-secondary__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--stats-accent, #5bddf4);
-  background: color-mix(in srgb, var(--stats-accent, #5bddf4) 9%, transparent);
-  border: 1px solid color-mix(in srgb, var(--stats-accent, #5bddf4) 42%, transparent);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.07),
-    0 0 14px color-mix(in srgb, var(--stats-accent, #5bddf4) 12%, transparent);
+  flex: 0 0 auto;
+  color: var(--stats-accent, #5bdcf4);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 
 .stats-primary__icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 11px;
+  width: 22px;
+  height: 22px;
 }
 
 .stats-primary__icon svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   stroke-width: 1.8;
 }
 
@@ -7716,17 +7634,19 @@ body.expense-date-picker-lock {
 .stats-primary__label,
 .stats-secondary__label {
   display: block;
-  overflow: hidden;
-  color: rgba(217, 233, 238, .72);
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  max-width: 100%;
+  color: rgba(213, 228, 233, 0.72);
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: normal;
 }
 
 .stats-primary__label {
   margin-bottom: 5px;
-  font-size: 9px;
-  font-weight: 580;
-  line-height: 1;
+  font-size: 8px;
+  font-weight: 620;
+  line-height: 1.15;
 }
 
 .stats-primary__value,
@@ -7742,21 +7662,20 @@ body.expense-date-picker-lock {
 }
 
 .stats-primary__value strong {
-  min-width: 0;
-  overflow: hidden;
-  color: #f5fbfc;
-  font-size: 18px;
+  color: #f7fbfc;
+  font-size: 16px;
   font-weight: 780;
   line-height: 1;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.035em;
   white-space: nowrap;
-  text-overflow: ellipsis;
+  overflow: visible;
+  text-overflow: clip;
 }
 
 .stats-primary__value > span {
   flex: 0 0 auto;
-  color: rgba(183, 215, 222, .72);
-  font-size: 9px;
+  color: rgba(183, 211, 218, 0.70);
+  font-size: 7px;
   font-weight: 650;
 }
 
@@ -7766,96 +7685,76 @@ body.expense-date-picker-lock {
   align-items: center;
   gap: 3px;
   margin-top: 5px;
-  color: rgba(151, 198, 210, .68);
-  font-size: 7.5px;
+  color: rgba(159, 195, 204, 0.66);
+  font-size: 6.5px;
   font-weight: 560;
-  line-height: 1;
-  white-space: nowrap;
+  line-height: 1.15;
+  white-space: normal;
 }
 
 .stats-primary__sub svg {
-  width: 9px;
-  height: 9px;
+  width: 8px;
+  height: 8px;
   flex: 0 0 auto;
   stroke-width: 1.7;
 }
 
 .stats-primary__sub strong {
-  color: rgba(205, 232, 237, .84);
+  color: rgba(213, 232, 236, 0.86);
   font: inherit;
   font-weight: 700;
 }
 
+/* The old glowing horizontal separator is intentionally removed. */
 .stats-dashboard__divider {
-  position: relative;
-  height: 12px;
-}
-
-.stats-dashboard__divider::before {
-  content: "";
-  position: absolute;
-  left: 4px;
-  right: 4px;
-  top: 50%;
-  height: 1px;
-  background: linear-gradient(90deg,
-    transparent,
-    rgba(77, 219, 239, .18) 14%,
-    rgba(77, 219, 239, .60) 50%,
-    rgba(77, 219, 239, .18) 86%,
-    transparent
-  );
-  box-shadow: 0 0 8px rgba(67, 215, 237, .24);
+  display: none;
 }
 
 .stats-dashboard__secondary {
   display: grid;
-  grid-template-columns: 1.18fr 1fr 1fr 1fr;
-  min-height: 54px;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,.055);
-  border-radius: 17px;
-  background: rgba(255,255,255,.018);
+  grid-template-columns: 1.18fr 1fr 1fr 0.92fr;
+  align-items: stretch;
+  min-height: 62px;
+  margin-top: 12px;
+  padding-top: 4px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
 }
 
 .stats-secondary {
-  --stats-accent: #5bddf4;
+  --stats-accent: #5bdcf4;
   position: relative;
   min-width: 0;
   display: grid;
-  grid-template-columns: 27px minmax(0,1fr);
-  gap: 6px;
+  grid-template-columns: 19px minmax(0, 1fr);
+  gap: 5px;
   align-items: center;
-  padding: 7px 6px;
+  padding: 6px 8px;
 }
 
 .stats-secondary + .stats-secondary::before {
-  content: "";
-  position: absolute;
-  left: 0;
   top: 10px;
   bottom: 10px;
-  width: 1px;
-  background: rgba(149, 211, 222, .18);
 }
 
 .stats-secondary__icon {
-  width: 27px;
-  height: 27px;
-  border-radius: 9px;
+  width: 19px;
+  height: 19px;
 }
 
 .stats-secondary__icon svg {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
   stroke-width: 1.8;
 }
 
 .stats-secondary__label {
   margin-bottom: 4px;
-  font-size: 7px;
-  font-weight: 550;
-  line-height: 1.05;
+  font-size: 6.8px;
+  font-weight: 590;
+  line-height: 1.18;
 }
 
 .stats-secondary__value {
@@ -7863,23 +7762,22 @@ body.expense-date-picker-lock {
 }
 
 .stats-secondary__value strong {
-  min-width: 0;
-  overflow: hidden;
-  color: rgba(245, 251, 252, .96);
-  font-size: 12px;
+  color: rgba(247, 251, 252, 0.97);
+  font-size: 10.5px;
   font-weight: 760;
   line-height: 1;
+  letter-spacing: -0.02em;
   white-space: nowrap;
-  text-overflow: ellipsis;
+  overflow: visible;
+  text-overflow: clip;
 }
 
 .stats-secondary__value span,
 .stats-secondary small {
-  color: rgba(170, 205, 213, .64);
-  font-size: 6.5px;
+  color: rgba(174, 204, 211, 0.65);
+  font-size: 6px;
   font-weight: 560;
-  line-height: 1;
-  white-space: nowrap;
+  line-height: 1.1;
 }
 
 .stats-secondary small {
@@ -7889,80 +7787,81 @@ body.expense-date-picker-lock {
 
 @media (max-width: 410px) {
   .stats-dashboard {
-    padding: 10px;
+    max-width: calc(100vw - 20px);
+    padding: 15px 11px 13px;
     border-radius: 22px;
   }
 
   .stats-dashboard__main {
-    min-height: 78px;
+    grid-template-columns: 1.08fr 1.36fr 0.9fr;
+    min-height: 74px;
   }
 
   .stats-primary {
-    grid-template-columns: 31px minmax(0,1fr);
-    gap: 5px;
-    padding: 9px 6px;
+    grid-template-columns: 19px minmax(0, 1fr);
+    gap: 4px;
+    padding: 6px 6px;
   }
 
   .stats-primary__icon {
-    width: 31px;
-    height: 31px;
-    border-radius: 10px;
+    width: 19px;
+    height: 19px;
   }
 
   .stats-primary__icon svg {
-    width: 18px;
-    height: 18px;
+    width: 15px;
+    height: 15px;
   }
 
   .stats-primary__label {
-    font-size: 8px;
+    font-size: 7px;
   }
 
   .stats-primary__value strong {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .stats-primary__value > span {
-    font-size: 8px;
+    font-size: 6px;
   }
 
   .stats-primary__sub {
-    font-size: 6.5px;
+    font-size: 5.8px;
   }
 
   .stats-dashboard__secondary {
-    grid-template-columns: 1.2fr 1fr 1fr 1fr;
-    min-height: 50px;
+    grid-template-columns: 1.18fr 1fr 1fr 0.9fr;
+    min-height: 58px;
+    margin-top: 9px;
   }
 
   .stats-secondary {
-    grid-template-columns: 23px minmax(0,1fr);
-    gap: 4px;
-    padding: 6px 4px;
+    grid-template-columns: 16px minmax(0, 1fr);
+    gap: 3px;
+    padding: 5px 5px;
   }
 
   .stats-secondary__icon {
-    width: 23px;
-    height: 23px;
-    border-radius: 8px;
+    width: 16px;
+    height: 16px;
   }
 
   .stats-secondary__icon svg {
-    width: 13px;
-    height: 13px;
+    width: 14px;
+    height: 14px;
   }
 
   .stats-secondary__label {
-    font-size: 6.4px;
+    font-size: 6px;
   }
 
   .stats-secondary__value strong {
-    font-size: 10px;
+    font-size: 9.5px;
   }
 
   .stats-secondary__value span,
   .stats-secondary small {
-    font-size: 5.8px;
+    font-size: 5.5px;
   }
 }
 
@@ -7974,156 +7873,7 @@ body.expense-date-picker-lock {
 
   .stats-primary,
   .stats-secondary {
-    grid-template-columns: minmax(0,1fr);
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
-
-/* =========================================================
-   STATS DASHBOARD v2
-   More room for numeric values
-   ========================================================= */
-
-.stats-dashboard__main {
-  grid-template-columns: 1.08fr 1.32fr 0.92fr;
-}
-
-/* Smaller icons = more space for values */
-.stats-primary {
-  grid-template-columns: 25px minmax(0, 1fr);
-  gap: 5px;
-  padding: 9px 6px;
-}
-
-.stats-primary__icon {
-  width: 25px;
-  height: 25px;
-  border-radius: 8px;
-}
-
-.stats-primary__icon svg {
-  width: 15px;
-  height: 15px;
-  stroke-width: 1.8;
-}
-
-/* Do not crop main numbers */
-.stats-primary__value strong {
-  overflow: visible;
-  text-overflow: clip;
-  white-space: nowrap;
-
-  font-size: 16px;
-  letter-spacing: -0.035em;
-}
-
-.stats-primary__value > span {
-  font-size: 7px;
-}
-
-.stats-primary__label {
-  font-size: 7.5px;
-  margin-bottom: 4px;
-}
-
-.stats-primary__sub {
-  margin-top: 4px;
-  font-size: 6.5px;
-}
-
-.stats-primary__sub svg {
-  width: 8px;
-  height: 8px;
-}
-
-
-/* Bottom row */
-.stats-secondary {
-  grid-template-columns: 21px minmax(0, 1fr);
-  gap: 4px;
-  padding: 7px 5px;
-}
-
-.stats-secondary__icon {
-  width: 21px;
-  height: 21px;
-  border-radius: 7px;
-}
-
-.stats-secondary__icon svg {
-  width: 12px;
-  height: 12px;
-}
-
-.stats-secondary__value strong {
-  overflow: visible;
-  text-overflow: clip;
-  white-space: nowrap;
-  font-size: 10.5px;
-  letter-spacing: -0.025em;
-}
-
-.stats-secondary__label {
-  font-size: 6.5px;
-}
-
-.stats-secondary__value span,
-.stats-secondary small {
-  font-size: 6px;
-}
-
-
-/* iPhone */
-@media (max-width: 410px) {
-  .stats-dashboard__main {
-    grid-template-columns: 1.08fr 1.34fr 0.9fr;
-  }
-
-  .stats-primary {
-    grid-template-columns: 23px minmax(0, 1fr);
-    gap: 4px;
-    padding: 8px 5px;
-  }
-
-  .stats-primary__icon {
-    width: 23px;
-    height: 23px;
-  }
-
-  .stats-primary__icon svg {
-    width: 14px;
-    height: 14px;
-  }
-
-  .stats-primary__value strong {
-    font-size: 14px;
-  }
-
-  .stats-primary__value > span {
-    font-size: 6.5px;
-  }
-
-  .stats-primary__sub {
-    font-size: 6px;
-  }
-
-  .stats-secondary {
-    grid-template-columns: 19px minmax(0, 1fr);
-    gap: 3px;
-    padding-inline: 4px;
-  }
-
-  .stats-secondary__icon {
-    width: 19px;
-    height: 19px;
-  }
-
-  .stats-secondary__icon svg {
-    width: 11px;
-    height: 11px;
-  }
-
-  .stats-secondary__value strong {
-    font-size: 9.5px;
-  }
-}
