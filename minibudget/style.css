@@ -6566,3 +6566,278 @@ body.expense-date-picker-lock {
     font-size: 22px !important;
   }
 }
+
+
+/* =========================================================
+   FUEL PERIOD TRIGGER + RANGE PICKER
+   ========================================================= */
+
+#fuel-period-control {
+  display: block;
+}
+
+.fuel-period-trigger {
+  width: 100%;
+  min-height: 44px;
+  border: none;
+  border-radius: 16px;
+  padding: 8px 12px;
+  background: #e0e0e0;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  text-align: left;
+}
+
+.fuel-period-trigger__label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #777;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fuel-period-trigger__value {
+  font-size: 12px;
+  font-weight: 700;
+  color: #2b3135;
+  line-height: 1.2;
+}
+
+.fuel-period-trigger.is-selected .fuel-period-trigger__value {
+  color: #186663;
+}
+
+.fuel-period-picker-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10030;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  padding: max(16px, env(safe-area-inset-top)) 12px max(24px, env(safe-area-inset-bottom));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+}
+
+.fuel-period-picker-modal.hidden {
+  display: none;
+}
+
+.fuel-period-picker-modal.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.fuel-period-picker-sheet {
+  width: min(420px, calc(100vw - 24px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: 16px 18px 18px;
+  border-radius: 28px;
+  background: rgba(28, 28, 30, 0.97);
+  color: #fff;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.38), 0 1px 0 rgba(255, 255, 255, 0.05) inset;
+  transform: translateY(-5vh);
+}
+
+.fuel-period-picker-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.fuel-period-picker-section {
+  padding: 10px 8px 8px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.fuel-period-picker-section__title {
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fuel-period-picker-labels {
+  display: grid;
+  grid-template-columns: 0.78fr 1.44fr 1fr;
+  gap: 8px;
+  padding: 0 8px;
+  margin-bottom: 0;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.045em;
+  color: rgba(255, 255, 255, 0.34);
+  text-transform: uppercase;
+}
+
+.fuel-period-picker-wheels {
+  position: relative;
+  display: grid;
+  grid-template-columns: 0.78fr 1.44fr 1fr;
+  gap: 8px;
+  height: 176px;
+}
+
+.fuel-period-picker-selection {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  right: 10px;
+  height: 52px;
+  transform: translateY(-50%);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.095);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.10);
+  backdrop-filter: blur(18px) saturate(120%);
+  -webkit-backdrop-filter: blur(18px) saturate(120%);
+}
+
+.fuel-period-picker-wheel {
+  position: relative;
+  height: 176px;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: ns-resize;
+}
+
+.fuel-period-picker-track {
+  position: absolute;
+  inset: 0;
+}
+
+.fuel-period-picker-wheel.dragging .fuel-period-picker-track {
+  transition: none !important;
+}
+
+.fuel-period-picker-item {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  caret-color: transparent;
+  color: rgba(255,255,255,0.16);
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1;
+  transition: transform 0.12s ease, opacity 0.12s ease, filter 0.12s ease;
+}
+
+.fuel-period-picker-item.active {
+  color: rgba(255, 255, 255, 1);
+  opacity: 1;
+  font-size: 29px;
+  font-weight: 520;
+  transform: scale(1.07);
+  filter: blur(0);
+}
+
+.fuel-period-picker-wheel.month .fuel-period-picker-item.active {
+  font-size: 24px;
+}
+
+.fuel-period-picker-item.distance-1 {
+  color: rgba(255, 255, 255, 0.62);
+  opacity: 0.70;
+  font-size: 24px;
+  font-weight: 400;
+  transform: scale(0.94);
+  filter: blur(0.15px);
+}
+
+.fuel-period-picker-wheel.month .fuel-period-picker-item.distance-1 {
+  font-size: 20px;
+}
+
+.fuel-period-picker-item.distance-2 {
+  color: rgba(255, 255, 255, 0.32);
+  opacity: 0.44;
+  font-size: 21px;
+  font-weight: 400;
+  transform: scale(0.86);
+  filter: blur(0.45px);
+}
+
+.fuel-period-picker-wheel.month .fuel-period-picker-item.distance-2 {
+  font-size: 18px;
+}
+
+.fuel-period-picker-item.empty {
+  opacity: 0;
+}
+
+.fuel-period-picker-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.fuel-period-picker-btn {
+  min-height: 48px;
+  border: none;
+  border-radius: 15px;
+  padding: 0 16px;
+  font-size: 16px;
+  font-weight: 650;
+  box-shadow: none;
+}
+
+.fuel-period-picker-btn.secondary {
+  color: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.fuel-period-picker-btn.primary {
+  color: #111;
+  background: #FFA35C;
+}
+
+.fuel-period-picker-modal,
+.fuel-period-picker-modal * {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 390px) {
+  .fuel-period-picker-sheet {
+    padding: 14px;
+  }
+
+  .fuel-period-picker-labels,
+  .fuel-period-picker-wheels {
+    grid-template-columns: 0.74fr 1.46fr 0.98fr;
+  }
+
+  .fuel-period-picker-item.active {
+    font-size: 27px;
+  }
+
+  .fuel-period-picker-wheel.month .fuel-period-picker-item.active {
+    font-size: 22px;
+  }
+}

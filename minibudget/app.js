@@ -5,6 +5,7 @@ const profileCode = "mini";
 // This also makes it reliable on desktop browsers where another startup task may fail.
 document.addEventListener("DOMContentLoaded", () => {
   initExpenseDatePicker();
+  initFuelPeriodPickerTrigger();
 });
 
 window.addEventListener("load", () => {
@@ -2267,6 +2268,443 @@ globalDistance = distance; // Всегда держим актуальный п�
  updateFuelConsumptionUI(fullData);
 }
 
+
+
+let fuelPeriodPickerState = null;
+
+function getFuelPeriodDefaultRange() {
+  const today = new Date();
+  const from = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  return {
+    from: {
+      year: from.getFullYear(),
+      month: from.getMonth() + 1,
+      day: from.getDate()
+    },
+    to: {
+      year: today.getFullYear(),
+      month: today.getMonth() + 1,
+      day: today.getDate()
+    }
+  };
+}
+
+function parseFuelPeriodDate(value, fallback) {
+  if (!value) return { ...fallback };
+  return parseExpenseDateISO(value);
+}
+
+function formatFuelPeriodTriggerValue(fromValue, toValue) {
+  if (!fromValue && !toValue) return 'Выбрать период';
+  if (fromValue && toValue) return `${formatExpenseDateShort(fromValue)} — ${formatExpenseDateShort(toValue)}`;
+  if (fromValue) return `${formatExpenseDateShort(fromValue)} —`;
+  return `— ${formatExpenseDateShort(toValue)}`;
+}
+
+function syncFuelPeriodTrigger() {
+  const trigger = document.getElementById('fuel-period-trigger');
+  const display = document.getElementById('fuel-period-display');
+  const fromInput = document.getElementById('fuel-date-from');
+  const toInput = document.getElementById('fuel-date-to');
+
+  if (!trigger || !display || !fromInput || !toInput) return;
+
+  const text = formatFuelPeriodTriggerValue(fromInput.value, toInput.value);
+  display.textContent = text;
+  trigger.classList.toggle('is-selected', !!(fromInput.value || toInput.value));
+}
+
+function createFuelPeriodPickerModal() {
+  if (document.getElementById('fuel-period-picker-modal')) return;
+
+  const modal = document.createElement('div');
+  modal.id = 'fuel-period-picker-modal';
+  modal.className = 'fuel-period-picker-modal hidden';
+  modal.setAttribute('aria-hidden', 'true');
+
+  modal.innerHTML = `
+    <div class="fuel-period-picker-sheet" role="dialog" aria-modal="true" aria-label="Выбор периода">
+      <div class="fuel-period-picker-sections">
+
+        <section class="fuel-period-picker-section">
+          <div class="fuel-period-picker-section__title">От</div>
+
+          <div class="fuel-period-picker-labels" aria-hidden="true">
+            <span>День</span>
+            <span>Месяц</span>
+            <span>Год</span>
+          </div>
+
+          <div class="fuel-period-picker-wheels">
+            <div class="fuel-period-picker-selection" aria-hidden="true"></div>
+
+            <div class="fuel-period-picker-wheel" data-fuel-period-wheel="from-day">
+              <div class="fuel-period-picker-track" id="fuel-period-from-day-track"></div>
+            </div>
+
+            <div class="fuel-period-picker-wheel month" data-fuel-period-wheel="from-month">
+              <div class="fuel-period-picker-track" id="fuel-period-from-month-track"></div>
+            </div>
+
+            <div class="fuel-period-picker-wheel" data-fuel-period-wheel="from-year">
+              <div class="fuel-period-picker-track" id="fuel-period-from-year-track"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="fuel-period-picker-section">
+          <div class="fuel-period-picker-section__title">До</div>
+
+          <div class="fuel-period-picker-labels" aria-hidden="true">
+            <span>День</span>
+            <span>Месяц</span>
+            <span>Год</span>
+          </div>
+
+          <div class="fuel-period-picker-wheels">
+            <div class="fuel-period-picker-selection" aria-hidden="true"></div>
+
+            <div class="fuel-period-picker-wheel" data-fuel-period-wheel="to-day">
+              <div class="fuel-period-picker-track" id="fuel-period-to-day-track"></div>
+            </div>
+
+            <div class="fuel-period-picker-wheel month" data-fuel-period-wheel="to-month">
+              <div class="fuel-period-picker-track" id="fuel-period-to-month-track"></div>
+            </div>
+
+            <div class="fuel-period-picker-wheel" data-fuel-period-wheel="to-year">
+              <div class="fuel-period-picker-track" id="fuel-period-to-year-track"></div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <div class="fuel-period-picker-footer">
+        <button type="button" id="fuel-period-picker-cancel" class="fuel-period-picker-btn secondary">Отмена</button>
+        <button type="button" id="fuel-period-picker-apply" class="fuel-period-picker-btn primary">Готово</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  fuelPeriodPickerState = {
+    modal,
+    from: { day: 1, month: 1, year: new Date().getFullYear() },
+    to: { day: 1, month: 1, year: new Date().getFullYear() },
+    wheels: {
+      from: {
+        day: { root: modal.querySelector('[data-fuel-period-wheel="from-day"]'), track: document.getElementById('fuel-period-from-day-track') },
+        month: { root: modal.querySelector('[data-fuel-period-wheel="from-month"]'), track: document.getElementById('fuel-period-from-month-track') },
+        year: { root: modal.querySelector('[data-fuel-period-wheel="from-year"]'), track: document.getElementById('fuel-period-from-year-track') }
+      },
+      to: {
+        day: { root: modal.querySelector('[data-fuel-period-wheel="to-day"]'), track: document.getElementById('fuel-period-to-day-track') },
+        month: { root: modal.querySelector('[data-fuel-period-wheel="to-month"]'), track: document.getElementById('fuel-period-to-month-track') },
+        year: { root: modal.querySelector('[data-fuel-period-wheel="to-year"]'), track: document.getElementById('fuel-period-to-year-track') }
+      }
+    }
+  };
+
+  document.getElementById('fuel-period-picker-cancel')?.addEventListener('click', closeFuelPeriodPicker);
+  document.getElementById('fuel-period-picker-apply')?.addEventListener('click', applyFuelPeriodPicker);
+
+  modal.addEventListener('click', (event) => {
+    if (event.target === modal) closeFuelPeriodPicker();
+  });
+
+  ['from', 'to'].forEach((rangeKey) => {
+    ['day', 'month', 'year'].forEach((side) => {
+      attachFuelPeriodWheelDrag(rangeKey, side);
+    });
+  });
+}
+
+function getFuelPeriodWheelBounds(rangeKey, side) {
+  const state = fuelPeriodPickerState?.[rangeKey];
+  if (!state) return { min: 1, max: 1 };
+
+  if (side === 'day') {
+    return { min: 1, max: getExpenseDaysInMonth(state.year, state.month) };
+  }
+
+  if (side === 'month') {
+    return { min: 1, max: 12 };
+  }
+
+  return { min: EXPENSE_DATE_MIN_YEAR, max: EXPENSE_DATE_MAX_YEAR };
+}
+
+function normalizeFuelPeriodDay(rangeKey) {
+  if (!fuelPeriodPickerState?.[rangeKey]) return;
+  const state = fuelPeriodPickerState[rangeKey];
+  const maxDay = getExpenseDaysInMonth(state.year, state.month);
+  state.day = clamp(state.day, 1, maxDay);
+}
+
+function renderFuelPeriodWheel(rangeKey, side, translateY = 0) {
+  const wheel = fuelPeriodPickerState?.wheels?.[rangeKey]?.[side];
+  const state = fuelPeriodPickerState?.[rangeKey];
+  if (!wheel || !state) return;
+
+  const bounds = getFuelPeriodWheelBounds(rangeKey, side);
+  const centerValue = state[side];
+  wheel.track.innerHTML = '';
+
+  for (let offset = -EXPENSE_DATE_WHEEL_RADIUS; offset <= EXPENSE_DATE_WHEEL_RADIUS; offset++) {
+    const value = centerValue + offset;
+    const item = document.createElement('div');
+    const distance = Math.abs(offset);
+
+    item.className = 'fuel-period-picker-item ' + `distance-${distance}` + (offset === 0 ? ' active' : '');
+
+    if (value < bounds.min || value > bounds.max) {
+      item.classList.add('empty');
+      item.textContent = '';
+    } else {
+      item.textContent = formatExpenseDateWheelValue(side, value);
+      item.dataset.value = String(value);
+    }
+
+    item.style.transform = `translateY(${offset * EXPENSE_DATE_WHEEL_ROW_HEIGHT + translateY}px)`;
+    wheel.track.appendChild(item);
+  }
+}
+
+function renderAllFuelPeriodWheels() {
+  ['from', 'to'].forEach((rangeKey) => {
+    ['day', 'month', 'year'].forEach((side) => renderFuelPeriodWheel(rangeKey, side, 0));
+  });
+}
+
+function setFuelPeriodWheelValue(rangeKey, side, value, translateY = 0) {
+  const bounds = getFuelPeriodWheelBounds(rangeKey, side);
+  value = clamp(value, bounds.min, bounds.max);
+
+  if (!fuelPeriodPickerState?.[rangeKey]) return;
+
+  fuelPeriodPickerState[rangeKey][side] = value;
+  if (side === 'month' || side === 'year') normalizeFuelPeriodDay(rangeKey);
+
+  ['day', 'month', 'year'].forEach((wheelSide) => {
+    if (wheelSide === side) {
+      renderFuelPeriodWheel(rangeKey, wheelSide, translateY);
+    } else {
+      renderFuelPeriodWheel(rangeKey, wheelSide, 0);
+    }
+  });
+}
+
+function runFuelPeriodWheelInertia(rangeKey, side, velocity) {
+  if (!fuelPeriodPickerState) return;
+  const speed = Math.abs(velocity);
+
+  if (speed < 0.10) {
+    renderFuelPeriodWheel(rangeKey, side, 0);
+    return;
+  }
+
+  const direction = velocity < 0 ? 1 : -1;
+  let extraSteps = Math.round(speed * 8 * EXPENSE_DATE_WHEEL_SENSITIVITY);
+  extraSteps = clamp(extraSteps, 1, 28);
+
+  const bounds = getFuelPeriodWheelBounds(rangeKey, side);
+  const target = clamp(fuelPeriodPickerState[rangeKey][side] + direction * extraSteps, bounds.min, bounds.max);
+  animateFuelPeriodWheelTo(rangeKey, side, target);
+}
+
+function animateFuelPeriodWheelTo(rangeKey, side, targetValue) {
+  if (!fuelPeriodPickerState?.[rangeKey]) return;
+
+  const bounds = getFuelPeriodWheelBounds(rangeKey, side);
+  targetValue = clamp(targetValue, bounds.min, bounds.max);
+  let current = fuelPeriodPickerState[rangeKey][side];
+
+  if (current === targetValue) {
+    renderFuelPeriodWheel(rangeKey, side, 0);
+    return;
+  }
+
+  const direction = targetValue > current ? 1 : -1;
+  const totalSteps = Math.abs(targetValue - current);
+  let completed = 0;
+
+  const nextStep = () => {
+    if (!fuelPeriodPickerState?.[rangeKey] || completed >= totalSteps) {
+      renderAllFuelPeriodWheels();
+      return;
+    }
+
+    const dynamicBounds = getFuelPeriodWheelBounds(rangeKey, side);
+    current = clamp(current + direction, dynamicBounds.min, dynamicBounds.max);
+    completed++;
+    fuelPeriodPickerState[rangeKey][side] = current;
+
+    if (side === 'month' || side === 'year') normalizeFuelPeriodDay(rangeKey);
+
+    renderAllFuelPeriodWheels();
+    wheelHaptic();
+
+    const progress = completed / totalSteps;
+    const delay = 16 + progress * progress * 48;
+    setTimeout(nextStep, delay);
+  };
+
+  nextStep();
+}
+
+function attachFuelPeriodWheelDrag(rangeKey, side) {
+  const wheel = fuelPeriodPickerState?.wheels?.[rangeKey]?.[side];
+  if (!wheel) return;
+
+  let dragging = false;
+  let startY = 0;
+  let startValue = 0;
+  let lastY = 0;
+  let lastTime = 0;
+  let velocity = 0;
+  let moved = false;
+
+  const onPointerMove = (event) => {
+    if (!dragging || !fuelPeriodPickerState) return;
+    event.preventDefault();
+
+    const now = performance.now();
+    const dy = event.clientY - lastY;
+    const dt = Math.max(now - lastTime, 1);
+    const instantVelocity = dy / dt;
+
+    velocity = velocity * 0.65 + instantVelocity * 0.35;
+    lastY = event.clientY;
+    lastTime = now;
+
+    const deltaY = event.clientY - startY;
+    if (Math.abs(deltaY) > 4) moved = true;
+
+    const bounds = getFuelPeriodWheelBounds(rangeKey, side);
+    const floatValue = clamp(startValue - (deltaY / EXPENSE_DATE_WHEEL_ROW_HEIGHT) * EXPENSE_DATE_WHEEL_SENSITIVITY, bounds.min, bounds.max);
+    const roundedValue = clamp(Math.round(floatValue), bounds.min, bounds.max);
+    const translateY = (roundedValue - floatValue) * EXPENSE_DATE_WHEEL_ROW_HEIGHT;
+
+    setFuelPeriodWheelValue(rangeKey, side, roundedValue, translateY);
+  };
+
+  const onPointerUp = () => {
+    if (!dragging) return;
+    dragging = false;
+    wheel.root.classList.remove('dragging');
+
+    if (moved) runFuelPeriodWheelInertia(rangeKey, side, velocity);
+    else renderFuelPeriodWheel(rangeKey, side, 0);
+  };
+
+  wheel.root.addEventListener('pointerdown', (event) => {
+    if (!fuelPeriodPickerState) return;
+    event.preventDefault();
+    dragging = true;
+    moved = false;
+    startY = event.clientY;
+    startValue = fuelPeriodPickerState[rangeKey][side];
+    lastY = event.clientY;
+    lastTime = performance.now();
+    velocity = 0;
+
+    wheel.root.classList.add('dragging');
+    if (wheel.root.setPointerCapture) wheel.root.setPointerCapture(event.pointerId);
+  });
+
+  wheel.root.addEventListener('pointermove', onPointerMove);
+  wheel.root.addEventListener('pointerup', onPointerUp);
+  wheel.root.addEventListener('pointercancel', onPointerUp);
+  wheel.root.addEventListener('lostpointercapture', onPointerUp);
+}
+
+function openFuelPeriodPicker() {
+  createFuelPeriodPickerModal();
+
+  const fromInput = document.getElementById('fuel-date-from');
+  const toInput = document.getElementById('fuel-date-to');
+  const defaults = getFuelPeriodDefaultRange();
+
+  fuelPeriodPickerState.from = parseFuelPeriodDate(fromInput?.value, defaults.from);
+  fuelPeriodPickerState.to = parseFuelPeriodDate(toInput?.value, defaults.to);
+  normalizeFuelPeriodDay('from');
+  normalizeFuelPeriodDay('to');
+  renderAllFuelPeriodWheels();
+
+  fuelPeriodPickerState.modal.classList.remove('hidden');
+  requestAnimationFrame(() => fuelPeriodPickerState?.modal?.classList.add('show'));
+  fuelPeriodPickerState.modal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('expense-date-picker-lock');
+}
+
+function closeFuelPeriodPicker() {
+  if (!fuelPeriodPickerState?.modal) return;
+  fuelPeriodPickerState.modal.classList.remove('show');
+  fuelPeriodPickerState.modal.setAttribute('aria-hidden', 'true');
+  setTimeout(() => {
+    fuelPeriodPickerState?.modal?.classList.add('hidden');
+  }, 180);
+  document.body.classList.remove('expense-date-picker-lock');
+}
+
+function applyFuelPeriodPicker() {
+  const fromInput = document.getElementById('fuel-date-from');
+  const toInput = document.getElementById('fuel-date-to');
+  if (!fromInput || !toInput || !fuelPeriodPickerState) return;
+
+  let fromIso = composeExpenseDateISO(fuelPeriodPickerState.from.day, fuelPeriodPickerState.from.month, fuelPeriodPickerState.from.year);
+  let toIso = composeExpenseDateISO(fuelPeriodPickerState.to.day, fuelPeriodPickerState.to.month, fuelPeriodPickerState.to.year);
+
+  if (fromIso > toIso) {
+    [fromIso, toIso] = [toIso, fromIso];
+  }
+
+  fromInput.value = fromIso;
+  toInput.value = toIso;
+  fuelDateFrom = fromIso;
+  fuelDateTo = toIso;
+
+  try {
+    localStorage.setItem('fuelDateFrom', fuelDateFrom);
+    localStorage.setItem('fuelDateTo', fuelDateTo);
+  } catch (e) {}
+
+  syncFuelPeriodTrigger();
+  closeFuelPeriodPicker();
+  updateFuelConsumptionUI(expenses);
+}
+
+function initFuelPeriodPickerTrigger() {
+  createFuelPeriodPickerModal();
+
+  const trigger = document.getElementById('fuel-period-trigger');
+  const fromInput = document.getElementById('fuel-date-from');
+  const toInput = document.getElementById('fuel-date-to');
+
+  if (!trigger || !fromInput || !toInput) return;
+  if (trigger.dataset.fuelPeriodReady === '1') {
+    syncFuelPeriodTrigger();
+    return;
+  }
+
+  trigger.dataset.fuelPeriodReady = '1';
+  syncFuelPeriodTrigger();
+
+  trigger.addEventListener('click', (event) => {
+    event.preventDefault();
+    trigger.blur();
+    openFuelPeriodPicker();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && fuelPeriodPickerState?.modal?.classList.contains('show')) {
+      closeFuelPeriodPicker();
+    }
+  });
+}
 function initFuelControls() {
   const fillsControl = document.getElementById("fuel-fills-control");
   const periodControl = document.getElementById("fuel-period-control");
@@ -2282,10 +2720,13 @@ function initFuelControls() {
     return;
   }
 
+  initFuelPeriodPickerTrigger();
+
   // 1) Проставляем сохранённые значения в инпуты
   fillsCountInput.value = String(isFinite(fuelFillsCount) && fuelFillsCount > 0 ? fuelFillsCount : 10);
   dateFromInput.value = fuelDateFrom || "";
   dateToInput.value = fuelDateTo || "";
+  syncFuelPeriodTrigger();
 
   // 2) Проставляем выбранный режим
   modeRadios.forEach(r => {
@@ -2320,12 +2761,14 @@ function initFuelControls() {
   dateFromInput.addEventListener("change", () => {
     fuelDateFrom = dateFromInput.value || "";
     try { localStorage.setItem("fuelDateFrom", fuelDateFrom); } catch (e) {}
+    syncFuelPeriodTrigger();
     updateFuelConsumptionUI(expenses);
   });
 
   dateToInput.addEventListener("change", () => {
     fuelDateTo = dateToInput.value || "";
     try { localStorage.setItem("fuelDateTo", fuelDateTo); } catch (e) {}
+    syncFuelPeriodTrigger();
     updateFuelConsumptionUI(expenses);
   });
 }

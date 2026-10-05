@@ -188,8 +188,19 @@
       </div>
 
       <div id="fuel-period-control" class="fuel-control-block" style="display:none;">
-        <input type="date" id="fuel-date-from">
-        <input type="date" id="fuel-date-to">
+        <button
+          type="button"
+          id="fuel-period-trigger"
+          class="fuel-period-trigger"
+          aria-haspopup="dialog"
+          aria-controls="fuel-period-picker-modal"
+        >
+          <span class="fuel-period-trigger__label">Период</span>
+          <span id="fuel-period-display" class="fuel-period-trigger__value">Выбрать период</span>
+        </button>
+
+        <input type="hidden" id="fuel-date-from">
+        <input type="hidden" id="fuel-date-to">
       </div>
     </div>
 
