@@ -5931,645 +5931,192 @@ body.expense-date-picker-lock {
   overflow: hidden;
 }
 
-.expense-date-picker-modal {
+/* =========================================================
+   DATE PICKERS
+   Wheel internals intentionally reuse the exact same classes
+   as amount / liters / mileage: .wheel-picker-*.
+   ========================================================= */
+
+.expense-date-picker-modal,
+.fuel-period-picker-modal {
   position: fixed;
   inset: 0;
   z-index: 260000;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding:
-    max(14px, env(safe-area-inset-top))
-    8px
-    max(18px, env(safe-area-inset-bottom));
   box-sizing: border-box;
-  background:
-    radial-gradient(
-      circle at 50% 18%,
-      rgba(73, 103, 128, 0.15),
-      transparent 42%
-    ),
-    rgba(6, 10, 14, 0.56);
-  backdrop-filter: blur(15px) saturate(125%);
-  -webkit-backdrop-filter: blur(15px) saturate(125%);
+  padding:
+    max(16px, env(safe-area-inset-top))
+    12px
+    max(24px, env(safe-area-inset-bottom));
+  background: rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease;
 }
 
-.expense-date-picker-modal.hidden {
-  display: none !important;
-}
-
-.expense-date-picker-modal.show {
+.expense-date-picker-modal.show,
+.fuel-period-picker-modal.show {
   opacity: 1;
   pointer-events: auto;
 }
 
-.expense-date-picker-sheet {
-  width: min(390px, calc(100vw - 16px));
-  max-height: min(690px, calc(100dvh - 24px));
-  overflow: hidden;
-  padding: 10px 16px 16px;
+.expense-date-picker-modal.hidden,
+.fuel-period-picker-modal.hidden {
+  display: none;
+}
+
+.expense-date-picker-sheet,
+.fuel-period-picker-sheet {
+  width: min(420px, calc(100vw - 24px));
   box-sizing: border-box;
+  border: 0;
+  border-radius: 28px;
+  padding: 16px 18px 18px;
+  background: rgba(28, 28, 30, 0.97);
   color: #fff;
-  border-radius: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background:
-    linear-gradient(
-      150deg,
-      rgba(44, 55, 67, 0.93) 0%,
-      rgba(24, 31, 39, 0.96) 48%,
-      rgba(18, 23, 30, 0.97) 100%
-    );
   box-shadow:
-    0 30px 75px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(28px) saturate(145%);
-  -webkit-backdrop-filter: blur(28px) saturate(145%);
-  transform: translateY(18px) scale(0.985);
-  opacity: 0.92;
-  transition:
-    transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1),
-    opacity 0.2s ease;
+    0 18px 55px rgba(0, 0, 0, 0.38),
+    0 1px 0 rgba(255, 255, 255, 0.05) inset;
+  overflow: hidden;
+  transform: translateY(-5vh);
 }
 
-.expense-date-picker-modal.show .expense-date-picker-sheet {
-  transform: translateY(0) scale(1);
-  opacity: 1;
-}
-
-.expense-date-picker-handle {
-  width: 44px;
-  height: 5px;
-  margin: 0 auto 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.24);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
-}
-
+/* Old decorative header stays out of the way. */
+.expense-date-picker-handle,
 .expense-date-picker-header {
-  min-height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.expense-date-picker-heading {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.expense-date-picker-heading__icon {
-  width: 34px;
-  height: 34px;
-  flex: 0 0 34px;
-  border-radius: 11px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
-}
-
-.expense-date-picker-heading__icon svg,
-.expense-date-picker-heading__icon.lucide {
-  width: 18px !important;
-  height: 18px !important;
-  stroke: rgba(255, 255, 255, 0.88) !important;
-}
-
-.expense-date-picker-title {
-  font-size: 18px;
-  line-height: 1.1;
-  font-weight: 730;
-  color: rgba(255, 255, 255, 0.96);
-  letter-spacing: -0.01em;
-}
-
-.expense-date-picker-preview {
-  margin-top: 4px;
-  min-height: 16px;
-  font-size: 12px;
-  line-height: 1;
-  font-weight: 560;
-  color: rgba(255, 255, 255, 0.52);
-  font-variant-numeric: tabular-nums;
-}
-
-.expense-date-picker-close {
-  width: 36px !important;
-  height: 36px !important;
-  min-width: 36px;
-  padding: 0 !important;
-  border-radius: 50% !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: rgba(255, 255, 255, 0.07) !important;
-  color: #fff !important;
-  box-shadow: none !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.expense-date-picker-close svg,
-.expense-date-picker-close .lucide {
-  width: 18px !important;
-  height: 18px !important;
-  stroke: rgba(255, 255, 255, 0.78) !important;
+  display: none;
 }
 
 .expense-date-picker-quick {
   display: flex;
-  gap: 8px;
-  margin: 4px 0 9px;
+  justify-content: center;
+  margin: 0 0 6px;
 }
 
-.expense-date-picker-chip {
+.expense-date-picker-chip,
+.fuel-period-chip {
   min-height: 32px;
-  padding: 0 14px !important;
-  border-radius: 999px !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: rgba(255, 255, 255, 0.07) !important;
+  border: 0 !important;
+  border-radius: 999px;
+  padding: 0 13px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
   color: rgba(255, 255, 255, 0.82) !important;
   box-shadow: none !important;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 650;
+  line-height: 1;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.expense-date-picker-chip:active {
+.expense-date-picker-chip:active,
+.fuel-period-chip:active {
   transform: scale(0.97);
-  background: rgba(255, 255, 255, 0.11) !important;
+  background: rgba(255, 255, 255, 0.13) !important;
 }
 
-.expense-date-picker-labels {
+.date-wheel-labels {
   display: grid;
   grid-template-columns: 0.78fr 1.44fr 1fr;
-  gap: 5px;
+  gap: 8px;
   padding: 0 8px;
-  margin-bottom: 1px;
-  text-align: center;
+  margin: 0;
   font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.055em;
+  font-weight: 650;
+  letter-spacing: 0.045em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.33);
+  color: rgba(255, 255, 255, 0.34);
 }
 
-.expense-date-picker-wheels {
+.date-wheel-grid {
   position: relative;
   width: 100%;
   height: 220px;
   display: grid;
   grid-template-columns: 0.78fr 1.44fr 1fr;
-  gap: 5px;
-  overflow: hidden;
-  border-radius: 22px;
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.018),
-      rgba(255, 255, 255, 0.045) 50%,
-      rgba(255, 255, 255, 0.018)
-    );
-  border: 1px solid rgba(255, 255, 255, 0.045);
-}
-
-.expense-date-picker-wheels::before,
-.expense-date-picker-wheels::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  z-index: 5;
-  height: 66px;
-  pointer-events: none;
-}
-
-.expense-date-picker-wheels::before {
-  top: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(22, 28, 35, 0.93),
-    rgba(22, 28, 35, 0)
-  );
-}
-
-.expense-date-picker-wheels::after {
-  bottom: 0;
-  background: linear-gradient(
-    to top,
-    rgba(22, 28, 35, 0.93),
-    rgba(22, 28, 35, 0)
-  );
-}
-
-.expense-date-picker-selection {
-  position: absolute;
-  left: 7px;
-  right: 7px;
-  top: 50%;
-  height: 50px;
-  transform: translateY(-50%);
-  z-index: 1;
-  pointer-events: none;
-  border-radius: 15px;
-  background:
-    linear-gradient(
-      180deg,
-      rgba(79, 150, 255, 0.18),
-      rgba(63, 129, 225, 0.12)
-    );
-  border: 1px solid rgba(102, 166, 255, 0.27);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.09),
-    0 0 26px rgba(62, 126, 218, 0.08);
-  backdrop-filter: blur(12px) saturate(125%);
-  -webkit-backdrop-filter: blur(12px) saturate(125%);
-}
-
-.expense-date-picker-wheel {
-  position: relative;
-  height: 220px;
-  overflow: hidden;
-  z-index: 2;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-  cursor: ns-resize;
-}
-
-.expense-date-picker-track {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  transition:
-    transform 0.14s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.expense-date-picker-wheel.dragging .expense-date-picker-track {
-  transition: none;
-}
-
-.expense-date-picker-item {
-  height: 44px;
-  min-height: 44px;
-  display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  transform-origin: center;
-  transition:
-    opacity 0.13s ease,
-    transform 0.13s ease,
-    filter 0.13s ease;
 }
 
-.expense-date-picker-item.active {
-  color: rgba(255, 255, 255, 1);
-  opacity: 1;
-  font-size: 25px;
-  font-weight: 610;
-  transform: scale(1.045);
-  filter: blur(0);
+/* Exact stable wheel mechanics from amount / liters / mileage. */
+.date-wheel-grid .wheel-picker-unit,
+.date-wheel-grid .wheel-picker-wheel {
+  width: 100%;
+  height: 220px;
 }
 
-.expense-date-picker-wheel.month .expense-date-picker-item.active {
-  font-size: 22px;
+.date-wheel-grid .wheel-picker-wheel {
+  cursor: default;
 }
 
-.expense-date-picker-item.distance-1 {
-  color: rgba(255, 255, 255, 0.62);
-  opacity: 0.68;
+.date-wheel-grid .wheel-picker-track {
+  z-index: 2;
+}
+
+.date-wheel-grid .wheel-picker-selection-combined {
+  z-index: 1;
+}
+
+.date-wheel-month .wheel-picker-item.active {
+  font-size: 24px;
+}
+
+.date-wheel-month .wheel-picker-item.wheel-distance-1 {
   font-size: 20px;
-  font-weight: 520;
-  transform: scale(0.94);
-  filter: blur(0.12px);
 }
 
-.expense-date-picker-wheel.month .expense-date-picker-item.distance-1 {
+.date-wheel-month .wheel-picker-item.wheel-distance-2 {
   font-size: 18px;
 }
 
-.expense-date-picker-item.distance-2 {
-  color: rgba(255, 255, 255, 0.28);
-  opacity: 0.4;
-  font-size: 17px;
-  font-weight: 500;
-  transform: scale(0.86);
-  filter: blur(0.5px);
-}
-
-.expense-date-picker-wheel.month .expense-date-picker-item.distance-2 {
-  font-size: 16px;
-}
-
-.expense-date-picker-item.empty {
-  opacity: 0;
-}
-
-.expense-date-picker-footer {
+.expense-date-picker-footer,
+.fuel-period-picker-footer {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 12px;
+  gap: 12px;
+  margin-top: 8px;
 }
 
-.expense-date-picker-btn {
+.expense-date-picker-btn,
+.fuel-period-picker-btn {
   width: 100%;
   min-height: 48px;
-  padding: 0 16px !important;
   border: none !important;
-  border-radius: 15px !important;
-  box-shadow: none !important;
+  border-radius: 15px;
+  padding: 0 16px !important;
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 650;
+  cursor: pointer;
+  box-shadow: none !important;
   -webkit-tap-highlight-color: transparent;
-  transition:
-    transform 0.12s ease,
-    opacity 0.12s ease;
+  transition: transform 0.12s ease, opacity 0.12s ease;
 }
 
-.expense-date-picker-btn.secondary {
-  color: rgba(255, 255, 255, 0.82) !important;
+.expense-date-picker-btn.secondary,
+.fuel-period-picker-btn.secondary {
+  color: rgba(255, 255, 255, 0.82);
   background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
 }
 
-.expense-date-picker-btn.primary {
-  color: #111 !important;
-  background:
-    linear-gradient(180deg, #ffad6d, #ffa35c) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    0 8px 24px rgba(255, 163, 92, 0.18) !important;
+.expense-date-picker-btn.primary,
+.fuel-period-picker-btn.primary {
+  color: #111;
+  background: #FFA35C !important;
 }
 
-.expense-date-picker-btn:active {
+.expense-date-picker-btn:active,
+.fuel-period-picker-btn:active {
   transform: scale(0.98);
 }
 
-@media (max-width: 390px) {
-  .expense-date-picker-sheet {
-    width: calc(100vw - 12px);
-    padding-left: 12px;
-    padding-right: 12px;
-    border-radius: 26px;
-  }
-
-  .expense-date-picker-labels,
-  .expense-date-picker-wheels {
-    grid-template-columns: 0.74fr 1.46fr 0.98fr;
-  }
-
-  .expense-date-picker-item.active {
-    font-size: 23px;
-  }
-
-  .expense-date-picker-wheel.month .expense-date-picker-item.active {
-    font-size: 20px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .expense-date-picker-modal,
-  .expense-date-picker-sheet,
-  .expense-date-picker-track,
-  .expense-date-picker-item,
-  .expense-date-picker-btn,
-  .expense-date-trigger {
-    transition: none !important;
-  }
-}
-
-
-/* Expense date picker: cross-browser interaction fixes */
-.expense-date-picker-modal,
-.expense-date-picker-modal * {
-  -webkit-user-select: none !important;
-  user-select: none !important;
-  caret-color: transparent !important;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.expense-date-picker-wheel,
-.expense-date-picker-track,
-.expense-date-picker-item {
-  -webkit-user-drag: none;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .expense-date-picker-wheel {
-    cursor: grab;
-  }
-  .expense-date-picker-wheel.dragging {
-    cursor: grabbing;
-  }
-}
-
 /* =========================================================
-   EXPENSE DATE PICKER
-   Unified with amount / liters / mileage wheel modal
-   ========================================================= */
-
-.expense-date-picker-modal {
-  background: rgba(0, 0, 0, 0.38) !important;
-  backdrop-filter: blur(3px) !important;
-  -webkit-backdrop-filter: blur(3px) !important;
-  padding:
-    max(16px, env(safe-area-inset-top))
-    12px
-    max(24px, env(safe-area-inset-bottom)) !important;
-}
-
-.expense-date-picker-sheet {
-  width: min(420px, calc(100vw - 24px)) !important;
-  max-height: calc(100dvh - 32px) !important;
-  padding: 16px 18px 18px !important;
-  border: none !important;
-  border-radius: 28px !important;
-  background: rgba(28, 28, 30, 0.97) !important;
-  color: #fff !important;
-  box-shadow:
-    0 18px 55px rgba(0, 0, 0, 0.38),
-    0 1px 0 rgba(255, 255, 255, 0.05) inset !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  transform: translateY(-5vh) !important;
-  opacity: 1 !important;
-}
-
-.expense-date-picker-modal.show .expense-date-picker-sheet {
-  transform: translateY(-5vh) !important;
-  opacity: 1 !important;
-}
-
-/* The generic wheel modal has no decorative top bar. */
-.expense-date-picker-handle,
-.expense-date-picker-header {
-  display: none !important;
-}
-
-.expense-date-picker-quick {
-  justify-content: center !important;
-  margin: 0 0 6px !important;
-}
-
-.expense-date-picker-chip {
-  min-height: 32px !important;
-  padding: 0 14px !important;
-  border: 0 !important;
-  border-radius: 999px !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  color: rgba(255, 255, 255, 0.82) !important;
-  box-shadow: none !important;
-  font-size: 13px !important;
-  font-weight: 650 !important;
-}
-
-.expense-date-picker-labels {
-  grid-template-columns: 0.78fr 1.44fr 1fr !important;
-  gap: 8px !important;
-  padding: 0 8px !important;
-  margin-bottom: 0 !important;
-  font-size: 10px !important;
-  font-weight: 650 !important;
-  letter-spacing: 0.045em !important;
-  color: rgba(255, 255, 255, 0.34) !important;
-}
-
-.expense-date-picker-wheels {
-  height: 220px !important;
-  grid-template-columns: 0.78fr 1.44fr 1fr !important;
-  gap: 8px !important;
-  border: none !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-}
-
-.expense-date-picker-wheels::before,
-.expense-date-picker-wheels::after {
-  display: none !important;
-}
-
-.expense-date-picker-selection {
-  left: 10px !important;
-  right: 10px !important;
-  height: 52px !important;
-  border-radius: 16px !important;
-  background: rgba(255, 255, 255, 0.095) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.10) !important;
-  backdrop-filter: blur(18px) saturate(120%) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(120%) !important;
-}
-
-.expense-date-picker-wheel {
-  height: 220px !important;
-}
-
-.expense-date-picker-item.active {
-  color: rgba(255, 255, 255, 1) !important;
-  opacity: 1 !important;
-  font-size: 29px !important;
-  font-weight: 520 !important;
-  transform: scale(1.07) !important;
-  filter: blur(0) !important;
-}
-
-.expense-date-picker-wheel.month .expense-date-picker-item.active {
-  font-size: 24px !important;
-}
-
-.expense-date-picker-item.distance-1 {
-  color: rgba(255, 255, 255, 0.62) !important;
-  opacity: 0.70 !important;
-  font-size: 24px !important;
-  font-weight: 400 !important;
-  transform: scale(0.94) !important;
-  filter: blur(0.15px) !important;
-}
-
-.expense-date-picker-wheel.month .expense-date-picker-item.distance-1 {
-  font-size: 20px !important;
-}
-
-.expense-date-picker-item.distance-2 {
-  color: rgba(255, 255, 255, 0.32) !important;
-  opacity: 0.44 !important;
-  font-size: 21px !important;
-  font-weight: 400 !important;
-  transform: scale(0.86) !important;
-  filter: blur(0.45px) !important;
-}
-
-.expense-date-picker-wheel.month .expense-date-picker-item.distance-2 {
-  font-size: 18px !important;
-}
-
-.expense-date-picker-footer {
-  gap: 12px !important;
-  margin-top: 8px !important;
-}
-
-.expense-date-picker-btn {
-  min-height: 48px !important;
-  border: none !important;
-  border-radius: 15px !important;
-  padding: 0 16px !important;
-  font-size: 16px !important;
-  font-weight: 650 !important;
-  box-shadow: none !important;
-}
-
-.expense-date-picker-btn.secondary {
-  color: rgba(255, 255, 255, 0.82) !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: none !important;
-}
-
-.expense-date-picker-btn.primary {
-  color: #111 !important;
-  background: #FFA35C !important;
-  box-shadow: none !important;
-}
-
-@media (max-width: 390px) {
-  .expense-date-picker-sheet {
-    width: min(420px, calc(100vw - 24px)) !important;
-    padding: 16px 14px 16px !important;
-    border-radius: 28px !important;
-  }
-
-  .expense-date-picker-labels,
-  .expense-date-picker-wheels {
-    grid-template-columns: 0.74fr 1.46fr 0.98fr !important;
-  }
-
-  .expense-date-picker-item.active {
-    font-size: 27px !important;
-  }
-
-  .expense-date-picker-wheel.month .expense-date-picker-item.active {
-    font-size: 22px !important;
-  }
-}
-
-
-/* =========================================================
-   FUEL PERIOD TRIGGER + RANGE PICKER
+   FUEL PERIOD TRIGGER
    ========================================================= */
 
 #fuel-period-control {
@@ -6611,334 +6158,131 @@ body.expense-date-picker-lock {
   color: #186663;
 }
 
-.fuel-period-picker-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 10030;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.38);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  padding: max(16px, env(safe-area-inset-top)) 12px max(24px, env(safe-area-inset-bottom));
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.18s ease;
-}
-
-.fuel-period-picker-modal.hidden {
-  display: none;
-}
-
-.fuel-period-picker-modal.show {
-  opacity: 1;
-  pointer-events: auto;
-}
+/* =========================================================
+   PERIOD MODAL
+   ========================================================= */
 
 .fuel-period-picker-sheet {
-  width: min(420px, calc(100vw - 24px));
-  max-height: calc(100dvh - 32px);
-  overflow: auto;
-  padding: 16px 18px 18px;
-  border-radius: 28px;
-  background: rgba(28, 28, 30, 0.97);
-  color: #fff;
-  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.38), 0 1px 0 rgba(255, 255, 255, 0.05) inset;
-  transform: translateY(-5vh);
+  max-height: calc(100dvh - 24px);
+  padding: 14px 16px 16px;
 }
 
 .fuel-period-picker-sections {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
 }
 
 .fuel-period-picker-section {
-  padding: 10px 8px 8px;
+  padding: 8px 8px 6px;
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.fuel-period-picker-section__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
 .fuel-period-picker-section__title {
-  margin-bottom: 8px;
+  flex: 0 0 auto;
   font-size: 13px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.92);
+  font-weight: 750;
+  color: rgba(255, 255, 255, 0.94);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-.fuel-period-picker-labels {
-  display: grid;
-  grid-template-columns: 0.78fr 1.44fr 1fr;
-  gap: 8px;
-  padding: 0 8px;
-  margin-bottom: 0;
-  font-size: 10px;
-  font-weight: 650;
-  letter-spacing: 0.045em;
-  color: rgba(255, 255, 255, 0.34);
-  text-transform: uppercase;
-}
-
-.fuel-period-picker-wheels {
-  position: relative;
-  display: grid;
-  grid-template-columns: 0.78fr 1.44fr 1fr;
-  gap: 8px;
-  height: 176px;
-}
-
-.fuel-period-picker-selection {
-  position: absolute;
-  top: 50%;
-  left: 10px;
-  right: 10px;
-  height: 52px;
-  transform: translateY(-50%);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.095);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.10);
-  backdrop-filter: blur(18px) saturate(120%);
-  -webkit-backdrop-filter: blur(18px) saturate(120%);
-}
-
-.fuel-period-picker-wheel {
-  position: relative;
-  height: 176px;
-  overflow: hidden;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-  cursor: ns-resize;
-}
-
-.fuel-period-picker-track {
-  position: absolute;
-  inset: 0;
-}
-
-.fuel-period-picker-wheel.dragging .fuel-period-picker-track {
-  transition: none !important;
-}
-
-.fuel-period-picker-item {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 36px;
+.fuel-period-presets {
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 4px;
-  white-space: nowrap;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-  caret-color: transparent;
-  color: rgba(255,255,255,0.16);
-  font-size: 19px;
-  font-weight: 400;
-  line-height: 1;
-  transition: transform 0.12s ease, opacity 0.12s ease, filter 0.12s ease;
+  gap: 6px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding: 1px 1px 3px;
 }
 
-.fuel-period-picker-item.active {
-  color: rgba(255, 255, 255, 1);
-  opacity: 1;
-  font-size: 29px;
-  font-weight: 520;
-  transform: scale(1.07);
-  filter: blur(0);
+.fuel-period-presets::-webkit-scrollbar {
+  display: none;
 }
 
-.fuel-period-picker-wheel.month .fuel-period-picker-item.active {
-  font-size: 24px;
+.fuel-period-chip {
+  min-height: 27px;
+  padding: 0 10px !important;
+  font-size: 11px;
+  flex: 0 0 auto;
 }
 
-.fuel-period-picker-item.distance-1 {
-  color: rgba(255, 255, 255, 0.62);
-  opacity: 0.70;
-  font-size: 24px;
-  font-weight: 400;
-  transform: scale(0.94);
-  filter: blur(0.15px);
+/* Compact height for two stacked drums while preserving the exact generic wheel internals. */
+.fuel-period-wheel-grid {
+  height: 154px;
 }
 
-.fuel-period-picker-wheel.month .fuel-period-picker-item.distance-1 {
-  font-size: 20px;
+.fuel-period-wheel-grid .wheel-picker-unit,
+.fuel-period-wheel-grid .wheel-picker-wheel {
+  height: 154px;
 }
 
-.fuel-period-picker-item.distance-2 {
-  color: rgba(255, 255, 255, 0.32);
-  opacity: 0.44;
-  font-size: 21px;
-  font-weight: 400;
-  transform: scale(0.86);
-  filter: blur(0.45px);
+.fuel-period-wheel-grid .wheel-picker-item {
+  flex: 0 0 44px;
 }
 
-.fuel-period-picker-wheel.month .fuel-period-picker-item.distance-2 {
-  font-size: 18px;
-}
-
-.fuel-period-picker-item.empty {
-  opacity: 0;
+.fuel-period-wheel-grid .wheel-picker-track {
+  overflow: visible;
 }
 
 .fuel-period-picker-footer {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 12px;
-}
-
-.fuel-period-picker-btn {
-  min-height: 48px;
-  border: none;
-  border-radius: 15px;
-  padding: 0 16px;
-  font-size: 16px;
-  font-weight: 650;
-  box-shadow: none;
-}
-
-.fuel-period-picker-btn.secondary {
-  color: rgba(255, 255, 255, 0.82);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.fuel-period-picker-btn.primary {
-  color: #111;
-  background: #FFA35C;
-}
-
-.fuel-period-picker-modal,
-.fuel-period-picker-modal * {
-  -webkit-tap-highlight-color: transparent;
+  margin-top: 10px;
 }
 
 @media (max-width: 390px) {
+  .expense-date-picker-sheet,
   .fuel-period-picker-sheet {
-    padding: 14px;
+    width: min(420px, calc(100vw - 20px));
+    padding-left: 14px;
+    padding-right: 14px;
+    border-radius: 26px;
   }
 
-  .fuel-period-picker-labels,
-  .fuel-period-picker-wheels {
+  .date-wheel-labels,
+  .date-wheel-grid {
     grid-template-columns: 0.74fr 1.46fr 0.98fr;
   }
 
-  .fuel-period-picker-item.active {
-    font-size: 27px;
-  }
-
-  .fuel-period-picker-wheel.month .fuel-period-picker-item.active {
+  .date-wheel-month .wheel-picker-item.active {
     font-size: 22px;
   }
+
+  .fuel-period-picker-section {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .fuel-period-picker-section__head {
+    gap: 6px;
+  }
+
+  .fuel-period-chip {
+    min-height: 26px;
+    padding: 0 9px !important;
+    font-size: 10.5px;
+  }
 }
 
-
-/* =========================================================
-   DATE WHEELS — Safari/iOS artifact + geometry fixes (v5)
-   ========================================================= */
-
-/* Safari can paint its insertion caret during pointer-drag on text-like wheel
-   content. Kill text editing/selection at every level, including the modal. */
-.expense-date-picker-modal,
-.expense-date-picker-modal *,
-.fuel-period-picker-modal,
-.fuel-period-picker-modal * {
-  caret-color: transparent !important;
-  -webkit-user-select: none !important;
-  user-select: none !important;
-  -webkit-touch-callout: none !important;
-  -webkit-user-modify: read-only !important;
-  outline: none !important;
-}
-
-.expense-date-picker-wheel,
-.fuel-period-picker-wheel {
-  -webkit-tap-highlight-color: transparent !important;
-  touch-action: none !important;
-}
-
-/* Range picker uses exactly the same wheel geometry as the stable single-date picker. */
-.fuel-period-picker-wheels {
-  height: 154px !important;
-  overflow: hidden !important;
-}
-
-.fuel-period-picker-wheel {
-  height: 154px !important;
-  overflow: hidden !important;
-}
-
-.fuel-period-picker-track {
-  position: absolute !important;
-  inset: 0 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: center !important;
-  transition: transform 0.14s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
-  will-change: transform;
-}
-
-.fuel-period-picker-wheel.dragging .fuel-period-picker-track {
-  transition: none !important;
-}
-
-.fuel-period-picker-item {
-  position: static !important;
-  inset: auto !important;
-  height: 44px !important;
-  min-height: 44px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 0 4px !important;
-  overflow: hidden !important;
-  white-space: nowrap !important;
-  text-overflow: ellipsis !important;
-  line-height: 1 !important;
-  font-variant-numeric: tabular-nums;
-  transform-origin: center !important;
-}
-
-.fuel-period-picker-item.active {
-  transform: scale(1.07) !important;
-}
-.fuel-period-picker-item.distance-1 {
-  transform: scale(0.94) !important;
-}
-.fuel-period-picker-item.distance-2 {
-  transform: scale(0.86) !important;
-}
-
-.fuel-period-picker-selection {
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  pointer-events: none !important;
-}
-
-/* Keep both drums comfortably inside an iPhone viewport. */
-.fuel-period-picker-sheet {
-  overflow: hidden !important;
-  padding: 14px 16px 16px !important;
-}
-.fuel-period-picker-sections {
-  gap: 10px !important;
-}
-.fuel-period-picker-section {
-  padding: 8px 8px 6px !important;
-}
-.fuel-period-picker-section__title {
-  margin: 0 0 4px !important;
-}
-.fuel-period-picker-footer {
-  margin-top: 10px !important;
+@media (prefers-reduced-motion: reduce) {
+  .expense-date-picker-modal,
+  .fuel-period-picker-modal,
+  .wheel-picker-track,
+  .wheel-picker-item,
+  .expense-date-picker-btn,
+  .fuel-period-picker-btn {
+    transition: none !important;
+  }
 }

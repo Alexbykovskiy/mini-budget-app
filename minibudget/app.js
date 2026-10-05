@@ -1614,25 +1614,31 @@ function createExpenseDatePickerModal() {
         </button>
       </div>
 
-      <div class="expense-date-picker-labels" aria-hidden="true">
+      <div class="date-wheel-labels" aria-hidden="true">
         <span>День</span>
         <span>Месяц</span>
         <span>Год</span>
       </div>
 
-      <div class="expense-date-picker-wheels">
-        <div class="expense-date-picker-selection" aria-hidden="true"></div>
+      <div class="date-wheel-grid">
+        <div class="wheel-picker-selection-combined" aria-hidden="true"></div>
 
-        <div class="expense-date-picker-wheel" data-expense-date-wheel="day">
-          <div class="expense-date-picker-track" id="expense-date-day-track"></div>
+        <div class="wheel-picker-unit">
+          <div class="wheel-picker-wheel" data-expense-date-wheel="day">
+            <div class="wheel-picker-track" id="expense-date-day-track"></div>
+          </div>
         </div>
 
-        <div class="expense-date-picker-wheel month" data-expense-date-wheel="month">
-          <div class="expense-date-picker-track" id="expense-date-month-track"></div>
+        <div class="wheel-picker-unit date-wheel-month">
+          <div class="wheel-picker-wheel" data-expense-date-wheel="month">
+            <div class="wheel-picker-track" id="expense-date-month-track"></div>
+          </div>
         </div>
 
-        <div class="expense-date-picker-wheel" data-expense-date-wheel="year">
-          <div class="expense-date-picker-track" id="expense-date-year-track"></div>
+        <div class="wheel-picker-unit">
+          <div class="wheel-picker-wheel" data-expense-date-wheel="year">
+            <div class="wheel-picker-track" id="expense-date-year-track"></div>
+          </div>
         </div>
       </div>
 
@@ -1787,8 +1793,8 @@ function renderExpenseDateWheel(side, translateY = 0) {
     const distance = Math.abs(offset);
 
     item.className =
-      "expense-date-picker-item " +
-      `distance-${distance}` +
+      "wheel-picker-item " +
+      `wheel-distance-${distance}` +
       (offset === 0 ? " active" : "");
 
     if (value < bounds.min || value > bounds.max) {
@@ -2052,8 +2058,6 @@ function attachExpenseDateWheelDrag(side) {
   wheel.root.addEventListener("pointerdown", (event) => {
     if (!expenseDatePickerState) return;
 
-    // Prevent browser text selection/caret artifacts during mouse/touch dragging.
-    event.preventDefault();
     dragging = true;
     moved = false;
     startY = event.clientY;
@@ -2328,53 +2332,86 @@ function createFuelPeriodPickerModal() {
       <div class="fuel-period-picker-sections">
 
         <section class="fuel-period-picker-section">
-          <div class="fuel-period-picker-section__title">От</div>
+          <div class="fuel-period-picker-section__head">
+            <div class="fuel-period-picker-section__title">От</div>
+            <div class="fuel-period-presets" aria-label="Быстрый выбор начала периода">
+              <button type="button" class="fuel-period-chip" data-period-from-days="7">7 дн</button>
+              <button type="button" class="fuel-period-chip" data-period-from-months="1">1 мес</button>
+              <button type="button" class="fuel-period-chip" data-period-from-months="3">3 мес</button>
+              <button type="button" class="fuel-period-chip" data-period-from-months="6">6 мес</button>
+              <button type="button" class="fuel-period-chip" data-period-from-months="9">9 мес</button>
+              <button type="button" class="fuel-period-chip" data-period-from-months="12">12 мес</button>
+            </div>
+          </div>
 
-          <div class="fuel-period-picker-labels" aria-hidden="true">
+          <div class="date-wheel-labels" aria-hidden="true">
             <span>День</span>
             <span>Месяц</span>
             <span>Год</span>
           </div>
 
-          <div class="fuel-period-picker-wheels">
-            <div class="fuel-period-picker-selection" aria-hidden="true"></div>
+          <div class="date-wheel-grid fuel-period-wheel-grid">
+            <div class="wheel-picker-selection-combined" aria-hidden="true"></div>
 
-            <div class="fuel-period-picker-wheel" data-fuel-period-wheel="from-day">
-              <div class="fuel-period-picker-track" id="fuel-period-from-day-track"></div>
+            <div class="wheel-picker-unit">
+              <div class="wheel-picker-wheel" data-fuel-period-wheel="from-day">
+                <div class="wheel-picker-track" id="fuel-period-from-day-track"></div>
+              </div>
             </div>
 
-            <div class="fuel-period-picker-wheel month" data-fuel-period-wheel="from-month">
-              <div class="fuel-period-picker-track" id="fuel-period-from-month-track"></div>
+            <div class="wheel-picker-unit date-wheel-month">
+              <div class="wheel-picker-wheel" data-fuel-period-wheel="from-month">
+                <div class="wheel-picker-track" id="fuel-period-from-month-track"></div>
+              </div>
             </div>
 
-            <div class="fuel-period-picker-wheel" data-fuel-period-wheel="from-year">
-              <div class="fuel-period-picker-track" id="fuel-period-from-year-track"></div>
+            <div class="wheel-picker-unit">
+              <div class="wheel-picker-wheel" data-fuel-period-wheel="from-year">
+                <div class="wheel-picker-track" id="fuel-period-from-year-track"></div>
+              </div>
             </div>
           </div>
         </section>
 
         <section class="fuel-period-picker-section">
-          <div class="fuel-period-picker-section__title">До</div>
+          <div class="fuel-period-picker-section__head">
+            <div class="fuel-period-picker-section__title">До</div>
+            <div class="fuel-period-presets" aria-label="Быстрый выбор конца периода">
+              <button type="button" class="fuel-period-chip" data-period-to-today>Сегодня</button>
+              <button type="button" class="fuel-period-chip" data-period-to-days="7">−7 дн</button>
+              <button type="button" class="fuel-period-chip" data-period-to-months="1">−1 мес</button>
+              <button type="button" class="fuel-period-chip" data-period-to-months="3">−3 мес</button>
+              <button type="button" class="fuel-period-chip" data-period-to-months="6">−6 мес</button>
+              <button type="button" class="fuel-period-chip" data-period-to-months="9">−9 мес</button>
+              <button type="button" class="fuel-period-chip" data-period-to-months="12">−12 мес</button>
+            </div>
+          </div>
 
-          <div class="fuel-period-picker-labels" aria-hidden="true">
+          <div class="date-wheel-labels" aria-hidden="true">
             <span>День</span>
             <span>Месяц</span>
             <span>Год</span>
           </div>
 
-          <div class="fuel-period-picker-wheels">
-            <div class="fuel-period-picker-selection" aria-hidden="true"></div>
+          <div class="date-wheel-grid fuel-period-wheel-grid">
+            <div class="wheel-picker-selection-combined" aria-hidden="true"></div>
 
-            <div class="fuel-period-picker-wheel" data-fuel-period-wheel="to-day">
-              <div class="fuel-period-picker-track" id="fuel-period-to-day-track"></div>
+            <div class="wheel-picker-unit">
+              <div class="wheel-picker-wheel" data-fuel-period-wheel="to-day">
+                <div class="wheel-picker-track" id="fuel-period-to-day-track"></div>
+              </div>
             </div>
 
-            <div class="fuel-period-picker-wheel month" data-fuel-period-wheel="to-month">
-              <div class="fuel-period-picker-track" id="fuel-period-to-month-track"></div>
+            <div class="wheel-picker-unit date-wheel-month">
+              <div class="wheel-picker-wheel" data-fuel-period-wheel="to-month">
+                <div class="wheel-picker-track" id="fuel-period-to-month-track"></div>
+              </div>
             </div>
 
-            <div class="fuel-period-picker-wheel" data-fuel-period-wheel="to-year">
-              <div class="fuel-period-picker-track" id="fuel-period-to-year-track"></div>
+            <div class="wheel-picker-unit">
+              <div class="wheel-picker-wheel" data-fuel-period-wheel="to-year">
+                <div class="wheel-picker-track" id="fuel-period-to-year-track"></div>
+              </div>
             </div>
           </div>
         </section>
@@ -2414,6 +2451,8 @@ function createFuelPeriodPickerModal() {
   modal.addEventListener('click', (event) => {
     if (event.target === modal) closeFuelPeriodPicker();
   });
+
+  attachFuelPeriodPresetActions(modal);
 
   ['from', 'to'].forEach((rangeKey) => {
     ['day', 'month', 'year'].forEach((side) => {
@@ -2458,7 +2497,7 @@ function renderFuelPeriodWheel(rangeKey, side, translateY = 0) {
     const item = document.createElement('div');
     const distance = Math.abs(offset);
 
-    item.className = 'fuel-period-picker-item ' + `distance-${distance}` + (offset === 0 ? ' active' : '');
+    item.className = 'wheel-picker-item ' + `wheel-distance-${distance}` + (offset === 0 ? ' active' : '');
 
     if (value < bounds.min || value > bounds.max) {
       item.classList.add('empty');
@@ -2603,7 +2642,6 @@ function attachFuelPeriodWheelDrag(rangeKey, side) {
 
   wheel.root.addEventListener('pointerdown', (event) => {
     if (!fuelPeriodPickerState) return;
-    event.preventDefault();
     dragging = true;
     moved = false;
     startY = event.clientY;
@@ -2620,6 +2658,89 @@ function attachFuelPeriodWheelDrag(rangeKey, side) {
   wheel.root.addEventListener('pointerup', onPointerUp);
   wheel.root.addEventListener('pointercancel', onPointerUp);
   wheel.root.addEventListener('lostpointercapture', onPointerUp);
+}
+
+function fuelPeriodPartsToDate(parts) {
+  return new Date(parts.year, parts.month - 1, parts.day, 12, 0, 0, 0);
+}
+
+function fuelPeriodDateToParts(date) {
+  return {
+    day: date.getDate(),
+    month: date.getMonth() + 1,
+    year: date.getFullYear()
+  };
+}
+
+function subtractFuelPeriodMonths(parts, months) {
+  const source = fuelPeriodPartsToDate(parts);
+  const originalDay = source.getDate();
+
+  source.setDate(1);
+  source.setMonth(source.getMonth() - months);
+
+  const lastDay = getExpenseDaysInMonth(
+    source.getFullYear(),
+    source.getMonth() + 1
+  );
+
+  source.setDate(Math.min(originalDay, lastDay));
+  return fuelPeriodDateToParts(source);
+}
+
+function subtractFuelPeriodDays(parts, days) {
+  const source = fuelPeriodPartsToDate(parts);
+  source.setDate(source.getDate() - days);
+  return fuelPeriodDateToParts(source);
+}
+
+function setFuelPeriodPart(rangeKey, parts) {
+  if (!fuelPeriodPickerState?.[rangeKey]) return;
+  fuelPeriodPickerState[rangeKey] = { ...parts };
+  normalizeFuelPeriodDay(rangeKey);
+  renderAllFuelPeriodWheels();
+  wheelHaptic();
+}
+
+function attachFuelPeriodPresetActions(modal) {
+  modal.querySelectorAll('[data-period-from-days]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const days = Number(button.dataset.periodFromDays || 0);
+      setFuelPeriodPart('from', subtractFuelPeriodDays(fuelPeriodPickerState.to, days));
+    });
+  });
+
+  modal.querySelectorAll('[data-period-from-months]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const months = Number(button.dataset.periodFromMonths || 0);
+      setFuelPeriodPart('from', subtractFuelPeriodMonths(fuelPeriodPickerState.to, months));
+    });
+  });
+
+  modal.querySelector('[data-period-to-today]')?.addEventListener('click', () => {
+    const today = new Date();
+    setFuelPeriodPart('to', {
+      day: today.getDate(),
+      month: today.getMonth() + 1,
+      year: today.getFullYear()
+    });
+  });
+
+  modal.querySelectorAll('[data-period-to-days]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const days = Number(button.dataset.periodToDays || 0);
+      const today = fuelPeriodDateToParts(new Date());
+      setFuelPeriodPart('to', subtractFuelPeriodDays(today, days));
+    });
+  });
+
+  modal.querySelectorAll('[data-period-to-months]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const months = Number(button.dataset.periodToMonths || 0);
+      const today = fuelPeriodDateToParts(new Date());
+      setFuelPeriodPart('to', subtractFuelPeriodMonths(today, months));
+    });
+  });
 }
 
 function openFuelPeriodPicker() {
