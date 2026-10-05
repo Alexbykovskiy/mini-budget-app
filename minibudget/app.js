@@ -3325,22 +3325,10 @@ function updateFuelScrubberVisual(index, { haptic = false } = {}) {
   info.classList.remove('is-empty');
   guide.classList.remove('is-hidden');
 
-  // ApexCharts has a native selected-point state. Reuse it instead of
-  // redrawing the whole chart on every pixel of a finger drag.
-  if (fuelChart && (changed || !Number.isInteger(updateFuelScrubberVisual.lastSelected))) {
-    try {
-      const previousSelected = updateFuelScrubberVisual.lastSelected;
-      updateFuelScrubberVisual.lastSelected = nextIndex;
-
-      if (Number.isInteger(previousSelected) && previousSelected !== nextIndex) {
-        fuelChart.toggleDataPointSelection(0, previousSelected);
-      }
-      fuelChart.toggleDataPointSelection(0, nextIndex);
-    } catch (error) {
-      // Selection highlighting is cosmetic; the scrubber remains functional.
-    }
-  }
-
+  // Do not call ApexCharts.toggleDataPointSelection() from the scrubber.
+  // ApexCharts emits dataPointSelection for programmatic selection too, which
+  // can create a feedback loop: scrubber -> chart selection -> scrubber -> ...
+  // The guide + readout provide selection feedback without touching chart state.
   if (haptic && changed) wheelHaptic();
 }
 
@@ -3352,20 +3340,33 @@ function initFuelScrubber() {
 
   fuelScrubberReady = true;
 
-  const handle = () => {
-    updateFuelScrubberVisual(Number(scrubber.value), { haptic: true });
+  let frameId = 0;
+  let pendingIndex = 0;
+
+  const flush = () => {
+    frameId = 0;
+    updateFuelScrubberVisual(pendingIndex, { haptic: true });
   };
 
-  scrubber.addEventListener('input', handle, { passive: true });
-  scrubber.addEventListener('change', handle, { passive: true });
+  const handle = () => {
+    pendingIndex = Number(scrubber.value) || 0;
+
+    // Range inputs can emit dozens of events per second while dragging.
+    // Batch them to one UI update per animation frame so mobile Safari and
+    // desktop browsers never get flooded with synchronous work.
+    if (!frameId) {
+      frameId = requestAnimationFrame(flush);
+    }
+  };
+
+  scrubber.addEventListener('input', handle);
+  scrubber.addEventListener('change', handle);
 }
 
 function resetFuelScrubber(points) {
   initFuelScrubber();
   fuelScrubberPoints = Array.isArray(points) ? points : [];
   fuelScrubberIndex = 0;
-  updateFuelScrubberVisual.lastSelected = undefined;
-
   // Start from the leftmost point every time the chart dataset changes.
   requestAnimationFrame(() => updateFuelScrubberVisual(0));
 }
