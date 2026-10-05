@@ -6,7 +6,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MINI Budget</title>
-  <link rel="stylesheet" href="style.css?v=19">
+  <link rel="stylesheet" href="style.css?v=25">
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
   <link rel="manifest" href="manifest.json">
@@ -53,69 +53,6 @@
 </div>
 
 
-<section class="stats-dashboard animated-section delay-1" aria-label="Статистика автомобиля">
-  <div class="stats-dashboard__row">
-
-    <article class="stats-tile stats-tile--amount">
-      <span class="stats-tile__label">Общая сумма</span>
-      <div class="stats-tile__value">
-        <strong id="stat-total-amount">—</strong>
-        <span>€</span>
-      </div>
-    </article>
-
-    <article class="stats-tile stats-tile--distance">
-      <span class="stats-tile__label">Пробег расчета</span>
-      <div class="stats-tile__value">
-        <strong id="stat-distance">—</strong>
-        <span>км</span>
-      </div>
-      <small id="stat-days" class="stats-tile__sub">—</small>
-    </article>
-
-    <article class="stats-tile stats-tile--mileage">
-      <span class="stats-tile__label">Общий пробег</span>
-      <div class="stats-tile__value">
-        <strong id="stat-total-km">—</strong>
-        <span>км</span>
-      </div>
-      <small class="stats-tile__sub">двиг. <strong id="stat-engine-km">—</strong> км</small>
-    </article>
-
-    <article class="stats-tile stats-tile--cost-total">
-      <span class="stats-tile__label">Общая стоимость</span>
-      <div class="stats-tile__value">
-        <strong id="stat-cost-total">—</strong>
-        <span>€/км</span>
-      </div>
-    </article>
-
-    <article class="stats-tile stats-tile--cost-pure">
-      <span class="stats-tile__label">Расчетная стоимость</span>
-      <div class="stats-tile__value">
-        <strong id="stat-cost-pure">—</strong>
-        <span>€/км</span>
-      </div>
-    </article>
-
-    <article class="stats-tile stats-tile--consumption">
-      <span class="stats-tile__label">Средний расход</span>
-      <div class="stats-tile__value">
-        <strong id="stat-consumption">—</strong>
-        <span>л/100</span>
-      </div>
-    </article>
-
-    <article class="stats-tile stats-tile--fuel-price">
-      <span class="stats-tile__label">Цена топлива</span>
-      <div class="stats-tile__value">
-        <strong id="stat-price-fuel">—</strong>
-        <span>€/л</span>
-      </div>
-    </article>
-
-  </div>
-</section>
 
 <!-- 🚗 Визуальная карта напоминаний -->
 <section
@@ -133,6 +70,70 @@
     >
 
     <div class="car-reminder-map__shade"></div>
+
+    <section class="stats-dashboard animated-section delay-1" aria-label="Статистика автомобиля">
+      <div class="stats-dashboard__row">
+    
+        <article class="stats-tile stats-tile--amount">
+          <span class="stats-tile__label">Общая сумма</span>
+          <div class="stats-tile__value">
+            <strong id="stat-total-amount">—</strong>
+            <span>€</span>
+          </div>
+        </article>
+    
+        <article class="stats-tile stats-tile--distance">
+          <span class="stats-tile__label">Пробег расчета</span>
+          <div class="stats-tile__value">
+            <strong id="stat-distance">—</strong>
+            <span>км</span>
+          </div>
+          <small id="stat-days" class="stats-tile__sub">—</small>
+        </article>
+    
+        <article class="stats-tile stats-tile--mileage">
+          <span class="stats-tile__label">Общий пробег</span>
+          <div class="stats-tile__value">
+            <strong id="stat-total-km">—</strong>
+            <span>км</span>
+          </div>
+          <small class="stats-tile__sub">двиг. <strong id="stat-engine-km">—</strong> км</small>
+        </article>
+    
+        <article class="stats-tile stats-tile--cost-total">
+          <span class="stats-tile__label">Общая стоимость</span>
+          <div class="stats-tile__value">
+            <strong id="stat-cost-total">—</strong>
+            <span>€/км</span>
+          </div>
+        </article>
+    
+        <article class="stats-tile stats-tile--cost-pure">
+          <span class="stats-tile__label">Расчетная стоимость</span>
+          <div class="stats-tile__value">
+            <strong id="stat-cost-pure">—</strong>
+            <span>€/км</span>
+          </div>
+        </article>
+    
+        <article class="stats-tile stats-tile--consumption">
+          <span class="stats-tile__label">Средний расход</span>
+          <div class="stats-tile__value">
+            <strong id="stat-consumption">—</strong>
+            <span>л/100</span>
+          </div>
+        </article>
+    
+        <article class="stats-tile stats-tile--fuel-price">
+          <span class="stats-tile__label">Цена топлива</span>
+          <div class="stats-tile__value">
+            <strong id="stat-price-fuel">—</strong>
+            <span>€/л</span>
+          </div>
+        </article>
+    
+      </div>
+    </section>
 
 <!-- Режим ручной настройки схемы -->
 <div class="car-map-editor-toolbar">
@@ -158,7 +159,6 @@
     <span data-lucide="plus"></span>
   </button>
 
-</div>
 </div>
 
     <!-- Линии от карточек к машине -->
