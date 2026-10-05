@@ -236,28 +236,64 @@
 
   <div class="filters-toggle-container">
     <div class="filters">
-      <div class="row">
-        <label class="small-label">Период:</label>
-        <input type="date" id="filter-from" />
-        <input type="date" id="filter-to" />
+      <div class="row filter-period-row">
+        <label class="small-label" for="filter-period-trigger">Период:</label>
+
+        <button
+          type="button"
+          id="filter-period-trigger"
+          class="fuel-period-trigger filter-period-trigger"
+          aria-haspopup="dialog"
+          aria-controls="fuel-period-picker-modal"
+        >
+          <span class="fuel-period-trigger__label">Период</span>
+          <span id="filter-period-display" class="fuel-period-trigger__value">Выбрать период</span>
+        </button>
+
+        <input type="hidden" id="filter-from" />
+        <input type="hidden" id="filter-to" />
       </div>
-      <div class="row">
+
+      <div class="row filter-tag-row">
         <input list="tag-list" id="filter-tag" placeholder="#тег" />
         <datalist id="tag-list"></datalist>
-        <select id="filter-category">
-          <option value="Все">Все категории</option>
-          <option>Топливо</option>
-          <option>Парковка</option>
-          <option>Штрафы</option>
-          <option>Сервис</option>
-          <option>Ремонт</option>
-          <option>Страховка</option>
-          <option>Шины</option>
-          <option>Тюнинг</option>
-          <option>Мойка</option>
-          <option>Виньетка/Платные дороги</option>
-          <option>Другое</option>
-        </select>
+      </div>
+
+      <div class="row filter-category-row">
+        <div class="filter-category-multi">
+          <button
+            type="button"
+            id="filter-category-trigger"
+            class="filter-category-trigger"
+            aria-expanded="false"
+            aria-controls="filter-category-panel"
+          >
+            <span id="filter-category-display">Все категории</span>
+            <span class="filter-category-trigger__icon" data-lucide="chevron-down"></span>
+          </button>
+
+          <div id="filter-category-panel" class="filter-category-panel hidden">
+            <label class="filter-category-option filter-category-option--all">
+              <input type="checkbox" id="filter-category-all" checked />
+              <span class="filter-category-check" aria-hidden="true"></span>
+              <span>Все категории</span>
+            </label>
+
+            <div class="filter-category-options-grid">
+              <label class="filter-category-option"><input type="checkbox" value="Топливо" data-filter-category /><span class="filter-category-check" aria-hidden="true"></span><span>Топливо</span></label>
+              <label class="filter-category-option"><input type="checkbox" value="Парковка" data-filter-category /><span class="filter-category-check" aria-hidden="true"></span><span>Парковка</span></label>
+              <label class="filter-category-option"><input type="checkbox" value="Штрафы" data-filter-category /><span class="filter-category-check" aria-hidden="true"></span><span>Штрафы</span></label>
+              <label class="filter-category-option"><input type="checkbox" value="Сервис" data-filter-category /><span class="filter-category-check" aria-hidden="true"></span><span>Сервис</span></label>
+              <label class="filter-category-option"><input type="checkbox" value="Ремонт" data-filter-category /><span class="filter-category-check" aria-hidden="true"></span><span>Ремонт</span></label>
+              <label class="filter-category-option"><input type="checkbox" value="Страховка" data-filter-category /><span class="filter-category-check" aria-hidden="true"></span><span>Страховка</span></label>
+              <label class="filter-category-option"><input type="checkbox" value="Шины" data-filter-category /><span class="filter-category-check" aria-hidden="true"></span><span>Шины</span></label>
+              <label class="filter-category-option"><input type="checkbox" value="Тюнинг" data-filter-category /><span class="filter-category-check" aria-hidden="true"></span><span>Тюнинг</span></label>
+              <label class="filter-category-option"><input type="checkbox" value="Мойка" data-filter-category /><span class="filter-category-check" aria-hidden="true"></span><span>Мойка</span></label>
+              <label class="filter-category-option filter-category-option--wide"><input type="checkbox" value="Виньетка/Платные дороги" data-filter-category /><span class="filter-category-check" aria-hidden="true"></span><span>Виньетка/Платные дороги</span></label>
+              <label class="filter-category-option"><input type="checkbox" value="Другое" data-filter-category /><span class="filter-category-check" aria-hidden="true"></span><span>Другое</span></label>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="row">
         <input type="number" id="filter-row-start" placeholder="Строка от" />

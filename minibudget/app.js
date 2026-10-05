@@ -6,6 +6,7 @@ const profileCode = "mini";
 document.addEventListener("DOMContentLoaded", () => {
   initExpenseDatePicker();
   initFuelPeriodPickerTrigger();
+  initFilterControls();
 });
 
 window.addEventListener("load", () => {
@@ -2319,6 +2320,33 @@ function syncFuelPeriodTrigger() {
   trigger.classList.toggle('is-selected', !!(fromInput.value || toInput.value));
 }
 
+function syncFilterPeriodTrigger() {
+  const trigger = document.getElementById('filter-period-trigger');
+  const display = document.getElementById('filter-period-display');
+  const fromInput = document.getElementById('filter-from');
+  const toInput = document.getElementById('filter-to');
+
+  if (!trigger || !display || !fromInput || !toInput) return;
+
+  const text = formatFuelPeriodTriggerValue(fromInput.value, toInput.value);
+  display.textContent = text;
+  trigger.classList.toggle('is-selected', !!(fromInput.value || toInput.value));
+}
+
+function getPeriodPickerContextElements(context = 'fuel') {
+  if (context === 'filter') {
+    return {
+      fromInput: document.getElementById('filter-from'),
+      toInput: document.getElementById('filter-to')
+    };
+  }
+
+  return {
+    fromInput: document.getElementById('fuel-date-from'),
+    toInput: document.getElementById('fuel-date-to')
+  };
+}
+
 function createFuelPeriodPickerModal() {
   if (document.getElementById('fuel-period-picker-modal')) return;
 
@@ -2429,6 +2457,7 @@ function createFuelPeriodPickerModal() {
 
   fuelPeriodPickerState = {
     modal,
+    context: 'fuel',
     from: { day: 1, month: 1, year: new Date().getFullYear() },
     to: { day: 1, month: 1, year: new Date().getFullYear() },
     wheels: {
@@ -2743,15 +2772,17 @@ function attachFuelPeriodPresetActions(modal) {
   });
 }
 
-function openFuelPeriodPicker() {
+function openFuelPeriodPicker(context = 'fuel') {
   createFuelPeriodPickerModal();
 
-  const fromInput = document.getElementById('fuel-date-from');
-  const toInput = document.getElementById('fuel-date-to');
+  const { fromInput, toInput } = getPeriodPickerContextElements(context);
   const defaults = getFuelPeriodDefaultRange();
 
-  fuelPeriodPickerState.from = parseFuelPeriodDate(fromInput?.value, defaults.from);
-  fuelPeriodPickerState.to = parseFuelPeriodDate(toInput?.value, defaults.to);
+  if (!fromInput || !toInput || !fuelPeriodPickerState) return;
+
+  fuelPeriodPickerState.context = context;
+  fuelPeriodPickerState.from = parseFuelPeriodDate(fromInput.value, defaults.from);
+  fuelPeriodPickerState.to = parseFuelPeriodDate(toInput.value, defaults.to);
   normalizeFuelPeriodDay('from');
   normalizeFuelPeriodDay('to');
   renderAllFuelPeriodWheels();
@@ -2773,9 +2804,11 @@ function closeFuelPeriodPicker() {
 }
 
 function applyFuelPeriodPicker() {
-  const fromInput = document.getElementById('fuel-date-from');
-  const toInput = document.getElementById('fuel-date-to');
-  if (!fromInput || !toInput || !fuelPeriodPickerState) return;
+  if (!fuelPeriodPickerState) return;
+
+  const context = fuelPeriodPickerState.context || 'fuel';
+  const { fromInput, toInput } = getPeriodPickerContextElements(context);
+  if (!fromInput || !toInput) return;
 
   let fromIso = composeExpenseDateISO(fuelPeriodPickerState.from.day, fuelPeriodPickerState.from.month, fuelPeriodPickerState.from.year);
   let toIso = composeExpenseDateISO(fuelPeriodPickerState.to.day, fuelPeriodPickerState.to.month, fuelPeriodPickerState.to.year);
@@ -2786,17 +2819,25 @@ function applyFuelPeriodPicker() {
 
   fromInput.value = fromIso;
   toInput.value = toIso;
-  fuelDateFrom = fromIso;
-  fuelDateTo = toIso;
+  fromInput.dispatchEvent(new Event('change', { bubbles: true }));
+  toInput.dispatchEvent(new Event('change', { bubbles: true }));
 
-  try {
-    localStorage.setItem('fuelDateFrom', fuelDateFrom);
-    localStorage.setItem('fuelDateTo', fuelDateTo);
-  } catch (e) {}
+  if (context === 'filter') {
+    syncFilterPeriodTrigger();
+  } else {
+    fuelDateFrom = fromIso;
+    fuelDateTo = toIso;
 
-  syncFuelPeriodTrigger();
+    try {
+      localStorage.setItem('fuelDateFrom', fuelDateFrom);
+      localStorage.setItem('fuelDateTo', fuelDateTo);
+    } catch (e) {}
+
+    syncFuelPeriodTrigger();
+    updateFuelConsumptionUI(expenses);
+  }
+
   closeFuelPeriodPicker();
-  updateFuelConsumptionUI(expenses);
 }
 
 function initFuelPeriodPickerTrigger() {
@@ -2819,7 +2860,7 @@ function initFuelPeriodPickerTrigger() {
       const delegatedTrigger = event.target.closest?.('#fuel-period-trigger');
       if (!delegatedTrigger) return;
       event.preventDefault();
-      openFuelPeriodPicker();
+      openFuelPeriodPicker('fuel');
     });
   }
 
@@ -2832,6 +2873,137 @@ function initFuelPeriodPickerTrigger() {
     }
   });
 }
+
+function getSelectedFilterCategories() {
+  const allInput = document.getElementById('filter-category-all');
+  const selected = Array.from(
+    document.querySelectorAll('[data-filter-category]:checked')
+  ).map((input) => input.value);
+
+  if (allInput?.checked || selected.length === 0) {
+    return [];
+  }
+
+  return selected;
+}
+
+function syncFilterCategoryUI() {
+  const trigger = document.getElementById('filter-category-trigger');
+  const display = document.getElementById('filter-category-display');
+  const allInput = document.getElementById('filter-category-all');
+  const categoryInputs = Array.from(document.querySelectorAll('[data-filter-category]'));
+
+  if (!trigger || !display || !allInput) return;
+
+  const selected = categoryInputs.filter((input) => input.checked);
+
+  if (allInput.checked || selected.length === 0) {
+    display.textContent = 'Все категории';
+    trigger.classList.remove('is-selected');
+    return;
+  }
+
+  trigger.classList.add('is-selected');
+
+  if (selected.length === 1) {
+    display.textContent = selected[0].value;
+  } else if (selected.length <= 3) {
+    display.textContent = selected.map((input) => input.value).join(', ');
+  } else {
+    display.textContent = `${selected.length} категорий`;
+  }
+}
+
+function initFilterCategoryMultiSelect() {
+  const trigger = document.getElementById('filter-category-trigger');
+  const panel = document.getElementById('filter-category-panel');
+  const allInput = document.getElementById('filter-category-all');
+  const categoryInputs = Array.from(document.querySelectorAll('[data-filter-category]'));
+
+  if (!trigger || !panel || !allInput || !categoryInputs.length) return;
+  if (trigger.dataset.filterCategoryReady === '1') {
+    syncFilterCategoryUI();
+    return;
+  }
+
+  trigger.dataset.filterCategoryReady = '1';
+
+  const closePanel = () => {
+    panel.classList.add('hidden');
+    trigger.setAttribute('aria-expanded', 'false');
+  };
+
+  const openPanel = () => {
+    panel.classList.remove('hidden');
+    trigger.setAttribute('aria-expanded', 'true');
+  };
+
+  trigger.addEventListener('click', (event) => {
+    event.preventDefault();
+    const isOpen = !panel.classList.contains('hidden');
+    if (isOpen) closePanel();
+    else openPanel();
+  });
+
+  allInput.addEventListener('change', () => {
+    if (allInput.checked) {
+      categoryInputs.forEach((input) => {
+        input.checked = false;
+      });
+    } else if (!categoryInputs.some((input) => input.checked)) {
+      allInput.checked = true;
+    }
+    syncFilterCategoryUI();
+  });
+
+  categoryInputs.forEach((input) => {
+    input.addEventListener('change', () => {
+      const anySelected = categoryInputs.some((item) => item.checked);
+      allInput.checked = !anySelected;
+      syncFilterCategoryUI();
+    });
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!event.target.closest?.('.filter-category-multi')) {
+      closePanel();
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closePanel();
+  });
+
+  syncFilterCategoryUI();
+
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+}
+
+function initFilterControls() {
+  createFuelPeriodPickerModal();
+
+  const periodTrigger = document.getElementById('filter-period-trigger');
+  const fromInput = document.getElementById('filter-from');
+  const toInput = document.getElementById('filter-to');
+
+  if (periodTrigger && fromInput && toInput && periodTrigger.dataset.filterPeriodReady !== '1') {
+    periodTrigger.dataset.filterPeriodReady = '1';
+    periodTrigger.addEventListener('click', (event) => {
+      event.preventDefault();
+      periodTrigger.blur();
+      openFuelPeriodPicker('filter');
+    });
+
+    fromInput.addEventListener('change', syncFilterPeriodTrigger);
+    toInput.addEventListener('change', syncFilterPeriodTrigger);
+  }
+
+  syncFilterPeriodTrigger();
+  initFilterCategoryMultiSelect();
+}
+
 function initFuelControls() {
   const fillsControl = document.getElementById("fuel-fills-control");
   const periodControl = document.getElementById("fuel-period-control");
@@ -3323,10 +3495,10 @@ function populateTagList() {
 
 
 function applyFilters() {
-  const from = document.getElementById("filter-from").value;
-  const to = document.getElementById("filter-to").value;
-  const tag = document.getElementById("filter-tag").value.replace('#', '');
-  const categoryFilter = document.getElementById("filter-category")?.value;
+  const from = document.getElementById("filter-from")?.value || "";
+  const to = document.getElementById("filter-to")?.value || "";
+  const tag = document.getElementById("filter-tag")?.value.replace('#', '') || "";
+  const selectedCategories = getSelectedFilterCategories();
   const rowStart = parseInt(document.getElementById("filter-row-start")?.value);
   const rowEnd = parseInt(document.getElementById("filter-row-end")?.value);
 
@@ -3334,11 +3506,14 @@ function applyFilters() {
   if (from) filtered = filtered.filter(e => e.date >= from);
   if (to) filtered = filtered.filter(e => e.date <= to);
   if (tag) filtered = filtered.filter(e => e.tag === tag);
-  if (categoryFilter && categoryFilter !== "Все") filtered = filtered.filter(e => e.category === categoryFilter);
+  if (selectedCategories.length) {
+    const allowedCategories = new Set(selectedCategories);
+    filtered = filtered.filter(e => allowedCategories.has(e.category));
+  }
   if (!isNaN(rowStart) && !isNaN(rowEnd)) filtered = filtered.slice(rowStart - 1, rowEnd);
 
   renderExpenses(filtered, true);
-loadReminders(); // добавь эту строку
+  loadReminders();
 }
 
 function updateChart(data, total) {

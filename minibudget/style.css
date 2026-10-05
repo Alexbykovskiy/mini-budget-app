@@ -6298,3 +6298,186 @@ body.expense-date-picker-lock {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
+
+
+/* =========================================================
+   FILTERS: CUSTOM PERIOD + MULTI CATEGORY
+   Uses the current period picker styles without replacing them.
+   ========================================================= */
+
+.filter-period-row {
+  align-items: center;
+}
+
+.filter-period-row .small-label {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.filter-period-trigger {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.filter-tag-row input {
+  width: 100%;
+}
+
+.filter-category-row {
+  overflow: visible;
+}
+
+.filter-category-multi {
+  position: relative;
+  width: 100%;
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+.filter-category-trigger {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 14px;
+  background: #e0e0e0;
+  color: #333;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: left;
+}
+
+.filter-category-trigger.is-selected {
+  color: #186663;
+}
+
+.filter-category-trigger__icon,
+.filter-category-trigger__icon svg {
+  width: 18px !important;
+  height: 18px !important;
+  flex: 0 0 18px;
+  stroke: #666;
+  transition: transform 0.18s ease;
+}
+
+.filter-category-trigger[aria-expanded="true"] .filter-category-trigger__icon,
+.filter-category-trigger[aria-expanded="true"] .filter-category-trigger__icon svg {
+  transform: rotate(180deg);
+}
+
+.filter-category-panel {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 18px;
+  background: rgba(28, 28, 30, 0.97);
+  color: #fff;
+  box-shadow: 0 16px 38px rgba(0,0,0,0.22);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.filter-category-panel.hidden {
+  display: none;
+}
+
+.filter-category-option {
+  position: relative;
+  min-width: 0;
+  min-height: 38px;
+  padding: 7px 8px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255,255,255,0.82);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.filter-category-option:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+.filter-category-option input {
+  position: absolute;
+  opacity: 0;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  pointer-events: none;
+  box-shadow: none !important;
+}
+
+.filter-category-check {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  border-radius: 7px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.06);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.filter-category-check::after {
+  content: "";
+  width: 8px;
+  height: 4px;
+  border-left: 2px solid #111;
+  border-bottom: 2px solid #111;
+  transform: rotate(-45deg) translateY(-1px) scale(0);
+  transform-origin: center;
+  transition: transform 0.14s ease;
+}
+
+.filter-category-option input:checked + .filter-category-check {
+  background: #FFA35C;
+  border-color: #FFA35C;
+}
+
+.filter-category-option input:checked + .filter-category-check::after {
+  transform: rotate(-45deg) translateY(-1px) scale(1);
+}
+
+.filter-category-option--all {
+  margin-bottom: 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px 10px 0 0;
+}
+
+.filter-category-options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px 4px;
+}
+
+.filter-category-option--wide {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 390px) {
+  .filter-category-panel {
+    padding: 8px;
+  }
+
+  .filter-category-option {
+    font-size: 11.5px;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+}
