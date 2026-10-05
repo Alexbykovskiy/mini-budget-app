@@ -6481,3 +6481,167 @@ body.expense-date-picker-lock {
     padding-right: 6px;
   }
 }
+
+
+/* =========================================================
+   CATEGORY SPEND BARS
+   Replaces the old donut chart with ranked horizontal bars.
+   ========================================================= */
+
+.block.no-shadow.chart-fix {
+  width: 380px;
+  padding: 0;
+  margin: 0 auto 24px;
+  box-shadow: none;
+  background: transparent;
+}
+
+.category-spend-bars {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  box-sizing: border-box;
+}
+
+.category-spend-row {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.category-spend-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 5px;
+}
+
+.category-spend-name {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #454b4f;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.15;
+}
+
+.category-spend-name > span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.category-spend-rank {
+  flex: 0 0 auto;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.34);
+  box-shadow:
+    inset 1px 1px 2px rgba(190, 190, 190, 0.5),
+    inset -1px -1px 2px rgba(255, 255, 255, 0.75);
+  color: #7b8083;
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.category-spend-values {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.category-spend-amount {
+  color: #2b3135;
+  font-size: 12px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+.category-spend-percent {
+  min-width: 38px;
+  text-align: right;
+  color: #8a8f92;
+  font-size: 10px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.category-spend-track {
+  position: relative;
+  width: 100%;
+  height: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e0e0e0;
+  box-shadow:
+    inset 2px 2px 5px rgba(190, 190, 190, 0.75),
+    inset -2px -2px 5px rgba(255, 255, 255, 0.78);
+}
+
+.category-spend-fill {
+  width: var(--category-bar-width, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    rgba(24, 102, 99, 0.82),
+    rgba(24, 102, 99, 0.56)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    1px 0 4px rgba(24, 102, 99, 0.16);
+  transform-origin: left center;
+  animation: categorySpendBarGrow 420ms cubic-bezier(.2,.8,.2,1) both;
+  animation-delay: var(--category-bar-delay, 0ms);
+}
+
+@keyframes categorySpendBarGrow {
+  from {
+    transform: scaleX(0);
+    opacity: 0.35;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 420px) {
+  .block.no-shadow.chart-fix {
+    width: min(380px, calc(100vw - 32px));
+  }
+
+  .category-spend-bars {
+    gap: 8px;
+  }
+
+  .category-spend-name {
+    font-size: 11px;
+  }
+
+  .category-spend-amount {
+    font-size: 11px;
+  }
+
+  .category-spend-track {
+    height: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .category-spend-fill {
+    animation: none;
+  }
+}

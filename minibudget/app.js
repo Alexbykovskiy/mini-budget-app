@@ -3517,106 +3517,78 @@ function applyFilters() {
 }
 
 function updateChart(data, total) {
-  const categoriesMap = {};
+  const container = document.getElementById("category-spend-bars");
+  if (!container) return;
+
+  // Keep every current category visible, even when its filtered amount is zero.
+  const categorySelect = document.getElementById("category");
+  const knownCategories = categorySelect
+    ? Array.from(categorySelect.options)
+        .map(option => option.value || option.textContent || "")
+        .map(value => value.trim())
+        .filter(Boolean)
+    : [];
+
+  const categoriesMap = new Map(
+    knownCategories.map(category => [category, 0])
+  );
 
   data.forEach(entry => {
-    const cat = entry.category;
+    const category = String(entry.category || "Другое").trim() || "Другое";
     const value = Number(entry.amount);
-    if (!categoriesMap[cat]) categoriesMap[cat] = 0;
-    categoriesMap[cat] += value;
+    const safeValue = Number.isFinite(value) ? value : 0;
+
+    categoriesMap.set(
+      category,
+      (categoriesMap.get(category) || 0) + safeValue
+    );
   });
 
- const colors = ['#D2AF94', '#186663', '#A6B5B4', '#8C7361', '#002D37',
-                  '#5E8C8A', '#C4B59F', '#7F6A93', '#71A1A5', '#A58C7D', '#BFB4A3'];
+  const sortedEntries = Array.from(categoriesMap.entries())
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => {
+      if (b.value !== a.value) return b.value - a.value;
+      return a.label.localeCompare(b.label, "ru");
+    });
 
-  const sortedEntries = Object.entries(categoriesMap)
-  .map(([label, value]) => ({ label, value }))
-  .sort((a, b) => b.value - a.value);
+  const totalSum = sortedEntries.reduce((sum, entry) => sum + entry.value, 0);
+  const maxValue = sortedEntries.reduce((max, entry) => Math.max(max, entry.value), 0);
 
-const labels = sortedEntries.map(entry => entry.label);
-const values = sortedEntries.map(entry => entry.value);
-const legendColors = sortedEntries.map((_, i) => colors[i % colors.length]);
+  container.innerHTML = "";
 
- 
-if (expenseChart) expenseChart.destroy();
+  sortedEntries.forEach((entry, index) => {
+    const percent = totalSum > 0 ? (entry.value / totalSum) * 100 : 0;
+    const relativeWidth = maxValue > 0 ? (entry.value / maxValue) * 100 : 0;
 
-  expenseChart = new ApexCharts(document.querySelector("#mini-donut-chart"), {
-    chart: {
-      type: 'donut',
-      width: 200,
-    },
-    series: values,
-    labels: labels,
-    colors: legendColors,
-    dataLabels: {
-      enabled: false
-    },
-    legend: {
-      show: false
-    },
-    tooltip: {
-      y: {
-        formatter: val => `€${val.toFixed(2)}`
-      }
-    },
-
-plotOptions: {
-  pie: {
-    donut: {
-      size: '55%',
-      labels: {
-        show: true,
-        name: {
-          show: false
-        },
-        value: {
-          show: false // отключаем всплывающее значение при наведении
-        },
-        total: {
-          show: true,
-          showAlways: true, // 👈 обязательно!
-          fontSize: '14px',
-          fontWeight: 600,
-          color: '#222',
-          formatter: () => `€${total.toFixed(2)}`
-        }
-      }
-    }
-  }
-} // ← это закрывает plotOptions целиком
-
-}); // ← это закрывает new ApexCharts(...)
-
-expenseChart.render();
-  // кастомная легенда
-  const legendContainer = document.getElementById("custom-legend");
-  if (!legendContainer) return;
-  legendContainer.innerHTML = "";
-
-  const totalSum = values.reduce((a, b) => a + b, 0);
-  const legendItems = sortedEntries.map((entry, i) => ({
-  label: entry.label,
-  value: entry.value,
-  color: legendColors[i],
-  percent: ((entry.value / totalSum) * 100).toFixed(1)
-})).sort((a, b) => b.value - a.value);
-
-  legendItems.forEach(entry => {
     const row = document.createElement("div");
-    row.className = "legend-row";
-    row.style.display = "flex";
-    row.style.alignItems = "center";
-    row.style.gap = "6px";
-    row.style.fontSize = "11px";
-    row.style.lineHeight = "1.4";
+    row.className = "category-spend-row";
+
+    const safeWidth = entry.value > 0
+      ? Math.max(relativeWidth, 1.5)
+      : 0;
 
     row.innerHTML = `
-      <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${entry.color}"></span>
-      <span style="flex:1;">${entry.label}</span>
-      <span style="min-width: 60px; text-align:right;">€${entry.value.toFixed(2)}</span>
-      <span style="min-width: 40px; text-align:right;">${entry.percent}%</span>
+      <div class="category-spend-meta">
+        <div class="category-spend-name">
+          <span class="category-spend-rank">${index + 1}</span>
+          <span>${entry.label}</span>
+        </div>
+
+        <div class="category-spend-values">
+          <span class="category-spend-amount">€${entry.value.toFixed(2)}</span>
+          <span class="category-spend-percent">${percent.toFixed(1)}%</span>
+        </div>
+      </div>
+
+      <div class="category-spend-track" aria-hidden="true">
+        <div
+          class="category-spend-fill"
+          style="--category-bar-width: ${safeWidth.toFixed(2)}%; --category-bar-delay: ${index * 28}ms;"
+        ></div>
+      </div>
     `;
-    legendContainer.appendChild(row);
+
+    container.appendChild(row);
   });
 }
 
