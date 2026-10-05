@@ -7977,3 +7977,153 @@ body.expense-date-picker-lock {
     grid-template-columns: minmax(0,1fr);
   }
 }
+
+
+/* =========================================================
+   STATS DASHBOARD v2
+   More room for numeric values
+   ========================================================= */
+
+.stats-dashboard__main {
+  grid-template-columns: 1.08fr 1.32fr 0.92fr;
+}
+
+/* Smaller icons = more space for values */
+.stats-primary {
+  grid-template-columns: 25px minmax(0, 1fr);
+  gap: 5px;
+  padding: 9px 6px;
+}
+
+.stats-primary__icon {
+  width: 25px;
+  height: 25px;
+  border-radius: 8px;
+}
+
+.stats-primary__icon svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 1.8;
+}
+
+/* Do not crop main numbers */
+.stats-primary__value strong {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+
+  font-size: 16px;
+  letter-spacing: -0.035em;
+}
+
+.stats-primary__value > span {
+  font-size: 7px;
+}
+
+.stats-primary__label {
+  font-size: 7.5px;
+  margin-bottom: 4px;
+}
+
+.stats-primary__sub {
+  margin-top: 4px;
+  font-size: 6.5px;
+}
+
+.stats-primary__sub svg {
+  width: 8px;
+  height: 8px;
+}
+
+
+/* Bottom row */
+.stats-secondary {
+  grid-template-columns: 21px minmax(0, 1fr);
+  gap: 4px;
+  padding: 7px 5px;
+}
+
+.stats-secondary__icon {
+  width: 21px;
+  height: 21px;
+  border-radius: 7px;
+}
+
+.stats-secondary__icon svg {
+  width: 12px;
+  height: 12px;
+}
+
+.stats-secondary__value strong {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+  font-size: 10.5px;
+  letter-spacing: -0.025em;
+}
+
+.stats-secondary__label {
+  font-size: 6.5px;
+}
+
+.stats-secondary__value span,
+.stats-secondary small {
+  font-size: 6px;
+}
+
+
+/* iPhone */
+@media (max-width: 410px) {
+  .stats-dashboard__main {
+    grid-template-columns: 1.08fr 1.34fr 0.9fr;
+  }
+
+  .stats-primary {
+    grid-template-columns: 23px minmax(0, 1fr);
+    gap: 4px;
+    padding: 8px 5px;
+  }
+
+  .stats-primary__icon {
+    width: 23px;
+    height: 23px;
+  }
+
+  .stats-primary__icon svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .stats-primary__value strong {
+    font-size: 14px;
+  }
+
+  .stats-primary__value > span {
+    font-size: 6.5px;
+  }
+
+  .stats-primary__sub {
+    font-size: 6px;
+  }
+
+  .stats-secondary {
+    grid-template-columns: 19px minmax(0, 1fr);
+    gap: 3px;
+    padding-inline: 4px;
+  }
+
+  .stats-secondary__icon {
+    width: 19px;
+    height: 19px;
+  }
+
+  .stats-secondary__icon svg {
+    width: 11px;
+    height: 11px;
+  }
+
+  .stats-secondary__value strong {
+    font-size: 9.5px;
+  }
+}
