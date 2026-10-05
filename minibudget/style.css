@@ -7695,7 +7695,7 @@ body.expense-date-picker-lock {
 
 /* The editor buttons sit below the stats strip, on the right. */
 .car-map-editor-toolbar {
-  top: 86px;
+  top: 106px;
   right: 12px;
 }
 
@@ -7749,7 +7749,7 @@ body.expense-date-picker-lock {
   }
 
   .car-map-editor-toolbar {
-    top: 68px;
+    top: 84px;
     right: 8px;
     gap: 5px;
   }
@@ -7782,6 +7782,6 @@ body.expense-date-picker-lock {
   }
 
   .car-map-editor-toolbar {
-    top: 64px;
+    top: 80px;
   }
 }
