@@ -3824,7 +3824,7 @@ box-sizing: border-box;
 .car-map-editor-toolbar {
   position: absolute;
 
-  top: 82px;
+  top: 12px;
   right: 12px;
 
   z-index: 20;
@@ -7546,44 +7546,35 @@ body.expense-date-picker-lock {
 
 /* =========================================================
    DIGITAL VEHICLE STATS DASHBOARD
-   Integrated into the top of the car reminder scene.
    One compact row, seven values, no icons.
    ========================================================= */
 
 .stats-dashboard {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  right: 12px;
-  z-index: 12;
-
+  width: 380px;
+  max-width: calc(100vw - 20px);
   box-sizing: border-box;
-  margin: 0;
+  margin: 0 auto 16px;
   padding: 9px 8px;
   overflow: hidden;
-  pointer-events: none;
-
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 16px;
+  border: 0;
+  border-radius: 20px;
   color: #eef6f8;
-
-  background: rgba(18, 30, 39, 0.76);
-  backdrop-filter: blur(10px) saturate(115%);
-  -webkit-backdrop-filter: blur(10px) saturate(115%);
-
-  box-shadow:
-    0 8px 20px rgba(0, 0, 0, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  background: linear-gradient(
+    145deg,
+    rgba(31, 46, 57, 0.99),
+    rgba(17, 29, 38, 0.99)
+  );
+  box-shadow: 0 8px 20px rgba(20, 31, 38, 0.14);
 }
 
 .stats-dashboard__row {
   display: grid;
   grid-template-columns:
-    1.24fr
-    1.02fr
-    1.22fr
-    0.91fr
-    0.98fr
+    1.18fr
+    1.00fr
+    1.18fr
+    0.93fr
+    1.00fr
     0.92fr
     0.86fr;
   align-items: stretch;
@@ -7594,12 +7585,12 @@ body.expense-date-picker-lock {
   position: relative;
   min-width: 0;
   box-sizing: border-box;
-  padding: 3px 8px 4px;
-
+  padding: 4px 7px 5px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-
+  align-items: center;
+  text-align: center;
   overflow: hidden;
 }
 
@@ -7610,36 +7601,39 @@ body.expense-date-picker-lock {
   top: 4px;
   bottom: 4px;
   width: 1px;
-  background: rgba(183, 197, 204, 0.24);
+  background: rgba(174, 194, 201, 0.22);
 }
 
 .stats-tile__label {
   display: block;
   min-height: 17px;
-  margin: 0 0 3px;
-
-  color: rgba(216, 227, 231, 0.72);
-  font-size: 8.2px;
-  font-weight: 600;
-  line-height: 1.05;
-
+  margin: 0 0 4px;
+  color: rgba(214, 225, 230, 0.78);
+  font-size: 8px;
+  font-weight: 620;
+  line-height: 1.08;
+  text-align: center;
   white-space: normal;
   overflow: visible;
   text-overflow: clip;
+  overflow-wrap: normal;
 }
 
 .stats-tile__value {
   display: flex;
+  justify-content: center;
   align-items: baseline;
   gap: 2px;
   min-width: 0;
+  width: 100%;
+  text-align: center;
   font-variant-numeric: tabular-nums;
 }
 
 .stats-tile__value strong {
   min-width: 0;
   color: #f7fbfc;
-  font-size: 16px;
+  font-size: 13.8px;
   font-weight: 780;
   line-height: 1;
   letter-spacing: -0.035em;
@@ -7648,8 +7642,8 @@ body.expense-date-picker-lock {
 
 .stats-tile__value > span {
   flex: 0 0 auto;
-  color: rgba(186, 206, 212, 0.68);
-  font-size: 6.6px;
+  color: rgba(188, 209, 216, 0.72);
+  font-size: 6.4px;
   font-weight: 650;
   line-height: 1;
   white-space: nowrap;
@@ -7659,55 +7653,53 @@ body.expense-date-picker-lock {
   display: block;
   min-height: 8px;
   margin-top: 3px;
-
-  color: rgba(170, 193, 200, 0.62);
+  color: rgba(166, 191, 198, 0.68);
   font-size: 6.2px;
   font-weight: 560;
   line-height: 1.05;
-
+  text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: clip;
 }
 
 .stats-tile__sub strong {
-  color: rgba(221, 232, 235, 0.84);
+  color: rgba(216, 230, 234, 0.82);
   font: inherit;
   font-weight: 700;
 }
 
+/* The widest figures get a touch more room. */
 .stats-tile--amount,
 .stats-tile--mileage {
-  padding-left: 9px;
-  padding-right: 9px;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
-@media (max-width: 520px) {
+@media (max-width: 410px) {
   .stats-dashboard {
-    top: 7px;
-    left: 7px;
-    right: 7px;
-    padding: 6px 4px;
-    border-radius: 12px;
-    backdrop-filter: blur(8px) saturate(110%);
-    -webkit-backdrop-filter: blur(8px) saturate(110%);
+    width: calc(100vw - 20px);
+    max-width: 380px;
+    padding: 7px 5px;
+    border-radius: 18px;
   }
 
   .stats-tile {
-    padding: 2px 3px 3px;
+    padding: 4px 4px 4px;
+    align-items: center;
+    text-align: center;
   }
 
   .stats-tile--amount,
   .stats-tile--mileage {
-    padding-left: 4px;
-    padding-right: 4px;
+    padding-left: 6px;
+    padding-right: 6px;
   }
 
   .stats-tile__label {
-    min-height: 13px;
-    margin-bottom: 1px;
-    font-size: 5.8px;
-    line-height: 1.02;
+    min-height: 15px;
+    margin-bottom: 3px;
+    font-size: 6.9px;
   }
 
   .stats-tile__value {
@@ -7715,58 +7707,47 @@ body.expense-date-picker-lock {
   }
 
   .stats-tile__value strong {
-    font-size: 10px;
-    letter-spacing: -0.05em;
+    font-size: 11.6px;
+    letter-spacing: -0.04em;
   }
 
   .stats-tile__value > span {
-    font-size: 4.8px;
+    font-size: 5.5px;
   }
 
   .stats-tile__sub {
-    min-height: 5px;
-    margin-top: 1px;
-    font-size: 4.4px;
+    min-height: 7px;
+    margin-top: 2px;
+    font-size: 5.3px;
   }
 
   .stats-tile + .stats-tile::before {
-    top: 2px;
-    bottom: 2px;
-  }
-
-  .car-map-editor-toolbar {
-    top: 64px;
-    right: 8px;
+    top: 3px;
+    bottom: 3px;
   }
 }
 
 @media (max-width: 350px) {
   .stats-dashboard {
-    right: 7px;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .stats-tile {
     padding-left: 3px;
     padding-right: 3px;
   }
 
-  .stats-tile {
-    padding-left: 2px;
-    padding-right: 2px;
-  }
-
   .stats-tile__label {
-    font-size: 4.9px;
+    font-size: 6px;
   }
 
   .stats-tile__value strong {
-    font-size: 8.6px;
+    font-size: 10.1px;
   }
 
   .stats-tile__value > span,
   .stats-tile__sub {
-    font-size: 4px;
-  }
-
-  .car-map-editor-toolbar {
-    top: 59px;
-    right: 7px;
+    font-size: 4.8px;
   }
 }
