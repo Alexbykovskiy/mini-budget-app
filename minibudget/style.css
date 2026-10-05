@@ -6500,7 +6500,7 @@ body.expense-date-picker-lock {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 5px;
   box-sizing: border-box;
 }
 
@@ -6509,113 +6509,88 @@ body.expense-date-picker-lock {
   box-sizing: border-box;
 }
 
-.category-spend-meta {
+.category-spend-track {
+  position: relative;
+  width: 100%;
+  height: 32px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #e0e0e0;
+  box-shadow:
+    inset 2px 2px 5px rgba(190, 190, 190, 0.72),
+    inset -2px -2px 5px rgba(255, 255, 255, 0.82);
+}
+
+.category-spend-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--category-bar-width, 0%);
+  min-width: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    rgba(24, 102, 99, 0.84),
+    rgba(24, 102, 99, 0.55)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    1px 0 4px rgba(24, 102, 99, 0.14);
+  transform-origin: left center;
+  animation: categorySpendBarGrow 420ms cubic-bezier(.2,.8,.2,1) both;
+  animation-delay: var(--category-bar-delay, 0ms);
+}
+
+.category-spend-content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  padding: 0 10px;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 5px;
+  gap: 10px;
+  pointer-events: none;
 }
 
 .category-spend-name {
   min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  color: #454b4f;
-  font-size: 12px;
-  font-weight: 650;
-  line-height: 1.15;
-}
-
-.category-spend-name > span:last-child {
-  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.category-spend-rank {
-  flex: 0 0 auto;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 4px;
-  box-sizing: border-box;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.34);
-  box-shadow:
-    inset 1px 1px 2px rgba(190, 190, 190, 0.5),
-    inset -1px -1px 2px rgba(255, 255, 255, 0.75);
-  color: #7b8083;
-  font-size: 9px;
-  font-weight: 750;
+  color: #30363a;
+  font-size: 11px;
+  font-weight: 720;
+  line-height: 1;
+  text-shadow: 0 1px 1px rgba(255,255,255,.42);
 }
 
 .category-spend-values {
   flex: 0 0 auto;
   display: flex;
   align-items: baseline;
-  gap: 7px;
+  gap: 6px;
   white-space: nowrap;
 }
 
 .category-spend-amount {
-  color: #2b3135;
-  font-size: 12px;
-  font-weight: 750;
+  color: #252b2f;
+  font-size: 11px;
+  font-weight: 760;
   font-variant-numeric: tabular-nums;
 }
 
 .category-spend-percent {
-  min-width: 38px;
+  min-width: 35px;
   text-align: right;
-  color: #8a8f92;
-  font-size: 10px;
-  font-weight: 650;
+  color: #6f7579;
+  font-size: 9px;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
-.category-spend-track {
-  position: relative;
-  width: 100%;
-  height: 12px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: #e0e0e0;
-  box-shadow:
-    inset 2px 2px 5px rgba(190, 190, 190, 0.75),
-    inset -2px -2px 5px rgba(255, 255, 255, 0.78);
-}
-
-.category-spend-fill {
-  width: var(--category-bar-width, 0%);
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(
-    90deg,
-    rgba(24, 102, 99, 0.82),
-    rgba(24, 102, 99, 0.56)
-  );
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    1px 0 4px rgba(24, 102, 99, 0.16);
-  transform-origin: left center;
-  animation: categorySpendBarGrow 420ms cubic-bezier(.2,.8,.2,1) both;
-  animation-delay: var(--category-bar-delay, 0ms);
-}
-
 @keyframes categorySpendBarGrow {
-  from {
-    transform: scaleX(0);
-    opacity: 0.35;
-  }
-  to {
-    transform: scaleX(1);
-    opacity: 1;
-  }
+  from { transform: scaleX(0); opacity: 0.35; }
+  to { transform: scaleX(1); opacity: 1; }
 }
 
 @media (max-width: 420px) {
@@ -6623,21 +6598,12 @@ body.expense-date-picker-lock {
     width: min(380px, calc(100vw - 32px));
   }
 
-  .category-spend-bars {
-    gap: 8px;
-  }
-
-  .category-spend-name {
-    font-size: 11px;
-  }
-
-  .category-spend-amount {
-    font-size: 11px;
-  }
-
-  .category-spend-track {
-    height: 11px;
-  }
+  .category-spend-bars { gap: 4px; }
+  .category-spend-track { height: 30px; border-radius: 11px; }
+  .category-spend-content { padding: 0 9px; gap: 7px; }
+  .category-spend-name { font-size: 10px; }
+  .category-spend-amount { font-size: 10px; }
+  .category-spend-percent { min-width: 31px; font-size: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

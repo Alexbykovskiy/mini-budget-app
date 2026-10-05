@@ -3568,23 +3568,20 @@ function updateChart(data, total) {
       : 0;
 
     row.innerHTML = `
-      <div class="category-spend-meta">
-        <div class="category-spend-name">
-          <span class="category-spend-rank">${index + 1}</span>
-          <span>${entry.label}</span>
-        </div>
-
-        <div class="category-spend-values">
-          <span class="category-spend-amount">€${entry.value.toFixed(2)}</span>
-          <span class="category-spend-percent">${percent.toFixed(1)}%</span>
-        </div>
-      </div>
-
-      <div class="category-spend-track" aria-hidden="true">
+      <div class="category-spend-track">
         <div
           class="category-spend-fill"
-          style="--category-bar-width: ${safeWidth.toFixed(2)}%; --category-bar-delay: ${index * 28}ms;"
+          style="--category-bar-width: ${safeWidth.toFixed(2)}%; --category-bar-delay: ${index * 22}ms;"
+          aria-hidden="true"
         ></div>
+
+        <div class="category-spend-content">
+          <span class="category-spend-name">${entry.label}</span>
+          <span class="category-spend-values">
+            <span class="category-spend-amount">€${entry.value.toFixed(2)}</span>
+            <span class="category-spend-percent">${percent.toFixed(1)}%</span>
+          </span>
+        </div>
       </div>
     `;
 
