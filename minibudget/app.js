@@ -1588,23 +1588,11 @@ function createExpenseDatePickerModal() {
       class="expense-date-picker-sheet"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="expense-date-picker-title"
+      aria-label="Выбор даты"
     >
       <div class="expense-date-picker-handle" aria-hidden="true"></div>
 
       <div class="expense-date-picker-header">
-        <div class="expense-date-picker-heading">
-          <span class="expense-date-picker-heading__icon" data-lucide="calendar-days"></span>
-
-          <div>
-            <div id="expense-date-picker-title" class="expense-date-picker-title">
-              Выберите дату
-            </div>
-
-            <div id="expense-date-picker-preview" class="expense-date-picker-preview"></div>
-          </div>
-        </div>
-
         <button
           type="button"
           id="expense-date-picker-close"
