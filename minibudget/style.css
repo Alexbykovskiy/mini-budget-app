@@ -6747,7 +6747,7 @@ body.expense-date-picker-lock {
 }
 
 .fuel-fills-pill {
-  display: flex !important;
+  display: flex;
   align-items: center;
   gap: 5px;
   padding: 5px 8px;
@@ -7182,5 +7182,193 @@ body.expense-date-picker-lock {
 
   .fuel-digital-metric strong {
     font-size: 12px;
+  }
+}
+
+
+/* =========================================================
+   FUEL DIGITAL DASHBOARD v2
+   Compact gauge + one active control + true average line
+   ========================================================= */
+
+.fuel-digital-dashboard {
+  padding: 12px 14px 11px;
+}
+
+.fuel-digital-dashboard__top {
+  grid-template-columns: 145px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+/* Only the control for the selected mode is visible. */
+.fuel-digital-dashboard #fuel-fills-control[style*="display: none"] {
+  display: none !important;
+}
+
+.fuel-digital-dashboard #fuel-fills-control:not([style*="display: none"]) {
+  display: flex;
+}
+
+.fuel-digital-dashboard #fuel-period-control[style*="display: none"] {
+  display: none !important;
+}
+
+.fuel-digital-dashboard__controls {
+  align-self: center;
+}
+
+.fuel-digital-dashboard .fuel-mode-grid {
+  border-radius: 13px;
+}
+
+.fuel-digital-dashboard .fuel-mode-option {
+  min-height: 30px;
+  padding: 6px 5px;
+  font-size: 9px;
+}
+
+.fuel-digital-dashboard .fuel-mode-controls {
+  margin-top: 6px;
+}
+
+.fuel-fills-pill,
+.fuel-period-trigger--digital {
+  min-height: 34px;
+}
+
+/* Compact instrument cluster in the left half. */
+.fuel-gauge--compact {
+  --fuel-gauge-angle: -90deg;
+  position: relative;
+  width: 145px;
+  height: 98px;
+  min-width: 145px;
+  overflow: visible;
+}
+
+.fuel-gauge--compact .fuel-gauge__svg {
+  top: 0;
+  width: 148px;
+  height: 82px;
+  max-width: none;
+}
+
+.fuel-gauge--compact .fuel-gauge__track,
+.fuel-gauge--compact .fuel-gauge__arc {
+  stroke-width: 6;
+}
+
+.fuel-gauge--compact .fuel-gauge__ticks path {
+  stroke-width: 2;
+}
+
+.fuel-gauge--compact .fuel-gauge__needle-wrap {
+  left: 50%;
+  bottom: 19px;
+  width: 2px;
+  height: 53px;
+}
+
+.fuel-gauge--compact .fuel-gauge__needle {
+  top: 2px;
+  width: 3px;
+  height: 18px;
+}
+
+.fuel-gauge--compact .fuel-gauge__center {
+  top: 45px;
+  min-width: 86px;
+}
+
+.fuel-gauge--compact #fuel-consumption-avg {
+  font-size: 25px;
+  line-height: .92;
+}
+
+.fuel-gauge--compact .fuel-gauge__unit {
+  margin-top: 3px;
+  font-size: 8px;
+}
+
+.fuel-gauge--compact .fuel-gauge__min-label,
+.fuel-gauge--compact .fuel-gauge__max-label {
+  bottom: 5px;
+  font-size: 8px;
+}
+
+.fuel-gauge--compact .fuel-gauge__min-label {
+  left: 10px;
+}
+
+.fuel-gauge--compact .fuel-gauge__max-label {
+  right: 8px;
+}
+
+/* The chart now starts immediately under the compact top row. */
+.fuel-digital-chart {
+  margin-top: 2px;
+  padding: 0 4px 4px;
+}
+
+/* Disable the old decorative fixed-position dotted line.
+   The real average is rendered by ApexCharts at the calculated Y value. */
+.fuel-digital-chart::after {
+  display: none;
+}
+
+.fuel-digital-dashboard #fuel-line-chart {
+  height: 128px;
+  min-height: 128px;
+}
+
+.fuel-digital-metrics {
+  margin-top: 7px;
+}
+
+@media (max-width: 410px) {
+  .fuel-digital-dashboard {
+    padding: 11px 12px 10px;
+  }
+
+  .fuel-digital-dashboard__top {
+    grid-template-columns: 138px minmax(0, 1fr);
+    gap: 7px;
+  }
+
+  .fuel-gauge--compact {
+    width: 138px;
+    min-width: 138px;
+    height: 94px;
+  }
+
+  .fuel-gauge--compact .fuel-gauge__svg {
+    width: 141px;
+    height: 79px;
+  }
+
+  .fuel-gauge--compact .fuel-gauge__needle-wrap {
+    bottom: 18px;
+    height: 50px;
+  }
+
+  .fuel-gauge--compact .fuel-gauge__center {
+    top: 43px;
+  }
+
+  .fuel-gauge--compact #fuel-consumption-avg {
+    font-size: 24px;
+  }
+
+  .fuel-digital-dashboard .fuel-mode-option {
+    font-size: 8.5px;
+    padding-inline: 4px;
+  }
+
+  .fuel-control-prefix,
+  .fuel-control-suffix,
+  .fuel-period-trigger--digital .fuel-period-trigger__value {
+    font-size: 8px !important;
   }
 }

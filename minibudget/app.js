@@ -3034,7 +3034,7 @@ function initFuelControls() {
 
   // 3) Показать/скрыть нужный блок
   const applyVisibility = () => {
-  fillsControl.style.display = fuelMode === "fills" ? "block" : "none";
+  fillsControl.style.display = fuelMode === "fills" ? "flex" : "none";
   periodControl.style.display = fuelMode === "period" ? "flex" : "none";
 };
  
@@ -3199,10 +3199,11 @@ function getFuelValidValues(points) {
     .map((point) => Number(point.l100));
 }
 
-function updateFuelDashboardMeta(points, avgValid, previousAvg) {
+function updateFuelDashboardMeta(points, avgValid) {
   const gauge = document.getElementById('fuel-gauge');
   const needle = document.getElementById('fuel-gauge-needle');
-  const trendEl = document.getElementById('fuel-trend-value');
+  const gaugeMinLabel = document.getElementById('fuel-gauge-min-label');
+  const gaugeMaxLabel = document.getElementById('fuel-gauge-max-label');
   const pointCountEl = document.getElementById('fuel-point-count');
   const anomalyCountEl = document.getElementById('fuel-anomaly-count');
   const minEl = document.getElementById('fuel-min-value');
@@ -3220,36 +3221,19 @@ function updateFuelDashboardMeta(points, avgValid, previousAvg) {
 
   if (gauge && needle) {
     const gaugeMin = 5;
-    const gaugeMax = 10;
     const safeAvg = Number.isFinite(avgValid) ? avgValid : gaugeMin;
+
+    // Keep the familiar 5–10 scale in normal use, but expand it automatically
+    // when the average goes above 10 so the needle never gets pinned falsely.
+    const gaugeMax = safeAvg <= 10 ? 10 : Math.max(15, Math.ceil(safeAvg / 5) * 5);
     const ratio = clamp((safeAvg - gaugeMin) / (gaugeMax - gaugeMin), 0, 1);
     const angle = -90 + ratio * 180;
+
     needle.style.setProperty('--fuel-gauge-angle', `${angle}deg`);
     gauge.classList.toggle('is-empty', !Number.isFinite(avgValid));
-  }
 
-  if (trendEl) {
-    trendEl.classList.remove('is-good', 'is-bad', 'is-neutral');
-
-    if (Number.isFinite(avgValid) && Number.isFinite(previousAvg) && previousAvg > 0) {
-      const change = ((avgValid - previousAvg) / previousAvg) * 100;
-      const magnitude = Math.abs(change);
-      const rounded = magnitude < 10 ? magnitude.toFixed(1) : Math.round(magnitude).toString();
-
-      if (Math.abs(change) < 0.05) {
-        trendEl.textContent = '0%';
-        trendEl.classList.add('is-neutral');
-      } else if (change < 0) {
-        trendEl.textContent = `▽ −${rounded}%`;
-        trendEl.classList.add('is-good');
-      } else {
-        trendEl.textContent = `△ +${rounded}%`;
-        trendEl.classList.add('is-bad');
-      }
-    } else {
-      trendEl.textContent = '—';
-      trendEl.classList.add('is-neutral');
-    }
+    if (gaugeMinLabel) gaugeMinLabel.textContent = gaugeMin.toFixed(1);
+    if (gaugeMaxLabel) gaugeMaxLabel.textContent = gaugeMax.toFixed(1);
   }
 }
 
@@ -3297,10 +3281,20 @@ function renderFuelLineChart(points, avgLine) {
     size: point.status === 'anomaly' ? 5 : 4
   }));
 
+  const avgAnnotation = Number.isFinite(avgLine)
+    ? [{
+        y: Number(avgLine.toFixed(3)),
+        borderColor: 'rgba(218, 241, 242, 0.50)',
+        strokeDashArray: 5,
+        borderWidth: 1,
+        label: { show: false }
+      }]
+    : [];
+
   const options = {
     chart: {
       type: 'area',
-      height: 118,
+      height: 128,
       background: 'transparent',
       toolbar: { show: false },
       zoom: { enabled: false },
@@ -3322,10 +3316,13 @@ function renderFuelLineChart(points, avgLine) {
         shadeIntensity: 0.15,
         gradientToColors: ['#0aa7a5'],
         inverseColors: false,
-        opacityFrom: 0.34,
-        opacityTo: 0.015,
+        opacityFrom: 0.30,
+        opacityTo: 0.012,
         stops: [0, 70, 100]
       }
+    },
+    annotations: {
+      yaxis: avgAnnotation
     },
     markers: {
       size: 3.5,
@@ -3380,8 +3377,7 @@ function renderFuelLineChart(points, avgLine) {
 
 function updateFuelConsumptionUI(fullData) {
   const avgEl = document.getElementById('fuel-consumption-avg');
-  const subEl = document.getElementById('fuel-consumption-sub');
-  if (!avgEl || !subEl) return;
+  if (!avgEl) return;
 
   const allPoints = computeFuelTankPoints(fullData);
   let pointsRaw = [];
@@ -3399,36 +3395,19 @@ function updateFuelConsumptionUI(fullData) {
     });
   }
 
-  const previousRaw = getFuelComparisonRawPoints(allPoints);
-  const previousAvg = computeAvgFromValidPoints(previousRaw);
-
   if (!pointsRaw.length) {
     avgEl.textContent = '—';
-    subEl.textContent = fuelMode === 'fills'
-      ? `последние ${Math.max(3, Math.floor(fuelFillsCount || 10))} заправок`
-      : 'в выбранном периоде нет данных';
-    updateFuelDashboardMeta([], null, previousAvg);
+    updateFuelDashboardMeta([], null);
     renderFuelLineChart([], null);
     return;
   }
 
   const avgValid = computeAvgFromValidPoints(pointsRaw);
   const points = pointsRaw.map((point) => classifyFuelPoint({ ...point }, avgValid));
-  const validCount = points.filter((point) => point.status !== 'anomaly').length;
-  const anomalyCount = points.length - validCount;
 
   avgEl.textContent = Number.isFinite(avgValid) ? avgValid.toFixed(2) : '—';
 
-  if (fuelMode === 'fills') {
-    const n = Math.max(3, Math.floor(fuelFillsCount || 10));
-    subEl.textContent = `${n} последних · ${validCount} валидных`;
-  } else {
-    const fromTxt = fuelDateFrom ? formatDate(fuelDateFrom) : '…';
-    const toTxt = fuelDateTo ? formatDate(fuelDateTo) : '…';
-    subEl.textContent = `${fromTxt} → ${toTxt}`;
-  }
-
-  updateFuelDashboardMeta(points, avgValid, previousAvg);
+  updateFuelDashboardMeta(points, avgValid);
   renderFuelLineChart(points, avgValid);
 }
 
