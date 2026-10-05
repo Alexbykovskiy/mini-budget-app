@@ -5854,125 +5854,6 @@ function formatCarReminderDetails(reminder) {
 }
 
 
-function getCarReminderProgress(reminder) {
-
-  const percentages = [];
-
-
-  /* Остаток по километрам */
-  if (
-    reminder.kmLeft !== null &&
-    Number(reminder.interval) > 0
-  ) {
-
-    const percentage =
-      (
-        Number(reminder.kmLeft) /
-        Number(reminder.interval)
-      ) * 100;
-
-    percentages.push(
-      percentage
-    );
-  }
-
-
-  /* Остаток по времени */
-  if (
-    reminder.daysLeft !== null &&
-    reminder.dateStart &&
-    reminder.dateEnd
-  ) {
-
-    const start =
-      new Date(reminder.dateStart);
-
-    const end =
-      new Date(reminder.dateEnd);
-
-
-    const totalDays =
-      Math.ceil(
-        (
-          end - start
-        ) /
-        (
-          1000 *
-          60 *
-          60 *
-          24
-        )
-      );
-
-
-    if (
-      Number.isFinite(totalDays) &&
-      totalDays > 0
-    ) {
-
-      const percentage =
-        (
-          Number(reminder.daysLeft) /
-          totalDays
-        ) * 100;
-
-      percentages.push(
-        percentage
-      );
-    }
-  }
-
-
-  let result;
-
-
-  if (percentages.length) {
-
-    /*
-     * Берём тот параметр,
-     * который ближе к окончанию.
-     */
-    result =
-      Math.min(
-        ...percentages
-      );
-
-  } else {
-
-    /*
-     * Fallback,
-     * если старые данные без интервала.
-     */
-    const defaults = {
-
-      expired: 5,
-
-      red: 14,
-
-      orange: 30,
-
-      yellow: 48,
-
-      gray: 78
-    };
-
-
-    result =
-      defaults[
-        reminder.status
-      ] ?? 70;
-  }
-
-
-  return Math.max(
-    5,
-    Math.min(
-      100,
-      result
-    )
-  );
-}
-
 
 function getCarReminderLineStart(layout) {
 
@@ -6122,12 +6003,6 @@ const anchorHTML = [];
         );
 
 
-      const progress =
-        getCarReminderProgress(
-          reminder
-        );
-
-
       const title =
         escapeReminderHTML(
           reminder.tag ||
@@ -6167,7 +6042,6 @@ const imageAction = "";
             --card-x: ${layout.x}%;
             --card-y: ${layout.y}%;
             --card-w: ${layout.w}%;
-            --reminder-progress: ${progress}%;
           "
         >
 
@@ -6190,10 +6064,6 @@ const imageAction = "";
 
             <div class="car-reminder-card__meta">
               ${details}
-            </div>
-
-            <div class="car-reminder-card__progress">
-              <span></span>
             </div>
 
           </div>
