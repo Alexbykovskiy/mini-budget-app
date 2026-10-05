@@ -1,6 +1,12 @@
 let db; // <--- вот это вставь первой строкой
 const profileCode = "mini";
 
+// Date picker must not depend on Firebase or other app startup tasks.
+// This also makes it reliable on desktop browsers where another startup task may fail.
+document.addEventListener("DOMContentLoaded", () => {
+  initExpenseDatePicker();
+});
+
 window.addEventListener("load", () => {
   db = firebase.firestore();
   loadExpenses();
@@ -8,7 +14,6 @@ window.addEventListener("load", () => {
   resetForm();
 initFuelControls();
   initWheelPickerUI();
-  initExpenseDatePicker();
 initCarMapEditor();
 initReminderModal();
   // 📸 Выбор способа загрузки изображения — камера или галерея
@@ -2058,6 +2063,8 @@ function attachExpenseDateWheelDrag(side) {
   wheel.root.addEventListener("pointerdown", (event) => {
     if (!expenseDatePickerState) return;
 
+    // Prevent browser text selection/caret artifacts during mouse/touch dragging.
+    event.preventDefault();
     dragging = true;
     moved = false;
     startY = event.clientY;
@@ -2086,6 +2093,11 @@ function initExpenseDatePicker() {
   const input = document.getElementById("date");
 
   if (!trigger || !input) return;
+  if (trigger.dataset.datePickerReady === "1") {
+    syncExpenseDateTrigger();
+    return;
+  }
+  trigger.dataset.datePickerReady = "1";
 
   if (!input.value) {
     input.value = getLocalISODate();

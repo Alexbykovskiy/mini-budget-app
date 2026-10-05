@@ -6352,3 +6352,28 @@ body.expense-date-picker-lock {
     transition: none !important;
   }
 }
+
+
+/* Expense date picker: cross-browser interaction fixes */
+.expense-date-picker-modal,
+.expense-date-picker-modal * {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  caret-color: transparent !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.expense-date-picker-wheel,
+.expense-date-picker-track,
+.expense-date-picker-item {
+  -webkit-user-drag: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .expense-date-picker-wheel {
+    cursor: grab;
+  }
+  .expense-date-picker-wheel.dragging {
+    cursor: grabbing;
+  }
+}
