@@ -6841,3 +6841,104 @@ body.expense-date-picker-lock {
     font-size: 22px;
   }
 }
+
+
+/* =========================================================
+   DATE WHEELS — Safari/iOS artifact + geometry fixes (v5)
+   ========================================================= */
+
+/* Safari can paint its insertion caret during pointer-drag on text-like wheel
+   content. Kill text editing/selection at every level, including the modal. */
+.expense-date-picker-modal,
+.expense-date-picker-modal *,
+.fuel-period-picker-modal,
+.fuel-period-picker-modal * {
+  caret-color: transparent !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+  -webkit-user-modify: read-only !important;
+  outline: none !important;
+}
+
+.expense-date-picker-wheel,
+.fuel-period-picker-wheel {
+  -webkit-tap-highlight-color: transparent !important;
+  touch-action: none !important;
+}
+
+/* Range picker uses exactly the same wheel geometry as the stable single-date picker. */
+.fuel-period-picker-wheels {
+  height: 154px !important;
+  overflow: hidden !important;
+}
+
+.fuel-period-picker-wheel {
+  height: 154px !important;
+  overflow: hidden !important;
+}
+
+.fuel-period-picker-track {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  transition: transform 0.14s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+  will-change: transform;
+}
+
+.fuel-period-picker-wheel.dragging .fuel-period-picker-track {
+  transition: none !important;
+}
+
+.fuel-period-picker-item {
+  position: static !important;
+  inset: auto !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 4px !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+  line-height: 1 !important;
+  font-variant-numeric: tabular-nums;
+  transform-origin: center !important;
+}
+
+.fuel-period-picker-item.active {
+  transform: scale(1.07) !important;
+}
+.fuel-period-picker-item.distance-1 {
+  transform: scale(0.94) !important;
+}
+.fuel-period-picker-item.distance-2 {
+  transform: scale(0.86) !important;
+}
+
+.fuel-period-picker-selection {
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  pointer-events: none !important;
+}
+
+/* Keep both drums comfortably inside an iPhone viewport. */
+.fuel-period-picker-sheet {
+  overflow: hidden !important;
+  padding: 14px 16px 16px !important;
+}
+.fuel-period-picker-sections {
+  gap: 10px !important;
+}
+.fuel-period-picker-section {
+  padding: 8px 8px 6px !important;
+}
+.fuel-period-picker-section__title {
+  margin: 0 0 4px !important;
+}
+.fuel-period-picker-footer {
+  margin-top: 10px !important;
+}

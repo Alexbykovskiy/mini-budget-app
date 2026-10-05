@@ -2468,9 +2468,10 @@ function renderFuelPeriodWheel(rangeKey, side, translateY = 0) {
       item.dataset.value = String(value);
     }
 
-    item.style.transform = `translateY(${offset * EXPENSE_DATE_WHEEL_ROW_HEIGHT + translateY}px)`;
     wheel.track.appendChild(item);
   }
+
+  wheel.track.style.transform = `translateY(${translateY}px)`;
 }
 
 function renderAllFuelPeriodWheels() {
@@ -2691,13 +2692,18 @@ function initFuelPeriodPickerTrigger() {
   }
 
   trigger.dataset.fuelPeriodReady = '1';
+  if (!document.documentElement.dataset.fuelPeriodDelegatedReady) {
+    document.documentElement.dataset.fuelPeriodDelegatedReady = '1';
+    document.addEventListener('click', (event) => {
+      const delegatedTrigger = event.target.closest?.('#fuel-period-trigger');
+      if (!delegatedTrigger) return;
+      event.preventDefault();
+      openFuelPeriodPicker();
+    });
+  }
+
   syncFuelPeriodTrigger();
 
-  trigger.addEventListener('click', (event) => {
-    event.preventDefault();
-    trigger.blur();
-    openFuelPeriodPicker();
-  });
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && fuelPeriodPickerState?.modal?.classList.contains('show')) {
