@@ -3277,6 +3277,82 @@ function formatFuelScrubberPoint(point) {
   return `${l100} л/100 · ${distance} / ${liters}${status ? ` · ${status}` : ''}${reason}`;
 }
 
+function getFuelChartPointGeometry() {
+  const chartBox = document.querySelector('.fuel-digital-chart');
+  const chartEl = document.getElementById('fuel-line-chart');
+  if (!chartBox || !chartEl) return null;
+
+  const boxRect = chartBox.getBoundingClientRect();
+
+  // Use the actual rendered marker centres first. This keeps the scrubber
+  // aligned with ApexCharts even if its internal plot padding changes.
+  const markerCenters = Array.from(
+    chartEl.querySelectorAll('.apexcharts-marker')
+  )
+    .map((marker) => {
+      const rect = marker.getBoundingClientRect();
+      if (!rect.width && !rect.height) return null;
+      return rect.left + rect.width / 2 - boxRect.left;
+    })
+    .filter((value) => Number.isFinite(value));
+
+  if (markerCenters.length >= 2) {
+    return {
+      left: Math.min(...markerCenters),
+      right: Math.max(...markerCenters)
+    };
+  }
+
+  // Fallback for the short moment before SVG markers are painted.
+  const chartRect = chartEl.getBoundingClientRect();
+  const globals = fuelChart?.w?.globals;
+  const translateX = Number(globals?.translateX);
+  const gridWidth = Number(globals?.gridWidth);
+
+  if (Number.isFinite(translateX) && Number.isFinite(gridWidth) && gridWidth > 0) {
+    const left = chartRect.left - boxRect.left + translateX;
+    return { left, right: left + gridWidth };
+  }
+
+  return {
+    left: chartRect.left - boxRect.left,
+    right: chartRect.right - boxRect.left
+  };
+}
+
+function syncFuelScrubberGeometry() {
+  const chartBox = document.querySelector('.fuel-digital-chart');
+  const scrubber = document.getElementById('fuel-scrubber');
+  const wrap = document.getElementById('fuel-scrubber-wrap');
+  if (!chartBox || !scrubber || !wrap) return;
+
+  const geometry = getFuelChartPointGeometry();
+  if (!geometry) return;
+
+  const chartStyle = getComputedStyle(chartBox);
+  const contentLeft = parseFloat(chartStyle.paddingLeft) || 0;
+  const thumbSize = 20;
+  const plotWidth = Math.max(0, geometry.right - geometry.left);
+
+  // A range thumb can only move between half-thumb insets. Extend the range
+  // itself by one thumb diameter so its centre endpoints land exactly on the
+  // first and last ApexCharts points.
+  wrap.style.width = `${plotWidth + thumbSize}px`;
+  wrap.style.marginLeft = `${geometry.left - contentLeft - thumbSize / 2}px`;
+  wrap.style.marginRight = '0';
+  wrap.dataset.plotLeft = String(geometry.left);
+  wrap.dataset.plotRight = String(geometry.right);
+}
+
+function scheduleFuelScrubberGeometrySync() {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      syncFuelScrubberGeometry();
+      updateFuelScrubberVisual(fuelScrubberIndex);
+    });
+  });
+}
+
 function updateFuelScrubberVisual(index, { haptic = false } = {}) {
   const scrubber = document.getElementById('fuel-scrubber');
   const wrap = document.getElementById('fuel-scrubber-wrap');
@@ -3315,23 +3391,11 @@ function updateFuelScrubberVisual(index, { haptic = false } = {}) {
   scrubber.style.setProperty('--fuel-scrubber-progress', `${percent}%`);
   wrap.style.setProperty('--fuel-scrubber-progress', `${percent}%`);
 
-  // A native range thumb does not travel over the full input width: its
-  // centre moves from half a thumb-width at the left edge to half a
-  // thumb-width before the right edge. The old guide used plain 0..100%,
-  // so the error grew toward the right side of the chart. Anchor the guide
-  // to the actual thumb centre instead.
-  const chartBox = guide.offsetParent || document.querySelector('.fuel-digital-chart');
-  if (chartBox) {
-    const inputRect = scrubber.getBoundingClientRect();
-    const boxRect = chartBox.getBoundingClientRect();
-    const thumbSize = 16; // Current effective thumb size from the shared range CSS.
-    const travelWidth = Math.max(0, inputRect.width - thumbSize);
-    const thumbCenterX =
-      inputRect.left - boxRect.left +
-      thumbSize / 2 +
-      progress * travelWidth;
-
-    guide.style.left = `${thumbCenterX}px`;
+  // The guide follows the real Apex plot width, not the range element width.
+  // This keeps it directly under the selected graph point from first to last.
+  const geometry = getFuelChartPointGeometry();
+  if (geometry) {
+    guide.style.left = `${geometry.left + progress * (geometry.right - geometry.left)}px`;
     guide.style.transform = 'none';
   }
 
@@ -3344,10 +3408,6 @@ function updateFuelScrubberVisual(index, { haptic = false } = {}) {
   info.classList.remove('is-empty');
   guide.classList.remove('is-hidden');
 
-  // Do not call ApexCharts.toggleDataPointSelection() from the scrubber.
-  // ApexCharts emits dataPointSelection for programmatic selection too, which
-  // can create a feedback loop: scrubber -> chart selection -> scrubber -> ...
-  // The guide + readout provide selection feedback without touching chart state.
   if (haptic && changed) wheelHaptic();
 }
 
@@ -3380,6 +3440,8 @@ function initFuelScrubber() {
 
   scrubber.addEventListener('input', handle);
   scrubber.addEventListener('change', handle);
+
+  window.addEventListener('resize', scheduleFuelScrubberGeometrySync, { passive: true });
 }
 
 function resetFuelScrubber(points) {
@@ -3388,6 +3450,7 @@ function resetFuelScrubber(points) {
   fuelScrubberIndex = 0;
   // Start from the leftmost point every time the chart dataset changes.
   requestAnimationFrame(() => updateFuelScrubberVisual(0));
+  scheduleFuelScrubberGeometrySync();
 }
 
 function renderFuelLineChart(points, avgLine) {
@@ -3516,6 +3579,7 @@ function renderFuelLineChart(points, avgLine) {
   }
 
   resetFuelScrubber(points || []);
+  scheduleFuelScrubberGeometrySync();
 }
 
 function updateFuelConsumptionUI(fullData) {
