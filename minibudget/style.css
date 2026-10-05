@@ -7749,7 +7749,7 @@ body.expense-date-picker-lock {
   }
 
   .car-map-editor-toolbar {
-    top: 84px;
+    top: 74px;
     right: 8px;
     gap: 5px;
   }
@@ -7782,6 +7782,6 @@ body.expense-date-picker-lock {
   }
 
   .car-map-editor-toolbar {
-    top: 80px;
+    top: 70px;
   }
 }
