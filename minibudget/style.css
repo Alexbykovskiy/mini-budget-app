@@ -6286,3 +6286,15 @@ body.expense-date-picker-lock {
     transition: none !important;
   }
 }
+
+/* Date wheels: avoid filtered layers at clipped edges on mobile renderers.
+   Keep scale/opacity depth cues and the translucent selection background. */
+.date-wheel-grid .wheel-picker-item {
+  filter: none;
+  transition: opacity 0.13s ease, transform 0.13s ease;
+}
+
+.date-wheel-grid .wheel-picker-selection-combined {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
