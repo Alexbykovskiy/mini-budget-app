@@ -7372,3 +7372,175 @@ body.expense-date-picker-lock {
     font-size: 8px !important;
   }
 }
+
+
+/* =========================================================
+   FUEL CHART SCRUBBER
+   ========================================================= */
+
+.fuel-digital-chart {
+  --fuel-scrubber-accent: #27e3dd;
+}
+
+.fuel-scrubber-info {
+  position: relative;
+  z-index: 6;
+  min-height: 34px;
+  margin: -1px 6px 3px;
+  padding: 7px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(255,255,255,.075);
+  border-radius: 11px;
+  background: rgba(14, 23, 29, .82);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 5px 16px rgba(0,0,0,.16);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  color: rgba(241,249,250,.94);
+  overflow: hidden;
+}
+
+.fuel-scrubber-info__dot {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--fuel-scrubber-accent);
+}
+
+.fuel-scrubber-info__value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: .005em;
+  font-variant-numeric: tabular-nums;
+}
+
+.fuel-scrubber-info.is-empty {
+  opacity: .48;
+}
+
+.fuel-scrubber {
+  position: relative;
+  z-index: 7;
+  height: 30px;
+  margin: 0 5px -1px;
+  display: flex;
+  align-items: center;
+}
+
+.fuel-scrubber::before {
+  content: "";
+  position: absolute;
+  left: 9px;
+  right: 9px;
+  top: 50%;
+  height: 3px;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(39,227,221,.72) 0,
+    rgba(39,227,221,.72) var(--fuel-scrubber-progress, 0%),
+    rgba(218,241,242,.14) var(--fuel-scrubber-progress, 0%),
+    rgba(218,241,242,.14) 100%
+  );
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.38);
+  pointer-events: none;
+}
+
+.fuel-scrubber__input {
+  --fuel-scrubber-progress: 0%;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 30px;
+  margin: 0;
+  padding: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  outline: none;
+  touch-action: pan-x;
+  cursor: ew-resize;
+  accent-color: transparent;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fuel-scrubber__input::-webkit-slider-runnable-track {
+  height: 30px;
+  background: transparent;
+  border: 0;
+}
+
+.fuel-scrubber__input::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 5px;
+  border-radius: 50%;
+  border: 2px solid rgba(238,255,255,.94);
+  background: rgba(31,224,217,.94);
+  box-shadow: 0 0 0 5px rgba(39,227,221,.11), 0 2px 9px rgba(0,0,0,.42), 0 0 13px rgba(39,227,221,.34);
+}
+
+.fuel-scrubber__input::-moz-range-track {
+  height: 30px;
+  background: transparent;
+  border: 0;
+}
+
+.fuel-scrubber__input::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(238,255,255,.94);
+  background: rgba(31,224,217,.94);
+  box-shadow: 0 0 0 5px rgba(39,227,221,.11), 0 2px 9px rgba(0,0,0,.42), 0 0 13px rgba(39,227,221,.34);
+}
+
+.fuel-scrubber__input:disabled {
+  opacity: .35;
+  cursor: default;
+}
+
+.fuel-scrubber-guide {
+  position: absolute;
+  z-index: 4;
+  top: 8px;
+  bottom: 75px;
+  width: 0;
+  border-left: 1px dashed rgba(224,244,245,.55);
+  pointer-events: none;
+  transform: translateX(4px);
+  transition: left 70ms linear;
+}
+
+.fuel-scrubber-guide.is-hidden {
+  display: none;
+}
+
+/* Keep the native Apex tooltip for direct taps, but the scrubber has its own
+   persistent readout so dragging never depends on hitting a tiny marker. */
+.fuel-digital-dashboard .apexcharts-marker.apexcharts-selected {
+  filter: drop-shadow(0 0 5px rgba(238,255,255,.8));
+}
+
+@media (max-width: 410px) {
+  .fuel-scrubber-info {
+    margin-left: 4px;
+    margin-right: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .fuel-scrubber-info__value {
+    font-size: 9.5px;
+  }
+}

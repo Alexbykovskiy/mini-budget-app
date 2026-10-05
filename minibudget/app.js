@@ -73,6 +73,9 @@ const summary = document.getElementById('summary');
 let expenseChart;
 let expenses = [];
 let fuelChart; // график расхода по заправкам
+let fuelScrubberPoints = [];
+let fuelScrubberIndex = 0;
+let fuelScrubberReady = false;
 let fuelMode =
   (typeof localStorage !== "undefined" && localStorage.getItem("fuelMode")) || "fills"; // fills | period
 
@@ -3255,6 +3258,118 @@ function updateFuelChartDates(points) {
   if (endEl) endEl.textContent = formatDate(points[points.length - 1].date);
 }
 
+function getFuelPointStatusColor(status) {
+  if (status === 'good') return '#35e8a5';
+  if (status === 'normal') return '#20d9d2';
+  if (status === 'high') return '#ffab45';
+  return '#ff4f64';
+}
+
+function formatFuelScrubberPoint(point) {
+  if (!point) return '—';
+
+  const l100 = Number.isFinite(point.l100) ? point.l100.toFixed(2) : '—';
+  const distance = Number.isFinite(point.distance) ? `${Math.round(point.distance)} км` : '— км';
+  const liters = Number.isFinite(point.liters) ? `${Number(point.liters).toFixed(1)} л` : '— л';
+  const status = FUEL_LABELS[point.status] || '';
+  const reason = point.reason ? ` · ${point.reason}` : '';
+
+  return `${l100} л/100 · ${distance} / ${liters}${status ? ` · ${status}` : ''}${reason}`;
+}
+
+function updateFuelScrubberVisual(index, { haptic = false } = {}) {
+  const scrubber = document.getElementById('fuel-scrubber');
+  const wrap = document.getElementById('fuel-scrubber-wrap');
+  const info = document.getElementById('fuel-scrubber-info');
+  const valueEl = document.getElementById('fuel-scrubber-value');
+  const dot = document.getElementById('fuel-scrubber-status');
+  const guide = document.getElementById('fuel-scrubber-guide');
+
+  const count = fuelScrubberPoints.length;
+  if (!scrubber || !wrap || !info || !valueEl || !dot || !guide) return;
+
+  if (!count) {
+    scrubber.min = '0';
+    scrubber.max = '0';
+    scrubber.value = '0';
+    scrubber.disabled = true;
+    wrap.classList.add('is-empty');
+    info.classList.add('is-empty');
+    guide.classList.add('is-hidden');
+    valueEl.textContent = 'Нет данных';
+    return;
+  }
+
+  const nextIndex = clamp(Math.round(Number(index) || 0), 0, count - 1);
+  const changed = nextIndex !== fuelScrubberIndex;
+  fuelScrubberIndex = nextIndex;
+
+  scrubber.disabled = count <= 1;
+  scrubber.min = '0';
+  scrubber.max = String(Math.max(0, count - 1));
+  scrubber.step = '1';
+  scrubber.value = String(nextIndex);
+
+  const progress = count <= 1 ? 0 : nextIndex / (count - 1);
+  const percent = progress * 100;
+  scrubber.style.setProperty('--fuel-scrubber-progress', `${percent}%`);
+  wrap.style.setProperty('--fuel-scrubber-progress', `${percent}%`);
+  guide.style.left = `${percent}%`;
+
+  const point = fuelScrubberPoints[nextIndex];
+  valueEl.textContent = formatFuelScrubberPoint(point);
+  dot.style.background = getFuelPointStatusColor(point.status);
+  dot.style.boxShadow = `0 0 12px ${getFuelPointStatusColor(point.status)}`;
+
+  wrap.classList.remove('is-empty');
+  info.classList.remove('is-empty');
+  guide.classList.remove('is-hidden');
+
+  // ApexCharts has a native selected-point state. Reuse it instead of
+  // redrawing the whole chart on every pixel of a finger drag.
+  if (fuelChart && (changed || !Number.isInteger(updateFuelScrubberVisual.lastSelected))) {
+    try {
+      const previousSelected = updateFuelScrubberVisual.lastSelected;
+      updateFuelScrubberVisual.lastSelected = nextIndex;
+
+      if (Number.isInteger(previousSelected) && previousSelected !== nextIndex) {
+        fuelChart.toggleDataPointSelection(0, previousSelected);
+      }
+      fuelChart.toggleDataPointSelection(0, nextIndex);
+    } catch (error) {
+      // Selection highlighting is cosmetic; the scrubber remains functional.
+    }
+  }
+
+  if (haptic && changed) wheelHaptic();
+}
+
+function initFuelScrubber() {
+  if (fuelScrubberReady) return;
+
+  const scrubber = document.getElementById('fuel-scrubber');
+  if (!scrubber) return;
+
+  fuelScrubberReady = true;
+
+  const handle = () => {
+    updateFuelScrubberVisual(Number(scrubber.value), { haptic: true });
+  };
+
+  scrubber.addEventListener('input', handle, { passive: true });
+  scrubber.addEventListener('change', handle, { passive: true });
+}
+
+function resetFuelScrubber(points) {
+  initFuelScrubber();
+  fuelScrubberPoints = Array.isArray(points) ? points : [];
+  fuelScrubberIndex = 0;
+  updateFuelScrubberVisual.lastSelected = undefined;
+
+  // Start from the leftmost point every time the chart dataset changes.
+  requestAnimationFrame(() => updateFuelScrubberVisual(0));
+}
+
 function renderFuelLineChart(points, avgLine) {
   const el = document.querySelector('#fuel-line-chart');
   if (!el) return;
@@ -3266,17 +3381,10 @@ function renderFuelLineChart(points, avgLine) {
     data: (points || []).map((point) => Number(point.l100.toFixed(2)))
   }];
 
-  const statusColor = (status) => {
-    if (status === 'good') return '#35e8a5';
-    if (status === 'normal') return '#20d9d2';
-    if (status === 'high') return '#ffab45';
-    return '#ff4f64';
-  };
-
   const discreteMarkers = (points || []).map((point, index) => ({
     seriesIndex: 0,
     dataPointIndex: index,
-    fillColor: statusColor(point.status),
+    fillColor: getFuelPointStatusColor(point.status),
     strokeColor: '#eefeff',
     size: point.status === 'anomaly' ? 5 : 4
   }));
@@ -3299,7 +3407,14 @@ function renderFuelLineChart(points, avgLine) {
       toolbar: { show: false },
       zoom: { enabled: false },
       animations: { enabled: true, easing: 'easeinout', speed: 350 },
-      sparkline: { enabled: true }
+      sparkline: { enabled: true },
+      events: {
+        dataPointSelection: (_event, _chartContext, config) => {
+          if (Number.isInteger(config?.dataPointIndex) && config.dataPointIndex >= 0) {
+            updateFuelScrubberVisual(config.dataPointIndex);
+          }
+        }
+      }
     },
     series,
     colors: ['#27e3dd'],
@@ -3330,6 +3445,12 @@ function renderFuelLineChart(points, avgLine) {
       strokeColors: '#eaffff',
       hover: { sizeOffset: 2 },
       discrete: discreteMarkers
+    },
+    states: {
+      active: {
+        allowMultipleDataPointsSelection: false,
+        filter: { type: 'none' }
+      }
     },
     dataLabels: { enabled: false },
     grid: {
@@ -3373,6 +3494,8 @@ function renderFuelLineChart(points, avgLine) {
     fuelChart = new ApexCharts(el, options);
     fuelChart.render();
   }
+
+  resetFuelScrubber(points || []);
 }
 
 function updateFuelConsumptionUI(fullData) {

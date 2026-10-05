@@ -216,6 +216,27 @@
 
   <div class="fuel-digital-chart">
     <div id="fuel-line-chart"></div>
+
+    <div id="fuel-scrubber-guide" class="fuel-scrubber-guide" aria-hidden="true"></div>
+
+    <div id="fuel-scrubber-info" class="fuel-scrubber-info" aria-live="polite">
+      <span id="fuel-scrubber-status" class="fuel-scrubber-info__dot"></span>
+      <span id="fuel-scrubber-value" class="fuel-scrubber-info__value">—</span>
+    </div>
+
+    <div class="fuel-scrubber" id="fuel-scrubber-wrap">
+      <input
+        type="range"
+        id="fuel-scrubber"
+        class="fuel-scrubber__input"
+        min="0"
+        max="0"
+        step="1"
+        value="0"
+        aria-label="Просмотр точек расхода топлива"
+      >
+    </div>
+
     <div class="fuel-digital-chart__dates" aria-hidden="true">
       <span id="fuel-chart-date-start">—</span>
       <span id="fuel-chart-date-mid">—</span>
