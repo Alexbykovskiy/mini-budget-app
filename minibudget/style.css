@@ -2425,13 +2425,15 @@ pill-center:hover .pill-icon svg,
   justify-content: center;
 
   background:
-    rgba(0, 0, 0, 0.38);
+    rgba(6, 10, 14, 0.26);
 
   backdrop-filter:
-    blur(3px);
+    blur(12px)
+    saturate(120%);
 
   -webkit-backdrop-filter:
-    blur(3px);
+    blur(12px)
+    saturate(120%);
 
   z-index: 200000;
 
@@ -2465,24 +2467,68 @@ box-sizing: border-box;
 /* ===== сама панель ===== */
 
 .wheel-picker-sheet {
+  position: relative;
+  isolation: isolate;
+
   width: min(420px, calc(100vw - 24px));
 
   transform: translateY(-5vh);
 
-  background: rgba(28, 28, 30, 0.97);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(38, 48, 57, 0.72),
+      rgba(20, 27, 34, 0.64)
+    );
+
   color: white;
 
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 28px;
 
   padding: 16px 18px 18px;
 
   box-sizing: border-box;
 
+  backdrop-filter:
+    blur(30px)
+    saturate(160%);
+
+  -webkit-backdrop-filter:
+    blur(30px)
+    saturate(160%);
+
   box-shadow:
-    0 18px 55px rgba(0, 0, 0, 0.38),
-    0 1px 0 rgba(255, 255, 255, 0.05) inset;
+    0 22px 60px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05);
 
   overflow: hidden;
+}
+
+.wheel-picker-sheet::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    radial-gradient(
+      circle at 18% 0%,
+      rgba(255, 255, 255, 0.18),
+      transparent 34%
+    ),
+    linear-gradient(
+      115deg,
+      rgba(255, 255, 255, 0.08),
+      transparent 36%
+    );
+}
+
+.wheel-picker-sheet > * {
+  position: relative;
+  z-index: 1;
 }/* ===== header ===== */
 
 .wheel-picker-header {
@@ -2617,20 +2663,19 @@ box-sizing: border-box;
   border-radius: 16px;
 
   background:
-    rgba(
-      255,
-      255,
-      255,
-      0.095
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.14),
+      rgba(255, 255, 255, 0.075)
     );
 
   backdrop-filter:
-    blur(18px)
-    saturate(120%);
+    blur(20px)
+    saturate(150%);
 
   -webkit-backdrop-filter:
-    blur(18px)
-    saturate(120%);
+    blur(20px)
+    saturate(150%);
 
   border:
     1px solid
@@ -2638,7 +2683,7 @@ box-sizing: border-box;
       255,
       255,
       255,
-      0.08
+      0.14
     );
 
   box-shadow:
@@ -2650,7 +2695,7 @@ box-sizing: border-box;
       255,
       255,
       255,
-      0.08
+      0.15
     ),
 
     inset
@@ -2917,7 +2962,13 @@ box-sizing: border-box;
 }
 .wheel-picker-footer-btn.cancel {
   color: rgba(255, 255, 255, 0.82);
-  background: rgba(255, 255, 255, 0.08) !important;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.12),
+      rgba(255, 255, 255, 0.07)
+    ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
 }
 
 .wheel-picker-footer-btn.primary {
@@ -5785,9 +5836,9 @@ body.expense-date-picker-lock {
     max(16px, env(safe-area-inset-top))
     12px
     max(24px, env(safe-area-inset-bottom));
-  background: rgba(0, 0, 0, 0.38);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
+  background: rgba(6, 10, 14, 0.26);
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease;
@@ -5806,18 +5857,62 @@ body.expense-date-picker-lock {
 
 .expense-date-picker-sheet,
 .fuel-period-picker-sheet {
+  position: relative;
+  isolation: isolate;
+
   width: min(420px, calc(100vw - 24px));
   box-sizing: border-box;
-  border: 0;
+
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 28px;
   padding: 16px 18px 18px;
-  background: rgba(28, 28, 30, 0.97);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(38, 48, 57, 0.72),
+      rgba(20, 27, 34, 0.64)
+    );
+
   color: #fff;
+
+  backdrop-filter: blur(30px) saturate(160%);
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
+
   box-shadow:
-    0 18px 55px rgba(0, 0, 0, 0.38),
-    0 1px 0 rgba(255, 255, 255, 0.05) inset;
+    0 22px 60px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+
   overflow: hidden;
   transform: translateY(-5vh);
+}
+
+.expense-date-picker-sheet::before,
+.fuel-period-picker-sheet::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    radial-gradient(
+      circle at 18% 0%,
+      rgba(255, 255, 255, 0.18),
+      transparent 34%
+    ),
+    linear-gradient(
+      115deg,
+      rgba(255, 255, 255, 0.08),
+      transparent 36%
+    );
+}
+
+.expense-date-picker-sheet > *,
+.fuel-period-picker-sheet > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* Old decorative header stays out of the way. */
@@ -5838,9 +5933,15 @@ body.expense-date-picker-lock {
   border: 0 !important;
   border-radius: 999px;
   padding: 0 13px !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  color: rgba(255, 255, 255, 0.82) !important;
-  box-shadow: none !important;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.13),
+      rgba(255, 255, 255, 0.07)
+    ) !important;
+  color: rgba(255, 255, 255, 0.84) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
   font-size: 12px;
   font-weight: 650;
   line-height: 1;
@@ -5851,7 +5952,7 @@ body.expense-date-picker-lock {
 .expense-date-picker-chip:active,
 .fuel-period-chip:active {
   transform: scale(0.97);
-  background: rgba(255, 255, 255, 0.13) !important;
+  background: rgba(255, 255, 255, 0.17) !important;
 }
 
 .date-wheel-labels {
@@ -5936,7 +6037,13 @@ body.expense-date-picker-lock {
 .expense-date-picker-btn.secondary,
 .fuel-period-picker-btn.secondary {
   color: rgba(255, 255, 255, 0.82);
-  background: rgba(255, 255, 255, 0.08) !important;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.12),
+      rgba(255, 255, 255, 0.07)
+    ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
 }
 
 .expense-date-picker-btn.primary,
@@ -6011,8 +6118,22 @@ body.expense-date-picker-lock {
 .fuel-period-picker-section {
   padding: 8px 8px 6px;
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.075),
+      rgba(255, 255, 255, 0.035)
+    );
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  backdrop-filter: blur(16px) saturate(135%);
+  -webkit-backdrop-filter: blur(16px) saturate(135%);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
   overflow: hidden;
 }
 
