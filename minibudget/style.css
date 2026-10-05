@@ -7546,352 +7546,199 @@ body.expense-date-picker-lock {
 
 /* =========================================================
    DIGITAL VEHICLE STATS DASHBOARD
-   Minimal, dense vehicle statistics panel.
-   Icons are subtle background watermarks.
+   One compact row, seven values, no icons.
    ========================================================= */
 
 .stats-dashboard {
   width: 380px;
-  max-width: calc(100vw - 28px);
+  max-width: calc(100vw - 20px);
   box-sizing: border-box;
   margin: 0 auto 16px;
-  padding: 8px 10px 7px;
+  padding: 9px 8px;
   overflow: hidden;
   border: 0;
-  border-radius: 22px;
+  border-radius: 20px;
   color: #eef6f8;
   background: linear-gradient(
     145deg,
     rgba(31, 46, 57, 0.99),
     rgba(17, 29, 38, 0.99)
   );
-  box-shadow: 0 10px 24px rgba(20, 31, 38, 0.16);
+  box-shadow: 0 8px 20px rgba(20, 31, 38, 0.14);
 }
 
-.stats-dashboard__main {
+.stats-dashboard__row {
   display: grid;
-  grid-template-columns: 1.08fr 1.34fr 0.92fr;
+  grid-template-columns:
+    1.18fr
+    1.00fr
+    1.18fr
+    0.93fr
+    1.00fr
+    0.92fr
+    0.86fr;
   align-items: stretch;
-  min-height: 64px;
+  width: 100%;
 }
 
-.stats-primary,
-.stats-secondary {
+.stats-tile {
   position: relative;
   min-width: 0;
+  box-sizing: border-box;
+  padding: 3px 6px 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   overflow: hidden;
 }
 
-.stats-primary {
-  display: block;
-  padding: 6px 10px;
-}
-
-.stats-primary + .stats-primary::before,
-.stats-secondary + .stats-secondary::before {
+.stats-tile + .stats-tile::before {
   content: "";
   position: absolute;
   left: 0;
+  top: 4px;
+  bottom: 4px;
   width: 1px;
-  background: rgba(160, 194, 202, 0.14);
+  background: rgba(174, 194, 201, 0.22);
 }
 
-.stats-primary + .stats-primary::before {
-  top: 7px;
-  bottom: 7px;
-}
-
-.stats-primary__content,
-.stats-secondary__content {
-  position: relative;
-  z-index: 2;
-  min-width: 0;
-}
-
-.stats-primary__icon,
-.stats-secondary__icon {
-  position: absolute;
-  top: 50%;
-  right: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform: translateY(-50%);
-  color: rgba(198, 211, 216, 0.105);
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.stats-primary__icon {
-  width: 48px;
-  height: 48px;
-}
-
-.stats-primary__icon svg {
-  width: 48px;
-  height: 48px;
-  stroke-width: 1.25;
-}
-
-.stats-primary__label,
-.stats-secondary__label {
+.stats-tile__label {
   display: block;
-  max-width: 100%;
-  color: rgba(213, 228, 233, 0.72);
+  min-height: 16px;
+  margin: 0 0 3px;
+  color: rgba(207, 220, 225, 0.72);
+  font-size: 7px;
+  font-weight: 600;
+  line-height: 1.08;
   white-space: normal;
   overflow: visible;
   text-overflow: clip;
   overflow-wrap: normal;
 }
 
-.stats-primary__label {
-  margin-bottom: 3px;
-  font-size: 9.4px;
-  font-weight: 620;
-  line-height: 1.1;
-}
-
-.stats-primary__value,
-.stats-secondary__value {
+.stats-tile__value {
   display: flex;
   align-items: baseline;
+  gap: 2px;
   min-width: 0;
   font-variant-numeric: tabular-nums;
 }
 
-.stats-primary__value {
-  gap: 4px;
-}
-
-.stats-primary__value strong {
+.stats-tile__value strong {
+  min-width: 0;
   color: #f7fbfc;
-  font-size: 20px;
+  font-size: 11.6px;
   font-weight: 780;
-  line-height: 0.98;
+  line-height: 1;
   letter-spacing: -0.035em;
   white-space: nowrap;
-  overflow: visible;
+}
+
+.stats-tile__value > span {
+  flex: 0 0 auto;
+  color: rgba(179, 203, 210, 0.68);
+  font-size: 5.6px;
+  font-weight: 650;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.stats-tile__sub {
+  display: block;
+  min-height: 7px;
+  margin-top: 3px;
+  color: rgba(154, 183, 191, 0.62);
+  font-size: 5.6px;
+  font-weight: 560;
+  line-height: 1.05;
+  white-space: nowrap;
+  overflow: hidden;
   text-overflow: clip;
 }
 
-.stats-primary__value > span {
-  flex: 0 0 auto;
-  color: rgba(183, 211, 218, 0.70);
-  font-size: 8px;
-  font-weight: 650;
-}
-
-.stats-primary__sub {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  margin-top: 3px;
-  color: rgba(159, 195, 204, 0.66);
-  font-size: 7.4px;
-  font-weight: 560;
-  line-height: 1.05;
-  white-space: normal;
-}
-
-.stats-primary__sub svg {
-  width: 9px;
-  height: 9px;
-  flex: 0 0 auto;
-  stroke-width: 1.7;
-}
-
-.stats-primary__sub strong {
-  color: rgba(213, 232, 236, 0.86);
+.stats-tile__sub strong {
+  color: rgba(216, 230, 234, 0.82);
   font: inherit;
   font-weight: 700;
 }
 
-.stats-dashboard__divider {
-  display: none;
-}
-
-.stats-dashboard__secondary {
-  display: grid;
-  grid-template-columns: 1.18fr 1fr 1fr 0.92fr;
-  align-items: stretch;
-  min-height: 47px;
-  margin-top: 2px;
-  padding-top: 0;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  overflow: visible;
-}
-
-.stats-secondary {
-  display: block;
-  padding: 5px 8px;
-}
-
-.stats-secondary + .stats-secondary::before {
-  top: 5px;
-  bottom: 5px;
-}
-
-.stats-secondary__icon {
-  width: 35px;
-  height: 35px;
-  right: 4px;
-  color: rgba(198, 211, 216, 0.085);
-}
-
-.stats-secondary__icon svg {
-  width: 35px;
-  height: 35px;
-  stroke-width: 1.2;
-}
-
-.stats-secondary__label {
-  margin-bottom: 2px;
-  font-size: 7.8px;
-  font-weight: 590;
-  line-height: 1.08;
-}
-
-.stats-secondary__value {
-  gap: 3px;
-}
-
-.stats-secondary__value strong {
-  color: rgba(247, 251, 252, 0.97);
-  font-size: 12.8px;
-  font-weight: 760;
-  line-height: 0.98;
-  letter-spacing: -0.02em;
-  white-space: nowrap;
-  overflow: visible;
-  text-overflow: clip;
-}
-
-.stats-secondary__value span,
-.stats-secondary small {
-  color: rgba(174, 204, 211, 0.65);
-  font-size: 6.8px;
-  font-weight: 560;
-  line-height: 1.05;
-}
-
-.stats-secondary small {
-  display: block;
-  margin-top: 2px;
+/* The widest figures get a touch more room. */
+.stats-tile--amount,
+.stats-tile--mileage {
+  padding-left: 7px;
+  padding-right: 7px;
 }
 
 @media (max-width: 410px) {
   .stats-dashboard {
-    max-width: calc(100vw - 20px);
-    padding: 7px 7px 6px;
-    border-radius: 20px;
+    width: calc(100vw - 20px);
+    max-width: 380px;
+    padding: 7px 5px;
+    border-radius: 18px;
   }
 
-  .stats-dashboard__main {
-    grid-template-columns: 1.08fr 1.36fr 0.9fr;
-    min-height: 60px;
+  .stats-tile {
+    padding: 3px 4px 3px;
   }
 
-  .stats-primary {
-    padding: 5px 6px;
+  .stats-tile--amount,
+  .stats-tile--mileage {
+    padding-left: 5px;
+    padding-right: 5px;
   }
 
-  .stats-primary__icon {
-    width: 42px;
-    height: 42px;
-    right: 3px;
-    color: rgba(198, 211, 216, 0.095);
-  }
-
-  .stats-primary__icon svg {
-    width: 42px;
-    height: 42px;
-  }
-
-  .stats-primary__label {
+  .stats-tile__label {
+    min-height: 14px;
     margin-bottom: 2px;
-    font-size: 8px;
+    font-size: 6.1px;
   }
 
-  .stats-primary__value strong {
-    font-size: 16.5px;
+  .stats-tile__value {
+    gap: 1px;
   }
 
-  .stats-primary__value > span {
-    font-size: 6.8px;
+  .stats-tile__value strong {
+    font-size: 10.2px;
+    letter-spacing: -0.04em;
   }
 
-  .stats-primary__sub {
+  .stats-tile__value > span {
+    font-size: 4.9px;
+  }
+
+  .stats-tile__sub {
+    min-height: 6px;
     margin-top: 2px;
-    font-size: 6.4px;
+    font-size: 4.8px;
   }
 
-  .stats-dashboard__secondary {
-    grid-template-columns: 1.18fr 1fr 1fr 0.9fr;
-    min-height: 44px;
-    margin-top: 1px;
-  }
-
-  .stats-secondary {
-    padding: 4px 5px;
-  }
-
-  .stats-secondary__icon {
-    width: 31px;
-    height: 31px;
-    right: 2px;
-    color: rgba(198, 211, 216, 0.075);
-  }
-
-  .stats-secondary__icon svg {
-    width: 31px;
-    height: 31px;
-  }
-
-  .stats-secondary__label {
-    margin-bottom: 1px;
-    font-size: 6px;
-  }
-
-  .stats-secondary__value strong {
-    font-size: 10.8px;
-  }
-
-  .stats-secondary__value span,
-  .stats-secondary small {
-    font-size: 6px;
-  }
-
-  .stats-secondary small {
-    margin-top: 1px;
+  .stats-tile + .stats-tile::before {
+    top: 3px;
+    bottom: 3px;
   }
 }
 
 @media (max-width: 350px) {
-  .stats-primary__icon {
-    width: 36px;
-    height: 36px;
-    opacity: 0.7;
+  .stats-dashboard {
+    padding-left: 4px;
+    padding-right: 4px;
   }
 
-  .stats-primary__icon svg {
-    width: 36px;
-    height: 36px;
+  .stats-tile {
+    padding-left: 3px;
+    padding-right: 3px;
   }
 
-  .stats-secondary__icon {
-    width: 27px;
-    height: 27px;
-    opacity: 0.65;
+  .stats-tile__label {
+    font-size: 5.5px;
   }
 
-  .stats-secondary__icon svg {
-    width: 27px;
-    height: 27px;
+  .stats-tile__value strong {
+    font-size: 9.3px;
+  }
+
+  .stats-tile__value > span,
+  .stats-tile__sub {
+    font-size: 4.4px;
   }
 }
