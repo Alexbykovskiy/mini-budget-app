@@ -3524,7 +3524,7 @@ function renderFuelLineChart(points, avgLine) {
     .filter(Number.isFinite);
 
   const avgGuideValues = Number.isFinite(avgLine)
-    ? [-1.5, -1.0, -0.5, 0, 0.5, 1.0, 1.5].map((offset) => avgLine + offset)
+    ? [-1.0, -0.5, 0, 0.5, 1.0].map((offset) => avgLine + offset)
     : [];
 
   const scaleValues = [...yValues, ...avgGuideValues];
@@ -3540,7 +3540,7 @@ function renderFuelLineChart(points, avgLine) {
 
   const makeYLabel = (value, offset = 0) => {
     const isAverage = Math.abs(offset) < 0.001;
-    const isWholeLiter = Math.abs(offset) === 1 || Math.abs(offset) === 1.5;
+    const isWholeLiter = Math.abs(offset) === 1;
 
     return {
       y: Number(value.toFixed(3)),
@@ -3571,7 +3571,7 @@ function renderFuelLineChart(points, avgLine) {
   };
 
   const avgAnnotation = Number.isFinite(avgLine)
-    ? [-1.5, -1.0, -0.5, 0, 0.5, 1.0, 1.5].map((offset) =>
+    ? [-1.0, -0.5, 0, 0.5, 1.0].map((offset) =>
         makeYLabel(avgLine + offset, offset)
       )
     : [];
