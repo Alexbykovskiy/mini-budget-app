@@ -3314,7 +3314,26 @@ function updateFuelScrubberVisual(index, { haptic = false } = {}) {
   const percent = progress * 100;
   scrubber.style.setProperty('--fuel-scrubber-progress', `${percent}%`);
   wrap.style.setProperty('--fuel-scrubber-progress', `${percent}%`);
-  guide.style.left = `${percent}%`;
+
+  // A native range thumb does not travel over the full input width: its
+  // centre moves from half a thumb-width at the left edge to half a
+  // thumb-width before the right edge. The old guide used plain 0..100%,
+  // so the error grew toward the right side of the chart. Anchor the guide
+  // to the actual thumb centre instead.
+  const chartBox = guide.offsetParent || document.querySelector('.fuel-digital-chart');
+  if (chartBox) {
+    const inputRect = scrubber.getBoundingClientRect();
+    const boxRect = chartBox.getBoundingClientRect();
+    const thumbSize = 16; // Current effective thumb size from the shared range CSS.
+    const travelWidth = Math.max(0, inputRect.width - thumbSize);
+    const thumbCenterX =
+      inputRect.left - boxRect.left +
+      thumbSize / 2 +
+      progress * travelWidth;
+
+    guide.style.left = `${thumbCenterX}px`;
+    guide.style.transform = 'none';
+  }
 
   const point = fuelScrubberPoints[nextIndex];
   valueEl.textContent = formatFuelScrubberPoint(point);
