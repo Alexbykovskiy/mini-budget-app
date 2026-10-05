@@ -7554,3 +7554,41 @@ body.expense-date-picker-lock {
 #fuel-fills-control:active {
   transform: scale(.992);
 }
+
+/* =========================================================
+   FUEL FILLS COUNT: keep double-digit values fully visible
+   ========================================================= */
+.fuel-fills-pill #fuel-fills-count {
+  flex: 0 0 32px !important;
+  width: 32px !important;
+  min-width: 32px !important;
+  max-width: 32px !important;
+  padding: 0 1px !important;
+  box-sizing: border-box !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+  -moz-appearance: textfield;
+  appearance: textfield;
+  -webkit-appearance: none;
+}
+
+.fuel-fills-pill #fuel-fills-count::-webkit-outer-spin-button,
+.fuel-fills-pill #fuel-fills-count::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+@media (max-width: 390px) {
+  .fuel-fills-pill {
+    gap: 4px;
+    padding-inline: 7px;
+  }
+
+  .fuel-fills-pill #fuel-fills-count {
+    flex-basis: 30px !important;
+    width: 30px !important;
+    min-width: 30px !important;
+    max-width: 30px !important;
+  }
+}
