@@ -143,75 +143,130 @@
   </div>
 </section>
 
-<!-- ⛽ Топливо: быстрый индикатор + график по заправкам -->
-<div class="fuel-consumption-section animated-section delay-2">
- <div class="fuel-consumption-bar" id="fuel-consumption-bar">
+<!-- ⛽ Fuel digital dashboard -->
+<section class="fuel-digital-dashboard animated-section delay-2" id="fuel-consumption-bar" aria-label="Расход топлива">
+  <div class="fuel-digital-dashboard__top">
+    <div class="fuel-digital-dashboard__title">Расход топлива</div>
 
-  <div class="fuel-consumption-bar__left">
-    <div class="fuel-consumption-bar__title">Расход топлива</div>
-
-    <div class="fuel-consumption-bar__value">
-      <span id="fuel-consumption-avg">—</span>
-      <span class="fuel-consumption-bar__unit">л/100</span>
-    </div>
-
-
-    <div class="fuel-consumption-bar__sub" id="fuel-consumption-sub">—</div>
-  </div>
-
-  <div class="fuel-consumption-bar__right" aria-label="Настройки расхода">
-
-    <div class="fuel-mode-grid" role="radiogroup" aria-label="Режим расчёта расхода">
-      <label class="fuel-mode-option">
-        <input type="radio" name="fuelMode" value="fills" checked>
-        <span>по заправкам</span>
-      </label>
-
-      <label class="fuel-mode-option">
-        <input type="radio" name="fuelMode" value="period">
-        <span>по периоду</span>
-      </label>
-
-    </div>
-
-
-    <div class="fuel-mode-controls">
-      <div id="fuel-fills-control" class="fuel-control-block">
-        <input
-          type="number"
-          id="fuel-fills-count"
-          min="3"
-          step="1"
-          value="10"
-          placeholder="Кол-во заправок"
-        />
+    <div class="fuel-digital-dashboard__controls" aria-label="Настройки расхода">
+      <div class="fuel-mode-grid" role="radiogroup" aria-label="Режим расчёта расхода">
+        <label class="fuel-mode-option">
+          <input type="radio" name="fuelMode" value="fills" checked>
+          <span>по заправкам</span>
+        </label>
+        <label class="fuel-mode-option">
+          <input type="radio" name="fuelMode" value="period">
+          <span>по периоду</span>
+        </label>
       </div>
 
-      <div id="fuel-period-control" class="fuel-control-block" style="display:none;">
-        <button
-          type="button"
-          id="fuel-period-trigger"
-          class="fuel-period-trigger"
-          aria-haspopup="dialog"
-          aria-controls="fuel-period-picker-modal"
-        >
-          <span class="fuel-period-trigger__label">Период</span>
-          <span id="fuel-period-display" class="fuel-period-trigger__value">Выбрать период</span>
-        </button>
+      <div class="fuel-mode-controls">
+        <div id="fuel-fills-control" class="fuel-control-block fuel-fills-pill">
+          <span class="fuel-control-icon" data-lucide="fuel"></span>
+          <span class="fuel-control-prefix">Последние</span>
+          <input
+            type="number"
+            id="fuel-fills-count"
+            min="3"
+            step="1"
+            value="10"
+            aria-label="Количество последних заправок"
+          />
+          <span class="fuel-control-suffix">заправок</span>
+          <span class="fuel-control-chevron" data-lucide="chevron-right"></span>
+        </div>
 
-        <input type="hidden" id="fuel-date-from">
-        <input type="hidden" id="fuel-date-to">
+        <div id="fuel-period-control" class="fuel-control-block" style="display:none;">
+          <button
+            type="button"
+            id="fuel-period-trigger"
+            class="fuel-period-trigger fuel-period-trigger--digital"
+            aria-haspopup="dialog"
+            aria-controls="fuel-period-picker-modal"
+          >
+            <span class="fuel-period-trigger__icon" data-lucide="calendar-days"></span>
+            <span id="fuel-period-display" class="fuel-period-trigger__value">Выбрать период</span>
+            <span class="fuel-period-trigger__chevron" data-lucide="chevron-right"></span>
+          </button>
+          <input type="hidden" id="fuel-date-from">
+          <input type="hidden" id="fuel-date-to">
+        </div>
       </div>
     </div>
-
   </div>
-</div>
 
-<!-- ГРАФИК ОТДЕЛЬНОЙ КАРТОЧКОЙ НИЖЕ -->
-<div class="fuel-chart-card">
-  <div id="fuel-line-chart"></div>
-</div>
+  <div class="fuel-digital-dashboard__body">
+    <div class="fuel-trend-panel">
+      <div id="fuel-trend-value" class="fuel-trend-value is-neutral">—</div>
+      <div class="fuel-trend-label">к предыдущему<br>периоду</div>
+      <div class="fuel-consumption-bar__sub" id="fuel-consumption-sub">—</div>
+    </div>
 
+    <div class="fuel-gauge" id="fuel-gauge">
+      <svg class="fuel-gauge__svg" viewBox="0 0 240 130" aria-hidden="true">
+        <defs>
+          <linearGradient id="fuelGaugeGradient" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#1eeadf"/>
+            <stop offset="55%" stop-color="#31d8d0"/>
+            <stop offset="100%" stop-color="#ff8a45"/>
+          </linearGradient>
+          <filter id="fuelGaugeGlow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <path class="fuel-gauge__track" d="M22 112 A98 98 0 0 1 218 112" />
+        <path class="fuel-gauge__arc" d="M22 112 A98 98 0 0 1 218 112" />
+        <g class="fuel-gauge__ticks">
+          <path d="M28 105 l10 3"/><path d="M40 78 l9 5"/><path d="M61 55 l7 8"/>
+          <path d="M88 40 l4 10"/><path d="M120 35 v11"/><path d="M152 40 l-4 10"/>
+          <path d="M179 55 l-7 8"/><path d="M200 78 l-9 5"/><path d="M212 105 l-10 3"/>
+        </g>
+      </svg>
+
+      <div class="fuel-gauge__needle-wrap" id="fuel-gauge-needle">
+        <div class="fuel-gauge__needle"></div>
+      </div>
+
+      <div class="fuel-gauge__center">
+        <div class="fuel-gauge__value-row">
+          <span id="fuel-consumption-avg">—</span>
+        </div>
+        <div class="fuel-gauge__unit">л/100 км</div>
+      </div>
+      <span class="fuel-gauge__min-label">5.0</span>
+      <span class="fuel-gauge__max-label">10.0</span>
+    </div>
+  </div>
+
+  <div class="fuel-digital-chart">
+    <div id="fuel-line-chart"></div>
+    <div class="fuel-digital-chart__dates" aria-hidden="true">
+      <span id="fuel-chart-date-start">—</span>
+      <span id="fuel-chart-date-mid">—</span>
+      <span id="fuel-chart-date-end">—</span>
+    </div>
+  </div>
+
+  <div class="fuel-digital-metrics">
+    <div class="fuel-digital-metric">
+      <span class="fuel-digital-metric__icon" data-lucide="fuel"></span>
+      <div><strong id="fuel-point-count">—</strong><small>заправок</small></div>
+    </div>
+    <div class="fuel-digital-metric fuel-digital-metric--danger">
+      <span class="fuel-digital-metric__icon" data-lucide="triangle-alert"></span>
+      <div><strong id="fuel-anomaly-count">—</strong><small>аномалий</small></div>
+    </div>
+    <div class="fuel-digital-metric">
+      <span class="fuel-digital-metric__icon" data-lucide="chart-no-axes-column-increasing"></span>
+      <div><strong id="fuel-min-value">—</strong><small>мин. л/100</small></div>
+    </div>
+    <div class="fuel-digital-metric fuel-digital-metric--hot">
+      <span class="fuel-digital-metric__icon" data-lucide="arrow-up"></span>
+      <div><strong id="fuel-max-value">—</strong><small>макс. л/100</small></div>
+    </div>
+  </div>
+</section>
 
 <fieldset class="block no-shadow chart-fix animated-section delay-1">
   <div id="category-spend-bars" class="category-spend-bars" aria-label="Расходы по категориям"></div>

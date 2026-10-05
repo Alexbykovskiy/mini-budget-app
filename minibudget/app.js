@@ -3166,106 +3166,216 @@ function classifyFuelPoint(p, avg) {
 }
 
 
+function getFuelComparisonRawPoints(allPoints) {
+  if (!Array.isArray(allPoints) || allPoints.length === 0) return [];
+
+  if (fuelMode === "fills") {
+    const n = isFinite(fuelFillsCount) ? Math.max(3, Math.floor(fuelFillsCount)) : 10;
+    const currentStart = Math.max(0, allPoints.length - n);
+    const previousStart = Math.max(0, currentStart - n);
+    return allPoints.slice(previousStart, currentStart);
+  }
+
+  if (!fuelDateFrom || !fuelDateTo) return [];
+
+  const from = new Date(`${fuelDateFrom}T12:00:00`);
+  const to = new Date(`${fuelDateTo}T12:00:00`);
+  if (!Number.isFinite(from.getTime()) || !Number.isFinite(to.getTime()) || to < from) return [];
+
+  const dayMs = 24 * 60 * 60 * 1000;
+  const spanDays = Math.max(1, Math.round((to - from) / dayMs) + 1);
+  const previousTo = new Date(from.getTime() - dayMs);
+  const previousFrom = new Date(previousTo.getTime() - (spanDays - 1) * dayMs);
+
+  const toIso = getLocalISODate(previousTo);
+  const fromIso = getLocalISODate(previousFrom);
+
+  return allPoints.filter((point) => point.date >= fromIso && point.date <= toIso);
+}
+
+function getFuelValidValues(points) {
+  return (points || [])
+    .filter((point) => point.status !== "anomaly" && Number.isFinite(point.l100))
+    .map((point) => Number(point.l100));
+}
+
+function updateFuelDashboardMeta(points, avgValid, previousAvg) {
+  const gauge = document.getElementById('fuel-gauge');
+  const needle = document.getElementById('fuel-gauge-needle');
+  const trendEl = document.getElementById('fuel-trend-value');
+  const pointCountEl = document.getElementById('fuel-point-count');
+  const anomalyCountEl = document.getElementById('fuel-anomaly-count');
+  const minEl = document.getElementById('fuel-min-value');
+  const maxEl = document.getElementById('fuel-max-value');
+
+  const validValues = getFuelValidValues(points);
+  const anomalyCount = (points || []).filter((point) => point.status === 'anomaly').length;
+  const minValue = validValues.length ? Math.min(...validValues) : null;
+  const maxValue = validValues.length ? Math.max(...validValues) : null;
+
+  if (pointCountEl) pointCountEl.textContent = String((points || []).length);
+  if (anomalyCountEl) anomalyCountEl.textContent = String(anomalyCount);
+  if (minEl) minEl.textContent = minValue == null ? '—' : minValue.toFixed(1);
+  if (maxEl) maxEl.textContent = maxValue == null ? '—' : maxValue.toFixed(1);
+
+  if (gauge && needle) {
+    const gaugeMin = 5;
+    const gaugeMax = 10;
+    const safeAvg = Number.isFinite(avgValid) ? avgValid : gaugeMin;
+    const ratio = clamp((safeAvg - gaugeMin) / (gaugeMax - gaugeMin), 0, 1);
+    const angle = -90 + ratio * 180;
+    needle.style.setProperty('--fuel-gauge-angle', `${angle}deg`);
+    gauge.classList.toggle('is-empty', !Number.isFinite(avgValid));
+  }
+
+  if (trendEl) {
+    trendEl.classList.remove('is-good', 'is-bad', 'is-neutral');
+
+    if (Number.isFinite(avgValid) && Number.isFinite(previousAvg) && previousAvg > 0) {
+      const change = ((avgValid - previousAvg) / previousAvg) * 100;
+      const magnitude = Math.abs(change);
+      const rounded = magnitude < 10 ? magnitude.toFixed(1) : Math.round(magnitude).toString();
+
+      if (Math.abs(change) < 0.05) {
+        trendEl.textContent = '0%';
+        trendEl.classList.add('is-neutral');
+      } else if (change < 0) {
+        trendEl.textContent = `▽ −${rounded}%`;
+        trendEl.classList.add('is-good');
+      } else {
+        trendEl.textContent = `△ +${rounded}%`;
+        trendEl.classList.add('is-bad');
+      }
+    } else {
+      trendEl.textContent = '—';
+      trendEl.classList.add('is-neutral');
+    }
+  }
+}
+
+function updateFuelChartDates(points) {
+  const startEl = document.getElementById('fuel-chart-date-start');
+  const midEl = document.getElementById('fuel-chart-date-mid');
+  const endEl = document.getElementById('fuel-chart-date-end');
+
+  if (!points?.length) {
+    if (startEl) startEl.textContent = '—';
+    if (midEl) midEl.textContent = '—';
+    if (endEl) endEl.textContent = '—';
+    return;
+  }
+
+  const middleIndex = Math.floor((points.length - 1) / 2);
+  if (startEl) startEl.textContent = formatDate(points[0].date);
+  if (midEl) midEl.textContent = formatDate(points[middleIndex].date);
+  if (endEl) endEl.textContent = formatDate(points[points.length - 1].date);
+}
+
 function renderFuelLineChart(points, avgLine) {
   const el = document.querySelector('#fuel-line-chart');
   if (!el) return;
 
-  const categories = points.map(p => {
-    const d = formatDate(p.date);
-    const km = Math.round(p.mileage).toLocaleString('ru-RU');
-    return `${d}\n${km}км`;
-  });
+  updateFuelChartDates(points);
 
   const series = [{
     name: 'л/100',
-    data: points.map(p => Number(p.l100.toFixed(2)))
+    data: (points || []).map((point) => Number(point.l100.toFixed(2)))
   }];
 
-const statusColor = (status) => {
-  if (status === "good") return "#4CAF50";     // зелёный
-  if (status === "normal") return "#186663";   // твой фирменный
-  if (status === "high") return "#FFA35C";     // оранжевый
-  return "#888888";                            // anomaly = серый
-};
+  const statusColor = (status) => {
+    if (status === 'good') return '#35e8a5';
+    if (status === 'normal') return '#20d9d2';
+    if (status === 'high') return '#ffab45';
+    return '#ff4f64';
+  };
 
-const discreteMarkers = points.map((p, i) => ({
-  seriesIndex: 0,
-  dataPointIndex: i,
-  fillColor: statusColor(p.status),
-  strokeColor: statusColor(p.status),
-  size: p.status === "anomaly" ? 6 : 4
-}));
+  const discreteMarkers = (points || []).map((point, index) => ({
+    seriesIndex: 0,
+    dataPointIndex: index,
+    fillColor: statusColor(point.status),
+    strokeColor: '#eefeff',
+    size: point.status === 'anomaly' ? 5 : 4
+  }));
 
   const options = {
     chart: {
-      type: 'line',
-      height: 190,
+      type: 'area',
+      height: 118,
+      background: 'transparent',
       toolbar: { show: false },
-      zoom: { enabled: false }
+      zoom: { enabled: false },
+      animations: { enabled: true, easing: 'easeinout', speed: 350 },
+      sparkline: { enabled: true }
     },
     series,
-    stroke: { width: 3, curve: 'smooth' },
-    markers: {
-  size: 4,
-  discrete: discreteMarkers
-},
-   xaxis: {
-  categories,
-  labels: {
-    show: true,
-    style: { fontSize: "10px" },
-    rotate: 0,
-    trim: true
-  }
-},
-yaxis: {
-  labels: {
-    show: true,
-    style: { fontSize: "10px" }
-  },
-  decimalsInFloat: 2
-},
-annotations: avgLine ? {
-  yaxis: [{
-    y: Number(avgLine.toFixed(2)),
-    borderColor: "#999",
-    strokeDashArray: 4,
-    label: {
-      text: `AVG ${avgLine.toFixed(2)}`,
-      style: {
-        fontSize: "10px"
+    colors: ['#27e3dd'],
+    stroke: {
+      width: 2.5,
+      curve: 'smooth',
+      lineCap: 'round'
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shade: 'dark',
+        type: 'vertical',
+        shadeIntensity: 0.15,
+        gradientToColors: ['#0aa7a5'],
+        inverseColors: false,
+        opacityFrom: 0.34,
+        opacityTo: 0.015,
+        stops: [0, 70, 100]
       }
-    }
-  }]
-} : undefined,
-    grid: { padding: { left: 8, right: 8, top: 8, bottom: 0 } },
+    },
+    markers: {
+      size: 3.5,
+      strokeWidth: 2,
+      strokeColors: '#eaffff',
+      hover: { sizeOffset: 2 },
+      discrete: discreteMarkers
+    },
+    dataLabels: { enabled: false },
+    grid: {
+      show: false,
+      padding: { left: 3, right: 3, top: 8, bottom: 2 }
+    },
+    yaxis: {
+      min: undefined,
+      max: undefined,
+      labels: { show: false }
+    },
+    xaxis: {
+      labels: { show: false },
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      tooltip: { enabled: false }
+    },
     tooltip: {
+      theme: 'dark',
+      x: { show: false },
+      marker: { show: true },
       y: {
-        formatter: (v, opts) => {
-          const idx = opts.dataPointIndex;
-          const p = points[idx];
-          if (!p) return `${v} л/100`;
-          const dist = Math.round(p.distance);
-          const lit = Number(p.liters).toFixed(1);
-          const label = FUEL_LABELS[p.status] || "";
-const reason = p.reason ? ` · ${p.reason}` : "";
-return `${v.toFixed(2)} л/100 ( ${dist} км / ${lit} л ) · ${label}${reason}`;
+        formatter: (value, opts) => {
+          const point = points?.[opts.dataPointIndex];
+          if (!point) return `${Number(value).toFixed(2)} л/100`;
+          const dist = Math.round(point.distance);
+          const liters = Number(point.liters).toFixed(1);
+          const status = FUEL_LABELS[point.status] || '';
+          const reason = point.reason ? ` · ${point.reason}` : '';
+          return `${Number(value).toFixed(2)} л/100 · ${dist} км / ${liters} л · ${status}${reason}`;
         }
       }
     }
   };
 
   if (fuelChart) {
-  // ВАЖНО: series обновляем только через updateSeries,
-  // а в updateOptions НЕ передаем series (иначе иногда слетают оси/лейблы)
-  const { series: _ignoreSeries, ...optionsNoSeries } = options;
-
-  fuelChart.updateOptions(optionsNoSeries, false, true);
-  fuelChart.updateSeries(series, true);
-} else {
-  fuelChart = new ApexCharts(el, options);
-  fuelChart.render();
-}
+    const { series: _series, ...optionsNoSeries } = options;
+    fuelChart.updateOptions(optionsNoSeries, false, true);
+    fuelChart.updateSeries(series, true);
+  } else {
+    fuelChart = new ApexCharts(el, options);
+    fuelChart.render();
+  }
 }
 
 function updateFuelConsumptionUI(fullData) {
@@ -3273,63 +3383,53 @@ function updateFuelConsumptionUI(fullData) {
   const subEl = document.getElementById('fuel-consumption-sub');
   if (!avgEl || !subEl) return;
 
- 
   const allPoints = computeFuelTankPoints(fullData);
+  let pointsRaw = [];
 
-let pointsRaw = [];
-if (fuelMode === "fills") {
-  const n = isFinite(fuelFillsCount) ? Math.max(3, Math.floor(fuelFillsCount)) : 10;
-  pointsRaw = allPoints.slice(-n);
-} else {
-  const from = fuelDateFrom || "";
-  const to = fuelDateTo || "";
-  pointsRaw = allPoints.filter(p => {
-    if (from && p.date < from) return false;
-    if (to && p.date > to) return false;
-    return true;
-  });
-}
-if (!pointsRaw || pointsRaw.length === 0) {
-  avgEl.textContent = "—";
-
-  if (fuelMode === "fills") {
-    subEl.textContent = `последние ${Math.max(3, Math.floor(fuelFillsCount || 10))} заправок · точек: 0`;
+  if (fuelMode === 'fills') {
+    const n = isFinite(fuelFillsCount) ? Math.max(3, Math.floor(fuelFillsCount)) : 10;
+    pointsRaw = allPoints.slice(-n);
   } else {
-    const fromTxt = fuelDateFrom ? formatDate(fuelDateFrom) : "…";
-    const toTxt = fuelDateTo ? formatDate(fuelDateTo) : "…";
-    subEl.textContent = `период: ${fromTxt}–${toTxt} · точек: 0`;
+    const from = fuelDateFrom || '';
+    const to = fuelDateTo || '';
+    pointsRaw = allPoints.filter((point) => {
+      if (from && point.date < from) return false;
+      if (to && point.date > to) return false;
+      return true;
+    });
   }
 
-  renderFuelLineChart([], null);
-  return;
-}
-// 1) считаем среднее только по валидным (без аномалий)
-const avgValid = computeAvgFromValidPoints(pointsRaw);
+  const previousRaw = getFuelComparisonRawPoints(allPoints);
+  const previousAvg = computeAvgFromValidPoints(previousRaw);
 
-// 2) размечаем ВСЕ точки (включая аномалии) относительно avgValid
-const points = pointsRaw.map(p => classifyFuelPoint({ ...p }, avgValid));
+  if (!pointsRaw.length) {
+    avgEl.textContent = '—';
+    subEl.textContent = fuelMode === 'fills'
+      ? `последние ${Math.max(3, Math.floor(fuelFillsCount || 10))} заправок`
+      : 'в выбранном периоде нет данных';
+    updateFuelDashboardMeta([], null, previousAvg);
+    renderFuelLineChart([], null);
+    return;
+  }
 
-// 3) среднее для UI показываем только по валидным
-if (!avgValid) {
-  avgEl.textContent = '—';
-} else {
-  avgEl.textContent = avgValid.toFixed(2);
-}
+  const avgValid = computeAvgFromValidPoints(pointsRaw);
+  const points = pointsRaw.map((point) => classifyFuelPoint({ ...point }, avgValid));
+  const validCount = points.filter((point) => point.status !== 'anomaly').length;
+  const anomalyCount = points.length - validCount;
 
-// 4) доп. инфа: сколько валидных и сколько аномалий
-const validCount = points.filter(p => p.status !== "anomaly").length;
-const anomalyCount = points.length - validCount;
+  avgEl.textContent = Number.isFinite(avgValid) ? avgValid.toFixed(2) : '—';
 
-if (fuelMode === "fills") {
-  const n = Math.max(3, Math.floor(fuelFillsCount || 10));
-  subEl.textContent = `последние ${n} заправок · точек: ${points.length} · валидных: ${validCount} · аномалий: ${anomalyCount}`;
-} else {
-  const fromTxt = fuelDateFrom ? formatDate(fuelDateFrom) : "…";
-  const toTxt = fuelDateTo ? formatDate(fuelDateTo) : "…";
-  subEl.textContent = `период: ${fromTxt}–${toTxt} · точек: ${points.length} · валидных: ${validCount} · аномалий: ${anomalyCount}`;
-}
-// 5) рендерим график уже с метками + линией среднего
-renderFuelLineChart(points, avgValid);
+  if (fuelMode === 'fills') {
+    const n = Math.max(3, Math.floor(fuelFillsCount || 10));
+    subEl.textContent = `${n} последних · ${validCount} валидных`;
+  } else {
+    const fromTxt = fuelDateFrom ? formatDate(fuelDateFrom) : '…';
+    const toTxt = fuelDateTo ? formatDate(fuelDateTo) : '…';
+    subEl.textContent = `${fromTxt} → ${toTxt}`;
+  }
+
+  updateFuelDashboardMeta(points, avgValid, previousAvg);
+  renderFuelLineChart(points, avgValid);
 }
 
 function calculateCostPerKm(data) {

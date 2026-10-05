@@ -6611,3 +6611,576 @@ body.expense-date-picker-lock {
     animation: none;
   }
 }
+
+/* =========================================================
+   FUEL DIGITAL DASHBOARD v1
+   Compact abstract instrument cluster
+   ========================================================= */
+
+.fuel-digital-dashboard {
+  position: relative;
+  width: 380px;
+  box-sizing: border-box;
+  margin: 0 auto 14px;
+  padding: 14px 14px 12px;
+  overflow: hidden;
+  border-radius: 26px;
+  color: #eef7f8;
+  background:
+    radial-gradient(circle at 18% 5%, rgba(45, 227, 220, 0.11), transparent 32%),
+    radial-gradient(circle at 93% 20%, rgba(255, 146, 79, 0.09), transparent 30%),
+    linear-gradient(145deg, rgba(26, 35, 43, 0.985), rgba(12, 20, 27, 0.985));
+  border: 1px solid rgba(255,255,255,0.16);
+  box-shadow:
+    0 16px 34px rgba(20, 31, 38, 0.22),
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    inset 0 -1px 0 rgba(0,0,0,0.40);
+  isolation: isolate;
+}
+
+.fuel-digital-dashboard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(115deg, transparent 0 18%, rgba(255,255,255,0.035) 30%, transparent 44%),
+    linear-gradient(180deg, rgba(255,255,255,0.035), transparent 28%);
+}
+
+.fuel-digital-dashboard::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+.fuel-digital-dashboard__top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 188px;
+  gap: 10px;
+  align-items: start;
+  margin-bottom: 2px;
+}
+
+.fuel-digital-dashboard__title {
+  align-self: center;
+  padding-left: 3px;
+  font-size: 16px;
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+  color: #f3f7f9;
+  text-shadow: 0 1px 10px rgba(255,255,255,0.08);
+}
+
+.fuel-digital-dashboard__controls {
+  min-width: 0;
+}
+
+.fuel-digital-dashboard .fuel-mode-grid {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  gap: 2px;
+  padding: 3px;
+  box-sizing: border-box;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.045);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: inset 0 1px 8px rgba(0,0,0,0.18);
+}
+
+.fuel-digital-dashboard .fuel-mode-option {
+  min-height: 31px;
+  box-sizing: border-box;
+  padding: 6px 7px;
+  border-radius: 11px;
+  background: transparent;
+  box-shadow: none;
+  color: rgba(235,245,247,0.66);
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1;
+  transition: background .18s ease, color .18s ease, box-shadow .18s ease;
+}
+
+.fuel-digital-dashboard .fuel-mode-option:has(input[type="radio"]:checked) {
+  background: linear-gradient(180deg, rgba(44,226,218,0.26), rgba(20,160,158,0.20));
+  box-shadow:
+    0 0 0 1px rgba(46,230,223,0.48),
+    0 0 14px rgba(23,216,210,0.23),
+    inset 0 1px 0 rgba(255,255,255,0.15);
+}
+
+.fuel-digital-dashboard .fuel-mode-option input[type="radio"]:checked + span {
+  color: #dcffff;
+  text-shadow: 0 0 9px rgba(43,230,222,0.45);
+}
+
+.fuel-digital-dashboard .fuel-mode-controls {
+  width: 100%;
+  max-width: none;
+  margin: 6px 0 0;
+}
+
+.fuel-digital-dashboard .fuel-control-block {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.fuel-fills-pill,
+.fuel-period-trigger--digital {
+  min-height: 32px;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 12px;
+  color: #dce8eb;
+  background: rgba(4, 13, 20, 0.30) !important;
+  border: 1px solid rgba(255,255,255,0.11) !important;
+  box-shadow: inset 0 1px 8px rgba(0,0,0,0.18) !important;
+}
+
+.fuel-fills-pill {
+  display: flex !important;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 8px;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.fuel-control-icon,
+.fuel-control-chevron,
+.fuel-period-trigger__icon,
+.fuel-period-trigger__chevron {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  color: #8ea4ab;
+}
+
+.fuel-control-icon svg,
+.fuel-period-trigger__icon svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 1.9;
+}
+
+.fuel-control-chevron svg,
+.fuel-period-trigger__chevron svg {
+  width: 13px;
+  height: 13px;
+  stroke-width: 2;
+}
+
+.fuel-control-prefix,
+.fuel-control-suffix {
+  color: rgba(230,241,243,0.68);
+}
+
+.fuel-fills-pill #fuel-fills-count {
+  width: 24px !important;
+  min-width: 24px !important;
+  max-width: 24px !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #f5ffff !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  cursor: pointer;
+}
+
+.fuel-control-chevron {
+  margin-left: auto;
+}
+
+.fuel-digital-dashboard #fuel-period-control {
+  display: flex;
+}
+
+.fuel-period-trigger--digital {
+  min-height: 32px;
+  padding: 5px 8px !important;
+  display: grid !important;
+  grid-template-columns: auto minmax(0,1fr) auto;
+  align-items: center;
+  gap: 7px;
+  text-align: left;
+}
+
+.fuel-period-trigger--digital .fuel-period-trigger__value {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #eef9fa !important;
+  font-size: 9px !important;
+  font-weight: 650 !important;
+  line-height: 1.05;
+}
+
+.fuel-digital-dashboard__body {
+  display: grid;
+  grid-template-columns: 92px minmax(0,1fr);
+  gap: 2px;
+  align-items: center;
+  min-height: 142px;
+  margin-top: 4px;
+}
+
+.fuel-trend-panel {
+  align-self: center;
+  padding-left: 3px;
+  min-width: 0;
+}
+
+.fuel-trend-value {
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 850;
+  letter-spacing: -0.025em;
+  color: #aeb9bd;
+  text-shadow: 0 0 12px rgba(255,255,255,0.04);
+}
+
+.fuel-trend-value.is-good {
+  color: #26ead6;
+  text-shadow: 0 0 14px rgba(38,234,214,0.25);
+}
+
+.fuel-trend-value.is-bad {
+  color: #ff8c5c;
+  text-shadow: 0 0 14px rgba(255,117,76,0.22);
+}
+
+.fuel-trend-value.is-neutral {
+  color: #9cabaf;
+}
+
+.fuel-trend-label {
+  margin-top: 5px;
+  color: rgba(225,236,239,0.64);
+  font-size: 9px;
+  line-height: 1.25;
+}
+
+.fuel-digital-dashboard .fuel-consumption-bar__sub {
+  margin-top: 8px;
+  max-width: 88px;
+  color: rgba(189,205,210,0.46);
+  font-size: 8px;
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+.fuel-gauge {
+  --fuel-gauge-angle: -90deg;
+  position: relative;
+  height: 142px;
+  min-width: 0;
+}
+
+.fuel-gauge__svg {
+  position: absolute;
+  left: 50%;
+  top: 1px;
+  width: 238px;
+  max-width: calc(100% + 18px);
+  height: 128px;
+  transform: translateX(-50%);
+  overflow: visible;
+}
+
+.fuel-gauge__track,
+.fuel-gauge__arc {
+  fill: none;
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.fuel-gauge__track {
+  stroke: rgba(255,255,255,0.075);
+}
+
+.fuel-gauge__arc {
+  stroke: url(#fuelGaugeGradient);
+  filter: url(#fuelGaugeGlow);
+  opacity: .93;
+}
+
+.fuel-gauge__ticks path {
+  fill: none;
+  stroke: rgba(156, 236, 233, 0.47);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.fuel-gauge__ticks path:nth-last-child(-n+4) {
+  stroke: rgba(255,151,82,0.45);
+}
+
+.fuel-gauge__needle-wrap {
+  position: absolute;
+  left: 50%;
+  bottom: 29px;
+  width: 2px;
+  height: 79px;
+  transform: translateX(-50%) rotate(var(--fuel-gauge-angle));
+  transform-origin: 50% 100%;
+  transition: transform .48s cubic-bezier(.22,.75,.22,1);
+  pointer-events: none;
+}
+
+.fuel-gauge__needle {
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  width: 3px;
+  height: 24px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: #dffffe;
+  box-shadow:
+    0 0 5px rgba(255,255,255,.75),
+    0 0 12px rgba(35,231,222,.70);
+}
+
+.fuel-gauge__center {
+  position: absolute;
+  left: 50%;
+  top: 65px;
+  transform: translateX(-50%);
+  min-width: 112px;
+  text-align: center;
+}
+
+.fuel-gauge__value-row {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+}
+
+.fuel-digital-dashboard #fuel-consumption-avg {
+  display: block;
+  color: #f7fbfc;
+  font-size: 35px;
+  font-weight: 800;
+  line-height: .9;
+  letter-spacing: -0.055em;
+  text-shadow: 0 2px 16px rgba(0,0,0,.35);
+}
+
+.fuel-gauge__unit {
+  margin-top: 6px;
+  color: rgba(224,235,238,0.72);
+  font-size: 10px;
+  font-weight: 550;
+  letter-spacing: .01em;
+}
+
+.fuel-gauge__min-label,
+.fuel-gauge__max-label {
+  position: absolute;
+  bottom: 18px;
+  color: rgba(244,249,250,0.82);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.fuel-gauge__min-label { left: 13%; }
+.fuel-gauge__max-label { right: 10%; }
+
+.fuel-gauge.is-empty {
+  opacity: .55;
+}
+
+.fuel-digital-chart {
+  position: relative;
+  margin-top: -4px;
+  padding: 0 4px 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.fuel-digital-chart::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  right: 7px;
+  bottom: 24px;
+  border-bottom: 1px dotted rgba(196,231,232,0.25);
+  pointer-events: none;
+}
+
+.fuel-digital-dashboard #fuel-line-chart {
+  width: 100%;
+  height: 118px;
+  min-height: 118px;
+}
+
+.fuel-digital-dashboard .apexcharts-canvas,
+.fuel-digital-dashboard .apexcharts-svg {
+  background: transparent !important;
+}
+
+.fuel-digital-dashboard .apexcharts-tooltip {
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.28) !important;
+  background: rgba(18,26,32,.96) !important;
+}
+
+.fuel-digital-chart__dates {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  margin-top: -5px;
+  padding: 0 4px;
+  color: rgba(224,235,238,0.62);
+  font-size: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.fuel-digital-chart__dates span:nth-child(2) { text-align: center; }
+.fuel-digital-chart__dates span:nth-child(3) { text-align: right; }
+
+.fuel-digital-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin-top: 8px;
+  padding: 8px 4px 2px;
+  border-radius: 15px;
+  background: rgba(255,255,255,0.032);
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+.fuel-digital-metric {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 24px minmax(0,1fr);
+  gap: 4px;
+  align-items: center;
+  padding: 0 6px;
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+.fuel-digital-metric:last-child {
+  border-right: 0;
+}
+
+.fuel-digital-metric__icon {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: #3de0dc;
+  background: rgba(36,219,212,0.08);
+  box-shadow: 0 0 12px rgba(36,219,212,0.08);
+}
+
+.fuel-digital-metric__icon svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2;
+}
+
+.fuel-digital-metric--danger .fuel-digital-metric__icon {
+  color: #ff5267;
+  background: rgba(255,82,103,0.09);
+  box-shadow: 0 0 12px rgba(255,82,103,0.12);
+}
+
+.fuel-digital-metric--hot .fuel-digital-metric__icon {
+  color: #ff9a61;
+  background: rgba(255,154,97,0.08);
+  box-shadow: 0 0 12px rgba(255,154,97,0.10);
+}
+
+.fuel-digital-metric strong {
+  display: block;
+  min-width: 0;
+  color: #f4f8fa;
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+}
+
+.fuel-digital-metric small {
+  display: block;
+  margin-top: 3px;
+  overflow: hidden;
+  color: rgba(215,228,231,0.53);
+  font-size: 7px;
+  line-height: 1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Old separate fuel cards are no longer used by the new markup. */
+.fuel-consumption-section,
+.fuel-chart-card {
+  width: 380px;
+}
+
+@media (max-width: 410px) {
+  .fuel-digital-dashboard {
+    width: calc(100vw - 28px);
+    max-width: 380px;
+    padding: 13px 12px 11px;
+  }
+
+  .fuel-digital-dashboard__top {
+    grid-template-columns: minmax(0,1fr) 178px;
+    gap: 6px;
+  }
+
+  .fuel-digital-dashboard__title {
+    font-size: 15px;
+  }
+
+  .fuel-digital-dashboard__body {
+    grid-template-columns: 86px minmax(0,1fr);
+  }
+
+  .fuel-digital-dashboard #fuel-consumption-avg {
+    font-size: 33px;
+  }
+
+  .fuel-gauge__svg {
+    width: 228px;
+  }
+
+  .fuel-digital-metric {
+    grid-template-columns: 21px minmax(0,1fr);
+    padding: 0 4px;
+  }
+
+  .fuel-digital-metric__icon {
+    width: 21px;
+    height: 21px;
+  }
+
+  .fuel-digital-metric strong {
+    font-size: 12px;
+  }
+}
