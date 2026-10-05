@@ -7547,6 +7547,7 @@ body.expense-date-picker-lock {
 /* =========================================================
    DIGITAL VEHICLE STATS DASHBOARD
    Minimal, dense vehicle statistics panel.
+   Icons are subtle background watermarks.
    ========================================================= */
 
 .stats-dashboard {
@@ -7570,19 +7571,20 @@ body.expense-date-picker-lock {
 .stats-dashboard__main {
   display: grid;
   grid-template-columns: 1.08fr 1.34fr 0.92fr;
-  align-items: center;
+  align-items: stretch;
   min-height: 64px;
 }
 
-.stats-primary {
-  --stats-accent: #57dff7;
+.stats-primary,
+.stats-secondary {
   position: relative;
   min-width: 0;
-  display: grid;
-  grid-template-columns: 25px minmax(0, 1fr);
-  gap: 7px;
-  align-items: center;
-  padding: 5px 8px;
+  overflow: hidden;
+}
+
+.stats-primary {
+  display: block;
+  padding: 6px 10px;
 }
 
 .stats-primary + .stats-primary::before,
@@ -7599,36 +7601,39 @@ body.expense-date-picker-lock {
   bottom: 7px;
 }
 
-.stats-primary--amount { --stats-accent: #ff9d61; }
-.stats-primary--mileage { --stats-accent: #5bdcff; }
-.stats-primary--consumption { --stats-accent: #50e0c8; }
+.stats-primary__content,
+.stats-secondary__content {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+}
 
 .stats-primary__icon,
 .stats-secondary__icon {
-  display: inline-flex;
+  position: absolute;
+  top: 50%;
+  right: 5px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 auto;
-  color: var(--stats-accent, #5bdcf4);
+  transform: translateY(-50%);
+  color: rgba(198, 211, 216, 0.105);
   background: transparent;
   border: 0;
   box-shadow: none;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .stats-primary__icon {
-  width: 25px;
-  height: 25px;
+  width: 48px;
+  height: 48px;
 }
 
 .stats-primary__icon svg {
-  width: 19px;
-  height: 19px;
-  stroke-width: 1.8;
-}
-
-.stats-primary__content,
-.stats-secondary__content {
-  min-width: 0;
+  width: 48px;
+  height: 48px;
+  stroke-width: 1.25;
 }
 
 .stats-primary__label,
@@ -7712,7 +7717,7 @@ body.expense-date-picker-lock {
 .stats-dashboard__secondary {
   display: grid;
   grid-template-columns: 1.18fr 1fr 1fr 0.92fr;
-  align-items: center;
+  align-items: stretch;
   min-height: 47px;
   margin-top: 2px;
   padding-top: 0;
@@ -7723,14 +7728,8 @@ body.expense-date-picker-lock {
 }
 
 .stats-secondary {
-  --stats-accent: #5bdcf4;
-  position: relative;
-  min-width: 0;
-  display: grid;
-  grid-template-columns: 21px minmax(0, 1fr);
-  gap: 5px;
-  align-items: center;
-  padding: 4px 6px;
+  display: block;
+  padding: 5px 8px;
 }
 
 .stats-secondary + .stats-secondary::before {
@@ -7739,14 +7738,16 @@ body.expense-date-picker-lock {
 }
 
 .stats-secondary__icon {
-  width: 21px;
-  height: 21px;
+  width: 35px;
+  height: 35px;
+  right: 4px;
+  color: rgba(198, 211, 216, 0.085);
 }
 
 .stats-secondary__icon svg {
-  width: 16px;
-  height: 16px;
-  stroke-width: 1.8;
+  width: 35px;
+  height: 35px;
+  stroke-width: 1.2;
 }
 
 .stats-secondary__label {
@@ -7797,19 +7798,19 @@ body.expense-date-picker-lock {
   }
 
   .stats-primary {
-    grid-template-columns: 21px minmax(0, 1fr);
-    gap: 5px;
-    padding: 4px 5px;
+    padding: 5px 6px;
   }
 
   .stats-primary__icon {
-    width: 21px;
-    height: 21px;
+    width: 42px;
+    height: 42px;
+    right: 3px;
+    color: rgba(198, 211, 216, 0.095);
   }
 
   .stats-primary__icon svg {
-    width: 16px;
-    height: 16px;
+    width: 42px;
+    height: 42px;
   }
 
   .stats-primary__label {
@@ -7837,19 +7838,19 @@ body.expense-date-picker-lock {
   }
 
   .stats-secondary {
-    grid-template-columns: 18px minmax(0, 1fr);
-    gap: 4px;
-    padding: 3px 4px;
+    padding: 4px 5px;
   }
 
   .stats-secondary__icon {
-    width: 18px;
-    height: 18px;
+    width: 31px;
+    height: 31px;
+    right: 2px;
+    color: rgba(198, 211, 216, 0.075);
   }
 
   .stats-secondary__icon svg {
-    width: 14px;
-    height: 14px;
+    width: 31px;
+    height: 31px;
   }
 
   .stats-secondary__label {
@@ -7872,13 +7873,25 @@ body.expense-date-picker-lock {
 }
 
 @media (max-width: 350px) {
-  .stats-primary__icon,
-  .stats-secondary__icon {
-    display: none;
+  .stats-primary__icon {
+    width: 36px;
+    height: 36px;
+    opacity: 0.7;
   }
 
-  .stats-primary,
-  .stats-secondary {
-    grid-template-columns: minmax(0, 1fr);
+  .stats-primary__icon svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .stats-secondary__icon {
+    width: 27px;
+    height: 27px;
+    opacity: 0.65;
+  }
+
+  .stats-secondary__icon svg {
+    width: 27px;
+    height: 27px;
   }
 }
