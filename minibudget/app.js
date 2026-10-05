@@ -3524,7 +3524,7 @@ function renderFuelLineChart(points, avgLine) {
     .filter(Number.isFinite);
 
   const avgGuideValues = Number.isFinite(avgLine)
-    ? [avgLine - 0.5, avgLine, avgLine + 0.5]
+    ? [-1.5, -1.0, -0.5, 0, 0.5, 1.0, 1.5].map((offset) => avgLine + offset)
     : [];
 
   const scaleValues = [...yValues, ...avgGuideValues];
@@ -3538,33 +3538,42 @@ function renderFuelLineChart(points, avgLine) {
     yMax = Math.ceil((yMax + padding) * 10) / 10;
   }
 
-  const makeYLabel = (value, isAverage = false) => ({
-    y: Number(value.toFixed(3)),
-    borderColor: isAverage ? 'rgba(218, 241, 242, 0.52)' : 'rgba(218, 241, 242, 0)',
-    strokeDashArray: isAverage ? 5 : 0,
-    borderWidth: isAverage ? 1 : 0,
-    label: {
-      show: true,
-      position: 'left',
-      offsetX: 3,
-      borderColor: 'transparent',
-      text: value.toFixed(1),
-      style: {
-        background: 'transparent',
-        color: isAverage ? 'rgba(235,250,250,.82)' : 'rgba(190,211,214,.56)',
-        fontSize: isAverage ? '9px' : '8px',
-        fontWeight: isAverage ? 700 : 600,
-        padding: { left: 0, right: 0, top: 0, bottom: 0 }
+  const makeYLabel = (value, offset = 0) => {
+    const isAverage = Math.abs(offset) < 0.001;
+    const isWholeLiter = Math.abs(offset) === 1 || Math.abs(offset) === 1.5;
+
+    return {
+      y: Number(value.toFixed(3)),
+      borderColor: isAverage
+        ? 'rgba(218, 241, 242, 0.48)'
+        : isWholeLiter
+          ? 'rgba(190, 220, 222, 0.16)'
+          : 'rgba(190, 220, 222, 0.11)',
+      strokeDashArray: isAverage ? 5 : 0,
+      borderWidth: 1,
+      label: {
+        show: true,
+        position: 'left',
+        offsetX: 3,
+        borderColor: 'transparent',
+        text: value.toFixed(1),
+        style: {
+          background: 'rgba(12, 25, 31, 0.72)',
+          color: isAverage
+            ? 'rgba(235,250,250,.90)'
+            : 'rgba(190,211,214,.62)',
+          fontSize: isAverage ? '9px' : '8px',
+          fontWeight: isAverage ? 700 : 600,
+          padding: { left: 2, right: 2, top: 0, bottom: 0 }
+        }
       }
-    }
-  });
+    };
+  };
 
   const avgAnnotation = Number.isFinite(avgLine)
-    ? [
-        makeYLabel(avgLine - 0.5, false),
-        makeYLabel(avgLine, true),
-        makeYLabel(avgLine + 0.5, false)
-      ]
+    ? [-1.5, -1.0, -0.5, 0, 0.5, 1.0, 1.5].map((offset) =>
+        makeYLabel(avgLine + offset, offset)
+      )
     : [];
 
   const options = {
