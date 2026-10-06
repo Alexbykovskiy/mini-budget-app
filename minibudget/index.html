@@ -6,7 +6,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MINI Budget</title>
-  <link rel="stylesheet" href="style.css?v=39">
+  <link rel="stylesheet" href="style.css?v=40">
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
   <link rel="manifest" href="manifest.json">
@@ -426,8 +426,6 @@
 
       </div>
       <div class="row expense-date-row">
-        <label class="small-label" for="expense-date-trigger">Дата:</label>
-
         <button
           type="button"
           id="expense-date-trigger"
@@ -437,19 +435,14 @@
         >
           <span class="expense-date-trigger__icon" data-lucide="calendar-days"></span>
           <span id="expense-date-display" class="expense-date-trigger__value">—</span>
-          <span class="expense-date-trigger__chevron" data-lucide="chevron-down"></span>
         </button>
 
         <input type="hidden" id="date" />
       </div>
-      <div class="form-buttons">
-  <button type="button" class="round-btn orange" onclick="resetForm()" title="Отмена">
-  &#10006;
-</button>
-  <button type="submit" class="round-btn green" title="Сохранить">
-    &#10004;
-  </button>
-</div>
+      <div class="form-buttons expense-action-buttons">
+        <button type="button" class="expense-action-btn expense-action-btn--secondary" onclick="resetForm()">Отмена</button>
+        <button type="submit" class="expense-action-btn expense-action-btn--primary">Сохранить</button>
+      </div>
       <input type="hidden" id="edit-id" />
     </form>
   </fieldset>
@@ -713,7 +706,7 @@
 
   <script src="firebase-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-  <script src="app.js?v=39"></script>
+  <script src="app.js?v=40"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' })

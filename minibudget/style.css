@@ -465,6 +465,7 @@ input[type="date"] {
 .expense-form .row {
   display: flex;
   flex-wrap: nowrap;
+  gap: 10px;
   margin-bottom: 10px;
 }
 
@@ -492,10 +493,11 @@ select#filter-category {
   font-size: 16px;
   color: #333;
   appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg fill='%23333' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 16px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: none;
+  text-align: center;
+  text-align-last: center;
 }
 
 .section-title {
@@ -5745,13 +5747,18 @@ input:checked +
   white-space: nowrap;
 }
 
+.expense-date-row {
+  align-items: center;
+}
+
 .expense-date-trigger {
+  position: relative;
   flex: 1 1 auto;
   min-width: 0;
-  min-height: 44px;
-  padding: 10px 14px !important;
+  min-height: 46px;
+  padding: 0 16px !important;
   border: none !important;
-  border-radius: 14px !important;
+  border-radius: 999px !important;
   background: #e0e0e0 !important;
   color: #333 !important;
   box-shadow:
@@ -5759,11 +5766,12 @@ input:checked +
     inset -4px -4px 8px #ffffff !important;
   display: flex;
   align-items: center;
-  gap: 9px;
+  justify-content: center;
+  gap: 0;
   font-size: 16px;
   font-weight: 700;
   line-height: 1;
-  text-align: left;
+  text-align: center;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -5777,32 +5785,24 @@ input:checked +
   transform: scale(0.99);
 }
 
-.expense-date-trigger__icon,
-.expense-date-trigger__chevron {
+.expense-date-trigger__icon {
+  position: absolute;
+  left: 16px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 auto;
 }
 
 .expense-date-trigger__icon svg,
 .expense-date-trigger__icon.lucide {
   width: 18px !important;
   height: 18px !important;
-  stroke: #186663 !important;
-  stroke-width: 2.25;
+  stroke: rgba(238, 162, 88, 0.95) !important;
+  stroke-width: 2.2;
 }
 
 .expense-date-trigger__chevron {
-  margin-left: auto;
-  opacity: 0.58;
-}
-
-.expense-date-trigger__chevron svg,
-.expense-date-trigger__chevron.lucide {
-  width: 17px !important;
-  height: 17px !important;
-  stroke: #444 !important;
+  display: none !important;
 }
 
 .expense-date-trigger__value {
@@ -7868,8 +7868,10 @@ textarea::placeholder {
 select,
 select#category,
 select#filter-category {
-  background-image: url("data:image/svg+xml;utf8,<svg fill='%23d7e0e8' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>") !important;
+  background-image: none !important;
+  background-repeat: no-repeat !important;
 }
+
 
 .ios-switch .slider {
   background-color: rgba(255,255,255,0.16) !important;
@@ -8157,6 +8159,66 @@ select#filter-category {
 #expense-form .section-title,
 #filters-wrapper .section-title {
   color: #edf4f8 !important;
+}
+
+#expense-form .row input,
+#expense-form .row select,
+#expense-form .expense-date-trigger {
+  min-height: 46px;
+  border-radius: 999px !important;
+  padding: 0 16px !important;
+  text-align: center !important;
+  text-align-last: center;
+  font-weight: 600;
+}
+
+#expense-form .row input::placeholder {
+  text-align: center;
+}
+
+#expense-form select#category {
+  background-image: none !important;
+  background-repeat: no-repeat !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  text-align: center !important;
+  text-align-last: center !important;
+}
+
+.expense-action-buttons {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px !important;
+}
+
+.expense-action-btn {
+  min-height: 46px;
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 0 18px;
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.expense-action-btn--secondary {
+  color: #fff;
+  background: linear-gradient(180deg, rgba(96, 105, 116, .98), rgba(73, 82, 92, .98));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 10px 20px rgba(0,0,0,.16);
+}
+
+.expense-action-btn--primary {
+  color: #1b1f23;
+  background: linear-gradient(180deg, rgba(250, 171, 96, .98), rgba(238, 151, 72, .98));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.20),
+    0 12px 24px rgba(235, 145, 71, .18);
 }
 
 #expense-form input,
