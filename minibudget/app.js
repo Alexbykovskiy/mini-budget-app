@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initExpenseDatePicker();
   initFuelPeriodPickerTrigger();
   initFilterControls();
+  initExpenseCategoryPicker();
   initStatsDashboard();
 });
 
@@ -3069,62 +3070,110 @@ function syncFilterCategoryUI() {
 
 function initFilterCategoryMultiSelect() {
   const trigger = document.getElementById('filter-category-trigger');
-  const panel = document.getElementById('filter-category-panel');
   const allInput = document.getElementById('filter-category-all');
   const categoryInputs = Array.from(document.querySelectorAll('[data-filter-category]'));
+  const modal = document.getElementById('filter-category-modal');
+  const modalAll = document.getElementById('filter-category-modal-all');
+  const modalInputs = Array.from(document.querySelectorAll('[data-filter-category-modal]'));
+  const applyBtn = document.getElementById('filter-category-modal-apply');
+  const cancelBtn = document.getElementById('filter-category-modal-cancel');
+  const closeTargets = Array.from(document.querySelectorAll('[data-close-filter-category-modal]'));
 
-  if (!trigger || !panel || !allInput || !categoryInputs.length) return;
+  if (!trigger || !allInput || !categoryInputs.length || !modal || !modalAll || !modalInputs.length) return;
   if (trigger.dataset.filterCategoryReady === '1') {
     syncFilterCategoryUI();
     return;
   }
 
   trigger.dataset.filterCategoryReady = '1';
+  let restoreSelection = { all: true, values: [] };
 
-  const closePanel = () => {
-    panel.classList.add('hidden');
-    trigger.setAttribute('aria-expanded', 'false');
+  const snapshotCurrentSelection = () => ({
+    all: allInput.checked || !categoryInputs.some((input) => input.checked),
+    values: categoryInputs.filter((input) => input.checked).map((input) => input.value)
+  });
+
+  const syncModalFromState = (state = snapshotCurrentSelection()) => {
+    modalAll.checked = state.all || state.values.length === 0;
+    modalInputs.forEach((input) => {
+      input.checked = state.values.includes(input.value) && !modalAll.checked;
+    });
   };
 
-  const openPanel = () => {
-    panel.classList.remove('hidden');
+  const closeModal = () => {
+    modal.classList.add('hidden');
+    modal.setAttribute('aria-hidden', 'true');
+    trigger.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('picker-modal-open');
+  };
+
+  const openModal = () => {
+    restoreSelection = snapshotCurrentSelection();
+    syncModalFromState(restoreSelection);
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden', 'false');
     trigger.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('picker-modal-open');
+  };
+
+  const applyModalToState = () => {
+    const selectedValues = modalInputs.filter((input) => input.checked).map((input) => input.value);
+    if (modalAll.checked || selectedValues.length === 0) {
+      allInput.checked = true;
+      categoryInputs.forEach((input) => {
+        input.checked = false;
+      });
+    } else {
+      allInput.checked = false;
+      categoryInputs.forEach((input) => {
+        input.checked = selectedValues.includes(input.value);
+      });
+    }
+    syncFilterCategoryUI();
   };
 
   trigger.addEventListener('click', (event) => {
     event.preventDefault();
-    const isOpen = !panel.classList.contains('hidden');
-    if (isOpen) closePanel();
-    else openPanel();
+    openModal();
   });
 
-  allInput.addEventListener('change', () => {
-    if (allInput.checked) {
-      categoryInputs.forEach((input) => {
+  modalAll.addEventListener('change', () => {
+    if (modalAll.checked) {
+      modalInputs.forEach((input) => {
         input.checked = false;
       });
-    } else if (!categoryInputs.some((input) => input.checked)) {
-      allInput.checked = true;
     }
-    syncFilterCategoryUI();
   });
 
-  categoryInputs.forEach((input) => {
+  modalInputs.forEach((input) => {
     input.addEventListener('change', () => {
-      const anySelected = categoryInputs.some((item) => item.checked);
-      allInput.checked = !anySelected;
-      syncFilterCategoryUI();
+      const anySelected = modalInputs.some((item) => item.checked);
+      modalAll.checked = !anySelected;
     });
   });
 
-  document.addEventListener('click', (event) => {
-    if (!event.target.closest?.('.filter-category-multi')) {
-      closePanel();
-    }
+  applyBtn?.addEventListener('click', () => {
+    applyModalToState();
+    closeModal();
+  });
+
+  cancelBtn?.addEventListener('click', () => {
+    syncModalFromState(restoreSelection);
+    closeModal();
+  });
+
+  closeTargets.forEach((node) => {
+    node.addEventListener('click', () => {
+      syncModalFromState(restoreSelection);
+      closeModal();
+    });
   });
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') closePanel();
+    if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+      syncModalFromState(restoreSelection);
+      closeModal();
+    }
   });
 
   syncFilterCategoryUI();
@@ -3132,6 +3181,100 @@ function initFilterCategoryMultiSelect() {
   if (window.lucide) {
     lucide.createIcons();
   }
+}
+
+function initExpenseCategoryPicker() {
+  const select = document.getElementById('category');
+  const trigger = document.getElementById('expense-category-trigger');
+  const display = document.getElementById('expense-category-display');
+  const modal = document.getElementById('expense-category-modal');
+  const list = document.getElementById('expense-category-option-list');
+  const applyBtn = document.getElementById('expense-category-modal-apply');
+  const cancelBtn = document.getElementById('expense-category-modal-cancel');
+  const closeTargets = Array.from(document.querySelectorAll('[data-close-expense-category-modal]'));
+
+  if (!select || !trigger || !display || !modal || !list) return;
+  if (trigger.dataset.expenseCategoryReady === '1') {
+    syncExpenseCategoryTrigger();
+    return;
+  }
+
+  trigger.dataset.expenseCategoryReady = '1';
+  let draftValue = select.value || select.options?.[0]?.value || '';
+
+  const categoryValues = Array.from(select.options).map((option) => option.value);
+
+  const renderOptions = () => {
+    list.innerHTML = categoryValues.map((value) => `
+      <button type="button" class="picker-single-option${value === draftValue ? ' is-active' : ''}" data-expense-category-value="${value.replace(/"/g, '&quot;')}">
+        <span class="picker-single-option__label">${value}</span>
+        <span class="picker-single-option__check" aria-hidden="true">✓</span>
+      </button>
+    `).join('');
+  };
+
+  const closeModal = () => {
+    modal.classList.add('hidden');
+    modal.setAttribute('aria-hidden', 'true');
+    trigger.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('picker-modal-open');
+  };
+
+  const openModal = () => {
+    draftValue = select.value || categoryValues[0] || '';
+    renderOptions();
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden', 'false');
+    trigger.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('picker-modal-open');
+  };
+
+  list.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-expense-category-value]');
+    if (!button) return;
+    draftValue = button.dataset.expenseCategoryValue || draftValue;
+    renderOptions();
+  });
+
+  trigger.addEventListener('click', (event) => {
+    event.preventDefault();
+    openModal();
+  });
+
+  applyBtn?.addEventListener('click', () => {
+    select.value = draftValue;
+    syncExpenseCategoryTrigger();
+    closeModal();
+  });
+
+  const cancelHandler = () => {
+    draftValue = select.value || categoryValues[0] || '';
+    closeModal();
+  };
+
+  cancelBtn?.addEventListener('click', cancelHandler);
+  closeTargets.forEach((node) => node.addEventListener('click', cancelHandler));
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+      cancelHandler();
+    }
+  });
+
+  select.addEventListener('change', syncExpenseCategoryTrigger);
+
+  syncExpenseCategoryTrigger();
+
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+}
+
+function syncExpenseCategoryTrigger() {
+  const select = document.getElementById('category');
+  const display = document.getElementById('expense-category-display');
+  if (!select || !display) return;
+  display.textContent = select.value || 'Выберите категорию';
 }
 
 function initFilterControls() {
@@ -3946,6 +4089,7 @@ function deleteExpense(id) {
 function fillFormForEdit(exp) {
   document.getElementById('edit-id').value = exp.id;
   document.getElementById('category').value = exp.category;
+  syncExpenseCategoryTrigger();
   document.getElementById('amount').value = exp.amount;
   document.getElementById('liters').value = exp.liters || '';
   document.getElementById('mileage').value = exp.mileage || '';
@@ -4148,6 +4292,8 @@ function resetForm() {
   if (mileageInput) {
     mileageInput.value = getLatestMileage();
   }
+
+  syncExpenseCategoryTrigger();
 }
 
 function formatDate(isoString) {

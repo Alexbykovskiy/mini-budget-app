@@ -337,13 +337,13 @@
             id="filter-category-trigger"
             class="filter-category-trigger"
             aria-expanded="false"
-            aria-controls="filter-category-panel"
+            aria-controls="filter-category-modal"
           >
             <span id="filter-category-display">Все категории</span>
             <span class="filter-category-trigger__icon" data-lucide="chevron-down"></span>
           </button>
 
-          <div id="filter-category-panel" class="filter-category-panel hidden">
+          <div id="filter-category-panel" class="filter-category-panel filter-category-panel--legacy hidden" aria-hidden="true">
             <label class="filter-category-option filter-category-option--all">
               <input type="checkbox" id="filter-category-all" checked />
               <span class="filter-category-check" aria-hidden="true"></span>
@@ -400,19 +400,25 @@
   </div>
   <form id="expense-form" class="expense-form">
       <div class="row">
-        <select id="category">
-          <option>Топливо</option>
-          <option>Парковка</option>
-          <option>Штрафы</option>
-          <option>Сервис</option>
-          <option>Ремонт</option>
-          <option>Страховка</option>
-          <option>Шины</option>
-          <option>Тюнинг</option>
-          <option>Мойка</option>
-          <option>Виньетка/Платные дороги</option>
-          <option>Другое</option>
-        </select>
+        <div class="expense-category-field">
+          <select id="category" class="native-select-hidden" tabindex="-1" aria-hidden="true">
+            <option>Топливо</option>
+            <option>Парковка</option>
+            <option>Штрафы</option>
+            <option>Сервис</option>
+            <option>Ремонт</option>
+            <option>Страховка</option>
+            <option>Шины</option>
+            <option>Тюнинг</option>
+            <option>Мойка</option>
+            <option>Виньетка/Платные дороги</option>
+            <option>Другое</option>
+          </select>
+          <button type="button" id="expense-category-trigger" class="expense-category-trigger" aria-haspopup="dialog" aria-controls="expense-category-modal">
+            <span id="expense-category-display">Топливо</span>
+            <span class="expense-category-trigger__icon" data-lucide="chevron-down"></span>
+          </button>
+        </div>
         <input type="text" id="amount" placeholder="Сумма €" required />
       </div>
       <div class="row">
@@ -447,6 +453,61 @@
     </form>
   </fieldset>
 
+
+<div id="filter-category-modal" class="picker-modal hidden" aria-hidden="true">
+  <div class="picker-modal__backdrop" data-close-filter-category-modal></div>
+  <div class="picker-modal__sheet picker-modal__sheet--wide" role="dialog" aria-modal="true" aria-labelledby="filter-category-modal-title">
+    <div class="picker-modal__header">
+      <div class="picker-modal__title" id="filter-category-modal-title">Категории</div>
+      <button type="button" class="picker-modal__close" data-close-filter-category-modal aria-label="Закрыть">
+        <span data-lucide="x"></span>
+      </button>
+    </div>
+    <div class="picker-modal__body">
+      <label class="picker-check-option picker-check-option--wide">
+        <input type="checkbox" id="filter-category-modal-all" checked />
+        <span class="picker-check-option__mark" aria-hidden="true"></span>
+        <span>Все категории</span>
+      </label>
+      <div class="picker-check-grid">
+        <label class="picker-check-option"><input type="checkbox" value="Топливо" data-filter-category-modal /><span class="picker-check-option__mark" aria-hidden="true"></span><span>Топливо</span></label>
+        <label class="picker-check-option"><input type="checkbox" value="Парковка" data-filter-category-modal /><span class="picker-check-option__mark" aria-hidden="true"></span><span>Парковка</span></label>
+        <label class="picker-check-option"><input type="checkbox" value="Штрафы" data-filter-category-modal /><span class="picker-check-option__mark" aria-hidden="true"></span><span>Штрафы</span></label>
+        <label class="picker-check-option"><input type="checkbox" value="Сервис" data-filter-category-modal /><span class="picker-check-option__mark" aria-hidden="true"></span><span>Сервис</span></label>
+        <label class="picker-check-option"><input type="checkbox" value="Ремонт" data-filter-category-modal /><span class="picker-check-option__mark" aria-hidden="true"></span><span>Ремонт</span></label>
+        <label class="picker-check-option"><input type="checkbox" value="Страховка" data-filter-category-modal /><span class="picker-check-option__mark" aria-hidden="true"></span><span>Страховка</span></label>
+        <label class="picker-check-option"><input type="checkbox" value="Шины" data-filter-category-modal /><span class="picker-check-option__mark" aria-hidden="true"></span><span>Шины</span></label>
+        <label class="picker-check-option"><input type="checkbox" value="Тюнинг" data-filter-category-modal /><span class="picker-check-option__mark" aria-hidden="true"></span><span>Тюнинг</span></label>
+        <label class="picker-check-option"><input type="checkbox" value="Мойка" data-filter-category-modal /><span class="picker-check-option__mark" aria-hidden="true"></span><span>Мойка</span></label>
+        <label class="picker-check-option picker-check-option--wide"><input type="checkbox" value="Виньетка/Платные дороги" data-filter-category-modal /><span class="picker-check-option__mark" aria-hidden="true"></span><span>Виньетка/Платные дороги</span></label>
+        <label class="picker-check-option"><input type="checkbox" value="Другое" data-filter-category-modal /><span class="picker-check-option__mark" aria-hidden="true"></span><span>Другое</span></label>
+      </div>
+    </div>
+    <div class="picker-modal__actions">
+      <button type="button" id="filter-category-modal-cancel" class="action-pill-btn action-pill-btn--secondary">Отмена</button>
+      <button type="button" id="filter-category-modal-apply" class="action-pill-btn action-pill-btn--primary">Применить</button>
+    </div>
+  </div>
+</div>
+
+<div id="expense-category-modal" class="picker-modal hidden" aria-hidden="true">
+  <div class="picker-modal__backdrop" data-close-expense-category-modal></div>
+  <div class="picker-modal__sheet" role="dialog" aria-modal="true" aria-labelledby="expense-category-modal-title">
+    <div class="picker-modal__header">
+      <div class="picker-modal__title" id="expense-category-modal-title">Категория расхода</div>
+      <button type="button" class="picker-modal__close" data-close-expense-category-modal aria-label="Закрыть">
+        <span data-lucide="x"></span>
+      </button>
+    </div>
+    <div class="picker-modal__body">
+      <div id="expense-category-option-list" class="picker-single-list"></div>
+    </div>
+    <div class="picker-modal__actions">
+      <button type="button" id="expense-category-modal-cancel" class="action-pill-btn action-pill-btn--secondary">Отмена</button>
+      <button type="button" id="expense-category-modal-apply" class="action-pill-btn action-pill-btn--primary">Сохранить</button>
+    </div>
+  </div>
+</div>
 
 <fieldset class="block animated-section delay-4" id="journal-wrapper">
   <div class="section-title-row">
