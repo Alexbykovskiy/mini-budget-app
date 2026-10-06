@@ -8619,16 +8619,16 @@ body.picker-modal-open {
 
 
 /* =========================================================
-   v42 – flatter category modal rows + fixed close button
+   v43 – flat category rows, larger close icon, visible checks
    ========================================================= */
 .picker-modal__close {
-  width: 36px !important;
-  height: 36px !important;
+  width: 44px !important;
+  height: 44px !important;
   padding: 0 !important;
-  border: 1px solid rgba(255,255,255,0.14) !important;
-  border-radius: 50% !important;
+  border: none !important;
+  border-radius: 0 !important;
   background: transparent !important;
-  color: rgba(244,248,251,0.92) !important;
+  color: rgba(244,248,251,0.96) !important;
   box-shadow: none !important;
   display: inline-flex !important;
   align-items: center !important;
@@ -8637,14 +8637,15 @@ body.picker-modal-open {
 }
 
 .picker-modal__close:hover {
-  background: rgba(255,255,255,0.05) !important;
+  background: transparent !important;
+  color: #ffffff !important;
 }
 
 .picker-modal__close-symbol {
   display: block;
-  font-size: 25px;
+  font-size: 36px;
   font-weight: 300;
-  line-height: 1;
+  line-height: 0.9;
   transform: translateY(-1px);
   pointer-events: none;
 }
@@ -8664,11 +8665,29 @@ body.picker-modal-open {
 }
 
 #filter-category-modal .picker-check-option:has(input:checked) {
-  border-color: rgba(244,165,89,0.48) !important;
+  border-color: rgba(244,165,89,0.52) !important;
   background: rgba(244,165,89,0.045) !important;
 }
 
 #filter-category-modal .picker-check-option__mark {
-  background: transparent;
-  box-shadow: none;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+#filter-category-modal .picker-check-option input:checked + .picker-check-option__mark {
+  background: linear-gradient(180deg, rgba(250,171,96,.98), rgba(238,151,72,.98)) !important;
+  border-color: rgba(250,171,96,.92) !important;
+}
+
+#filter-category-modal .picker-check-option input:checked + .picker-check-option__mark::after {
+  content: "✓" !important;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #151a20 !important;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1;
 }
