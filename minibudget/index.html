@@ -414,10 +414,13 @@
             <option>Виньетка/Платные дороги</option>
             <option>Другое</option>
           </select>
-          <button type="button" id="expense-category-trigger" class="expense-category-trigger" aria-haspopup="dialog" aria-controls="expense-category-modal">
+          <button type="button" id="expense-category-trigger" class="expense-category-trigger" aria-haspopup="listbox" aria-controls="expense-category-popover" aria-expanded="false">
             <span id="expense-category-display">Топливо</span>
             <span class="expense-category-trigger__icon" data-lucide="chevron-down"></span>
           </button>
+          <div id="expense-category-popover" class="expense-category-popover hidden" aria-hidden="true">
+            <div id="expense-category-popover-list" class="expense-category-popover__list" role="listbox" aria-label="Категория расхода"></div>
+          </div>
         </div>
         <input type="text" id="amount" placeholder="Сумма €" required />
       </div>

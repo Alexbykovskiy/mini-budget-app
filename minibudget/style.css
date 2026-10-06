@@ -8382,6 +8382,7 @@ select#filter-category {
 }
 
 .expense-category-field {
+  position: relative;
   width: 100%;
 }
 
@@ -8690,4 +8691,97 @@ body.picker-modal-open {
   font-size: 14px;
   font-weight: 900;
   line-height: 1;
+}
+
+
+/* =========================================================
+   v44 – expense category dropdown (same minimalist style)
+   ========================================================= */
+#expense-category-modal {
+  display: none !important;
+}
+
+.expense-category-popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  right: 0;
+  z-index: 60;
+  padding: 10px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(18, 28, 40, 0.98), rgba(12, 20, 31, 0.98));
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow:
+    0 22px 40px rgba(0,0,0,0.32),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.expense-category-popover.hidden {
+  display: none !important;
+}
+
+.expense-category-popover__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: min(46dvh, 360px);
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.expense-category-popover__option {
+  min-height: 48px;
+  width: 100%;
+  padding: 0 14px;
+  border: 1px solid rgba(210, 222, 232, 0.18);
+  border-radius: 16px;
+  background: transparent;
+  box-shadow: none;
+  color: #eef4f8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+
+.expense-category-popover__option:hover {
+  border-color: rgba(224, 233, 240, 0.26);
+  background: rgba(255,255,255,0.025);
+}
+
+.expense-category-popover__option.is-active {
+  border-color: rgba(244,165,89,0.52);
+  background: rgba(244,165,89,0.045);
+}
+
+.expense-category-popover__label {
+  color: #eef4f8;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.expense-category-popover__check {
+  opacity: 0;
+  color: rgba(250,171,96,.98);
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.expense-category-popover__option.is-active .expense-category-popover__check {
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .expense-category-popover {
+    top: calc(100% + 8px);
+    padding: 8px;
+  }
+
+  .expense-category-popover__list {
+    max-height: min(50dvh, 320px);
+  }
 }

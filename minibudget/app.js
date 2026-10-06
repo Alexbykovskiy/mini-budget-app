@@ -3187,81 +3187,82 @@ function initExpenseCategoryPicker() {
   const select = document.getElementById('category');
   const trigger = document.getElementById('expense-category-trigger');
   const display = document.getElementById('expense-category-display');
-  const modal = document.getElementById('expense-category-modal');
-  const list = document.getElementById('expense-category-option-list');
-  const applyBtn = document.getElementById('expense-category-modal-apply');
-  const cancelBtn = document.getElementById('expense-category-modal-cancel');
-  const closeTargets = Array.from(document.querySelectorAll('[data-close-expense-category-modal]'));
+  const popover = document.getElementById('expense-category-popover');
+  const list = document.getElementById('expense-category-popover-list');
 
-  if (!select || !trigger || !display || !modal || !list) return;
+  if (!select || !trigger || !display || !popover || !list) return;
   if (trigger.dataset.expenseCategoryReady === '1') {
     syncExpenseCategoryTrigger();
     return;
   }
 
   trigger.dataset.expenseCategoryReady = '1';
-  let draftValue = select.value || select.options?.[0]?.value || '';
-
   const categoryValues = Array.from(select.options).map((option) => option.value);
 
   const renderOptions = () => {
+    const currentValue = select.value || categoryValues[0] || '';
     list.innerHTML = categoryValues.map((value) => `
-      <button type="button" class="picker-single-option${value === draftValue ? ' is-active' : ''}" data-expense-category-value="${value.replace(/"/g, '&quot;')}">
-        <span class="picker-single-option__label">${value}</span>
-        <span class="picker-single-option__check" aria-hidden="true">✓</span>
+      <button type="button" class="expense-category-popover__option${value === currentValue ? ' is-active' : ''}" data-expense-category-value="${value.replace(/"/g, '&quot;')}" role="option" aria-selected="${value === currentValue ? 'true' : 'false'}">
+        <span class="expense-category-popover__label">${value}</span>
+        <span class="expense-category-popover__check" aria-hidden="true">✓</span>
       </button>
     `).join('');
   };
 
-  const closeModal = () => {
-    modal.classList.add('hidden');
-    modal.setAttribute('aria-hidden', 'true');
+  const closePopover = () => {
+    popover.classList.add('hidden');
+    popover.setAttribute('aria-hidden', 'true');
     trigger.setAttribute('aria-expanded', 'false');
-    document.body.classList.remove('picker-modal-open');
   };
 
-  const openModal = () => {
-    draftValue = select.value || categoryValues[0] || '';
+  const openPopover = () => {
     renderOptions();
-    modal.classList.remove('hidden');
-    modal.setAttribute('aria-hidden', 'false');
+    popover.classList.remove('hidden');
+    popover.setAttribute('aria-hidden', 'false');
     trigger.setAttribute('aria-expanded', 'true');
-    document.body.classList.add('picker-modal-open');
   };
+
+  trigger.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (popover.classList.contains('hidden')) {
+      openPopover();
+    } else {
+      closePopover();
+    }
+  });
 
   list.addEventListener('click', (event) => {
     const button = event.target.closest('[data-expense-category-value]');
     if (!button) return;
-    draftValue = button.dataset.expenseCategoryValue || draftValue;
-    renderOptions();
-  });
+    const value = button.dataset.expenseCategoryValue;
+    if (!value) return;
 
-  trigger.addEventListener('click', (event) => {
-    event.preventDefault();
-    openModal();
-  });
-
-  applyBtn?.addEventListener('click', () => {
-    select.value = draftValue;
+    select.value = value;
     syncExpenseCategoryTrigger();
-    closeModal();
+    closePopover();
+    trigger.focus({ preventScroll: true });
   });
 
-  const cancelHandler = () => {
-    draftValue = select.value || categoryValues[0] || '';
-    closeModal();
-  };
-
-  cancelBtn?.addEventListener('click', cancelHandler);
-  closeTargets.forEach((node) => node.addEventListener('click', cancelHandler));
+  document.addEventListener('click', (event) => {
+    if (popover.classList.contains('hidden')) return;
+    if (popover.contains(event.target) || trigger.contains(event.target)) return;
+    closePopover();
+  });
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
-      cancelHandler();
+    if (event.key === 'Escape' && !popover.classList.contains('hidden')) {
+      closePopover();
+      trigger.focus({ preventScroll: true });
     }
   });
 
-  select.addEventListener('change', syncExpenseCategoryTrigger);
+  select.addEventListener('change', () => {
+    syncExpenseCategoryTrigger();
+    if (!popover.classList.contains('hidden')) {
+      renderOptions();
+    }
+  });
 
   syncExpenseCategoryTrigger();
 
