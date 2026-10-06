@@ -3928,12 +3928,11 @@ function applyFilters() {
   loadReminders();
 }
 
-
-
 function updateChart(data, total) {
   const container = document.getElementById("category-spend-bars");
   if (!container) return;
 
+  // Keep every current category visible, even when its filtered amount is zero.
   const categorySelect = document.getElementById("category");
   const knownCategories = categorySelect
     ? Array.from(categorySelect.options)
@@ -3950,218 +3949,60 @@ function updateChart(data, total) {
     const category = String(entry.category || "Другое").trim() || "Другое";
     const value = Number(entry.amount);
     const safeValue = Number.isFinite(value) ? value : 0;
-    categoriesMap.set(category, (categoriesMap.get(category) || 0) + safeValue);
+
+    categoriesMap.set(
+      category,
+      (categoriesMap.get(category) || 0) + safeValue
+    );
   });
 
-  const entries = Array.from(categoriesMap.entries())
+  const sortedEntries = Array.from(categoriesMap.entries())
     .map(([label, value]) => ({ label, value }))
-    .filter(entry => entry.value > 0)
     .sort((a, b) => {
       if (b.value !== a.value) return b.value - a.value;
       return a.label.localeCompare(b.label, "ru");
     });
 
-  const totalSum = entries.reduce((sum, entry) => sum + entry.value, 0);
+  const totalSum = sortedEntries.reduce((sum, entry) => sum + entry.value, 0);
+  const maxValue = sortedEntries.reduce((max, entry) => Math.max(max, entry.value), 0);
 
-  if (!entries.length || totalSum <= 0) {
-    container.innerHTML = `
-      <div class="category-donut-card">
-        <div class="category-donut-pill category-donut-pill--empty">Нет расходов за выбранный период</div>
-      </div>
-    `;
-    return;
-  }
+  container.innerHTML = "";
 
-  const colors = [
-    "#4F8E8A", "#72A9A5", "#6E93A8", "#86AFA8", "#7E929E", "#92AAA1",
-    "#849FB2", "#9AA8A2", "#9A9FB2", "#A5B2A0", "#A9A493", "#87979E"
-  ];
+  sortedEntries.forEach((entry, index) => {
+    const percent = totalSum > 0 ? (entry.value / totalSum) * 100 : 0;
+    const relativeWidth = maxValue > 0 ? (entry.value / maxValue) * 100 : 0;
 
-  const width = Math.max(300, Math.min(380, Math.round(container.clientWidth || 360)));
-  const pillWidth = width < 330 ? 102 : width < 355 ? 108 : 116;
-  const pillHeight = 39;
-  const rowGap = 6;
-  const sidePadding = 4;
-  const leftX = sidePadding;
-  const rightX = width - pillWidth - sidePadding;
-  const centerX = width / 2;
-  const columnGap = Math.max(72, rightX - (leftX + pillWidth));
-  const outerRadius = Math.max(42, Math.min(58, columnGap / 2 - 2));
-  const strokeWidth = 14;
-  const radius = outerRadius - strokeWidth / 2;
-  const circumference = 2 * Math.PI * radius;
-  const gapPx = 2.2;
+    const row = document.createElement("div");
+    row.className = "category-spend-row";
 
-  const enriched = entries.map((entry, index) => ({
-    ...entry,
-    index,
-    percent: (entry.value / totalSum) * 100,
-    color: colors[index % colors.length],
-    sweep: (entry.value / totalSum) * Math.PI * 2
-  }));
+    const safeWidth = entry.value > 0
+      ? Math.max(relativeWidth, 1.5)
+      : 0;
 
-  // Find a rotation where natural left/right placement is balanced.
-  let bestStartAngle = -Math.PI / 2;
-  let bestScore = Infinity;
-
-  for (let step = 0; step < 180; step++) {
-    const candidateStart = -Math.PI + (step / 180) * Math.PI * 2;
-    let cursor = candidateStart;
-    let left = 0;
-    let right = 0;
-
-    enriched.forEach(entry => {
-      const mid = cursor + entry.sweep / 2;
-      if (Math.cos(mid) >= 0) right++;
-      else left++;
-      cursor += entry.sweep;
-    });
-
-    const balancePenalty = Math.abs(left - right) * 100;
-    const orientationPenalty = Math.abs(Math.sin(candidateStart + Math.PI / 2)) * 2;
-    const score = balancePenalty + orientationPenalty;
-
-    if (score < bestScore) {
-      bestScore = score;
-      bestStartAngle = candidateStart;
-    }
-  }
-
-  let cursor = bestStartAngle;
-  enriched.forEach(entry => {
-    entry.midAngle = cursor + entry.sweep / 2;
-    entry.side = Math.cos(entry.midAngle) >= 0 ? "right" : "left";
-    cursor += entry.sweep;
-  });
-
-  const leftEntries = enriched
-    .filter(entry => entry.side === "left")
-    .sort((a, b) => Math.sin(a.midAngle) - Math.sin(b.midAngle));
-
-  const rightEntries = enriched
-    .filter(entry => entry.side === "right")
-    .sort((a, b) => Math.sin(a.midAngle) - Math.sin(b.midAngle));
-
-  const maxSideCount = Math.max(leftEntries.length, rightEntries.length, 1);
-  const labelsHeight = maxSideCount * pillHeight + Math.max(0, maxSideCount - 1) * rowGap;
-  const stageHeight = Math.max(284, labelsHeight + 20);
-  const centerY = stageHeight / 2;
-  const connectorReach = 10;
-
-  enriched.forEach(entry => {
-    entry.anchorX = centerX + Math.cos(entry.midAngle) * (outerRadius + 1);
-    entry.anchorY = centerY + Math.sin(entry.midAngle) * (outerRadius + 1);
-    entry.elbowX = centerX + Math.cos(entry.midAngle) * (outerRadius + connectorReach);
-    entry.elbowY = centerY + Math.sin(entry.midAngle) * (outerRadius + connectorReach);
-  });
-
-  function positionLabels(list, side) {
-    if (!list.length) return;
-    const occupied = list.length * pillHeight + Math.max(0, list.length - 1) * rowGap;
-    const startY = (stageHeight - occupied) / 2;
-
-    list.forEach((entry, index) => {
-      entry.labelTop = startY + index * (pillHeight + rowGap);
-      entry.labelCenterY = entry.labelTop + pillHeight / 2;
-      entry.labelX = side === "left" ? leftX : rightX;
-      entry.labelEdgeX = side === "left" ? leftX + pillWidth : rightX;
-      entry.guideX = side === "left" ? leftX + pillWidth + 7 : rightX - 7;
-    });
-  }
-
-  positionLabels(leftEntries, "left");
-  positionLabels(rightEntries, "right");
-
-  let dashOffset = 0;
-  const segmentSvg = enriched.map(entry => {
-    const visibleSweep = Math.max(entry.sweep - gapPx / radius, 0.0001);
-    const dashLength = (visibleSweep / (Math.PI * 2)) * circumference;
-    const dashArray = `${dashLength} ${Math.max(0, circumference - dashLength)}`;
-    const segment = `
-      <circle
-        class="category-donut-segment"
-        cx="${centerX}"
-        cy="${centerY}"
-        r="${radius}"
-        stroke="${entry.color}"
-        stroke-dasharray="${dashArray}"
-        stroke-dashoffset="${-dashOffset}"
-        transform="rotate(-90 ${centerX} ${centerY})"
-      ></circle>
-    `;
-    dashOffset += (entry.sweep / (Math.PI * 2)) * circumference;
-    return segment;
-  }).join("");
-
-  const connectorSvg = enriched.map(entry => {
-    const endX = entry.labelEdgeX;
-    const endY = entry.labelCenterY;
-    return `
-      <path
-        class="category-donut-connector"
-        stroke="${entry.color}"
-        d="M ${entry.anchorX.toFixed(1)} ${entry.anchorY.toFixed(1)}
-           L ${entry.elbowX.toFixed(1)} ${entry.elbowY.toFixed(1)}
-           L ${entry.guideX.toFixed(1)} ${endY.toFixed(1)}
-           L ${endX.toFixed(1)} ${endY.toFixed(1)}"
-      ></path>
-      <circle
-        class="category-donut-anchor"
-        cx="${entry.anchorX.toFixed(1)}"
-        cy="${entry.anchorY.toFixed(1)}"
-        r="2.6"
-        fill="${entry.color}"
-      ></circle>
-    `;
-  }).join("");
-
-  const labelsHtml = enriched.map(entry => `
-    <div
-      class="category-donut-pill category-donut-pill--${entry.side}"
-      style="left:${entry.labelX}px; top:${entry.labelTop}px; width:${pillWidth}px; height:${pillHeight}px;"
-      title="${entry.label}: €${formatStatMoney(entry.value)} (${entry.percent.toFixed(1)}%)"
-    >
-      <span class="category-donut-pill__dot" style="background:${entry.color}"></span>
-      <div class="category-donut-pill__body">
-        <div class="category-donut-pill__top">
-          <span class="category-donut-pill__name">${entry.label}</span>
-          <span class="category-donut-pill__percent">${entry.percent.toFixed(1)}%</span>
-        </div>
-        <div class="category-donut-pill__bottom">
-          <span class="category-donut-pill__amount">€${formatStatMoney(entry.value)}</span>
-        </div>
-      </div>
-    </div>
-  `).join("");
-
-  const centerSize = Math.max(64, Math.round(radius * 1.34));
-
-  container.innerHTML = `
-    <div class="category-donut-card">
-      <div class="category-donut-stage" style="height:${stageHeight}px; min-height:${stageHeight}px;">
-        <svg class="category-donut-svg" viewBox="0 0 ${width} ${stageHeight}" preserveAspectRatio="none" aria-hidden="true">
-          <circle class="category-donut-ring-track" cx="${centerX}" cy="${centerY}" r="${radius}"></circle>
-          ${segmentSvg}
-          ${connectorSvg}
-        </svg>
-
+    row.innerHTML = `
+      <div class="category-spend-track">
         <div
-          class="category-donut-center"
-          style="left:${centerX}px; top:${centerY}px; width:${centerSize}px; height:${centerSize}px;"
-        >
-          <div class="category-donut-center__value">€${formatStatMoney(totalSum)}</div>
-          <div class="category-donut-center__label">Всего</div>
-        </div>
+          class="category-spend-fill"
+          style="--category-bar-width: ${safeWidth.toFixed(2)}%; --category-bar-delay: ${index * 22}ms;"
+          aria-hidden="true"
+        ></div>
 
-        ${labelsHtml}
+        <div class="category-spend-content">
+          <span class="category-spend-name">${entry.label}</span>
+          <span class="category-spend-values">
+            <span class="category-spend-amount">€${entry.value.toFixed(2)}</span>
+            <span class="category-spend-percent">${percent.toFixed(1)}%</span>
+          </span>
+        </div>
       </div>
-    </div>
-  `;
+    `;
+
+    container.appendChild(row);
+  });
 }
 
 
 function resetForm() {
-
   if (!form) return;
 
   form.reset();

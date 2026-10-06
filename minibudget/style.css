@@ -6441,210 +6441,160 @@ body.expense-date-picker-lock {
 
 /* =========================================================
    CATEGORY SPEND BARS
-   Replaces the old donut chart with ranked horizontal bars.
+   Compact two-column iPhone-style pill bars.
    ========================================================= */
 
 .block.no-shadow.chart-fix {
   width: 380px;
   padding: 0;
-  margin: 0 auto 24px;
+  margin: 0 auto 20px;
   box-shadow: none;
   background: transparent;
 }
 
-
-
 .category-spend-bars {
   width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 10px;
+  box-sizing: border-box;
+  align-items: stretch;
+}
+
+.category-spend-row {
+  min-width: 0;
+  width: 100%;
   box-sizing: border-box;
 }
 
-.category-donut-card {
+.category-spend-track {
   position: relative;
   width: 100%;
-  margin: 0 auto;
-  padding: 4px 0 2px;
-  box-sizing: border-box;
-}
-
-.category-donut-stage {
-  position: relative;
-  width: 100%;
-  min-height: 284px;
+  min-height: 56px;
   overflow: hidden;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.86), rgba(239,239,239,0.88));
+  box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,0.72),
+    inset -1px -1px 0 rgba(196,196,196,0.24),
+    0 10px 20px rgba(177,177,177,0.18);
 }
 
-.category-donut-svg {
+.category-spend-fill {
   position: absolute;
-  inset: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: var(--category-bar-width, 0%);
+  min-width: 0;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(84, 155, 152, 0.92),
+    rgba(130, 188, 184, 0.78)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    0 2px 10px rgba(72, 126, 124, 0.16);
+  transform-origin: left center;
+  animation: categorySpendBarGrow 420ms cubic-bezier(.2,.8,.2,1) both;
+  animation-delay: var(--category-bar-delay, 0ms);
+}
+
+.category-spend-content {
+  position: relative;
+  z-index: 1;
+  min-height: 56px;
+  padding: 9px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
   pointer-events: none;
 }
 
-.category-donut-ring-track {
-  fill: none;
-  stroke: rgba(187, 196, 201, 0.42);
-  stroke-width: 14;
-}
-
-.category-donut-segment {
-  fill: none;
-  stroke-width: 14;
-  stroke-linecap: butt;
-  filter: drop-shadow(0 1px 1px rgba(255,255,255,0.25));
-}
-
-.category-donut-connector {
-  fill: none;
-  stroke-width: 1.15;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  opacity: 0.56;
-}
-
-.category-donut-anchor {
-  stroke: rgba(255,255,255,0.82);
-  stroke-width: 1.4;
-}
-
-.category-donut-center {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  box-sizing: border-box;
-  background:
-    linear-gradient(155deg, rgba(250,252,252,0.76), rgba(221,229,231,0.56));
-  border: 1px solid rgba(255,255,255,0.62);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.82),
-    0 7px 18px rgba(85,101,109,0.10);
-  backdrop-filter: blur(16px) saturate(120%);
-  -webkit-backdrop-filter: blur(16px) saturate(120%);
-  z-index: 2;
-}
-
-.category-donut-center__value {
-  max-width: 92%;
+.category-spend-name {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #2e3b40;
-  font-size: 13px;
-  font-weight: 820;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-
-.category-donut-center__label {
-  margin-top: 4px;
-  color: #77858b;
-  font-size: 6.7px;
-  font-weight: 760;
-  line-height: 1;
-  letter-spacing: .07em;
-  text-transform: uppercase;
-}
-
-.category-donut-pill {
-  position: absolute;
-  box-sizing: border-box;
-  min-height: 39px;
-  padding: 6px 7px;
-  border-radius: 15px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background:
-    linear-gradient(155deg, rgba(255,255,255,0.72), rgba(232,237,239,0.55));
-  border: 1px solid rgba(255,255,255,0.58);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.76),
-    0 5px 12px rgba(89,104,111,0.09);
-  backdrop-filter: blur(13px) saturate(115%);
-  -webkit-backdrop-filter: blur(13px) saturate(115%);
-  z-index: 3;
-}
-
-.category-donut-pill--empty {
-  position: relative;
-  width: 100%;
-  min-height: 64px;
-  justify-content: center;
-  color: #6b777d;
+  color: #2f363b;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 740;
+  line-height: 1.1;
+  text-shadow: 0 1px 1px rgba(255,255,255,.5);
 }
 
-.category-donut-pill__dot {
-  width: 8px;
-  height: 8px;
-  flex: 0 0 8px;
-  border-radius: 50%;
-  box-shadow: 0 0 0 2px rgba(255,255,255,0.44);
-}
-
-.category-donut-pill__body {
-  min-width: 0;
-  flex: 1 1 auto;
-  display: grid;
-  grid-template-rows: auto auto;
-  gap: 2px;
-}
-
-.category-donut-pill__top,
-.category-donut-pill__bottom {
-  min-width: 0;
+.category-spend-values {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 4px;
-}
-
-.category-donut-pill__name {
-  min-width: 0;
-  flex: 1 1 auto;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  gap: 8px;
   white-space: nowrap;
-  color: #37454a;
-  font-size: 8.7px;
+}
+
+.category-spend-amount {
+  color: #222a2e;
+  font-size: 12px;
   font-weight: 760;
-  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
 }
 
-.category-donut-pill__percent {
+.category-spend-percent {
   flex: 0 0 auto;
-  color: #718087;
-  font-size: 7.9px;
-  font-weight: 780;
+  text-align: right;
+  color: #697176;
+  font-size: 10px;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
-.category-donut-pill__amount {
-  color: #253136;
-  font-size: 9.2px;
-  font-weight: 820;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
+@keyframes categorySpendBarGrow {
+  from { transform: scaleX(0); opacity: 0.35; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+
+@media (max-width: 420px) {
+  .block.no-shadow.chart-fix {
+    width: min(380px, calc(100vw - 32px));
+  }
+
+  .category-spend-bars {
+    gap: 8px;
+  }
+
+  .category-spend-track,
+  .category-spend-content {
+    min-height: 54px;
+  }
+
+  .category-spend-content {
+    padding: 8px 10px;
+  }
+
+  .category-spend-name {
+    font-size: 11px;
+  }
+
+  .category-spend-amount {
+    font-size: 11px;
+  }
+
+  .category-spend-percent {
+    font-size: 9px;
+  }
 }
 
 @media (max-width: 350px) {
-  .category-donut-pill {
-    padding: 5px 6px;
-    gap: 5px;
+  .category-spend-bars {
+    grid-template-columns: 1fr;
   }
+}
 
-  .category-donut-pill__name { font-size: 8px; }
-  .category-donut-pill__amount { font-size: 8.5px; }
-  .category-donut-pill__percent { font-size: 7.2px; }
+@media (prefers-reduced-motion: reduce) {
+  .category-spend-fill {
+    animation: none;
+  }
 }
 
 /* =========================================================
