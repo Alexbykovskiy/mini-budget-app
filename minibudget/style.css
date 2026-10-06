@@ -8785,3 +8785,45 @@ body.picker-modal-open {
     max-height: min(50dvh, 320px);
   }
 }
+
+
+/* =========================================================
+   v45 – expense dropdown always above + equal first-row pills
+   ========================================================= */
+.expense-main-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  gap: 10px !important;
+  align-items: stretch;
+}
+
+.expense-main-row > .expense-category-field,
+.expense-main-row > #amount {
+  min-width: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+.expense-category-trigger {
+  width: 100% !important;
+}
+
+.expense-category-popover {
+  position: fixed !important;
+  right: auto !important;
+  z-index: 5000 !important;
+  max-width: calc(100vw - 24px);
+  overflow: visible;
+}
+
+.expense-category-popover__list {
+  max-height: inherit;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+@media (max-width: 640px) {
+  .expense-main-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  }
+}

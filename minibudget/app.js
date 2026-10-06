@@ -3209,6 +3209,41 @@ function initExpenseCategoryPicker() {
     `).join('');
   };
 
+  const positionPopover = () => {
+    const rect = trigger.getBoundingClientRect();
+    const viewportPadding = 12;
+    const preferredWidth = Math.min(360, Math.max(280, rect.width * 1.8));
+    const width = Math.min(preferredWidth, window.innerWidth - viewportPadding * 2);
+
+    let left = rect.left;
+    if (left + width > window.innerWidth - viewportPadding) {
+      left = window.innerWidth - viewportPadding - width;
+    }
+    left = Math.max(viewportPadding, left);
+
+    const spaceBelow = window.innerHeight - rect.bottom - viewportPadding;
+    const spaceAbove = rect.top - viewportPadding;
+    const openAbove = spaceBelow < 320 && spaceAbove > spaceBelow;
+
+    popover.style.position = 'fixed';
+    popover.style.left = `${Math.round(left)}px`;
+    popover.style.width = `${Math.round(width)}px`;
+    popover.style.right = 'auto';
+    popover.style.zIndex = '5000';
+
+    if (openAbove) {
+      popover.style.top = 'auto';
+      popover.style.bottom = `${Math.max(viewportPadding, Math.round(window.innerHeight - rect.top + 8))}px`;
+      const maxHeight = Math.max(220, Math.floor(spaceAbove - 10));
+      popover.style.maxHeight = `${maxHeight}px`;
+    } else {
+      popover.style.bottom = 'auto';
+      popover.style.top = `${Math.round(rect.bottom + 8)}px`;
+      const maxHeight = Math.max(220, Math.floor(spaceBelow - 2));
+      popover.style.maxHeight = `${maxHeight}px`;
+    }
+  };
+
   const closePopover = () => {
     popover.classList.add('hidden');
     popover.setAttribute('aria-hidden', 'true');
@@ -3217,6 +3252,7 @@ function initExpenseCategoryPicker() {
 
   const openPopover = () => {
     renderOptions();
+    positionPopover();
     popover.classList.remove('hidden');
     popover.setAttribute('aria-hidden', 'false');
     trigger.setAttribute('aria-expanded', 'true');
@@ -3256,6 +3292,14 @@ function initExpenseCategoryPicker() {
       trigger.focus({ preventScroll: true });
     }
   });
+
+  window.addEventListener('resize', () => {
+    if (!popover.classList.contains('hidden')) positionPopover();
+  });
+
+  window.addEventListener('scroll', () => {
+    if (!popover.classList.contains('hidden')) positionPopover();
+  }, { passive: true });
 
   select.addEventListener('change', () => {
     syncExpenseCategoryTrigger();
