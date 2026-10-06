@@ -3928,11 +3928,11 @@ function applyFilters() {
   loadReminders();
 }
 
+
 function updateChart(data, total) {
   const container = document.getElementById("category-spend-bars");
   if (!container) return;
 
-  // Keep every current category visible, even when its filtered amount is zero.
   const categorySelect = document.getElementById("category");
   const knownCategories = categorySelect
     ? Array.from(categorySelect.options)
@@ -3941,19 +3941,17 @@ function updateChart(data, total) {
         .filter(Boolean)
     : [];
 
-  const categoriesMap = new Map(
-    knownCategories.map(category => [category, 0])
-  );
+  const categoriesMap = new Map();
+
+  knownCategories.forEach(category => {
+    if (!categoriesMap.has(category)) categoriesMap.set(category, 0);
+  });
 
   data.forEach(entry => {
     const category = String(entry.category || "Другое").trim() || "Другое";
     const value = Number(entry.amount);
     const safeValue = Number.isFinite(value) ? value : 0;
-
-    categoriesMap.set(
-      category,
-      (categoriesMap.get(category) || 0) + safeValue
-    );
+    categoriesMap.set(category, (categoriesMap.get(category) || 0) + safeValue);
   });
 
   const sortedEntries = Array.from(categoriesMap.entries())
@@ -3963,46 +3961,95 @@ function updateChart(data, total) {
       return a.label.localeCompare(b.label, "ru");
     });
 
-  const totalSum = sortedEntries.reduce((sum, entry) => sum + entry.value, 0);
-  const maxValue = sortedEntries.reduce((max, entry) => Math.max(max, entry.value), 0);
+  const positiveEntries = sortedEntries.filter(entry => entry.value > 0);
+  const totalSum = positiveEntries.reduce((sum, entry) => sum + entry.value, 0);
 
-  container.innerHTML = "";
+  if (!positiveEntries.length || totalSum <= 0) {
+    container.innerHTML = '<div class="category-donut-card"><div class="category-donut-pill category-donut-pill--empty">Нет расходов за выбранный период</div></div>';
+    return;
+  }
 
-  sortedEntries.forEach((entry, index) => {
-    const percent = totalSum > 0 ? (entry.value / totalSum) * 100 : 0;
-    const relativeWidth = maxValue > 0 ? (entry.value / maxValue) * 100 : 0;
+  const colorPalette = ['#6E9FA3','#4E8E8A','#80B7B1','#7698B4','#90A4AE','#6C8A9B','#9BB7AD','#A0A8BF','#A7BBA3','#A6A0C5','#B4B3A1','#8F9FA6'];
+  const chartWidth = 360;
+  const maxSideCount = Math.max(Math.ceil(positiveEntries.length / 2), Math.floor(positiveEntries.length / 2), 1);
+  const stageHeight = Math.max(320, 60 + maxSideCount * 52);
+  const cx = chartWidth / 2;
+  const cy = stageHeight / 2;
+  const radius = 74;
+  const strokeWidth = 18;
+  const outerRadius = radius + strokeWidth / 2;
+  const connectorOffset = 16;
+  const circumference = 2 * Math.PI * radius;
+  const gapPx = 3;
+  const pillWidth = 128;
+  const pillHeight = 42;
+  const leftX = 6;
+  const rightX = chartWidth - pillWidth - 6;
 
-    const row = document.createElement("div");
-    row.className = "category-spend-row";
+  const entries = positiveEntries.map((entry, index) => ({
+    ...entry,
+    index,
+    percent: totalSum > 0 ? (entry.value / totalSum) * 100 : 0,
+    color: colorPalette[index % colorPalette.length]
+  }));
 
-    const safeWidth = entry.value > 0
-      ? Math.max(relativeWidth, 1.5)
-      : 0;
-
-    row.innerHTML = `
-      <div class="category-spend-track">
-        <div
-          class="category-spend-fill"
-          style="--category-bar-width: ${safeWidth.toFixed(2)}%; --category-bar-delay: ${index * 22}ms;"
-          aria-hidden="true"
-        ></div>
-
-        <div class="category-spend-content">
-          <span class="category-spend-name">${entry.label}</span>
-          <span class="category-spend-values">
-            <span class="category-spend-amount">€${entry.value.toFixed(2)}</span>
-            <span class="category-spend-percent">${percent.toFixed(1)}%</span>
-          </span>
-        </div>
-      </div>
-    `;
-
-    container.appendChild(row);
+  let angleCursor = -Math.PI / 2;
+  entries.forEach(entry => {
+    const sweep = (entry.value / totalSum) * Math.PI * 2;
+    const effectiveSweep = Math.max(sweep - gapPx / radius, 0.0001);
+    const midAngle = angleCursor + sweep / 2;
+    entry.sweep = sweep;
+    entry.effectiveSweep = effectiveSweep;
+    entry.midAngle = midAngle;
+    entry.side = Math.cos(midAngle) >= 0 ? 'right' : 'left';
+    entry.anchorX = cx + Math.cos(midAngle) * (outerRadius + 3);
+    entry.anchorY = cy + Math.sin(midAngle) * (outerRadius + 3);
+    entry.elbowX = cx + Math.cos(midAngle) * (outerRadius + connectorOffset);
+    entry.elbowY = cy + Math.sin(midAngle) * (outerRadius + connectorOffset);
+    angleCursor += sweep;
   });
+
+  const leftEntries = entries.filter(entry => entry.side === 'left').sort((a, b) => a.anchorY - b.anchorY);
+  const rightEntries = entries.filter(entry => entry.side === 'right').sort((a, b) => a.anchorY - b.anchorY);
+
+  function assignLabelPositions(list, side) {
+    if (!list.length) return;
+    const totalHeight = list.length * pillHeight + Math.max(list.length - 1, 0) * 10;
+    const startY = Math.max(10, (stageHeight - totalHeight) / 2);
+    list.forEach((entry, idx) => {
+      const top = startY + idx * (pillHeight + 10);
+      entry.labelTop = top;
+      entry.labelCenterY = top + pillHeight / 2;
+      entry.labelX = side === 'left' ? leftX : rightX;
+      entry.pathMidX = side === 'left' ? leftX + pillWidth + 12 : rightX - 12;
+      entry.pathEndX = side === 'left' ? leftX + pillWidth : rightX;
+    });
+  }
+
+  assignLabelPositions(leftEntries, 'left');
+  assignLabelPositions(rightEntries, 'right');
+
+  const trackCircle = `<circle class="category-donut-ring-track" cx="${cx}" cy="${cy}" r="${radius}"></circle>`;
+
+  let dashOffset = 0;
+  const segmentsSvg = entries.map(entry => {
+    const dashLength = (entry.effectiveSweep / (Math.PI * 2)) * circumference;
+    const dashArray = `${dashLength} ${circumference - dashLength}`;
+    const circle = `<circle class="category-donut-segment" cx="${cx}" cy="${cy}" r="${radius}" stroke="${entry.color}" stroke-dasharray="${dashArray}" stroke-dashoffset="${-dashOffset}" transform="rotate(-90 ${cx} ${cy})"></circle>`;
+    dashOffset += (entry.sweep / (Math.PI * 2)) * circumference;
+    return circle;
+  }).join('');
+
+  const connectorsSvg = entries.map(entry => `<path class="category-donut-connector" stroke="${entry.color}" d="M ${entry.anchorX.toFixed(2)} ${entry.anchorY.toFixed(2)} L ${entry.elbowX.toFixed(2)} ${entry.elbowY.toFixed(2)} L ${entry.pathMidX.toFixed(2)} ${entry.labelCenterY.toFixed(2)} L ${entry.pathEndX.toFixed(2)} ${entry.labelCenterY.toFixed(2)}"></path>`).join('');
+
+  const labelsHtml = entries.map(entry => `<div class="category-donut-pill category-donut-pill--${entry.side}" style="left:${entry.labelX}px; top:${entry.labelTop}px;" title="${entry.label}: €${formatStatMoney(entry.value)} (${entry.percent.toFixed(1)}%)"><span class="category-donut-pill__dot" style="background:${entry.color}"></span><div class="category-donut-pill__body"><div class="category-donut-pill__top"><span class="category-donut-pill__name">${entry.label}</span><span class="category-donut-pill__percent">${entry.percent.toFixed(1)}%</span></div><div class="category-donut-pill__bottom"><span class="category-donut-pill__amount">€${formatStatMoney(entry.value)}</span><span class="category-donut-pill__share"></span></div></div></div>`).join('');
+
+  container.innerHTML = `<div class="category-donut-card"><div class="category-donut-stage" style="min-height:${stageHeight}px;"><svg class="category-donut-svg" viewBox="0 0 ${chartWidth} ${stageHeight}" aria-hidden="true">${trackCircle}${segmentsSvg}${connectorsSvg}</svg><div class="category-donut-center"><div class="category-donut-center__value">€${formatStatMoney(totalSum)}</div><div class="category-donut-center__label">Категории</div></div>${labelsHtml}</div></div>`;
 }
 
 
-function resetForm() {
+function resetForm(
+) {
   if (!form) return;
 
   form.reset();
