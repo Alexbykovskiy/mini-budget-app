@@ -208,7 +208,7 @@ input[type="date"] {
 }
 
 .fuel-consumption-bar__unit {
-  font-size: 11px;
+  font-size: 10.5px;
   color: #777;
   font-weight: 600;
 }
@@ -618,7 +618,7 @@ select#filter-category {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
   color: #333;
 }
 
@@ -873,7 +873,7 @@ select#filter-category {
   content: "";
   height: 16px;
   width: 16px;
-  top: 4px;
+  top: 3px;
   left: 4px;
   background-color: white;
   transition: transform 0.3s;
@@ -2660,7 +2660,7 @@ box-sizing: border-box;
   transform:
     translateY(-50%);
 
-  border-radius: 16px;
+  border-radius: 999px;
 
   background:
     linear-gradient(
@@ -6345,7 +6345,7 @@ body.expense-date-picker-lock {
 .filter-category-option {
   position: relative;
   min-width: 0;
-  min-height: 38px;
+  min-height: 34px;
   padding: 7px 8px;
   border-radius: 12px;
   display: flex;
@@ -6470,9 +6470,9 @@ body.expense-date-picker-lock {
 .category-spend-track {
   position: relative;
   width: 100%;
-  min-height: 38px;
+  min-height: 34px;
   overflow: hidden;
-  border-radius: 16px;
+  border-radius: 999px;
   background: linear-gradient(180deg, rgba(67, 73, 79, 0.98), rgba(49, 54, 59, 0.98));
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.08),
@@ -6482,12 +6482,12 @@ body.expense-date-picker-lock {
 
 .category-spend-fill {
   position: absolute;
-  left: 4px;
-  top: 4px;
-  bottom: 4px;
-  width: calc(var(--category-bar-width, 0%) - 8px);
-  min-width: max(10px, calc(var(--category-bar-width, 0%) - 8px));
-  max-width: calc(100% - 8px);
+  left: 3px;
+  top: 3px;
+  bottom: 3px;
+  width: max(28px, calc(var(--category-bar-width, 0%) - 6px));
+  min-width: 28px;
+  max-width: calc(100% - 6px);
   border-radius: 999px;
   background: linear-gradient(
     90deg,
@@ -6505,8 +6505,8 @@ body.expense-date-picker-lock {
 .category-spend-content {
   position: relative;
   z-index: 1;
-  min-height: 38px;
-  padding: 5px 10px;
+  min-height: 34px;
+  padding: 4px 10px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -6520,7 +6520,7 @@ body.expense-date-picker-lock {
   text-overflow: ellipsis;
   white-space: nowrap;
   color: rgba(255,255,255,0.94);
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 720;
   line-height: 1;
   text-shadow: 0 1px 1px rgba(0,0,0,.16);
@@ -6536,7 +6536,7 @@ body.expense-date-picker-lock {
 
 .category-spend-amount {
   color: rgba(255,255,255,0.98);
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 760;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -6546,7 +6546,7 @@ body.expense-date-picker-lock {
   flex: 0 0 auto;
   text-align: right;
   color: rgba(255,255,255,0.70);
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 700;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -6568,21 +6568,21 @@ body.expense-date-picker-lock {
 
   .category-spend-track,
   .category-spend-content {
-    min-height: 36px;
+    min-height: 32px;
   }
 
   .category-spend-content {
-    padding: 4px 9px;
+    padding: 3px 9px;
     gap: 1px;
   }
 
   .category-spend-name,
   .category-spend-amount {
-    font-size: 10px;
+    font-size: 9.5px;
   }
 
   .category-spend-percent {
-    font-size: 8px;
+    font-size: 7.5px;
   }
 }
 
