@@ -6441,13 +6441,13 @@ body.expense-date-picker-lock {
 
 /* =========================================================
    CATEGORY SPEND BARS
-   Compact two-column iPhone-style pill bars.
+   Compact two-column pills, darker theme, reduced height.
    ========================================================= */
 
 .block.no-shadow.chart-fix {
   width: 380px;
   padding: 0;
-  margin: 0 auto 20px;
+  margin: 0 auto 18px;
   box-shadow: none;
   background: transparent;
 }
@@ -6456,7 +6456,7 @@ body.expense-date-picker-lock {
   width: 100%;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 10px;
+  gap: 8px;
   box-sizing: border-box;
   align-items: stretch;
 }
@@ -6470,32 +6470,33 @@ body.expense-date-picker-lock {
 .category-spend-track {
   position: relative;
   width: 100%;
-  min-height: 56px;
+  min-height: 38px;
   overflow: hidden;
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.86), rgba(239,239,239,0.88));
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(67, 73, 79, 0.98), rgba(49, 54, 59, 0.98));
   box-shadow:
-    inset 1px 1px 0 rgba(255,255,255,0.72),
-    inset -1px -1px 0 rgba(196,196,196,0.24),
-    0 10px 20px rgba(177,177,177,0.18);
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    inset 0 -1px 0 rgba(0,0,0,0.24),
+    0 8px 16px rgba(24, 28, 31, 0.10);
 }
 
 .category-spend-fill {
   position: absolute;
-  left: 0;
-  top: 6px;
-  bottom: 6px;
-  width: var(--category-bar-width, 0%);
-  min-width: 0;
+  left: 4px;
+  top: 4px;
+  bottom: 4px;
+  width: calc(var(--category-bar-width, 0%) - 8px);
+  min-width: max(10px, calc(var(--category-bar-width, 0%) - 8px));
+  max-width: calc(100% - 8px);
   border-radius: 999px;
   background: linear-gradient(
     90deg,
-    rgba(84, 155, 152, 0.92),
-    rgba(130, 188, 184, 0.78)
+    rgba(90, 164, 160, 0.92),
+    rgba(132, 194, 189, 0.82)
   );
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.22),
-    0 2px 10px rgba(72, 126, 124, 0.16);
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    0 2px 8px rgba(72, 126, 124, 0.12);
   transform-origin: left center;
   animation: categorySpendBarGrow 420ms cubic-bezier(.2,.8,.2,1) both;
   animation-delay: var(--category-bar-delay, 0ms);
@@ -6504,12 +6505,12 @@ body.expense-date-picker-lock {
 .category-spend-content {
   position: relative;
   z-index: 1;
-  min-height: 56px;
-  padding: 9px 12px;
+  min-height: 38px;
+  padding: 5px 10px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 5px;
+  gap: 2px;
   pointer-events: none;
 }
 
@@ -6518,11 +6519,11 @@ body.expense-date-picker-lock {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #2f363b;
-  font-size: 12px;
-  font-weight: 740;
-  line-height: 1.1;
-  text-shadow: 0 1px 1px rgba(255,255,255,.5);
+  color: rgba(255,255,255,0.94);
+  font-size: 11px;
+  font-weight: 720;
+  line-height: 1;
+  text-shadow: 0 1px 1px rgba(0,0,0,.16);
 }
 
 .category-spend-values {
@@ -6534,18 +6535,20 @@ body.expense-date-picker-lock {
 }
 
 .category-spend-amount {
-  color: #222a2e;
-  font-size: 12px;
+  color: rgba(255,255,255,0.98);
+  font-size: 11px;
   font-weight: 760;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 
 .category-spend-percent {
   flex: 0 0 auto;
   text-align: right;
-  color: #697176;
-  font-size: 10px;
+  color: rgba(255,255,255,0.70);
+  font-size: 9px;
   font-weight: 700;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 
@@ -6560,28 +6563,26 @@ body.expense-date-picker-lock {
   }
 
   .category-spend-bars {
-    gap: 8px;
+    gap: 7px;
   }
 
   .category-spend-track,
   .category-spend-content {
-    min-height: 54px;
+    min-height: 36px;
   }
 
   .category-spend-content {
-    padding: 8px 10px;
+    padding: 4px 9px;
+    gap: 1px;
   }
 
-  .category-spend-name {
-    font-size: 11px;
-  }
-
+  .category-spend-name,
   .category-spend-amount {
-    font-size: 11px;
+    font-size: 10px;
   }
 
   .category-spend-percent {
-    font-size: 9px;
+    font-size: 8px;
   }
 }
 
