@@ -8616,3 +8616,59 @@ body.picker-modal-open {
     max-height: calc(min(84dvh, 720px) - 136px);
   }
 }
+
+
+/* =========================================================
+   v42 – flatter category modal rows + fixed close button
+   ========================================================= */
+.picker-modal__close {
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  color: rgba(244,248,251,0.92) !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+}
+
+.picker-modal__close:hover {
+  background: rgba(255,255,255,0.05) !important;
+}
+
+.picker-modal__close-symbol {
+  display: block;
+  font-size: 25px;
+  font-weight: 300;
+  line-height: 1;
+  transform: translateY(-1px);
+  pointer-events: none;
+}
+
+#filter-category-modal .picker-check-option {
+  min-height: 50px;
+  padding: 0 14px;
+  border: 1px solid rgba(210,222,232,0.18) !important;
+  border-radius: 16px;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+#filter-category-modal .picker-check-option:hover {
+  background: rgba(255,255,255,0.025) !important;
+  border-color: rgba(224,233,240,0.26) !important;
+}
+
+#filter-category-modal .picker-check-option:has(input:checked) {
+  border-color: rgba(244,165,89,0.48) !important;
+  background: rgba(244,165,89,0.045) !important;
+}
+
+#filter-category-modal .picker-check-option__mark {
+  background: transparent;
+  box-shadow: none;
+}

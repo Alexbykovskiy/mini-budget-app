@@ -6,7 +6,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MINI Budget</title>
-  <link rel="stylesheet" href="style.css?v=40">
+  <link rel="stylesheet" href="style.css?v=42">
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
   <link rel="manifest" href="manifest.json">
@@ -460,7 +460,7 @@
     <div class="picker-modal__header">
       <div class="picker-modal__title" id="filter-category-modal-title">Категории</div>
       <button type="button" class="picker-modal__close" data-close-filter-category-modal aria-label="Закрыть">
-        <span data-lucide="x"></span>
+        <span class="picker-modal__close-symbol" aria-hidden="true">×</span>
       </button>
     </div>
     <div class="picker-modal__body">
@@ -479,8 +479,8 @@
         <label class="picker-check-option"><input type="checkbox" value="Шины" data-filter-category-modal /><span class="picker-check-option__mark" aria-hidden="true"></span><span>Шины</span></label>
         <label class="picker-check-option"><input type="checkbox" value="Тюнинг" data-filter-category-modal /><span class="picker-check-option__mark" aria-hidden="true"></span><span>Тюнинг</span></label>
         <label class="picker-check-option"><input type="checkbox" value="Мойка" data-filter-category-modal /><span class="picker-check-option__mark" aria-hidden="true"></span><span>Мойка</span></label>
-        <label class="picker-check-option picker-check-option--wide"><input type="checkbox" value="Виньетка/Платные дороги" data-filter-category-modal /><span class="picker-check-option__mark" aria-hidden="true"></span><span>Виньетка/Платные дороги</span></label>
         <label class="picker-check-option"><input type="checkbox" value="Другое" data-filter-category-modal /><span class="picker-check-option__mark" aria-hidden="true"></span><span>Другое</span></label>
+        <label class="picker-check-option picker-check-option--wide"><input type="checkbox" value="Виньетка/Платные дороги" data-filter-category-modal /><span class="picker-check-option__mark" aria-hidden="true"></span><span>Виньетка/Платные дороги</span></label>
       </div>
     </div>
     <div class="picker-modal__actions">
@@ -496,7 +496,7 @@
     <div class="picker-modal__header">
       <div class="picker-modal__title" id="expense-category-modal-title">Категория расхода</div>
       <button type="button" class="picker-modal__close" data-close-expense-category-modal aria-label="Закрыть">
-        <span data-lucide="x"></span>
+        <span class="picker-modal__close-symbol" aria-hidden="true">×</span>
       </button>
     </div>
     <div class="picker-modal__body">
@@ -565,7 +565,7 @@
         data-reminder-modal-close
         aria-label="Закрыть"
       >
-        <span data-lucide="x"></span>
+        <span class="picker-modal__close-symbol" aria-hidden="true">×</span>
       </button>
 
     </div>
@@ -767,7 +767,7 @@
 
   <script src="firebase-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-  <script src="app.js?v=40"></script>
+  <script src="app.js?v=42"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' })
