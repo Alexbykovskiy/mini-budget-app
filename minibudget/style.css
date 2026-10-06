@@ -6453,6 +6453,7 @@ body.expense-date-picker-lock {
 }
 
 
+
 .category-spend-bars {
   width: 100%;
   box-sizing: border-box;
@@ -6461,207 +6462,189 @@ body.expense-date-picker-lock {
 .category-donut-card {
   position: relative;
   width: 100%;
-  max-width: 380px;
   margin: 0 auto;
-  padding: 10px 0 2px;
+  padding: 4px 0 2px;
+  box-sizing: border-box;
 }
 
 .category-donut-stage {
-  --donut-size: 124px;
-  --pill-width: 128px;
-  --pill-height: 42px;
   position: relative;
   width: 100%;
-  min-height: 380px;
+  min-height: 284px;
+  overflow: hidden;
 }
 
 .category-donut-svg {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
   overflow: visible;
+  pointer-events: none;
 }
 
 .category-donut-ring-track {
   fill: none;
-  stroke: rgba(202, 206, 211, 0.95);
-  stroke-width: 18;
+  stroke: rgba(187, 196, 201, 0.42);
+  stroke-width: 14;
 }
 
 .category-donut-segment {
   fill: none;
-  stroke-width: 18;
+  stroke-width: 14;
   stroke-linecap: butt;
-  filter: drop-shadow(0 1px 1px rgba(255,255,255,0.18));
-  transition: opacity 0.2s ease;
+  filter: drop-shadow(0 1px 1px rgba(255,255,255,0.25));
 }
 
 .category-donut-connector {
   fill: none;
-  stroke-width: 1.4;
+  stroke-width: 1.15;
   stroke-linecap: round;
   stroke-linejoin: round;
-  opacity: 0.7;
+  opacity: 0.56;
+}
+
+.category-donut-anchor {
+  stroke: rgba(255,255,255,0.82);
+  stroke-width: 1.4;
 }
 
 .category-donut-center {
   position: absolute;
-  left: 50%;
-  top: 50%;
   transform: translate(-50%, -50%);
-  width: 96px;
-  height: 96px;
   border-radius: 50%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  background: linear-gradient(180deg, rgba(248, 248, 248, 0.94), rgba(227, 230, 233, 0.92));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.72), 0 10px 24px rgba(156, 164, 171, 0.12);
-  border: 1px solid rgba(255,255,255,0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  box-sizing: border-box;
+  background:
+    linear-gradient(155deg, rgba(250,252,252,0.76), rgba(221,229,231,0.56));
+  border: 1px solid rgba(255,255,255,0.62);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.82),
+    0 7px 18px rgba(85,101,109,0.10);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
   z-index: 2;
 }
 
 .category-donut-center__value {
-  font-size: 18px;
-  font-weight: 800;
-  line-height: 1.05;
-  color: #263136;
+  max-width: 92%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #2e3b40;
+  font-size: 13px;
+  font-weight: 820;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 
 .category-donut-center__label {
-  margin-top: 5px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  margin-top: 4px;
+  color: #77858b;
+  font-size: 6.7px;
+  font-weight: 760;
+  line-height: 1;
+  letter-spacing: .07em;
   text-transform: uppercase;
-  color: #6d767d;
 }
 
 .category-donut-pill {
   position: absolute;
-  width: var(--pill-width);
-  min-height: var(--pill-height);
-  padding: 8px 10px;
-  border-radius: 18px;
   box-sizing: border-box;
-  background: linear-gradient(180deg, rgba(250,250,250,0.88), rgba(235,238,240,0.82));
-  border: 1px solid rgba(255,255,255,0.68);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.78), 0 8px 18px rgba(165, 172, 178, 0.12);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  min-height: 39px;
+  padding: 6px 7px;
+  border-radius: 15px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  background:
+    linear-gradient(155deg, rgba(255,255,255,0.72), rgba(232,237,239,0.55));
+  border: 1px solid rgba(255,255,255,0.58);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.76),
+    0 5px 12px rgba(89,104,111,0.09);
+  backdrop-filter: blur(13px) saturate(115%);
+  -webkit-backdrop-filter: blur(13px) saturate(115%);
   z-index: 3;
 }
 
 .category-donut-pill--empty {
   position: relative;
   width: 100%;
-  min-height: 72px;
-  display: flex;
-  align-items: center;
+  min-height: 64px;
   justify-content: center;
-  text-align: center;
-  color: #68737a;
-  font-size: 13px;
+  color: #6b777d;
+  font-size: 12px;
   font-weight: 700;
 }
 
 .category-donut-pill__dot {
-  width: 10px;
-  height: 10px;
-  flex: 0 0 10px;
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
   border-radius: 50%;
-  box-shadow: 0 0 0 3px rgba(255,255,255,0.42);
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.44);
 }
 
 .category-donut-pill__body {
   min-width: 0;
   flex: 1 1 auto;
   display: grid;
-  gap: 3px;
+  grid-template-rows: auto auto;
+  gap: 2px;
 }
 
 .category-donut-pill__top,
 .category-donut-pill__bottom {
+  min-width: 0;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 8px;
+  gap: 4px;
 }
 
 .category-donut-pill__name {
   min-width: 0;
+  flex: 1 1 auto;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #334046;
-  font-size: 10.5px;
+  color: #37454a;
+  font-size: 8.7px;
   font-weight: 760;
+  line-height: 1.05;
 }
 
 .category-donut-pill__percent {
   flex: 0 0 auto;
-  font-size: 10px;
+  color: #718087;
+  font-size: 7.9px;
   font-weight: 780;
-  color: #6f7a81;
   font-variant-numeric: tabular-nums;
 }
 
 .category-donut-pill__amount {
-  font-size: 11px;
-  font-weight: 800;
-  color: #20292d;
+  color: #253136;
+  font-size: 9.2px;
+  font-weight: 820;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 
-.category-donut-pill__share {
-  font-size: 9px;
-  font-weight: 700;
-  color: #8a949a;
-}
-
-@media (max-width: 420px) {
-  .block.no-shadow.chart-fix {
-    width: min(380px, calc(100vw - 24px));
-  }
-
-  .category-donut-card {
-    max-width: 100%;
-  }
-
-  .category-donut-stage {
-    --donut-size: 116px;
-    --pill-width: 122px;
-    --pill-height: 40px;
-    min-height: 360px;
-  }
-
-  .category-donut-center {
-    width: 88px;
-    height: 88px;
-  }
-
-  .category-donut-center__value { font-size: 16px; }
-  .category-donut-pill { padding: 7px 9px; border-radius: 16px; }
-  .category-donut-pill__name { font-size: 10px; }
-  .category-donut-pill__amount { font-size: 10.5px; }
-  .category-donut-pill__percent { font-size: 9px; }
-  .category-donut-pill__share { font-size: 8px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .category-donut-segment,
-  .category-donut-connector,
+@media (max-width: 350px) {
   .category-donut-pill {
-    transition: none;
+    padding: 5px 6px;
+    gap: 5px;
   }
+
+  .category-donut-pill__name { font-size: 8px; }
+  .category-donut-pill__amount { font-size: 8.5px; }
+  .category-donut-pill__percent { font-size: 7.2px; }
 }
 
 /* =========================================================
