@@ -356,6 +356,35 @@ function getWheelConfigs() {
       preview(left) {
         return `${left} заправок`;
       }
+    },
+
+    filterRows: {
+      title: "Номер строки",
+      unit: "строка",
+      singleWheel: true,
+
+      left: {
+        min: 1,
+        max: 999,
+        pad: 1
+      },
+
+      parse(raw) {
+        let value = parseInt(String(raw || "1"), 10);
+        if (!Number.isFinite(value) || value < 1) value = 1;
+        return {
+          left: clamp(value, 1, 999),
+          right: 0
+        };
+      },
+
+      compose(left) {
+        return String(left);
+      },
+
+      preview(left) {
+        return `Строка ${left}`;
+      }
     }
   };
 }
@@ -2240,6 +2269,7 @@ function renderExpenses(data) {
   });
 
   updateChart(data, total);
+  if (typeof syncFilterRowTriggers === 'function') syncFilterRowTriggers();
  }
 
 function initStatsDashboard() {
@@ -2362,6 +2392,98 @@ function syncFilterPeriodTrigger() {
   const text = formatFuelPeriodTriggerValue(fromInput.value, toInput.value);
   display.textContent = text;
   trigger.classList.toggle('is-selected', !!(fromInput.value || toInput.value));
+}
+
+function syncFilterRowTriggers() {
+  const startInput = document.getElementById('filter-row-start');
+  const endInput = document.getElementById('filter-row-end');
+  const startDisplay = document.getElementById('filter-row-start-display');
+  const endDisplay = document.getElementById('filter-row-end-display');
+  const startTrigger = document.getElementById('filter-row-start-trigger');
+  const endTrigger = document.getElementById('filter-row-end-trigger');
+
+  if (!startInput || !endInput || !startDisplay || !endDisplay) return;
+
+  const startValue = parseInt(startInput.value, 10);
+  const endValue = parseInt(endInput.value, 10);
+
+  startDisplay.textContent = Number.isFinite(startValue) && startValue > 0 ? `От строки ${startValue}` : 'От строки';
+  endDisplay.textContent = Number.isFinite(endValue) && endValue > 0 ? `До строки ${endValue}` : 'До строки';
+
+  startTrigger?.classList.toggle('is-selected', Number.isFinite(startValue) && startValue > 0);
+  endTrigger?.classList.toggle('is-selected', Number.isFinite(endValue) && endValue > 0);
+}
+
+function openFilterRowPicker(inputId) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+
+  const fallbackValue = inputId === 'filter-row-end'
+    ? Math.max(1, Array.isArray(expenses) ? expenses.length : 1)
+    : 1;
+
+  if (!input.value) {
+    input.value = String(fallbackValue);
+  }
+
+  openWheelPicker('filterRows', input);
+}
+
+function initFilterRowPickers() {
+  const startTrigger = document.getElementById('filter-row-start-trigger');
+  const endTrigger = document.getElementById('filter-row-end-trigger');
+  const startInput = document.getElementById('filter-row-start');
+  const endInput = document.getElementById('filter-row-end');
+
+  if (startTrigger && startTrigger.dataset.rangeReady !== '1') {
+    startTrigger.dataset.rangeReady = '1';
+    startTrigger.addEventListener('click', (event) => {
+      event.preventDefault();
+      startTrigger.blur();
+      openFilterRowPicker('filter-row-start');
+    });
+  }
+
+  if (endTrigger && endTrigger.dataset.rangeReady !== '1') {
+    endTrigger.dataset.rangeReady = '1';
+    endTrigger.addEventListener('click', (event) => {
+      event.preventDefault();
+      endTrigger.blur();
+      openFilterRowPicker('filter-row-end');
+    });
+  }
+
+  startInput?.addEventListener('change', syncFilterRowTriggers);
+  endInput?.addEventListener('change', syncFilterRowTriggers);
+  syncFilterRowTriggers();
+}
+
+function resetFilterControls() {
+  const fromInput = document.getElementById('filter-from');
+  const toInput = document.getElementById('filter-to');
+  const tagInput = document.getElementById('filter-tag');
+  const startInput = document.getElementById('filter-row-start');
+  const endInput = document.getElementById('filter-row-end');
+  const allInput = document.getElementById('filter-category-all');
+  const categoryInputs = Array.from(document.querySelectorAll('[data-filter-category]'));
+
+  if (fromInput) fromInput.value = '';
+  if (toInput) toInput.value = '';
+  if (tagInput) tagInput.value = '';
+  if (startInput) startInput.value = '';
+  if (endInput) endInput.value = '';
+
+  if (allInput) allInput.checked = true;
+  categoryInputs.forEach((input) => {
+    input.checked = false;
+  });
+
+  syncFilterPeriodTrigger();
+  syncFilterRowTriggers();
+  if (typeof syncFilterCategoryUI === 'function') syncFilterCategoryUI();
+
+  renderExpenses(expenses, true);
+  loadReminders();
 }
 
 function getPeriodPickerContextElements(context = 'fuel') {
@@ -3033,6 +3155,7 @@ function initFilterControls() {
 
   syncFilterPeriodTrigger();
   initFilterCategoryMultiSelect();
+  initFilterRowPickers();
 }
 
 function initFuelControls() {
@@ -3922,7 +4045,11 @@ function applyFilters() {
     const allowedCategories = new Set(selectedCategories);
     filtered = filtered.filter(e => allowedCategories.has(e.category));
   }
-  if (!isNaN(rowStart) && !isNaN(rowEnd)) filtered = filtered.slice(rowStart - 1, rowEnd);
+  if (!isNaN(rowStart) || !isNaN(rowEnd)) {
+    const startIndex = !isNaN(rowStart) ? Math.max(1, rowStart) : 1;
+    const endIndex = !isNaN(rowEnd) ? Math.max(startIndex, rowEnd) : filtered.length;
+    filtered = filtered.slice(startIndex - 1, endIndex);
+  }
 
   renderExpenses(filtered, true);
   loadReminders();

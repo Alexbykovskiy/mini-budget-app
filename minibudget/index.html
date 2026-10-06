@@ -6,7 +6,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MINI Budget</title>
-  <link rel="stylesheet" href="style.css?v=37">
+  <link rel="stylesheet" href="style.css?v=38">
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
   <link rel="manifest" href="manifest.json">
@@ -320,9 +320,7 @@
 
   <div class="filters-toggle-container">
     <div class="filters">
-      <div class="row filter-period-row">
-        <label class="small-label" for="filter-period-trigger">Период:</label>
-
+      <div class="row filter-top-row">
         <button
           type="button"
           id="filter-period-trigger"
@@ -330,20 +328,9 @@
           aria-haspopup="dialog"
           aria-controls="fuel-period-picker-modal"
         >
-          <span class="fuel-period-trigger__label">Период</span>
           <span id="filter-period-display" class="fuel-period-trigger__value">Выбрать период</span>
         </button>
 
-        <input type="hidden" id="filter-from" />
-        <input type="hidden" id="filter-to" />
-      </div>
-
-      <div class="row filter-tag-row">
-        <input list="tag-list" id="filter-tag" placeholder="#тег" />
-        <datalist id="tag-list"></datalist>
-      </div>
-
-      <div class="row filter-category-row">
         <div class="filter-category-multi">
           <button
             type="button"
@@ -378,14 +365,30 @@
             </div>
           </div>
         </div>
+
+        <input type="hidden" id="filter-from" />
+        <input type="hidden" id="filter-to" />
       </div>
-      <div class="row">
-        <input type="number" id="filter-row-start" placeholder="Строка от" />
-        <input type="number" id="filter-row-end" placeholder="до строки" />
+
+      <div class="row filter-tag-row">
+        <input list="tag-list" id="filter-tag" placeholder="#тег" />
+        <datalist id="tag-list"></datalist>
       </div>
-      <div class="form-buttons">
-        <button class="round-btn orange" onclick="location.reload()" title="Сброс">&#10006;</button>
-        <button class="round-btn green" onclick="applyFilters()" title="Применить">&#10004;</button>
+
+      <div class="row filter-range-row">
+        <button type="button" id="filter-row-start-trigger" class="filter-range-trigger" aria-haspopup="dialog">
+          <span id="filter-row-start-display">От строки</span>
+        </button>
+        <button type="button" id="filter-row-end-trigger" class="filter-range-trigger" aria-haspopup="dialog">
+          <span id="filter-row-end-display">До строки</span>
+        </button>
+        <input type="hidden" id="filter-row-start" />
+        <input type="hidden" id="filter-row-end" />
+      </div>
+
+      <div class="form-buttons filter-action-buttons">
+        <button type="button" class="action-pill-btn action-pill-btn--secondary" onclick="resetFilterControls()">Сбросить</button>
+        <button type="button" class="action-pill-btn action-pill-btn--primary" onclick="applyFilters()">Применить</button>
       </div>
     </div>
   </div>
@@ -710,7 +713,7 @@
 
   <script src="firebase-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-  <script src="app.js?v=37"></script>
+  <script src="app.js?v=38"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' })
