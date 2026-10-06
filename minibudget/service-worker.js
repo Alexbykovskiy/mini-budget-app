@@ -1,5 +1,5 @@
-const STATIC_CACHE = "mini-budget-static-v46";
-const RUNTIME_CACHE = "mini-budget-runtime-v46";
+const STATIC_CACHE = "mini-budget-static-v47";
+const RUNTIME_CACHE = "mini-budget-runtime-v47";
 
 // All paths are relative to the service worker scope:
 // /mini-budget-app/minibudget/
@@ -8,7 +8,7 @@ const APP_SHELL = [
   "./style.css",
   "./app.js",
   "./firebase-config.js",
-  "./manifest.json",
+  "../manifest.json",
   "./icon-192.png",
   "./icon-256.png",
   "./icon-512.png"

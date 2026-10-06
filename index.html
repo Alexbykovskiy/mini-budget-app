@@ -7,7 +7,11 @@
 
 <link rel="icon" href="favicon.ico" type="image/x-icon">
 
-<link rel="apple-touch-icon" href="apple-touch-icon.PNG">
+<link rel="manifest" href="/mini-budget-app/manifest.json">
+<meta name="theme-color" content="#002D37">
+<meta name="mobile-web-app-capable" content="yes">
+
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="My Apps">
@@ -71,7 +75,7 @@
       <!-- 2 -->
      <!-- Конверты -->
 <a class="tile"
-   href="https://alexbykovskiy.com/mini-budget-app/envelopes/envelopes.html"
+   href="/mini-budget-app/envelopes/envelopes.html"
    aria-label="Открыть Конверты">
         <div class="tile__header">
           <div class="tile__icon" aria-hidden="true">💰</div>
@@ -89,7 +93,7 @@
       <!-- 3 -->
       <!-- Поездки -->
 <a class="tile"
-   href="https://alexbykovskiy.com/mini-budget-app/tattoo/tattoo-index.html"
+   href="/mini-budget-app/tattoo/tattoo-index.html"
    aria-label="Открыть Поездки">
         <div class="tile__header">
           <div class="tile__icon" aria-hidden="true">🧳</div>
@@ -107,7 +111,7 @@
       <!-- 4 -->
       <!-- Tattoo CRM -->
 <a class="tile"
-   href="https://alexbykovskiy.com/mini-budget-app/TattooCRM/"
+   href="/mini-budget-app/TattooCRM/"
    aria-label="Открыть Tattoo CRM">
         <div class="tile__header">
           <div class="tile__icon" aria-hidden="true">🖋️</div>
@@ -124,7 +128,7 @@
 
      <!-- Free Day Editor -->
 <a class="tile"
-   href="https://alexbykovskiy.com/free-day-editor/"
+   href="/free-day-editor/"
    aria-label="Открыть Free Day Editor">
   <div class="tile__header">
     <div class="tile__icon" aria-hidden="true">🗓️</div>
@@ -159,5 +163,14 @@
       <div class="footer__text">Все приложения открываются в новом стиле iOS. Без лишних кликов.</div>
     </footer>
   </main>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/mini-budget-app/service-worker.js', { updateViaCache: 'none' })
+        .catch(err => console.error('My Apps SW registration failed:', err));
+    });
+  }
+</script>
 </body>
 </html>

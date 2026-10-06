@@ -5,18 +5,22 @@
 <script src="https://unpkg.com/lucide@latest"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="My Apps">
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
   <title>MINI Budget</title>
-  <link rel="stylesheet" href="style.css?v=46">
+  <link rel="stylesheet" href="style.css?v=47">
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="../manifest.json">
   <meta name="theme-color" content="#FFA35C">
   <link rel="icon" href="icon-256.png">
 </head>
 <body>
 
 <div id="floating-pill" class="floating-pill">
-  <a class="pill-half pill-left" href="https://alexbykovskiy.github.io/mini-budget-app/">
+  <a class="pill-half pill-left" href="/mini-budget-app/">
     <span class="pill-icon">
       <!-- SVG авто -->
       <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 24 24"
@@ -29,7 +33,7 @@
     </span>
   </a>
   <span class="pill-divider"></span>
-  <a class="pill-half pill-right" href="https://alexbykovskiy.github.io/mini-budget-app/envelopes.html">
+  <a class="pill-half pill-right" href="/mini-budget-app/envelopes/envelopes.html">
     <span class="pill-icon">
       <!-- SVG конверта -->
       <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 24 24"
@@ -40,7 +44,7 @@
     </span>
   </a>
 <span class="pill-divider"></span>
-  <a class="pill-third pill-center" href="https://alexbykovskiy.github.io/mini-budget-app/tattoo-index.html" title="Tattoo учёт">
+  <a class="pill-third pill-center" href="/mini-budget-app/tattoo/tattoo-index.html" title="Tattoo учёт">
     <span class="pill-icon">
       <!-- SVG тату-машинка -->
        <svg width="34" height="34" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
@@ -770,7 +774,7 @@
 
   <script src="firebase-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-  <script src="app.js?v=46"></script>
+  <script src="app.js?v=47"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' })
