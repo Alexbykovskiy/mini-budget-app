@@ -8364,6 +8364,10 @@ select#filter-category {
   margin-top: 4px !important;
 }
 
+.filter-action-buttons .action-pill-btn {
+  border-radius: 999px !important;
+}
+
 @media (max-width: 640px) {
   .filter-category-panel {
     max-height: min(48dvh, 360px);
@@ -8813,7 +8817,9 @@ body.picker-modal-open {
   right: auto !important;
   z-index: 5000 !important;
   max-width: calc(100vw - 24px);
+  box-sizing: border-box;
   overflow: visible;
+  transform: none !important;
 }
 
 .expense-category-popover__list {

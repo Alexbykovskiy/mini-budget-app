@@ -3191,6 +3191,13 @@ function initExpenseCategoryPicker() {
   const list = document.getElementById('expense-category-popover-list');
 
   if (!select || !trigger || !display || !popover || !list) return;
+
+  // Move the dropdown to <body> so position: fixed is always viewport-based.
+  // Animated parent blocks use transforms, which otherwise shift fixed children.
+  if (popover.parentElement !== document.body) {
+    document.body.appendChild(popover);
+  }
+
   if (trigger.dataset.expenseCategoryReady === '1') {
     syncExpenseCategoryTrigger();
     return;
@@ -3212,7 +3219,7 @@ function initExpenseCategoryPicker() {
   const positionPopover = () => {
     const rect = trigger.getBoundingClientRect();
     const viewportPadding = 12;
-    const preferredWidth = Math.min(360, Math.max(280, rect.width * 1.8));
+    const preferredWidth = Math.min(340, Math.max(280, rect.width * 1.75));
     const width = Math.min(preferredWidth, window.innerWidth - viewportPadding * 2);
 
     let left = rect.left;
