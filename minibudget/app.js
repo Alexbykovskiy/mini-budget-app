@@ -587,6 +587,7 @@ function createWheelPickerModal() {
 
   attachWheelDrag("left");
   attachWheelDrag("right");
+  initMileagePickerUI();
 }
 
 
@@ -727,6 +728,9 @@ function openWheelPicker(
   }
 
 
+  stopMileagePickerMotion();
+  clearTimeout(wheelPickerState.closeTimer);
+
   const initial =
     config.parse(input.value);
 
@@ -816,6 +820,10 @@ function openWheelPicker(
   }
 
 
+  wheelsContainer.hidden = type === "mileage";
+  document.getElementById("wheel-mileage-picker").hidden = type !== "mileage";
+  if (type === "mileage") renderMileagePicker();
+
   updateWheelPickerPreview();
 
 
@@ -842,11 +850,13 @@ function closeWheelPicker() {
   }
 
 
+  stopMileagePickerMotion();
+
   wheelPickerState.modal
     .classList.remove("show");
 
 
-  setTimeout(() => {
+  wheelPickerState.closeTimer = setTimeout(() => {
 
     wheelPickerState.modal
       .classList.add("hidden");
@@ -1430,6 +1440,171 @@ function attachWheelDrag(side) {
     "lostpointercapture",
     onPointerUp
   );
+}
+
+
+// Mileage wheels share one full reading so every digit carries in both directions.
+const MILEAGE_MAX = 999999;
+const MILEAGE_COLUMNS = [
+  { step: 1000, label: "Тысячи", pad: 3 },
+  { step: 100, label: "Сотни", pad: 1 },
+  { step: 10, label: "Десятки", pad: 1 },
+  { step: 1, label: "Единицы", pad: 1 }
+];
+
+function getMileagePickerValue() {
+  return wheelPickerState.leftValue * 1000 + wheelPickerState.rightValue;
+}
+
+function setMileagePickerValue(value, activeColumn = null, translateY = 0) {
+  value = clamp(Math.round(value), 0, MILEAGE_MAX);
+  wheelPickerState.leftValue = Math.floor(value / 1000);
+  wheelPickerState.rightValue = value % 1000;
+  renderMileagePicker(activeColumn, translateY);
+  updateWheelPickerPreview();
+}
+
+function stopMileagePickerMotion() {
+  wheelPickerState?.mileageWheels?.forEach(wheel => wheel.stop());
+}
+
+function renderMileagePicker(activeColumn = null, translateY = 0) {
+  const value = getMileagePickerValue();
+  wheelPickerState.mileageWheels.forEach((wheel, index) => {
+    const column = MILEAGE_COLUMNS[index];
+    wheel.track.innerHTML = "";
+    for (let offset = -WHEEL_VISIBLE_RADIUS; offset <= WHEEL_VISIBLE_RADIUS; offset++) {
+      const nearby = clamp(value + offset * column.step, 0, MILEAGE_MAX);
+      const digit = index === 0 ? Math.floor(nearby / 1000) : Math.floor(nearby / column.step) % 10;
+      const item = document.createElement("div");
+      item.className = `wheel-picker-item wheel-distance-${Math.abs(offset)}${offset === 0 ? " active" : ""}`;
+      item.textContent = padNumber(digit, column.pad);
+      wheel.track.appendChild(item);
+    }
+    wheel.track.style.transform = `translateY(${index === activeColumn ? translateY : 0}px)`;
+    wheel.root.setAttribute("aria-valuenow", String(index === 0 ? Math.floor(value / 1000) : Math.floor(value / column.step) % 10));
+    wheel.root.setAttribute("aria-valuetext", `${wheelPickerState.config.preview(wheelPickerState.leftValue, wheelPickerState.rightValue)}, ${column.label.toLowerCase()}`);
+  });
+  document.querySelectorAll("[data-mileage-add]").forEach(button => {
+    button.disabled = value >= MILEAGE_MAX;
+  });
+}
+
+function initMileagePickerUI() {
+  const container = document.createElement("div");
+  container.id = "wheel-mileage-picker";
+  container.className = "wheel-mileage-picker";
+  container.hidden = true;
+  container.innerHTML = `
+    <div class="mileage-wheel-labels" aria-hidden="true">
+      <span>Тысячи</span><span>Сотни</span><span>Десятки</span><span>Единицы</span>
+    </div>
+    <div class="wheel-picker-wheels mileage-wheel-grid">
+      <div class="wheel-picker-selection-combined"></div>
+      ${MILEAGE_COLUMNS.map((column, index) => `
+        <div class="wheel-picker-unit">
+          <div class="wheel-picker-wheel" id="mileage-wheel-${index}" role="spinbutton"
+            tabindex="0" aria-label="${column.label}" aria-valuemin="0" aria-valuemax="${index === 0 ? 999 : 9}">
+            <div class="wheel-picker-track"></div>
+          </div>
+        </div>`).join("")}
+    </div>
+    <div class="mileage-quick-actions">
+      <button type="button" class="mileage-quick-btn" data-mileage-add="100">+100 км</button>
+      <button type="button" class="mileage-quick-btn" data-mileage-add="500">+500 км</button>
+    </div>`;
+  const footer = wheelPickerState.modal.querySelector(".wheel-picker-footer");
+  footer.before(container);
+  wheelPickerState.mileageWheels = MILEAGE_COLUMNS.map((column, index) => {
+    const root = document.getElementById(`mileage-wheel-${index}`);
+    return { root, track: root.querySelector(".wheel-picker-track") };
+  });
+  wheelPickerState.mileageWheels.forEach((wheel, index) => attachMileageWheelDrag(wheel, index));
+  container.querySelectorAll("[data-mileage-add]").forEach(button => {
+    button.addEventListener("click", () => {
+      if (wheelPickerState.type !== "mileage") return;
+      stopMileagePickerMotion();
+      setMileagePickerValue(getMileagePickerValue() + Number(button.dataset.mileageAdd));
+      wheelHaptic();
+    });
+  });
+}
+
+function attachMileageWheelDrag(wheel, index) {
+  const step = MILEAGE_COLUMNS[index].step;
+  let drag = null;
+  let timer = null;
+  wheel.stop = () => {
+    clearTimeout(timer);
+    timer = null;
+    const pointerId = drag?.pointerId;
+    drag = null;
+    wheel.root.classList.remove("dragging");
+    if (pointerId !== undefined && wheel.root.hasPointerCapture(pointerId)) {
+      wheel.root.releasePointerCapture(pointerId);
+    }
+    wheel.track.style.transform = "translateY(0px)";
+  };
+
+  wheel.root.addEventListener("pointerdown", event => {
+    if (wheelPickerState.type !== "mileage" || !wheelPickerState.modal.classList.contains("show")) return;
+    if (event.button !== 0 || event.isPrimary === false) return;
+    event.preventDefault();
+    stopMileagePickerMotion();
+    const now = performance.now();
+    drag = { pointerId: event.pointerId, startY: event.clientY, startValue: getMileagePickerValue(),
+      lastY: event.clientY, lastTime: now, velocity: 0 };
+    wheel.root.classList.add("dragging");
+    wheel.root.setPointerCapture(event.pointerId);
+  });
+
+  wheel.root.addEventListener("pointermove", event => {
+    if (!drag || event.pointerId !== drag.pointerId) return;
+    event.preventDefault();
+    const now = performance.now();
+    drag.velocity = drag.velocity * 0.65 + ((event.clientY - drag.lastY) / Math.max(now - drag.lastTime, 1)) * 0.35;
+    drag.lastY = event.clientY;
+    drag.lastTime = now;
+    const floatSteps = -(event.clientY - drag.startY) / WHEEL_ROW_HEIGHT * WHEEL_SWIPE_SENSITIVITY;
+    const steps = Math.round(floatSteps);
+    const rawValue = drag.startValue + steps * step;
+    const nextValue = clamp(rawValue, 0, MILEAGE_MAX);
+    const changed = nextValue !== getMileagePickerValue();
+    setMileagePickerValue(nextValue, index, rawValue === nextValue ? (steps - floatSteps) * WHEEL_ROW_HEIGHT : 0);
+    if (changed) wheelHaptic();
+  });
+
+  const endDrag = event => {
+    if (!drag || event.pointerId !== drag.pointerId) return;
+    const velocity = performance.now() - drag.lastTime > 100 ? 0 : drag.velocity;
+    wheel.stop();
+    renderMileagePicker();
+    if (event.type !== "pointerup" || Math.abs(velocity) < 0.10) return;
+    const direction = velocity < 0 ? 1 : -1;
+    const steps = clamp(Math.round(Math.abs(velocity) * 7 * WHEEL_SWIPE_SENSITIVITY), 1, index === 0 ? 18 : 3);
+    let completed = 0;
+    const tick = () => {
+      timer = null;
+      if (wheelPickerState.type !== "mileage" || !wheelPickerState.modal.classList.contains("show")) return;
+      const current = getMileagePickerValue();
+      const next = clamp(current + direction * step, 0, MILEAGE_MAX);
+      if (next === current) return;
+      setMileagePickerValue(next);
+      wheelHaptic();
+      completed++;
+      if (completed < steps) timer = setTimeout(tick, 18 + (completed / steps) ** 2 * 70);
+    };
+    timer = setTimeout(tick, 18);
+  };
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach(type => wheel.root.addEventListener(type, endDrag));
+  wheel.root.addEventListener("keydown", event => {
+    if (wheelPickerState.type !== "mileage") return;
+    if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+    event.preventDefault();
+    stopMileagePickerMotion();
+    setMileagePickerValue(getMileagePickerValue() + (event.key === "ArrowUp" ? step : -step));
+    wheelHaptic();
+  });
 }
 
 

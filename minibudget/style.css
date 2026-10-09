@@ -8833,3 +8833,62 @@ body.picker-modal-open {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
   }
 }
+
+/* Mileage: thousands plus three digits, with quick distance increments. */
+.wheel-mileage-picker[hidden],
+#wheel-picker-wheels[hidden] {
+  display: none;
+}
+
+.mileage-wheel-labels,
+.mileage-wheel-grid {
+  display: grid;
+  grid-template-columns: 1.8fr repeat(3, 1fr);
+  gap: 6px;
+}
+
+.mileage-wheel-labels {
+  margin-top: 12px;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 11px;
+  text-align: center;
+}
+
+.mileage-wheel-grid .wheel-picker-unit {
+  min-width: 0;
+}
+
+.mileage-wheel-grid .wheel-picker-wheel:focus-visible {
+  outline: 2px solid #FFA35C;
+  outline-offset: -3px;
+  border-radius: 16px;
+}
+
+.mileage-quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 4px 0 12px;
+}
+
+.mileage-quick-btn {
+  min-height: 44px;
+  box-shadow: none;
+  border: 1px solid rgba(255, 163, 92, 0.35);
+  border-radius: 15px;
+  background: rgba(255, 163, 92, 0.10);
+  color: #ffb982;
+  font-size: 15px;
+  font-weight: 650;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.mileage-quick-btn:active {
+  transform: scale(0.98);
+}
+
+.mileage-quick-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
