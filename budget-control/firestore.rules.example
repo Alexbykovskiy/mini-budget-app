@@ -1,0 +1,94 @@
+// REVIEWED CANDIDATE ONLY. Deploy after live owner login passes in all five apps.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner() {
+      return request.auth != null && request.auth.uid == 'BQbwiHs1Y3Wsz1yaT2JizWVWOLG2';
+    }
+    function owner(uid) { return isOwner() && uid == request.auth.uid; }
+    function amount(data) {
+      return data.amountCents is int && data.amountCents > 0 && data.amountCents <= 10000000000;
+    }
+    function timestamps(data) {
+      return data.createdAt is string && data.updatedAt is string;
+    }
+    match /budgetControlAccess/{uid} { allow read, write: if false; }
+    match /budgetControl/{uid} {
+      match /settings/{id} {
+        allow read: if owner(uid);
+        allow create, update: if owner(uid) && id == 'main'
+          && request.resource.data.schemaVersion == 1
+          && request.resource.data.currency == 'EUR'
+          && request.resource.data.categories is list
+          && request.resource.data.groups is list
+          && request.resource.data.mappings is map
+          && request.resource.data.integrations.tattooExpenses == false
+          && timestamps(request.resource.data);
+      }
+      match /transactions/{id} {
+        allow read: if owner(uid);
+        allow create: if owner(uid) && amount(request.resource.data)
+          && request.resource.data.source == 'budget_control'
+          && request.resource.data.currency == 'EUR'
+          && request.resource.data.type in ['income', 'expense']
+          && request.resource.data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+          && timestamps(request.resource.data);
+        allow update: if owner(uid) && !('paymentId' in resource.data)
+          && !exists(/databases/$(database)/documents/budgetControl/$(uid)/links/$('budget_control%3A' + id))
+          && amount(request.resource.data)
+          && request.resource.data.source == 'budget_control'
+          && request.resource.data.currency == 'EUR'
+          && request.resource.data.type in ['income', 'expense']
+          && request.resource.data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+          && request.resource.data.createdAt == resource.data.createdAt
+          && timestamps(request.resource.data);
+        allow delete: if owner(uid) && !('paymentId' in resource.data)
+          && !exists(/databases/$(database)/documents/budgetControl/$(uid)/links/$('budget_control%3A' + id));
+      }
+      match /recurring/{id} {
+        allow read, delete: if owner(uid);
+        allow create, update: if owner(uid) && amount(request.resource.data)
+          && request.resource.data.name is string
+          && request.resource.data.enabled is bool
+          && request.resource.data.interval is int
+          && request.resource.data.interval >= 1 && request.resource.data.interval <= 3660
+          && request.resource.data.unit in ['months', 'days']
+          && request.resource.data.nextDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+          && timestamps(request.resource.data);
+      }
+      match /payments/{id} {
+        allow read: if owner(uid);
+        allow create: if owner(uid) && amount(request.resource.data)
+          && request.resource.data.operationId is string && timestamps(request.resource.data);
+      }
+      match /links/{id} {
+        allow read: if owner(uid);
+        allow create: if owner(uid) && request.resource.data.paymentId is string;
+      }
+      match /plans/{month} {
+        allow read: if owner(uid);
+        allow create: if owner(uid) && month.matches('^[0-9]{4}-[0-9]{2}$')
+          && request.resource.data.closed == true
+          && request.resource.data.categories is list && timestamps(request.resource.data);
+      }
+    }
+    // Preserve all audited legacy paths and document formats.
+    match /users/mini/{collection}/{id} {
+      allow read, write: if isOwner() && collection in ['expenses', 'tags', 'reminders'];
+    }
+    match /incomes/{id} { allow read, write: if isOwner(); }
+    match /expenses/{id} { allow read, write: if isOwner(); }
+    match /studios/{id} { allow read, write: if isOwner(); }
+    match /trips/{id} { allow read, write: if isOwner(); }
+    match /envelopes/{id} { allow read, write: if isOwner(); }
+    match /transactions/{id} { allow read, write: if isOwner(); }
+    match /TattooCRM/app/{collection}/{id} {
+      allow read, write: if isOwner() && collection in ['clients', 'reminders', 'supplies', 'marketing', 'summary'];
+    }
+    match /TattooCRM/app/clients/{id}/statusLogs/{log} { allow read, write: if isOwner(); }
+    match /TattooCRM/settings/global/default { allow read, write: if isOwner(); }
+    // Existing CRM fallback only reads this old collection.
+    match /clients/{id} { allow read: if isOwner(); }
+    // Unknown paths and creation of arbitrary user profiles are denied by default.
+  }
+}

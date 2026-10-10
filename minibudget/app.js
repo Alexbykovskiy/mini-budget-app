@@ -3,7 +3,7 @@ const profileCode = "mini";
 
 // Date picker must not depend on Firebase or other app startup tasks.
 // This also makes it reliable on desktop browsers where another startup task may fail.
-document.addEventListener("DOMContentLoaded", () => {
+MyApps.ready(() => {
   initExpenseDatePicker();
   initFuelPeriodPickerTrigger();
   initFilterControls();
@@ -11,8 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initStatsDashboard();
 });
 
-window.addEventListener("load", () => {
-  db = firebase.firestore();
+MyApps.ready(() => {
+  db = MyApps.db();
   loadExpenses();
   populateTagList();
   resetForm();
@@ -4330,11 +4330,11 @@ function fillFormForEdit(exp) {
 async function subtractFromMiniBudget(amount) {
   // Получаем ссылку на Firestore (db уже определён выше)
   // envelopes коллекция находится в общем пространстве, без users/mini
-  const snapshot = await firebase.firestore().collection("envelopes").where("isMiniBudget", "==", true).limit(1).get();
+  const snapshot = await MyApps.db().collection("envelopes").where("isMiniBudget", "==", true).limit(1).get();
   if (!snapshot.empty) {
     const doc = snapshot.docs[0];
-    const ref = firebase.firestore().collection("envelopes").doc(doc.id);
-    await firebase.firestore().runTransaction(async (t) => {
+    const ref = MyApps.db().collection("envelopes").doc(doc.id);
+    await MyApps.db().runTransaction(async (t) => {
       const d = await t.get(ref);
       t.update(ref, { current: (d.data().current || 0) - amount });
     });

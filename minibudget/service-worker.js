@@ -1,9 +1,16 @@
-const STATIC_CACHE = "mini-budget-static-v48";
-const RUNTIME_CACHE = "mini-budget-runtime-v48";
+const STATIC_CACHE = "mini-budget-static-v50";
+const RUNTIME_CACHE = "mini-budget-runtime-v50";
 
 // All paths are relative to the service worker scope:
 // /mini-budget-app/minibudget/
 const APP_SHELL = [
+  '../shared/vendor/12.19.0/firebase-app-compat.js',
+  '../shared/vendor/12.19.0/firebase-auth-compat.js',
+  '../shared/vendor/12.19.0/firebase-firestore-compat.js',
+  '../shared/firebase-config.js',
+  '../shared/owner-access.js',
+  '../shared/auth.js',
+  '../shared/auth.css',
   "./index.html",
   "./style.css",
   "./app.js",
@@ -66,6 +73,7 @@ self.addEventListener("fetch", event => {
   if (request.method !== "GET") return;
 
   const url = new URL(request.url);
+  if (url.pathname.startsWith('/__/auth/') || url.pathname.startsWith('/__/firebase/')) return;
 
   // Do not interfere with CDN, Firebase or other external requests.
   if (url.origin !== self.location.origin) return;

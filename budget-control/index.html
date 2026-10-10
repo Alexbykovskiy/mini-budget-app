@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ru" class="my-apps-locked" data-owner-app>
+<head>
+  <style>html.my-apps-locked body > :not(#my-apps-auth):not(script):not(style):not(link) { display:none !important; }</style>
+  <link rel="stylesheet" href="../shared/auth.css">
+  <script src="../shared/firebase-config.js" defer></script>
+  <script src="../shared/owner-access.js" defer></script>
+  <script src="../shared/auth.js" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="theme-color" content="#edf1ed">
+  <meta name="description" content="Budget Control — семейный бюджет, регулярные платежи и финансовая картина My Apps.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Budget Control · My Apps</title>
+  <link rel="manifest" href="../manifest.json">
+  <link rel="icon" href="../favicon.ico">
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+  <link rel="stylesheet" href="./style.css">
+  <script type="application/x-my-apps" data-owner-src="./app.mjs" data-owner-type="module"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">К содержимому</a>
+  <div class="ambient" aria-hidden="true"></div>
+  <aside class="sidebar glass">
+    <a href="../index.html" class="back-link"><span aria-hidden="true">↖</span> My Apps</a>
+    <a href="#dashboard" class="brand"><span class="brand-icon" aria-hidden="true">B<span>·</span></span><span>Budget<br><strong>Control</strong></span></a>
+    <p class="sidebar-label">ФИНАНСОВЫЙ ЦЕНТР</p>
+    <nav id="navigation" aria-label="Основная навигация"></nav>
+    <div class="sidebar-bottom"><div class="currency-icon">€</div><div><strong>Всё в одном месте</strong><p>Автомобиль · Работа · Семья</p></div></div>
+    <div class="sidebar-footer"><span>MY APPS / 01</span><span>EUR €</span></div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar">
+      <div class="breadcrumb"><a href="../index.html" aria-label="Вернуться в My Apps">↖ My Apps</a> <span>/</span> <strong id="section-label">Обзор</strong></div>
+      <div class="top-actions"><span id="mode-badge" class="badge"></span><button id="theme-toggle" class="icon-button" aria-label="Переключить тему" title="Переключить тему"></button></div>
+    </header>
+    <div class="page-heading"><div><p class="eyebrow">BUDGET CONTROL</p><h1 id="page-title">Финансы под контролем</h1><p id="page-subtitle" class="muted">Один взгляд на всё, что важно.</p></div><div class="heading-actions"><div class="month-picker glass"><button data-action="prev-month" class="icon-button" aria-label="Предыдущий месяц">‹</button><label class="sr-only" for="month">Месяц бюджета</label><input id="month" type="month" min="2000-01" max="2100-12"><button data-action="next-month" class="icon-button" aria-label="Следующий месяц">›</button></div><button class="button primary" data-action="add-expense"><span aria-hidden="true">＋</span> Добавить расход</button></div></div>
+    <div id="connection-notice" role="status"></div>
+    <main id="main" tabindex="-1"><div class="empty glass">Загружаем ваш бюджет…</div></main>
+    <footer class="page-footer"><span>Ваш бюджет. Ваш ритм.</span><span>Budget Control 1.0</span></footer>
+  </div>
+  <dialog id="editor" aria-labelledby="dialog-title"><form id="editor-form"><header class="dialog-header"><div><p class="eyebrow">BUDGET CONTROL</p><h2 id="dialog-title"></h2></div><button type="button" data-action="close-dialog" class="icon-button" aria-label="Закрыть">×</button></header><div id="dialog-fields"></div><p id="form-error" role="alert" class="form-error"></p><footer class="dialog-footer"><button type="button" class="button secondary" data-action="close-dialog">Отмена</button><button type="submit" class="button primary" id="save-button">Сохранить</button></footer></form></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <noscript><p class="empty">Для работы Budget Control включите JavaScript в браузере.</p></noscript>
+</body>
+</html>

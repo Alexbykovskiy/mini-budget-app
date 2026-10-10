@@ -2,16 +2,8 @@
 // вставь сюда свой firebaseConfig
 
 // firebaseConfig.js
-const firebaseConfig = {
-  apiKey: "AIzaSyBzHEcrGfwek6FzguWbSGSfMgebMy1sBe8",
-  authDomain: "minibudget-4e474.firebaseapp.com",
-  projectId: "minibudget-4e474",
-  storageBucket: "minibudget-4e474.appspot.com",
-  messagingSenderId: "306275735842",
-  appId: "1:306275735842:web:740615c23059e97cd36d7b"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+// Firebase is initialized once by shared/auth.js.
+const db = MyApps.db();
 
 // Загрузка студий из Firestore
 async function loadStudios() {
@@ -2112,7 +2104,7 @@ function renderExpenseBreakdownList(expenses = []) {
 }
 
 
-window.addEventListener('DOMContentLoaded', async () => {
+MyApps.ready(async () => {
   await loadStudios();
 fillFilterStudios();
   await loadTrips();

@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="my-apps-locked" data-owner-app>
 <head>
+  <style>html.my-apps-locked body > :not(#my-apps-auth):not(script):not(style):not(link) { display:none !important; }</style>
+  <link rel="stylesheet" href="../shared/auth.css">
+  <script src="../shared/firebase-config.js" defer></script>
+  <script src="../shared/owner-access.js" defer></script>
+  <script src="../shared/auth.js" defer></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Конверты бюджета</title>
 <link rel="stylesheet" href="envelopes-style.css">
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
   <div class="background-fixed"></div>
@@ -111,7 +114,7 @@
         </a>
   </nav>
 
-  <script src="envelopes-app.js"></script>
+  <script type="application/x-my-apps" data-owner-src="envelopes-app.js"></script>
 
 
 <div id="floating-pill" class="floating-pill">

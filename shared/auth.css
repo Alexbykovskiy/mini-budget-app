@@ -1,0 +1,14 @@
+html.my-apps-locked body > :not(#my-apps-auth):not(script):not(style):not(link) { display: none !important; }
+#my-apps-auth { position: fixed; inset: 0; z-index: 2147483647; display: grid; place-items: center; padding: max(24px, env(safe-area-inset-top)) 24px; background: #eef1ed; color: #202b28; font: 16px/1.5 system-ui, sans-serif; box-sizing: border-box; }
+#my-apps-auth .auth-card { width: min(100%, 430px); padding: 32px; box-sizing: border-box; border: 1px solid #fff; border-radius: 28px; background: #ffffffda; box-shadow: 0 20px 80px #203b2820; }
+#my-apps-auth h1 { font: 700 30px/1.15 system-ui, sans-serif; margin: 12px 0; }
+#my-apps-auth p { margin: 12px 0; }
+#my-apps-auth button, #my-apps-account button { border: 0; border-radius: 16px; padding: 14px 18px; font: 600 15px system-ui, sans-serif; color: #28251d; background: #ffa35c; cursor: pointer; min-height: 44px; }
+#my-apps-auth button:disabled { opacity: .5; cursor: wait; }
+#my-apps-auth button { margin: 6px 6px 0 0; }
+#my-apps-auth button:focus-visible, #my-apps-account button:focus-visible { outline: 3px solid #245e50; outline-offset: 3px; }
+#my-apps-auth a { color: #315f51; }
+#my-apps-auth [hidden], #my-apps-auth[hidden], #my-apps-account[hidden] { display: none !important; }
+#my-apps-account { position: fixed; right: max(12px, env(safe-area-inset-right)); bottom: calc(84px + env(safe-area-inset-bottom)); z-index: 10000; }
+#my-apps-account button { background: #243e35; color: white; padding: 10px 14px; font-size: 13px; box-shadow: 0 4px 20px #0002; }
+@media (prefers-color-scheme: dark) { #my-apps-auth { background: #16221e; color: #f4f5ee; } #my-apps-auth .auth-card { background: #22352e; border-color: #ffffff20; } #my-apps-auth a { color: #b9d9c9; } }

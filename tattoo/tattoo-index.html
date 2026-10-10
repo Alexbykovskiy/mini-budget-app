@@ -1,6 +1,11 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="my-apps-locked" data-owner-app>
 <head>
+  <style>html.my-apps-locked body > :not(#my-apps-auth):not(script):not(style):not(link) { display:none !important; }</style>
+  <link rel="stylesheet" href="../shared/auth.css">
+  <script src="../shared/firebase-config.js" defer></script>
+  <script src="../shared/owner-access.js" defer></script>
+  <script src="../shared/auth.js" defer></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tattoo Финансы</title>
@@ -403,13 +408,9 @@
     </span>
   </a>
 </div>
-
-
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-<script src="tattoo-app.js"></script>
+<script type="application/x-my-apps" data-owner-src="tattoo-app.js"></script>
 
 <div id="calendar-toast"
      style="display:none; position:fixed; left:50%; top:18%; transform:translate(-50%,0); z-index:999999 !important; min-width:230px; max-width:80vw; background:rgba(32,37,43,0.93); color:#fff; font-size:1.14em; border-radius:16px; box-shadow:0 6px 32px rgba(0,0,0,0.14); padding:19px 26px; text-align:center; opacity:0; transition:opacity 0.27s;">

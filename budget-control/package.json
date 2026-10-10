@@ -1,0 +1,15 @@
+{
+  "name": "budget-control",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node dev-server.mjs",
+    "test": "node --test tests/core.test.mjs tests/store.test.mjs tests/auth-guard.test.mjs",
+    "test:browser": "node tests/browser.mjs",
+    "test:rules": "firebase emulators:exec --project demo-budget-control --only firestore \"node --test tests/rules-ecosystem.test.mjs\"",
+    "test:auth": "node tests/auth-browser.mjs",
+    "test:emulators": "firebase emulators:start --project demo-budget-control --only auth,firestore"
+  },
+  "devDependencies": { "@firebase/rules-unit-testing": "^5.0.0", "firebase": "^12.19.0", "firebase-tools": "^14.0.0", "playwright": "^1.62.1" }
+}

@@ -1,6 +1,11 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" class="my-apps-locked" data-owner-app>
 <head>
+  <style>html.my-apps-locked body > :not(#my-apps-auth):not(script):not(style):not(link) { display:none !important; }</style>
+  <link rel="stylesheet" href="../shared/auth.css">
+  <script src="../shared/firebase-config.js" defer></script>
+  <script src="../shared/owner-access.js" defer></script>
+  <script src="../shared/auth.js" defer></script>
 <meta name="robots" content="noindex, nofollow">
 
   <meta charset="utf-8" />
@@ -823,9 +828,6 @@
 
 
   <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore-compat.js"></script>
 
 <!-- Google Identity Services (для бесшумного обновления access_token) -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -833,11 +835,11 @@
   <!-- Google API (Drive) -->
   <script src="https://apis.google.com/js/api.js"></script>
   <!-- Твой конфиг Firebase -->
-  <script src="./firebase-config.js"></script>
+  <script type="application/x-my-apps" data-owner-src="./firebase-config.js"></script>
 
   <!-- Модуль для работы с Google Drive -->
- <script src="./drive.js"></script>
-<script src="calendar.js"></script>
+ <script type="application/x-my-apps" data-owner-src="./drive.js"></script>
+<script type="application/x-my-apps" data-owner-src="calendar.js"></script>
 
 <!-- Chart.js для графика лидов -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -847,7 +849,7 @@
 
 
 
-<script src="./app.js"></script>
+<script type="application/x-my-apps" data-owner-src="./app.js"></script>
 </div> <!-- .container -->
 <!-- Confirm dialog (универсальный) -->
 <dialog id="confirmDialog" class="glass" style="border:none; border-radius:16px; padding:16px; max-width:360px">

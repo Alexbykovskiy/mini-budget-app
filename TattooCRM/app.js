@@ -119,20 +119,7 @@ async function testIndexedDB(timeout = 800) {
 }
 
 async function ensureAuthPersistence() {
-  // Если IndexedDB недоступен/тормозит (часто на iOS/Safari) — используем SESSION
-  const idbOk = await testIndexedDB(800);
-  const isAppleTouch =
-    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
-  const useSession = isAppleTouch && !idbOk;
-  const mode = useSession ? firebase.auth.Auth.Persistence.SESSION
-                          : firebase.auth.Auth.Persistence.LOCAL;
-
-  await FB.auth.setPersistence(mode);
-  try {
-    BOOT.set(1, 'ok', useSession ? 'Auth: SESSION (iOS/IDB slow)' : 'Auth: LOCAL');
-  } catch(_) {}
+  MyApps.requireOwner(); // Shared Firebase LOCAL persistence is already configured.
 }
 
 // --- Env flags (Safari / A2HS) ---
@@ -170,7 +157,7 @@ let driveReady = false;
 // ---------- Init ----------
 // ---------- Init ----------
 // ---------- Init ----------
-window.addEventListener('DOMContentLoaded', async () => {
+MyApps.ready(async () => {
   // boot: DOM
   try { BOOT.show(); BOOT.set(0,'ok'); } catch(_) {}
 
@@ -297,7 +284,7 @@ FB.auth.onAuthStateChanged(async (user) => {
   // boot: проверка сессии
   try { BOOT.set(2,'ok', user ? 'Найдена активная сессия' : 'Гость (нет сессии)'); } catch(_) {}
 
- if (user) {
+ if (user?.uid === MyApps.config.ownerUid) {
   currentUser = user;
   setDeviceTrusted(user);
   touchDeviceTrust();
@@ -438,49 +425,8 @@ function bindHeader(){
 }
 // ---------- Onboarding ----------
 function bindOnboarding() {
-  // 1) Обработка результата redirect — вызывается при каждом заходе на страницу
-  FB.auth.getRedirectResult()
-    .then(async (cred) => {
-      if (!cred || !cred.user) return;        // redirect ещё не выполнялся
-      await afterLogin(cred);
-    })
-    .catch((e) => {
-      console.error('redirect result error', e);
-      toast('Ошибка инициализации после входа');
-    });
-
-  // 2) Клик по кнопке «Войти через Google» — пробуем POPUP, при неудаче уходим в REDIRECT
-  const btn = document.getElementById('bootstrapBtn'); // см. id в index.html :contentReference[oaicite:1]{index=1}
-  if (!btn) return;
-
-  btn.addEventListener('click', async () => {
-    try {
-      const provider = new firebase.auth.GoogleAuthProvider();
-
-      provider.addScope('profile');
-      provider.addScope('email');
-     provider.addScope('https://www.googleapis.com/auth/drive.file');
-provider.addScope('https://www.googleapis.com/auth/calendar');       // ← добавили
-provider.addScope('https://www.googleapis.com/auth/calendar.events'); // можно оставить
-      // Сначала POPUP (быстрее и без перезагрузки)
-      const cred = await FB.auth.signInWithPopup(provider);
-      await afterLogin(cred);
-
-    } catch (e) {
-      // Частые коды: auth/popup-blocked, auth/popup-closed-by-user, auth/cancelled-popup-request
-      console.warn('popup auth failed, fallback to redirect', e?.code || e);
-
-      const provider = new firebase.auth.GoogleAuthProvider();
-      provider.addScope('profile');
-      provider.addScope('email');
-      provider.addScope('https://www.googleapis.com/auth/drive.file');
-provider.addScope('https://www.googleapis.com/auth/calendar');
-provider.addScope('https://www.googleapis.com/auth/calendar.events');
-
-      // Редирект — после возврата сработает getRedirectResult() выше
-      await FB.auth.signInWithRedirect(provider);
-    }
-  });
+  const btn = document.getElementById("bootstrapBtn");
+  if (btn) btn.addEventListener("click", () => MyApps.signIn());
 }
 
 // Инициализация Google Calendar (через уже полученный токен Drive)
@@ -488,7 +434,11 @@ async function initCalendarStack({ forceConsent = false } = {}) {
   try {
     // 1) Получаем/обновляем access_token с расширенными scope
     const token = await ensureDriveAccessToken({ forceConsent });
-    if (!token) throw new Error('no google access token');
+    if (!token) {
+      const status = document.querySelector('#calStatus');
+      if (status) status.textContent = 'Calendar: подключите Google Drive';
+      return;
+    }
 
     // 2) Отдаём токен модулю calendar.js
     TCRM_Calendar.setAuthToken(token);
@@ -1166,7 +1116,7 @@ async function renderFullCalendar() {
 
   try {
     const token = await ensureDriveAccessToken({ forceConsent: false });
-    if (!token) throw new Error('Нет токена');
+    if (!token) { box.innerHTML = '<div class="subtle">Подключите Google Drive кнопкой в шапке для работы с календарём.</div>'; return; }
     TCRM_Calendar.setAuthToken(token);
 
     const calId = await TCRM_Calendar.ensureCalendarId('Tattoo CRM');
@@ -1239,7 +1189,7 @@ async function syncReminderToCalendar(rem) {
 
   try {
     const token = await ensureDriveAccessToken({ forceConsent: false });
-    if (!token) throw new Error('no token');
+    if (!token) { el.innerHTML = '<div class="subtle">Подключите Google Drive кнопкой в шапке для работы с календарём.</div>'; return; }
     TCRM_Calendar.setAuthToken(token);
 
     const calId = await TCRM_Calendar.ensureCalendarId('Tattoo CRM');
@@ -4368,7 +4318,7 @@ function renderSupplies(){
 function bindSettings(){
   $('#saveSettingsBtn').addEventListener('click', saveSettings);
   $('#logoutBtn').addEventListener('click', ()=>{
-    FB.auth.signOut();
+    MyApps.signOut();
     toast('Вы вышли из аккаунта');
     location.reload();
 });
@@ -4431,13 +4381,16 @@ function initGISTokenClient() {
  * - Если прав ещё не было — можно вызвать с forceConsent=true в момент первого входа.
  */
 function ensureDriveAccessToken({ forceConsent = false } = {}) {
+  MyApps.requireOwner();
   return new Promise((resolve, reject) => {
     const needsRefresh = !driveAccessToken || Date.now() > (driveTokenExpTs - 60_000);
     if (!needsRefresh) return resolve(driveAccessToken);
 
+    if (!forceConsent && !driveAccessToken) return resolve(null);
     initGISTokenClient();
 
     gisTokenClient.callback = (resp) => {
+      MyApps.requireOwner();
       if (resp && resp.access_token) {
         driveAccessToken = resp.access_token;
         // expires_in обычно ~3600 с; поставим запас -60 с
@@ -4464,6 +4417,13 @@ return resolve(driveAccessToken);
 }
 
 async function initDriveStack({ forceConsent = false } = {}) {
+  MyApps.requireOwner();
+  if (!forceConsent && !driveAccessToken) {
+    const status = document.querySelector('#driveStatus');
+    if (status) status.textContent = 'Drive: подключите кнопкой в шапке';
+    try { BOOT.set(5, 'err', 'Drive подключается отдельно'); } catch (_) {}
+    return;
+  }
   try{
     // 3) GIS
     await waitFor(() => window.google && google.accounts && google.accounts.oauth2);
@@ -4521,28 +4481,14 @@ driveReady = true;
 }
 
 
-// Храним Google Drive access_token локально (на один час примерно)
+// OAuth tokens stay in memory and are requested through Google Identity Services.
 function saveAccessToken(token, ttlSeconds = 3600) {
-  try {
-    const data = {
-      token,
-      exp: Date.now() + ttlSeconds * 1000
-    };
-    localStorage.setItem('gAccessToken', JSON.stringify(data));
-  } catch (e) { /* ignore */ }
+  MyApps.requireOwner();
+  driveAccessToken = token; driveTokenExpTs = Date.now() + ttlSeconds * 1000;
 }
-
 function getSavedAccessToken() {
-  try {
-    const raw = localStorage.getItem('gAccessToken');
-    if (!raw) return null;
-    const data = JSON.parse(raw);
-    if (!data?.token || !data?.exp) return null;
-    if (Date.now() > data.exp) return null; // протух
-    return data.token;
-  } catch (e) {
-    return null;
-  }
+  MyApps.requireOwner();
+  return driveTokenExpTs > Date.now() ? driveAccessToken : null;
 }
 
 // --- Trusted device (моментальный старт) ---
@@ -5065,7 +5011,7 @@ async function mkFetchClientsFallback() {
   if (window.AppState?.clients && Array.isArray(AppState.clients)) return AppState.clients;
 
   try {
-    const db = firebase?.firestore?.();
+    const db = MyApps.db();
     if (db) {
       const snap1 = await db.collection('TattooCRM').doc('app').collection('clients').get();
       if (!snap1.empty) return snap1.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -5852,7 +5798,10 @@ if (elLead && typeof Chart === 'function') {
   const spentSk = byCountry('slovak');   // Slovakia
   const spentAt = byCountry('austr');    // Austria
 
-  new Chart(document.getElementById('mk-chart-costs'), {
+  const costsCanvas = document.getElementById('mk-chart-costs');
+  if (costsCanvas && typeof Chart === 'function') {
+  MK_SUMMARY_COSTS?.destroy();
+  MK_SUMMARY_COSTS = new Chart(costsCanvas, {
     type: 'doughnut',
     data: {
       labels: ['Всего', 'Словакия', 'Австрия'],
@@ -5863,10 +5812,11 @@ if (elLead && typeof Chart === 'function') {
     },
     options: { plugins: { legend: { position: 'bottom' } }, cutout:'65%' }
   });
+  }
 }
 
 // Инициализация карточек
-document.addEventListener('DOMContentLoaded', async () => {
+MyApps.ready(async () => {
   try {
     MK_CLIENTS_CACHE = await mkFetchClientsFallback();
 mkBindCostsForm();
