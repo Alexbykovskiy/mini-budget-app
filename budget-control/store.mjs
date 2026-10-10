@@ -1,5 +1,5 @@
 import { initialSettings } from './seed.mjs';
-import { executeCommand, initialize, stamp } from './commands.mjs';
+import { executeCommand, initialize, paymentKey, stamp } from './commands.mjs';
 import { SOURCE_DEFINITIONS, adaptSnapshot } from './adapters.mjs';
 
 export const LOCAL_KEY = 'budget-control.local.v1';
@@ -54,7 +54,19 @@ export class CloudStore {
   }
   async command(command) {
     if (globalThis.navigator?.onLine === false) throw new Error('Для облачной записи нужен интернет. Изменения ещё не сохранены.');
-    return this.transaction(tx => executeCommand(tx, command));
+    try {
+      return await this.transaction(tx => executeCommand(tx, command));
+    } catch (error) {
+      if (command.type !== 'pay' || error.code !== 'permission-denied') throw error;
+      // A competing confirmation can create immutable history before this
+      // commit reaches Rules. Verify the winning payment with a fresh, read-only
+      // transaction; never relax history protection or repeat a denied write.
+      return this.transaction(async tx => {
+        const saved = await tx.get('payments', paymentKey(command.id, command.dueDate));
+        if (!saved || saved.recurringId !== command.id || saved.dueDate !== command.dueDate) throw error;
+        return { alreadyPaid: true };
+      });
+    }
   }
   listen(key, query, convert) {
     this.unsubscribers.get(key)?.();

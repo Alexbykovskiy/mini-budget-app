@@ -93,3 +93,35 @@ test('source snapshots from cache stay explicitly incomplete, including empty ca
   assert.equal(events.at(-1).status.state, 'ready'); assert.ok(events.at(-1).status.lastSuccess);
   cloud.stop();
 });
+
+test('CloudStore recognizes a competing payment only after a fresh matching history read', async () => {
+  const store = new CloudStore({}, {}, 'owner');
+  const denied = Object.assign(new Error('Denied immutable overwrite'), { code: 'permission-denied' });
+  let calls = 0;
+  store.transaction = async callback => {
+    if (++calls === 1) throw denied;
+    return callback({ get: async (table, id) => {
+      assert.equal(table, 'payments'); assert.equal(id, 'rent_2026-01-31');
+      return { recurringId: 'rent', dueDate: '2026-01-31' };
+    } });
+  };
+  assert.deepEqual(await store.command({ type: 'pay', id: 'rent', dueDate: '2026-01-31' }), { alreadyPaid: true });
+  assert.equal(calls, 2);
+});
+
+test('CloudStore propagates real denial, unrelated payment history and other command failures', async () => {
+  const denied = Object.assign(new Error('Denied'), { code: 'permission-denied' });
+  for (const saved of [undefined, { recurringId: 'other', dueDate: '2026-01-31' }, { recurringId: 'rent', dueDate: '2026-02-28' }]) {
+    const store = new CloudStore({}, {}, 'owner'); let calls = 0;
+    store.transaction = async callback => ++calls === 1 ? Promise.reject(denied) : callback({ get: async () => saved });
+    await assert.rejects(store.command({ type: 'pay', id: 'rent', dueDate: '2026-01-31' }), error => error === denied);
+    assert.equal(calls, 2);
+  }
+  for (const [type, code] of [['operation', 'permission-denied'], ['pay', 'unavailable']]) {
+    const store = new CloudStore({}, {}, 'owner'); let calls = 0;
+    const error = Object.assign(new Error('Failure'), { code });
+    store.transaction = async () => { calls++; throw error; };
+    await assert.rejects(store.command({ type, id: 'rent', dueDate: '2026-01-31' }), result => result === error);
+    assert.equal(calls, 1);
+  }
+});
